@@ -1,0 +1,72 @@
+import Carousel from "./Carousel.jsx";
+import {Stack} from "@mui/material";
+import MusicNoteOutlinedIcon from '@mui/icons-material/MusicNoteOutlined';
+import FastfoodOutlinedIcon from '@mui/icons-material/FastfoodOutlined';
+import BusinessOutlinedIcon from '@mui/icons-material/BusinessOutlined';
+import HealthAndSafetyOutlinedIcon from '@mui/icons-material/HealthAndSafetyOutlined';
+import DiamondOutlinedIcon from '@mui/icons-material/DiamondOutlined';
+import VideoCallOutlinedIcon from '@mui/icons-material/VideoCallOutlined';
+import SportsGymnasticsOutlinedIcon from '@mui/icons-material/SportsGymnasticsOutlined';
+import BeachAccessOutlinedIcon from '@mui/icons-material/BeachAccessOutlined';
+import "../styles/attendee-hero.css"
+
+function AttendeeHero() {
+    const images = [
+        {
+            imgURL:
+                "https://cdn.evbstatic.com/s3-build/fe/build/images/427ab8dca801f117ae14301b994842b2-nye_citybrowse_desktop.webp",
+            imgAlt: "img-1"
+        },
+        {
+            imgURL:
+                "https://cdn.evbstatic.com/s3-build/fe/build/images/38704ac58762310b375e6fed15bef2f5-nye_category_desktop.webp",
+            imgAlt: "img-2"
+        },
+        {
+            imgURL:
+                "https://cdn.evbstatic.com/s3-build/fe/build/images/f55095eaf945235b290443c5c0827da1-nye_nightlife_desktop.webp",
+            imgAlt: "img-3"
+        },
+        {
+            imgURL: "https://4kwallpapers.com/images/wallpapers/lisa-frankenstein-2560x1080-14961.jpg",
+            imgAlt: "img-4"
+        },
+    ];
+
+    const eventGenres = [
+        {label: "Music", icon: <MusicNoteOutlinedIcon sx={{fontSize: '3rem'}}/>},
+        {label: "Food & Drink", icon: <FastfoodOutlinedIcon sx={{fontSize: '3rem'}}/>},
+        {label: "Business", icon: <BusinessOutlinedIcon sx={{fontSize: '3rem'}}/>},
+        {label: "Health", icon: <HealthAndSafetyOutlinedIcon sx={{fontSize: '3rem'}}/>},
+        {label: "Fashion", icon: <DiamondOutlinedIcon sx={{fontSize: '3rem'}}/>},
+        {label: "Film & Media", icon: <VideoCallOutlinedIcon sx={{fontSize: '3rem'}}/>},
+        {label: "Hobbies", icon: <SportsGymnasticsOutlinedIcon sx={{fontSize: '3rem'}}/>},
+        {label: "Travel & Outdoor", icon: <BeachAccessOutlinedIcon sx={{fontSize: '3rem'}}/>}
+    ]
+
+    return (
+        <Stack className={'attendee-hero'} rowGap={'2rem'}>
+            <Carousel>
+                {images.map((image, index) => {
+                    return <img key={index} src={image.imgURL} alt={image.imgAlt} />;
+                })}
+            </Carousel>
+            <Stack direction={'row'} justifyContent={'space-between'} flexGrow={1} alignItems={'center'}
+                style={{borderBottom: '1px solid gray'}}
+            >
+                {eventGenres.map((genre, index) => {
+                    return (
+                        <Stack key={index} className={'attendee-hero__event-genre'}>
+                            <div className={'attendee-hero__event-genre__icon-wrapper'}>
+                                {genre.icon}
+                            </div>
+                            <p>{genre.label}</p>
+                        </Stack>
+                    )
+                })}
+            </Stack>
+        </Stack>
+    )
+}
+
+export default AttendeeHero;

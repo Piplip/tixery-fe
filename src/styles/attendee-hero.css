@@ -1,0 +1,44 @@
+.attendee-hero{
+    height: 100dvh;
+    padding: 5rem 7.5%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #ffffff;
+    background-image: radial-gradient(#000000 2px, transparent 2px), radial-gradient(#000000 2px, #ffffff 2px);
+    background-size: 80px 80px;
+    background-position: 0 0,40px 40px;
+}
+.attendee-hero__event-genre__icon-wrapper{
+    border: 1px solid gray;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 7rem;
+    height: 7rem;
+    background-color: white;
+}
+.attendee-hero__event-genre{
+    flex-direction: column;
+    text-align: center;
+    row-gap: .75rem;
+}
+.attendee-hero__event-genre > p{
+    font-size: .75rem;
+    font-family: "Bookman Old Style", sans-serif;
+}
+.attendee-hero__event-genre:hover{
+    div {
+        background-color: rgba(255, 235, 235, 0.8);
+        border-color: #e00;
+    }
+
+    p {
+        color: #800000;
+    }
+
+    div > svg {
+        fill: #ff0000;
+    }
+}

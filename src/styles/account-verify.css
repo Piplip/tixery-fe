@@ -1,0 +1,53 @@
+.account-verify-container{
+    display: flex;
+    width: 100%;
+    height: 100dvh;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(243, 243, 243, 0.29);
+    background-image: radial-gradient(#000000 2px, transparent 2px), radial-gradient(#000000 2px, #ffffff 2px);
+    background-size: 80px 80px;
+    background-position: 0 0,40px 40px;
+    font-family: "Leelawadee UI", sans-serif;
+}
+.account-verify__success{
+    align-items: center;
+    border: 4px solid green;
+    padding: 3rem 4rem 1rem;
+    background: linear-gradient(to top, #82ff5f, #f9f9f9);
+    border-radius: 1rem;
+}
+.account-verify__failed{
+    align-items: center;
+    border: 4px solid red;
+    padding: 3rem 4rem;
+    background: linear-gradient(to top, #ff5f5f, #f9f9f9);
+    border-radius: 1rem;
+}
+.account-verify button{
+    color: #fff8f8;
+    background-color: black;
+    padding: .5rem 1rem;
+    border-radius: .5rem;
+    margin-top: 1rem;
+    font-family: Candara, sans-serif;
+}
+.account-verify button:hover{
+    cursor: pointer;
+}
+.account-verify > img{
+    margin-bottom: 2rem;
+}
+/* HTML: <div class="loader"></div> */
+.loader__02 {
+    width: 15px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #ffffff;
+    -webkit-mask: radial-gradient(circle closest-side at 50% 40%,#0000 94%, #000);
+    transform-origin: 50% 40%;
+    animation: l25 1s infinite linear;
+}
+@keyframes l25 {
+    100% {transform: rotate(1turn)}
+}

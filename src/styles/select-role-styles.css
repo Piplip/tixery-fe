@@ -1,0 +1,70 @@
+.select-role-container{
+    background-image: url("../assets/interest-background.webp");
+    width: 100%;
+    height: 100dvh;
+    background-size: cover;
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding-bottom: 2rem;
+    text-align: center;
+}
+.select-role-container__logo{
+    position: absolute;
+    left: 2rem;
+    top: 1.5rem;
+}
+.select-role-title{
+    font-size: 3.5rem;
+    font-weight: bold;
+    font-family: 'Poppins', sans-serif;
+    margin-bottom: 1rem;
+    background-color: rgba(239, 239, 239, 0.25);
+    padding-inline: 5rem;
+    backdrop-filter: blur(10px);
+}
+.select-role-description{
+    font-size: 1.5rem;
+    font-family: Leelawadee, sans-serif;
+    margin-bottom: 2rem;
+}
+.role-card-container, .role-card{
+    transition: all 0.5s;
+}
+.role-card{
+    background-color: #fffafa;
+    padding: 2rem 3rem;
+    display: flex;
+    flex-direction: column;
+    row-gap: 1rem;
+    align-items: center;
+    border-radius: .5rem;
+    border: 2px solid red;
+}
+.role-card > img{
+    width: 250px;
+    aspect-ratio: 1;
+    object-fit: cover;
+}
+.role-card > p{
+    font-size: 1.75rem;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 1rem;
+}
+.role-card > button{
+    border: 2px solid red;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    background-color: transparent;
+    border-radius: .25rem;
+}
+.role-card-container:hover .role-card:not(:hover) {
+    filter: grayscale(100%) blur(2px);
+}
+.role-card > button:hover{
+    background-color: red;
+    color: white;
+}
