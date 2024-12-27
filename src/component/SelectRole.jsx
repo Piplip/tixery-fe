@@ -4,10 +4,24 @@ import {Stack} from "@mui/material";
 import EventOrganizer from "../assets/event-organizer.png"
 import Attendee from "../assets/event-attendee.png"
 import Vendor from "../assets/vendor-supplier.png"
-import {Link} from "react-router-dom";
+import {Link, useLocation, useNavigate} from "react-router-dom";
+import accountAxios from "../config/axiosConfig.js";
 
 function SelectRole(){
-    // TODO: Implement set up user data for attendee
+    const navigate = useNavigate()
+    const location = useLocation()
+
+    function createSetUpRequest(){
+        const uid = location.search.split('=')[1]
+        if(uid === undefined){
+            return
+        }
+        accountAxios.post('/profile/setup?uid=' + uid)
+            .then(res => {
+                navigate('info?rid=' + res.data.data.requestID)
+            })
+            .catch(err => console.log(err))
+    }
 
     return (
         <div className={'select-role-container'}>
@@ -16,7 +30,7 @@ function SelectRole(){
             </Link>
             <Stack>
                 <p className={'select-role-title'}>Welcome to Tixery! 👋</p>
-                <p className={'select-role-description'}>Let's get started by selecting your interests</p>
+                <p className={'select-role-description'}>Let&#39;s get started by selecting your interests</p>
             </Stack>
             <Stack direction={'row'} columnGap={'3rem'} className={'role-card-container'}>
                 <Link to={'/organizer'}>
@@ -26,13 +40,11 @@ function SelectRole(){
                         <button>Plan your best event ever</button>
                     </div>
                 </Link>
-                <Link to={'info'}>
-                    <div className={'role-card'}>
-                        <img src={Attendee} alt={'event-attendee'}/>
-                        <p>Find an experience</p>
-                        <button>Tell us what you love</button>
-                    </div>
-                </Link>
+                <div className={'role-card'} onClick={createSetUpRequest}>
+                    <img src={Attendee} alt={'event-attendee'}/>
+                    <p>Find an experience</p>
+                    <button onClick={createSetUpRequest}>Tell us what you love</button>
+                </div>
                 <Link to={'/vendor'}>
                     <div className={'role-card'}>
                         <img src={Vendor} alt={'vendor supplier'}/>
