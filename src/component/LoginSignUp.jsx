@@ -1,9 +1,19 @@
 import '../styles/login-page-styles.css'
 import Logo from "../assets/logo.svg"
 import {Form, Formik} from "formik";
-import {Button, FormGroup, FormHelperText, IconButton, InputAdornment, Stack, TextField} from "@mui/material";
+import {
+    Alert,
+    Button,
+    FormGroup,
+    FormHelperText,
+    IconButton,
+    InputAdornment,
+    Snackbar,
+    Stack,
+    TextField
+} from "@mui/material";
 import {useState} from "react";
-import {Link, useLocation} from "react-router-dom";
+import {Link, useLocation, useNavigate} from "react-router-dom";
 import * as Yup from "yup";
 import FacebookIcon from "../assets/facebook.png"
 import GoogleIcon from "../assets/google.png"
@@ -18,6 +28,7 @@ function LoginSignUp(){
     const [emailExist, setEmailExist] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
     const [showSuccessLogin, setShowSuccessLogin] = useState(false)
+    const navigate = useNavigate()
 
     const schema = Yup.object().shape({
         email: Yup.string()
@@ -59,9 +70,10 @@ function LoginSignUp(){
             password: data.password
         }).then(res => {
             setAwaitResponse(false)
-            resetForm()
-            alert(res.data.message)
             setShowSuccessLogin(true)
+            resetForm()
+            localStorage.setItem("tk", res.data.data)
+            setTimeout(() => navigate('/'), 2000)
         }).catch(err => {
             console.log(err)
             setAwaitResponse(false)
@@ -85,11 +97,18 @@ function LoginSignUp(){
         }
     }
 
-    // TODO: Complete login function
     // TODO: Allow login/signup with Google and Facebook
 
     return (
         <div className={'login-page'}>
+            <Snackbar
+                anchorOrigin={{vertical: 'top', horizontal: 'right'}}
+                open={showSuccessLogin}
+            >
+                <Alert severity="success" variant="filled" sx={{ width: '100%' , backgroundColor: '#15b231'}}>
+                    Login successful! Redirecting...
+                </Alert>
+            </Snackbar>
             <div className={'login-page__img-wrapper'}>
                 <img className={'login-page__img'}
                     src={'https://preview.redd.it/arcane-season-2-fanart-poster-v0-1b1syno6q8qd1.jpeg?width=1080&crop=smart&auto=webp&s=62c457f3dca468d3d6fc9515d40625dd72b5d0b0'} alt={'login-page-img'} />
@@ -125,7 +144,6 @@ function LoginSignUp(){
                                                if(isSignUpPage)
                                                    checkEmailExist(e.target.value)
                                            }}
-                                           autoFocus
                                            onBlur={handleBlur}
                                            value={values.email}
                                            error={(touched.email && Boolean(errors.email)) || (isSignUpPage && emailExist)}
