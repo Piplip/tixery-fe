@@ -24,15 +24,14 @@
     border-right: 1px solid;
 }
 .top-nav-input-container__input{
-
     min-width: 15rem;
     margin-left: 5px;
 }
 .top-nav-container__nav-links-container > div{
-    padding: 8px 15px;
-    border-radius: 15px;
+    padding-inline: 1rem;
+    border-radius: 10px;
 }
-.top-nav-container__nav-links-container > div:hover{
+.top-nav-container__nav-links-container > div:hover:not(:last-child){
     background-color: #dddddd;
 }
 .top-nav__search-btn{

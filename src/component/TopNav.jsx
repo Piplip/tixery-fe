@@ -4,16 +4,24 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import {Stack} from "@mui/material";
 import "../styles/top-nav-styles.css"
 import {Link} from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import {hasRole, isLoggedIn} from "../common/Utilities.js";
+import LoggedInUserNav from "./LoggedInUserNav.jsx";
 
 function TopNav(){
     const navLinks = [
-        {title: 'Find Events', link: '/events'},
-        {title: 'Create Events', link: '/organizer'},
-        {title: 'For Supplier', link: '/about'},
-        {title: 'Help Center', link: '/help'},
-        {title: 'Log In', link: '/login'},
-        {title: 'Sign Up', link: '/sign-up'}
+        {title: 'Find Events', link: '/events', roles: ['attendee'], public: true},
+        {title: 'Likes', link: '/events/liked', roles: ['attendee']},
+        {title: 'Tickets', link: '/tickets', roles: ['attendee']},
+        {title: 'Create Events', link: '/organizer', roles: ['organizer'], public: true},
+        {title: 'For Supplier', link: '/about', roles: ['supplier'], public: true},
+        {title: 'Help Center', link: '/help', roles: ['attendee', 'organizer', 'vendor'], public: true},
+        {title: 'Log In', link: '/login', roles: ['attendee', 'organizer', 'vendor'], hide: isLoggedIn(), public: true},
+        {title: 'Sign Up', link: '/sign-up', roles: ['attendee', 'organizer', 'vendor'], hide: isLoggedIn(), public: true},
     ]
+    if(localStorage.getItem('tk')){
+        console.log(jwtDecode(localStorage.getItem('tk')))
+    }
 
     return (
         <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}
@@ -35,11 +43,31 @@ function TopNav(){
                 </div>
             </Stack>
             <Stack direction={'row'} className={'top-nav-container__nav-links-container'} columnGap={'1rem'}>
-                {navLinks.map((item, index) => (
-                    <div key={index}>
-                        <Link to={item.link}>{item.title}</Link>
-                    </div>
-                ))}
+                {navLinks.map((item, index) => {
+                    if(isLoggedIn()){
+                        if(item.hide) return null
+                        else{
+                            if(hasRole(item.roles))
+                                return (
+                                    <Stack key={index} justifyContent={'center'}>
+                                        <Link to={item.link} className={'top-nav-container__nav-links-container__link'}>
+                                            {item.title}
+                                        </Link>
+                                    </Stack>
+                                )
+                        }
+                    }
+                    else if(item.public) {
+                            return (
+                                <Stack key={index} justifyContent={'center'}>
+                                    <Link to={item.link} className={'top-nav-container__nav-links-container__link'}>
+                                        {item.title}
+                                    </Link>
+                                </Stack>
+                            )
+                    }
+                })}
+                {isLoggedIn() && <LoggedInUserNav />}
             </Stack>
         </Stack>
     )
