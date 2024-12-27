@@ -1,0 +1,16 @@
+.user-collect-data-template-container{
+    width: 100%;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+}
+.user-collect-data-outlet-wrapper{
+    width: 100%;
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: repeating-linear-gradient(45deg, #16ff00 0, #16ff00 0.5px, transparent 0, transparent 50%);
+    background-size: 16px 16px;
+    background-color: #ffffff;
+}
