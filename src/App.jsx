@@ -6,6 +6,8 @@ import VerifyAccountFailed from "./component/VerifyAccountFailed.jsx";
 import SelectRole from "./component/SelectRole.jsx";
 import UserCollectDataTemplate from "./component/UserCollectDataTemplate.jsx";
 import AttendeeCollectnfo from "./component/AttendeeCollectnfo.jsx";
+import {LocalizationProvider} from "@mui/x-date-pickers";
+import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 
 function App() {
     const routers = createBrowserRouter([
@@ -24,7 +26,11 @@ function App() {
         }
     ])
 
-    return <RouterProvider router={routers} />
+    return (
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <RouterProvider router={routers} />
+        </LocalizationProvider>
+    )
 }
 
 export default App
