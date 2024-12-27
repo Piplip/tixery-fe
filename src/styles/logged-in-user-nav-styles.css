@@ -1,0 +1,30 @@
+.logged-in-user-nav{
+    position: relative;
+    border-radius: 0;
+}
+.logged-in-user-nav:hover{
+    border-radius: 0;
+    cursor: pointer;
+    .user-sub-nav{
+        visibility: visible;
+    }
+}
+.user-sub-nav{
+    visibility: hidden;
+    font-size: 16px;
+    font-family: "Leelawadee UI", sans-serif;
+    position: absolute;
+    background-color: white;
+    padding: .5rem 1rem;
+    width: 150%;
+    transform: translateX(-50%);
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+.user-sub-nav div{
+    padding: 0.5rem;
+    transition: background-color 0.15s ease-out;
+}
+.user-sub-nav div:hover{
+    background-color: #ffa8a8;
+    cursor: pointer;
+}
