@@ -97,7 +97,15 @@ function LoginSignUp(){
         }
     }
 
-    // TODO: Allow login/signup with Google and Facebook
+    function handleGoogleLogin(){
+        window.location.href = 'http://localhost:10000/accounts/oauth2/authorization/google'
+    }
+
+    function handleFacebookLogin(){
+        window.location.href = 'http://localhost:10000/accounts/oauth2/authorization/facebook'
+    }
+
+    // TODO: Add a Snackbar to show the login state
 
     return (
         <div className={'login-page'}>
@@ -218,13 +226,13 @@ function LoginSignUp(){
                                 <div>or</div>
                             </div>
                             <Stack rowGap={2}>
-                                <div className={'login-page__login-external'}>
+                                <div className={'login-page__login-external'} onClick={handleGoogleLogin}>
                                     <img width={'20px'} src={GoogleIcon} alt={'google-icon'}/>
-                                    <p>Sign in with Google</p>
+                                    <p>Sign {isSignUpPage ? 'up' : 'in'} with Google</p>
                                 </div>
-                                <div className={'login-page__login-external'}>
+                                <div className={'login-page__login-external'} onClick={handleFacebookLogin}>
                                     <img width={'20px'} src={FacebookIcon} alt={'facebook-icon'}/>
-                                    <p>Sign in with Facebook</p>
+                                    <p>Sign {isSignUpPage ? 'up' : 'in'} with Facebook</p>
                                 </div>
                             </Stack>
                             <Link onClick={() => {

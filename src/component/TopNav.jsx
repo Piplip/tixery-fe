@@ -4,11 +4,15 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import {Stack} from "@mui/material";
 import "../styles/top-nav-styles.css"
 import {Link} from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
-import {hasRole, isLoggedIn} from "../common/Utilities.js";
+import {hasRole, checkLoggedIn} from "../common/Utilities.js";
 import LoggedInUserNav from "./LoggedInUserNav.jsx";
+import * as PropsType from "prop-types";
 
-function TopNav(){
+TopNav.propTypes = {
+    isLoggedIn: PropsType.bool
+}
+
+function TopNav(props){
     const navLinks = [
         {title: 'Find Events', link: '/events', roles: ['attendee'], public: true},
         {title: 'Likes', link: '/events/liked', roles: ['attendee']},
@@ -16,12 +20,11 @@ function TopNav(){
         {title: 'Create Events', link: '/organizer', roles: ['organizer'], public: true},
         {title: 'For Supplier', link: '/about', roles: ['supplier'], public: true},
         {title: 'Help Center', link: '/help', roles: ['attendee', 'organizer', 'vendor'], public: true},
-        {title: 'Log In', link: '/login', roles: ['attendee', 'organizer', 'vendor'], hide: isLoggedIn(), public: true},
-        {title: 'Sign Up', link: '/sign-up', roles: ['attendee', 'organizer', 'vendor'], hide: isLoggedIn(), public: true},
+        {title: 'Log In', link: '/login', roles: ['attendee', 'organizer', 'vendor'], hide: checkLoggedIn(), public: true},
+        {title: 'Sign Up', link: '/sign-up', roles: ['attendee', 'organizer', 'vendor'], hide: checkLoggedIn(), public: true},
     ]
-    if(localStorage.getItem('tk')){
-        console.log(jwtDecode(localStorage.getItem('tk')))
-    }
+
+    // TODO: Fix UI when user login with google, not display navigation
 
     return (
         <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}
@@ -44,7 +47,7 @@ function TopNav(){
             </Stack>
             <Stack direction={'row'} className={'top-nav-container__nav-links-container'} columnGap={'1rem'}>
                 {navLinks.map((item, index) => {
-                    if(isLoggedIn()){
+                    if(checkLoggedIn()){
                         if(item.hide) return null
                         else{
                             if(hasRole(item.roles))
@@ -67,7 +70,7 @@ function TopNav(){
                             )
                     }
                 })}
-                {isLoggedIn() && <LoggedInUserNav />}
+                {checkLoggedIn() && props.isLoggedIn && <LoggedInUserNav />}
             </Stack>
         </Stack>
     )

@@ -4,11 +4,11 @@ export function hasRole(roles){
     const token = localStorage.getItem('tk');
     if(!token) return false;
     const decoded = jwtDecode(token);
-    return roles.includes(decoded.role.toLowerCase());
+    return decoded.role ? roles.includes(decoded.role.toLowerCase()) : false;
 }
 
-export function isLoggedIn(){
-    return !!localStorage.getItem('tk')
+export function checkLoggedIn(){
+    return localStorage.getItem('tk') !== null;
 }
 
 export function getUserData(key){
@@ -30,4 +30,18 @@ export function generateFileName() {
 export function logout(){
     localStorage.removeItem('tk');
     window.location.href = '/login';
+}
+export function getCookie(name) {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.startsWith(name + '=')) {
+            return cookie.substring(name.length + 1);
+        }
+    }
+    return null;
+}
+
+export function clearCookie(name) {
+    document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 }

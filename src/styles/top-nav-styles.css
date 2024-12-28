@@ -31,8 +31,9 @@
     padding-inline: 1rem;
     border-radius: 10px;
 }
-.top-nav-container__nav-links-container > div:hover:not(:last-child){
+.top-nav-container__nav-links-container > div:hover:not(.logged-in-user-nav){
     background-color: #dddddd;
+    padding: .5rem 1rem;
 }
 .top-nav__search-btn{
     background-color: #c90f0f;

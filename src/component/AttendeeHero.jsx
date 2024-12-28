@@ -1,5 +1,5 @@
 import Carousel from "./Carousel.jsx";
-import {Stack} from "@mui/material";
+import {Button, Stack} from "@mui/material";
 import MusicNoteOutlinedIcon from '@mui/icons-material/MusicNoteOutlined';
 import FastfoodOutlinedIcon from '@mui/icons-material/FastfoodOutlined';
 import BusinessOutlinedIcon from '@mui/icons-material/BusinessOutlined';
@@ -9,6 +9,7 @@ import VideoCallOutlinedIcon from '@mui/icons-material/VideoCallOutlined';
 import SportsGymnasticsOutlinedIcon from '@mui/icons-material/SportsGymnasticsOutlined';
 import BeachAccessOutlinedIcon from '@mui/icons-material/BeachAccessOutlined';
 import "../styles/attendee-hero.css"
+import {accountAxiosWithToken} from "../config/axiosConfig.js";
 
 function AttendeeHero() {
     const images = [
@@ -65,6 +66,18 @@ function AttendeeHero() {
                     )
                 })}
             </Stack>
+            <Button onClick={() => {
+                console.log('Token before send', localStorage.getItem('tk'))
+                accountAxiosWithToken.get('/protected', {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('tk'),
+                    }
+                })
+                    .then(r => console.log(r))
+                    .catch(err => console.log(err))
+            }}>
+                Test Protected
+            </Button>
         </Stack>
     )
 }
