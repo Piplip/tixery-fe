@@ -45,3 +45,7 @@ export function getCookie(name) {
 export function clearCookie(name) {
     document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 }
+
+export function hasSearchParam(param){
+    return new URLSearchParams(window.location.search).has(param);
+}
