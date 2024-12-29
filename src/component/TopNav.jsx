@@ -4,7 +4,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import {Stack} from "@mui/material";
 import "../styles/top-nav-styles.css"
 import {Link} from "react-router-dom";
-import {hasRole, checkLoggedIn} from "../common/Utilities.js";
+import {hasRole, checkLoggedIn, getUserData} from "../common/Utilities.js";
 import LoggedInUserNav from "./LoggedInUserNav.jsx";
 import * as PropsType from "prop-types";
 
@@ -17,14 +17,12 @@ function TopNav(props){
         {title: 'Find Events', link: '/events', roles: ['attendee'], public: true},
         {title: 'Likes', link: '/events/liked', roles: ['attendee']},
         {title: 'Tickets', link: '/tickets', roles: ['attendee']},
-        {title: 'Create Events', link: '/organizer', roles: ['organizer'], public: true},
+        {title: 'Create Events', link: '/host', roles: ['host'], public: true},
         {title: 'For Supplier', link: '/about', roles: ['supplier'], public: true},
-        {title: 'Help Center', link: '/help', roles: ['attendee', 'organizer', 'vendor'], public: true},
-        {title: 'Log In', link: '/login', roles: ['attendee', 'organizer', 'vendor'], hide: checkLoggedIn(), public: true},
-        {title: 'Sign Up', link: '/sign-up', roles: ['attendee', 'organizer', 'vendor'], hide: checkLoggedIn(), public: true},
+        {title: 'Help Center', link: '/help', roles: ['attendee', 'host', 'vendor'], public: true},
+        {title: 'Log In', link: '/login', roles: ['attendee', 'host', 'vendor'], hide: checkLoggedIn(), public: true},
+        {title: 'Sign Up', link: '/sign-up', roles: ['attendee', 'host', 'vendor'], hide: checkLoggedIn(), public: true},
     ]
-
-    // TODO: Fix UI when user login with google, not display navigation
 
     return (
         <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}
@@ -47,27 +45,42 @@ function TopNav(props){
             </Stack>
             <Stack direction={'row'} className={'top-nav-container__nav-links-container'} columnGap={'1rem'}>
                 {navLinks.map((item, index) => {
-                    if(checkLoggedIn()){
-                        if(item.hide) return null
-                        else{
-                            if(hasRole(item.roles))
+                    const userRole = getUserData('role');
+                    const isLoggedIn = checkLoggedIn();
+
+                    if (isLoggedIn) {
+                        if (item.hide) return null;
+                        if (userRole) {
+                            if (hasRole(item.roles)) {
                                 return (
                                     <Stack key={index} justifyContent={'center'}>
                                         <Link to={item.link} className={'top-nav-container__nav-links-container__link'}>
                                             {item.title}
                                         </Link>
                                     </Stack>
-                                )
+                                );
+                            }
+                        } else {
+                            if (item.public) {
+                                return (
+                                    <Stack key={index} justifyContent={'center'}>
+                                        <Link to={item.link} className={'top-nav-container__nav-links-container__link'}>
+                                            {item.title}
+                                        </Link>
+                                    </Stack>
+                                );
+                            }
                         }
-                    }
-                    else if(item.public) {
+                    } else {
+                        if (item.public && (!userRole || hasRole(item.roles))) {
                             return (
                                 <Stack key={index} justifyContent={'center'}>
                                     <Link to={item.link} className={'top-nav-container__nav-links-container__link'}>
                                         {item.title}
                                     </Link>
                                 </Stack>
-                            )
+                            );
+                        }
                     }
                 })}
                 {checkLoggedIn() && props.isLoggedIn && <LoggedInUserNav />}
