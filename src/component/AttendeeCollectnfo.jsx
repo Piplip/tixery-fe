@@ -27,7 +27,6 @@ const Transition = forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
 
-
 function AttendeeCollectnfo() {
     initializeApp(firebaseConfig);
     const storage = getStorage()
@@ -74,7 +73,7 @@ function AttendeeCollectnfo() {
 
     function handleSave() {
         uploadImage().then(() => {
-            accountAxios.post('/profile/create?rid=' + location.search.split('=')[1], {
+            accountAxios.post('/profile/create?rid=' + location.search.split('=')[1] + '&type=attendee', {
                 fullName: userData.lastName + " " + userData.firstName, nickname: userData.nickname ? userData.nickname : '',
                 dob: userData.dob.format('DD/MM/YYYY'), gender: userData.gender, phone: userData.phone, nationality: userData.nationality,
                 ppName: userData.ppName ? userData.ppName : userData.firstName + "'s profile",
