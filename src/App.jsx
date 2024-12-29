@@ -8,6 +8,7 @@ import UserCollectDataTemplate from "./component/UserCollectDataTemplate.jsx";
 import AttendeeCollectnfo from "./component/AttendeeCollectnfo.jsx";
 import {LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
+import OrganizerCollectInfo from "./component/OrganizerCollectInfo.jsx";
 
 function App() {
     const routers = createBrowserRouter([
@@ -21,9 +22,10 @@ function App() {
             element: <UserCollectDataTemplate />,
             children: [
                 {index: true, element: <SelectRole />},
-                {path: 'info', element: <AttendeeCollectnfo />}
+                {path: 'info', element: <AttendeeCollectnfo />},
+                {path: 'organizer/info', element: <OrganizerCollectInfo />},
             ]
-        }
+        },
     ])
 
     return (
