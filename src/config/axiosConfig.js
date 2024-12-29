@@ -24,6 +24,7 @@ accountAxiosWithToken.interceptors.response.use(
         if (error.response && error.response.status === 401) {
             const data = error.response.data;
             if (data.redirect) {
+                localStorage.removeItem('tk');
                 setTimeout(() => {
                     window.location.href = data.redirect;
                 }, 500)
