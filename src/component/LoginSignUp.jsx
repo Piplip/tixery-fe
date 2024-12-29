@@ -21,13 +21,21 @@ import accountAxios from "../config/axiosConfig.js";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
+const alertRef = {
+    'already-used': 'Email already used! Please login directly with that email',
+    'exp': 'Session expired! Please login again',
+    'user-cancel': 'Login cancelled'
+}
+
 function LoginSignUp(){
     const isSignUpPage = useLocation().pathname.includes('sign-up')
+    const location = useLocation()
     const [awaitResponse, setAwaitResponse] = useState(false)
     const [disabledSend, setDisabledSend] = useState(false)
     const [emailExist, setEmailExist] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
     const [showSuccessLogin, setShowSuccessLogin] = useState(false)
+    const [alertMsg, setAlertMsg] = useState(alertRef[location.search.split('=')[1]])
     const navigate = useNavigate()
 
     const schema = Yup.object().shape({
@@ -70,10 +78,16 @@ function LoginSignUp(){
             password: data.password
         }).then(res => {
             setAwaitResponse(false)
-            setShowSuccessLogin(true)
-            resetForm()
-            localStorage.setItem("tk", res.data.data)
-            setTimeout(() => navigate('/'), 2000)
+            if(res.data.status === 'OK'){
+                setShowSuccessLogin(true)
+                setAlertMsg(res.data.message)
+                resetForm()
+                localStorage.setItem("tk", res.data.data)
+                setTimeout(() => navigate('/'), 2000)
+            }
+            else{
+                setAlertMsg(res.data.message)
+            }
         }).catch(err => {
             console.log(err)
             setAwaitResponse(false)
@@ -87,7 +101,6 @@ function LoginSignUp(){
         if(email && regex.test(email)){
             accountAxios.get(`/check-email?email=${email}`)
                 .then(res => {
-                    console.log(res)
                     if(res.data.message){
                         setEmailExist(true)
                     }
@@ -98,6 +111,7 @@ function LoginSignUp(){
     }
 
     function handleGoogleLogin(){
+        // TODO: send a login with JWT first
         window.location.href = 'http://localhost:10000/accounts/oauth2/authorization/google'
     }
 
@@ -105,16 +119,14 @@ function LoginSignUp(){
         window.location.href = 'http://localhost:10000/accounts/oauth2/authorization/facebook'
     }
 
-    // TODO: Add a Snackbar to show the login state
-
     return (
         <div className={'login-page'}>
             <Snackbar
                 anchorOrigin={{vertical: 'top', horizontal: 'right'}}
-                open={showSuccessLogin}
+                open={alertMsg !== "" && alertMsg !== null && alertMsg !== undefined}
             >
-                <Alert severity="success" variant="filled" sx={{ width: '100%' , backgroundColor: '#15b231'}}>
-                    Login successful! Redirecting...
+                <Alert severity={showSuccessLogin ? "success" : "error"} variant="filled" sx={{ width: '100%' }}>
+                    {alertMsg ? alertMsg : ""}
                 </Alert>
             </Snackbar>
             <div className={'login-page__img-wrapper'}>
