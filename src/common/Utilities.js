@@ -12,7 +12,7 @@ export function checkLoggedIn(){
 }
 
 export function getUserData(key){
-    const token = localStorage.getItem('tk');
+    const token = getCookie("tk") !== null ? getCookie("tk") : localStorage.getItem('tk');
     if(!token) return null;
     const decoded = jwtDecode(token);
     return decoded[key];

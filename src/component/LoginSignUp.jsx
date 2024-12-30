@@ -111,7 +111,7 @@ function LoginSignUp(){
     }
 
     function handleGoogleLogin(){
-        // TODO: send a login with JWT first
+        //
         window.location.href = 'http://localhost:10000/accounts/oauth2/authorization/google'
     }
 

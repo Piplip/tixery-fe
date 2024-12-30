@@ -17,11 +17,11 @@ import {forwardRef, useState} from "react";
 import {firebaseConfig} from "../config/firebaseConfig.js";
 import {initializeApp} from "firebase/app";
 import {getStorage, ref, uploadBytes} from "firebase/storage";
-import accountAxios from "../config/axiosConfig.js";
+import accountAxios, {accountAxiosWithToken} from "../config/axiosConfig.js";
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {countries} from "../common/Data.js";
-import {generateFileName} from "../common/Utilities.js";
+import {generateFileName, getUserData, hasSearchParam} from "../common/Utilities.js";
 
 const Transition = forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -30,6 +30,7 @@ const Transition = forwardRef(function Transition(props, ref) {
 function AttendeeCollectnfo() {
     initializeApp(firebaseConfig);
     const storage = getStorage()
+    const navigate = useNavigate()
     const [step, setStep] = useState(1);
     const [userData, setUserData] = useState({
         firstName: '', lastName: '', nickname: '', dob: null, gender: '', phone: '', nationality:  null,
@@ -45,6 +46,7 @@ function AttendeeCollectnfo() {
         nationality: Yup.string().required("Please enter your nationality")
     });
     const [open, setOpen] = useState(false);
+    const fullName =  hasSearchParam("method") && getUserData("fullName") !== "" ? getUserData("fullName").split(' ') : ''
 
     function handleImageUpload (event) {
         const file = event.target.files[0];
@@ -84,6 +86,50 @@ function AttendeeCollectnfo() {
         })
     }
 
+    function handleOauth2Save(){
+        uploadImage().then(() => {
+            accountAxiosWithToken.post('/profile/oauth/create?email=' + getUserData('sub') + '&type=attendee', {
+                fullName: userData.lastName + " " + userData.firstName,
+                nickname: userData.nickname ? userData.nickname : '',
+                dob: userData.dob.format('DD/MM/YYYY'), gender: userData.gender, phone: userData.phone, nationality: userData.nationality,
+                ppName: userData.ppName ? userData.ppName : userData.firstName + "'s profile",
+                ppDescription: userData.ppDescription, ppImageURL: userData.ppImage
+            }).then(() => {
+                setOpen(true)
+            }).catch(err => console.log(err))
+        })
+    }
+
+    function getUpdateToken(){
+        accountAxiosWithToken.get('/profile/oauth/update?for=' + getUserData('sub'))
+            .then(r => {
+                if(r.data.status === 'OK'){
+                    localStorage.setItem('tk', r.data.data)
+                    navigate('/')
+                }
+            })
+            .catch(err => console.log(err))
+    }
+
+    function extractName(fullName){
+        if(fullName === '') return ['', '']
+        let firstName = ''
+        let lastName = ''
+        if(fullName.length === 1){
+            firstName = fullName[0]
+        }
+        else if(fullName.length === 2){
+            firstName = fullName[0]
+            lastName = fullName[1]
+        }
+        else if(fullName.length >= 3){
+            firstName = fullName[fullName.length - 1]
+            lastName = fullName.slice(0, fullName.length - 1).join(' ')
+        }
+
+        return [firstName, lastName]
+    }
+
     return (
         <>
             {step === 1 &&
@@ -96,7 +142,9 @@ function AttendeeCollectnfo() {
                             PROFILE INFORMATION
                         </Typography>
                         <Formik
-                            initialValues={{firstName: '', lastName: '', nickname: '', dob: null, gender: '', phone: '', nationality:  null}}
+                            initialValues={{firstName: extractName(fullName)[0]
+                                , lastName: extractName(fullName)[1]
+                                , nickname: '', dob: null, gender: '', phone: '', nationality:  null}}
                             validationSchema={schema}
                             onSubmit={async (values) => {
                                 setUserData(values)
@@ -111,13 +159,15 @@ function AttendeeCollectnfo() {
                                     width: '100%', display: 'flex', flexDirection: 'column', height: 'fit-content'}}
                                 >
                                     <Stack direction={'row'} columnGap={1} sx={{ mb: 2 }}>
-                                        <TextField label="First Name" name="firstName" value={values.firstName} fullWidth
+                                        <TextField label="First Name" name="firstName" fullWidth
+                                                   value={values.firstName}
                                                    onBlur={handleBlur} onChange={handleChange}
                                                    error={touched.firstName && Boolean(errors.firstName)}
                                                    helperText={touched.firstName && errors.firstName}
                                         />
 
-                                        <TextField label="Last Name" name="lastName" value={values.lastName} fullWidth
+                                        <TextField label="Last Name" name="lastName" fullWidth
+                                                   value={values.lastName}
                                                    onBlur={handleBlur} onChange={handleChange}
                                                    error={touched.lastName && Boolean(errors.lastName)}
                                                    helperText={touched.lastName && errors.lastName}
@@ -255,7 +305,12 @@ function AttendeeCollectnfo() {
                         />
                     </Stack>
                     <Box sx={{ textAlign: 'center', mt: 3 }}>
-                        <Button variant="contained" color="primary" onClick={handleSave}>
+                        <Button variant="contained" color="primary" onClick={() => {
+                            if(hasSearchParam("method")) {
+                                handleOauth2Save()
+                            }
+                            else handleSave()
+                        }}>
                             COMPLETE & ENJOY
                         </Button>
                     </Box>
@@ -267,9 +322,11 @@ function AttendeeCollectnfo() {
                     <DialogContentText sx={{fontSize: '2rem', marginBottom: 3}}>
                         You are all set. Enjoy {userData.firstName}!
                     </DialogContentText>
-                    <Link to={'/login'}>
-                        <Button color={'success'} variant={'outlined'} fullWidth>Login</Button>
-                    </Link>
+                    <Button color={'success'} variant={'outlined'} fullWidth
+                        onClick={() => hasSearchParam('method') ? getUpdateToken() : navigate('/login')}
+                    >
+                        {hasSearchParam('method') ? 'Go to Home' : 'Login'}
+                    </Button>
                 </DialogContent>
             </Dialog>
         </>

@@ -24,6 +24,8 @@ function TopNav(props){
         {title: 'Sign Up', link: '/sign-up', roles: ['attendee', 'host', 'vendor'], hide: checkLoggedIn(), public: true},
     ]
 
+    // TODO: Re implement the navbar rendering logic, it now isn't rendering correctly for logged in user with roles
+
     return (
         <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}
                className={`top-nav-container`}>

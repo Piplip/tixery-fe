@@ -13,13 +13,13 @@ import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../config/firebaseConfig.js";
 import {getStorage, ref, uploadBytes} from "firebase/storage";
 import * as Yup from "yup";
-import {generateFileName, hasSearchParam} from "../common/Utilities.js";
-import accountAxios from "../config/axiosConfig.js";
+import {generateFileName, getUserData, hasSearchParam} from "../common/Utilities.js";
+import accountAxios, {accountAxiosWithToken} from "../config/axiosConfig.js";
 import {Form, Formik} from "formik";
 import {countries} from "../common/Data.js";
 import {PhotoCamera} from "@mui/icons-material";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import {Link, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 
 const Transition = forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -33,8 +33,11 @@ function OrganizerCollectInfo(){
     const schema = Yup.object().shape({
         organization: Yup.string().required("Organization is required"),
         phone: Yup.string().required("Phone number is required"),
-        nationality: Yup.string().required("Please enter your nationality")
-    });
+        nationality: Yup.string().required("Please enter your nationality"),
+        ...(
+            hasSearchParam("rid") && {name: Yup.string().required("Your name is required")}
+        )
+    })
     const [open, setOpen] = useState(false);
     const navigate = useNavigate()
 
@@ -65,20 +68,42 @@ function OrganizerCollectInfo(){
 
     function handleSave(values) {
         uploadImage().then(() => {
-            accountAxios.post('/profile/create?rid=' + location.search.split('=')[1] + '&type=organizer', {
-                organization: values.organization,
-                phone: values.phone,
-                nationality: values.nationality,
-                ppImageURL: ppImage
-            }).then(() => {
-                if(hasSearchParam('method')){
-                    // TODO: add loading state indicator
-                    setTimeout(() => navigate('/'), 1000)
-                }
-                else setOpen(true)
-            }).catch(err => console.log(err))
+            if(hasSearchParam("method")){
+                accountAxiosWithToken.post('/profile/oauth/create?email=' + getUserData('sub') + '&type=organizer', {
+                    organization: values.organization,
+                    phone: values.phone,
+                    nationality: values.nationality,
+                    ppImageURL: ppImage
+                }).then(() => {
+                    setOpen(true)
+                }).catch(err => console.log(err))
+            }
+            else{
+                accountAxios.post('/profile/create?rid=' + location.search.split('=')[1] + '&type=organizer', {
+                    fullName: values.name,
+                    organization: values.organization,
+                    phone: values.phone,
+                    nationality: values.nationality,
+                    ppImageURL: ppImage
+                }).then(() => {
+                    setOpen(true)
+                }).catch(err => console.log(err))
+            }
         })
     }
+
+    function getUpdateToken(){
+        accountAxiosWithToken.get('/profile/oauth/update?for=' + getUserData('sub'))
+            .then(r => {
+                if(r.data.status === 'OK'){
+                    localStorage.setItem('tk', r.data.data)
+                    navigate('/')
+                }
+            })
+            .catch(err => console.log(err))
+    }
+
+    // TODO: Handle the case where user login with normal method, we should let them enter their name
 
     return (
         <>
@@ -97,7 +122,7 @@ function OrganizerCollectInfo(){
                         </IconButton>
                     </Box>
                     <Formik
-                        initialValues={{organization: '', phone: '', nationality:  null}}
+                        initialValues={{name: '', organization: '', phone: '', nationality:  null}}
                         validationSchema={schema}
                         onSubmit={async (values) => {
                             handleSave(values)
@@ -110,6 +135,14 @@ function OrganizerCollectInfo(){
                             <Form style={{
                                 width: '100%', display: 'flex', flexDirection: 'column', height: 'fit-content'}}
                             >
+                                {hasSearchParam("rid") &&
+                                    <TextField label="Your Name" name="name" value={values.name} fullWidth sx={{marginBottom: 2}}
+                                               onBlur={handleBlur} onChange={handleChange}
+                                               error={touched.name && Boolean(errors.name)}
+                                               helperText={touched.name && errors.name}
+                                    />
+                                }
+
                                 <TextField label="Organization Name" name="organization" value={values.organization} fullWidth sx={{marginBottom: 2}}
                                            onBlur={handleBlur} onChange={handleChange}
                                            error={touched.organization && Boolean(errors.organization)}
@@ -178,9 +211,11 @@ function OrganizerCollectInfo(){
                     <DialogContentText sx={{fontSize: '2rem', marginBottom: 3}}>
                         You are all set. Enjoy!
                     </DialogContentText>
-                    <Link to={'/login'}>
-                        <Button color={'success'} variant={'outlined'} fullWidth>Login now</Button>
-                    </Link>
+                    <Button color={'success'} variant={'outlined'} fullWidth
+                            onClick={() => hasSearchParam('method') ? getUpdateToken() : navigate('/login')}
+                    >
+                        {hasSearchParam('method') ? 'Go to Home' : 'Login'}
+                    </Button>
                 </DialogContent>
             </Dialog>
         </>

@@ -25,10 +25,9 @@ function SelectRole(){
                 .catch(err => console.log(err))
         }
         else{
-            // TODO: handle the case where the ATTENDEE USER is logged in
-            // To achieve that, we should have a user profile or account info page first
-            // send request to set role to attendee
-            // then navigate to the attendee profile and show existing attendee data and trigger update mode
+            const tk = getCookie('tk')
+            localStorage.setItem('tk', tk)
+            navigate('info?method=external')
         }
     }
 
