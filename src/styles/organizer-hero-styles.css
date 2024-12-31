@@ -1,0 +1,132 @@
+.hero-organizer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-inline: 3rem;
+    background: linear-gradient(135deg, #d32f2f, #b71c1c);
+    color: #fff;
+    height: 100dvh;
+}
+
+.hero-organizer__content {
+    flex: 1;
+    max-width: 50%;
+}
+
+.hero-organizer__title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+}
+
+.hero-organizer__subtitle {
+    font-size: 1.5rem;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+}
+
+.hero-organizer__highlight {
+    color: #ffd700;
+}
+
+.hero-organizer__actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.hero-organizer__cta-button {
+    font-weight: 600;
+    font-size: 1.25rem;
+    text-transform: capitalize;
+    padding: 0.75rem 1.5rem;
+    border: 3px solid transparent;
+    transition: all .2s;
+}
+
+.hero-organizer__cta-button:first-child{
+    background-color: yellow;
+}
+
+.hero-organizer__cta-button:last-child{
+    background-color: transparent;
+    color: white;
+    border-color: white;
+}
+.hero-organizer__cta-button:last-child:hover{
+    background-color: white;
+    color: black;
+}
+
+.hero-organizer__visual {
+    position: relative;
+    flex: 1;
+    max-width: 40%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-organizer__visual-circle {
+    position: absolute;
+    width: 30rem;
+    height: 30rem;
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 50%;
+    animation: pulse 3s infinite;
+}
+
+.hero-organizer__image {
+    position: relative;
+    z-index: 1;
+    max-width: 100%;
+    border-radius: 15px;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.4;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .hero-organizer {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .hero-organizer__content {
+        max-width: 100%;
+    }
+
+    .hero-organizer__visual {
+        margin-top: 2rem;
+        max-width: 100%;
+    }
+
+    .hero-organizer__title {
+        font-size: 2.5rem;
+    }
+
+    .hero-organizer__subtitle {
+        font-size: 1.25rem;
+    }
+
+    .hero-organizer__cta-button {
+        font-size: 1rem;
+    }
+
+    .hero-organizer__visual-circle {
+        width: 200px;
+        height: 200px;
+    }
+}

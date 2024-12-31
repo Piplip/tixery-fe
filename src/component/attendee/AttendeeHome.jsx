@@ -1,8 +1,8 @@
-import TopNav from "./TopNav.jsx";
+import TopNav from "../TopNav.jsx";
 import AttendeeHero from "./AttendeeHero.jsx";
 import {useEffect, useState} from "react";
-import {clearCookie, getCookie} from "../common/Utilities.js";
-import {checkLoggedIn} from "../common/Utilities.js";
+import {clearCookie, getCookie} from "../../common/Utilities.js";
+import {checkLoggedIn} from "../../common/Utilities.js";
 
 function AttendeeHome(){
     const [isLoggedIn, setIsLoggedIn] = useState(checkLoggedIn())

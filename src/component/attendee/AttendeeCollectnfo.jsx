@@ -14,14 +14,14 @@ import * as Yup from "yup";
 import {Form, Formik} from "formik";
 import {PhotoCamera} from "@mui/icons-material";
 import {forwardRef, useState} from "react";
-import {firebaseConfig} from "../config/firebaseConfig.js";
+import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {initializeApp} from "firebase/app";
 import {getStorage, ref, uploadBytes} from "firebase/storage";
-import accountAxios, {accountAxiosWithToken} from "../config/axiosConfig.js";
+import accountAxios, {accountAxiosWithToken} from "../../config/axiosConfig.js";
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import {Link, useNavigate} from "react-router-dom";
-import {countries} from "../common/Data.js";
-import {generateFileName, getUserData, hasSearchParam} from "../common/Utilities.js";
+import {countries} from "../../common/Data.js";
+import {generateFileName, getUserData, hasSearchParam} from "../../common/Utilities.js";
 
 const Transition = forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -105,7 +105,7 @@ function AttendeeCollectnfo() {
             .then(r => {
                 if(r.data.status === 'OK'){
                     localStorage.setItem('tk', r.data.data)
-                    navigate('/')
+                    window.location.href = '/'
                 }
             })
             .catch(err => console.log(err))

@@ -1,0 +1,93 @@
+.organizer-home-container{
+    padding-inline: 5rem;
+}
+.create-events-item{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f5f5f5;
+    padding: 1rem 2rem;
+    text-align: center;
+    width: 50%;
+    row-gap: .75rem;
+    border-radius: 10px;
+}
+.create-events-item > button{
+    padding: .75rem 1.5rem;
+    border: 2px solid transparent;
+    background-color: #d32f2f;
+    color: white;
+    font-weight: 600;
+    text-transform: capitalize;
+    transition: all .2s;
+}
+.create-events-item > .MuiTypography-h5{
+    font-family: "Microsoft Tai Le", sans-serif;
+    font-weight: 500;
+}
+.create-events-item > button:hover{
+    background-color: white;
+    color: #d32f2f;
+    border-color: #d32f2f;
+    cursor: pointer;
+}
+.create-events-item > .MuiSvgIcon-root{
+    font-size: 3rem;
+    color: #d32f2f;
+    border-radius: 50%;
+    background-color: white;
+    padding: .5rem;
+}
+.organizer-setup-profile-cta{
+    border: 1px solid #d9d9d9;
+    height: fit-content;
+    padding: 2rem;
+    border-radius: 10px;
+    max-width: 20rem;
+}
+.organizer-setup-profile-cta > a{
+    color: blue;
+}
+.organizer-setup-profile-cta:hover{
+    cursor: pointer;
+    box-shadow: 0 0 10px 0 rgba(0,0,0,.1);
+}
+.checklist-wrapper{
+    border: 1px solid #d9d9d9;
+    padding: 1rem 2rem;
+    border-radius: 10px;
+}
+.checklist-steps{
+    font-size: .9rem;
+    padding-block: .25rem;
+    padding-right: 3rem;
+    position: relative;
+}
+.checklist-steps::after{
+    content: "→";
+    position: absolute;
+    font-size: 1.25rem;
+    right: 0;
+    top: 0;
+    transform: translateY(50%) translateX(-.5rem);
+    visibility: hidden;
+}
+.checklist-steps:hover{
+    cursor: pointer;
+    background-color: #f5f5f5;
+}
+.checklist-steps:hover::after{
+    visibility: visible;
+}
+.checklist-steps p:first-child{
+    color: #3333ff;
+    font-size: .95rem;
+    font-family: "Microsoft Tai Le", sans-serif;
+}
+.check-list-item-start{
+    font-size: 1rem;
+    background-color: #2a5db0;
+    color: white;
+    padding: .25rem 1rem;
+    border-radius: 1rem;
+}

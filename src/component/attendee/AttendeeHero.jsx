@@ -1,4 +1,4 @@
-import Carousel from "./Carousel.jsx";
+import Carousel from "../Carousel.jsx";
 import {Button, Stack} from "@mui/material";
 import MusicNoteOutlinedIcon from '@mui/icons-material/MusicNoteOutlined';
 import FastfoodOutlinedIcon from '@mui/icons-material/FastfoodOutlined';
@@ -8,8 +8,8 @@ import DiamondOutlinedIcon from '@mui/icons-material/DiamondOutlined';
 import VideoCallOutlinedIcon from '@mui/icons-material/VideoCallOutlined';
 import SportsGymnasticsOutlinedIcon from '@mui/icons-material/SportsGymnasticsOutlined';
 import BeachAccessOutlinedIcon from '@mui/icons-material/BeachAccessOutlined';
-import "../styles/attendee-hero.css"
-import {accountAxiosWithToken} from "../config/axiosConfig.js";
+import "../../styles/attendee-hero.css"
+import {accountAxiosWithToken} from "../../config/axiosConfig.js";
 
 function AttendeeHero() {
     const images = [

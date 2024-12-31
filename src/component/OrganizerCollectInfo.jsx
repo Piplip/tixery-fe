@@ -103,8 +103,6 @@ function OrganizerCollectInfo(){
             .catch(err => console.log(err))
     }
 
-    // TODO: Handle the case where user login with normal method, we should let them enter their name
-
     return (
         <>
             <Container maxWidth="md" sx={{ mt: 4 }}>
