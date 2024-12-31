@@ -3,8 +3,7 @@ import {jwtDecode} from "jwt-decode";
 export function hasRole(roles){
     const token = localStorage.getItem('tk');
     if(!token) return false;
-    const decoded = jwtDecode(token);
-    return decoded.role ? roles.includes(decoded.role.toLowerCase()) : false;
+    return getUserData('role') ? roles.includes(getUserData('role').toLowerCase()) : false;
 }
 
 export function checkLoggedIn(){
@@ -12,7 +11,7 @@ export function checkLoggedIn(){
 }
 
 export function getUserData(key){
-    const token = getCookie("tk") !== null ? getCookie("tk") : localStorage.getItem('tk');
+    const token = localStorage.getItem('tk') ? localStorage.getItem('tk') : getCookie("tk")
     if(!token) return null;
     const decoded = jwtDecode(token);
     return decoded[key];
