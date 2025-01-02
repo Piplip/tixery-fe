@@ -34,7 +34,7 @@ function OrganizerSettings() {
                     </ul>
                 </nav>
             </Stack>
-            <Outlet/>
+            <Outlet />
         </div>
     )
 }
