@@ -20,3 +20,19 @@ input{
     background-color: transparent;
     outline: none;
 }
+
+.help-link, .link{
+    color: #0040e5;
+    display: inline-flex;
+}
+.go-back-link{
+    font-family: Rockwell, sans-serif;
+    font-size: 1.05rem;
+    color: #0040e5;
+    padding-block: .1rem;
+    display: inline;
+}
+.go-back-link:hover{
+    cursor: pointer;
+    text-decoration: underline;
+}
