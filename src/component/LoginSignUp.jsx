@@ -20,6 +20,8 @@ import GoogleIcon from "../assets/google.png"
 import accountAxios from "../config/axiosConfig.js";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import {getUserData} from "../common/Utilities.js";
+import {jwtDecode} from "jwt-decode";
 
 const alertRef = {
     'already-used': 'Email already used! Please login directly with that email',
@@ -76,14 +78,21 @@ function LoginSignUp(){
         accountAxios.post('/login', {
             email: data.email,
             password: data.password
-        }).then(res => {
+        }).then(async res => {
+            console.log(res.data)
             setAwaitResponse(false)
             if(res.data.status === 'OK'){
                 setShowSuccessLogin(true)
                 setAlertMsg(res.data.message)
                 resetForm()
                 localStorage.setItem("tk", res.data.data)
-                setTimeout(() => navigate('/'), 2000)
+                const role = getUserData("role")
+                let redirectLink
+                if(role.toLowerCase() === "attendee")
+                    redirectLink = '/'
+                else if(role.toLowerCase() === "host")
+                    redirectLink = '/organizer'
+                setTimeout(() => navigate(redirectLink), 2000)
             }
             else{
                 setAlertMsg(res.data.message)
@@ -111,7 +120,6 @@ function LoginSignUp(){
     }
 
     function handleGoogleLogin(){
-        //
         window.location.href = 'http://localhost:10000/accounts/oauth2/authorization/google'
     }
 
@@ -124,6 +132,7 @@ function LoginSignUp(){
             <Snackbar
                 anchorOrigin={{vertical: 'top', horizontal: 'right'}}
                 open={alertMsg !== "" && alertMsg !== null && alertMsg !== undefined}
+                autoHideDuration={6000} onClose={() => setAlertMsg("")}
             >
                 <Alert severity={showSuccessLogin ? "success" : "error"} variant="filled" sx={{ width: '100%' }}>
                     {alertMsg ? alertMsg : ""}
