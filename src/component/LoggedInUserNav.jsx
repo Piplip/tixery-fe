@@ -22,7 +22,7 @@ function LoggedInUserNav(){
         { name: 'Account Settings', link: '/account-settings', public: true},
         { name: 'Profile', link: '/profile', public: true},
     ];
-    const [fullName, setFullName] = useState(getUserData('fullName'))
+    const [fullName] = useState(getUserData('fullName'))
 
     useEffect(() => {
         if(checkLoggedIn()){
