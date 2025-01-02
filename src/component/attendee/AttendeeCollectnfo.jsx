@@ -19,7 +19,7 @@ import {initializeApp} from "firebase/app";
 import {getStorage, ref, uploadBytes} from "firebase/storage";
 import accountAxios, {accountAxiosWithToken} from "../../config/axiosConfig.js";
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import {Link, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {countries} from "../../common/Data.js";
 import {generateFileName, getUserData, hasSearchParam} from "../../common/Utilities.js";
 
