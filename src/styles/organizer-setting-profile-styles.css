@@ -49,10 +49,6 @@
     flex: 1;
 }
 
-.organizer-profile__actions button {
-    margin-right: 0.5rem;
-}
-
 .organizer-profile__add-button {
     grid-column: span 1;
     padding: 1rem;

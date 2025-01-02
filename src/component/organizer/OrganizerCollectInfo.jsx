@@ -10,13 +10,13 @@ import {
     Typography
 } from "@mui/material";
 import {initializeApp} from "firebase/app";
-import {firebaseConfig} from "../config/firebaseConfig.js";
+import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {getStorage, ref, uploadBytes} from "firebase/storage";
 import * as Yup from "yup";
-import {generateFileName, getUserData, hasSearchParam} from "../common/Utilities.js";
-import accountAxios, {accountAxiosWithToken} from "../config/axiosConfig.js";
+import {generateFileName, getUserData, hasSearchParam} from "../../common/Utilities.js";
+import accountAxios, {accountAxiosWithToken} from "../../config/axiosConfig.js";
 import {Form, Formik} from "formik";
-import {countries} from "../common/Data.js";
+import {countries} from "../../common/Data.js";
 import {PhotoCamera} from "@mui/icons-material";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import {useNavigate} from "react-router-dom";
@@ -70,7 +70,7 @@ function OrganizerCollectInfo(){
         uploadImage().then(() => {
             if(hasSearchParam("method")){
                 accountAxiosWithToken.post('/profile/oauth/create?email=' + getUserData('sub') + '&type=organizer', {
-                    organization: values.organization,
+                    ppName: values.organization,
                     phone: values.phone,
                     nationality: values.nationality,
                     ppImageURL: ppImage
@@ -81,7 +81,7 @@ function OrganizerCollectInfo(){
             else{
                 accountAxios.post('/profile/create?rid=' + location.search.split('=')[1] + '&type=organizer', {
                     fullName: values.name,
-                    organization: values.organization,
+                    ppName: values.organization,
                     phone: values.phone,
                     nationality: values.nationality,
                     ppImageURL: ppImage
@@ -97,7 +97,7 @@ function OrganizerCollectInfo(){
             .then(r => {
                 if(r.data.status === 'OK'){
                     localStorage.setItem('tk', r.data.data)
-                    navigate('/')
+                    navigate('/organizer')
                 }
             })
             .catch(err => console.log(err))

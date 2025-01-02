@@ -1,0 +1,84 @@
+.organizer-view-wrapper{
+    background-color: #c2c2c2;
+}
+.organizer-view-hero{
+    width: 100%;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    background-color: #fafafa;
+}
+.organizer-view-hero__img-wrapper{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 90dvh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+}
+.organizer-view-hero__img{
+    height: 100%;
+    filter: blur(10px) brightness(0.8);
+    transform: scale(2.5);
+}
+.organizer-view-hero__main{
+    z-index: 2;
+    padding: 5rem 3rem;
+    width: 55%;
+    height: 80%;
+    background-color: white;
+    align-self: center;
+    border-radius: 1rem 1rem 0 0;
+
+    button{
+        background-color: transparent;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 0.2rem;
+        font-family: "Microsoft Tai Le", sans-serif;
+        font-size: 1rem;
+        color: #282f38;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+}
+.organizer-view-hero__main button:first-child{
+    background-color: #2464e0;
+    color: white;
+}
+.organizer-view-hero__main button:first-child:hover{
+    background-color: #1a4aa6;
+}
+.organizer-view-hero__main button:nth-child(2):hover{
+    background-color: #e8e8e8;
+}
+.organizer-view-hero__profile-title{
+    font-family: DengXian, sans-serif;
+    color: #282f38;
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+.organizer-view-hero__profile-description{
+    text-align: center;
+    font-family: "Microsoft Tai Le", sans-serif;
+    color: #282f38;
+}
+.organizer-view-hero__social-btn{
+    width: fit-content;
+    align-self: center;
+    font-size: 3rem;
+
+    .MuiSvgIcon-root{
+        font-size: 2rem;
+        color: #7e7e7e;
+    }
+}
+.organizer-view-hero__social-btn:hover{
+    .MuiSvgIcon-root{
+        color: #2e73d2;
+    }
+}
