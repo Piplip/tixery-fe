@@ -1,45 +1,123 @@
-import {Avatar, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Typography} from "@mui/material";
-import {useState} from "react";
+import {
+    Alert,
+    Avatar,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    IconButton,
+    Snackbar,
+    Typography
+} from "@mui/material";
+import {useCallback, useEffect, useState} from "react";
 import CloseIcon from '@mui/icons-material/Close';
 import '../../styles/organizer-setting-profile-styles.css'
-import {Link} from "react-router-dom";
+import {Link, useLoaderData, useNavigate} from "react-router-dom";
+import CustomMenu from "../CustomMenu.jsx";
+import {getDownloadURL, getStorage, ref} from "firebase/storage";
+import {initializeApp} from "firebase/app";
+import {firebaseConfig} from "../../config/firebaseConfig.js";
+import DeleteDialog from "../DeleteDialog.jsx";
+import {accountAxiosWithToken} from "../../config/axiosConfig.js";
+import {getUserData} from "../../common/Utilities.js";
 
 function OrganizerSettingProfile() {
+    initializeApp(firebaseConfig);
+    const storage = getStorage()
     const [dialogOpen, setDialogOpen] = useState(false);
-
-    const profiles = [
-        { id: 1, name: "John Doe", avatar: "https://via.placeholder.com/150" },
-        { id: 2, name: "Jane Smith", avatar: "https://via.placeholder.com/150" },
-    ];
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [selectedProfile, setSelectedProfile] = useState(null);
+    const navigate = useNavigate()
+    const [profiles, setProfiles] = useState(useLoaderData().data.records)
+    const [alert, setAlert] = useState({
+        open: false, message: ""
+    })
 
     const handleDialogOpen = () => setDialogOpen(true);
     const handleDialogClose = () => setDialogOpen(false);
 
+    const loadImage = useCallback(async (url) => {
+        if (!url) return null;
+        try {
+            const storageRef = ref(storage, url);
+            return await getDownloadURL(storageRef);
+        } catch (err) {
+            return null;
+        }
+    }, [storage]);
+
+    useEffect(() => {
+        async function loadAllImages() {
+            const updatedProfiles = await Promise.all(
+                profiles.map(async (profile) => {
+                    if (profile[2] && !profile[2].includes('googleusercontent')) {
+                        const loadedUrl = await loadImage(profile[2]);
+                        return [...profile.slice(0, 2), loadedUrl];
+                    }
+                    return profile;
+                })
+            );
+
+            setProfiles(updatedProfiles);
+        }
+
+        if(profiles){
+            loadAllImages();
+        }
+    }, [loadImage]);
+
+    console.log(profiles)
+
+    function handleDeleteProfile(){
+        accountAxiosWithToken.delete(`/organizer/profile/delete?pid=${selectedProfile[0]}&u=${getUserData("sub")}`)
+            .then(() => {
+                setProfiles(profiles.filter(profile => profile[0] !== selectedProfile[0]))
+                setDeleteDialogOpen(false)
+                setAlert({open: true, message: "Profile deleted successfully"})
+            })
+            .catch(err => console.log(err))
+    }
+
     return (
         <section className="organizer-profile">
+            <Snackbar sx={{marginTop: '3rem'}} anchorOrigin={{vertical: 'top', horizontal: 'right'}} open={alert.open}
+                      autoHideDuration={3000} onClose={() => setAlert({open: false, message: ""})}
+            >
+                <Alert severity={"success"} variant="filled" sx={{ width: '100%', backgroundColor: '#21cc0f'}}>
+                    {alert.message}
+                </Alert>
+            </Snackbar>
             <h1 className="organizer-profile__title">Organizer Profiles</h1>
-            <p className="organizer-profile__description">
+            <div className="organizer-profile__description">
                 Each profile describes a unique organizer and shows all of their events on one page. Having a complete profile can encourage attendees to follow you.
                 <Link to={'/help'}> <div style={{display: 'inline', color: 'blue'}}>Learn more</div></Link>
-            </p>
+            </div>
 
             <div className="organizer-profile__list">
-                {profiles.map((profile) => (
-                    <div key={profile.id} className="organizer-profile__card">
-                        <Avatar src={profile.avatar} alt={profile.name} className="organizer-profile__avatar" />
-                        <p className="organizer-profile__name">{profile.name}</p>
-                        <div className="organizer-profile__actions">
-                            <Button variant="outlined" size="small">View</Button>
-                            <Button variant="contained" color="primary" size="small">Edit</Button>
-                        </div>
+                {profiles && profiles.map((profile, index) => (
+                    <div key={index} className="organizer-profile__card">
+                        <Avatar src={profile[2]}
+                                alt={profile.name} className="organizer-profile__avatar"/>
+                        <p className="organizer-profile__name">{profile[1]}</p>
+                        <CustomMenu options={['View', 'Edit', 'Delete']}
+                                    handlers={[() => navigate(`/o/${profile[0]}`),
+                                        () => navigate(`/organizer/profile/info/${profile[0]}`),
+                                        () => {
+                                            setSelectedProfile(profile);
+                                            setDeleteDialogOpen(true)
+                                        }]}
+                        />
                     </div>
                 ))}
                 <button className="organizer-profile__add-button"
-                    onClick={handleDialogOpen}
+                        onClick={handleDialogOpen}
                 >
                     Add New Profile
                 </button>
             </div>
+
+            <DeleteDialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)} handleDelete={handleDeleteProfile}/>
 
             <Dialog open={dialogOpen} onClose={handleDialogClose} sx={{textAlign: 'center'}}>
                 <IconButton
@@ -64,9 +142,11 @@ function OrganizerSettingProfile() {
                     <Button onClick={handleDialogClose} variant="outlined">
                         Edit Existing
                     </Button>
-                    <Button onClick={handleDialogClose} variant="contained">
-                        Create New
-                    </Button>
+                    <Link to={'/organizer/profile/info'}>
+                        <Button variant="contained">
+                            Create New
+                        </Button>
+                    </Link>
                 </DialogActions>
             </Dialog>
         </section>
