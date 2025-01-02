@@ -1,0 +1,46 @@
+.drag-and-drop-zone {
+    border: 2px dashed #ddd;
+    padding: 1.5rem;
+    text-align: center;
+    background-color: #fff;
+    color: #888;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 50%;
+    max-width: 30rem;
+    min-height: 10rem;
+    align-self: center;
+    display: grid;
+    place-items: center;
+}
+
+.drag-and-drop-zone.dragging {
+    border-color: #7289da;
+    background-color: #f4f4f4;
+}
+
+.drag-and-drop-zone:hover {
+    background-color: #f1f1f1;
+}
+
+.dragging-indicator {
+    font-size: 1.2rem;
+    color: #7289da;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.drag-and-drop-preview {
+    width: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
