@@ -18,6 +18,19 @@ export const accountAxiosWithToken = axios.create({
     }
 })
 
+accountAxiosWithToken.interceptors.request.use(
+    config => {
+        const token = localStorage.getItem('tk');
+        if (token) {
+            config.headers['Authorization'] = 'Bearer ' + token;
+        }
+        return config;
+    },
+    error => {
+        return Promise.reject(error);
+    }
+);
+
 accountAxiosWithToken.interceptors.response.use(
     response => response,
     error => {
