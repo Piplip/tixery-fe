@@ -7,31 +7,31 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    background-color: #fafafa;
 }
 .organizer-view-hero__img-wrapper{
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 90dvh;
+    height: 100dvh;
     overflow: hidden;
     display: flex;
     justify-content: center;
 }
 .organizer-view-hero__img{
     height: 100%;
-    filter: blur(10px) brightness(0.8);
-    transform: scale(2.5);
+    filter: blur(20px) brightness(0.8);
+    transform: scale(3);
 }
 .organizer-view-hero__main{
-    z-index: 2;
     padding: 5rem 3rem;
     width: 55%;
     height: 80%;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.76);
     align-self: center;
     border-radius: 1rem 1rem 0 0;
+    position: relative;
+    backdrop-filter: blur(10px);
 
     button{
         background-color: transparent;
@@ -42,18 +42,17 @@
         font-size: 1rem;
         color: #282f38;
         cursor: pointer;
-        transition: background-color 0.3s;
+        transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
     }
 }
-.organizer-view-hero__main button:first-child{
-    background-color: #2464e0;
-    color: white;
+
+.organizer-view-hero__main button:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    transform: scale(1.05);
 }
-.organizer-view-hero__main button:first-child:hover{
-    background-color: #1a4aa6;
-}
-.organizer-view-hero__main button:nth-child(2):hover{
-    background-color: #e8e8e8;
+
+.organizer-view-hero__main button:nth-child(2) {
+    border: 1px solid #ccc;
 }
 .organizer-view-hero__profile-title{
     font-family: DengXian, sans-serif;
@@ -66,6 +65,12 @@
     text-align: center;
     font-family: "Microsoft Tai Le", sans-serif;
     color: #282f38;
+    min-height: 3rem;
+}
+.organizer-view-hero__profile-description:empty::before {
+    content: 'No description provided.';
+    font-style: italic;
+    color: #7e7e7e;
 }
 .organizer-view-hero__social-btn{
     width: fit-content;
@@ -77,8 +82,28 @@
         color: #7e7e7e;
     }
 }
-.organizer-view-hero__social-btn:hover{
-    .MuiSvgIcon-root{
-        color: #2e73d2;
+.organizer-view-hero__social-btn {
+    width: fit-content;
+    align-self: center;
+    font-size: 3rem;
+    margin-top: 1rem;
+
+    .MuiSvgIcon-root {
+        font-size: 2rem;
+        color: #7e7e7e;
+        transition: color 0.3s, box-shadow 0.3s;
     }
+}
+
+.organizer-view-hero__social-btn:hover .MuiSvgIcon-root {
+    color: #2e73d2;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+.organizer-view-hero__main .MuiAvatar-root {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s;
+}
+
+.organizer-view-hero__main .MuiAvatar-root:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
