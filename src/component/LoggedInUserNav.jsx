@@ -14,13 +14,14 @@ function LoggedInUserNav(){
     const [ppImage, setPpImage] = useState(null)
     const attendeeOptions = [
         { name: 'Browse Events', link: '/events', roles: ['attendee'] },
-        { name: 'Manage my events', link: '/manage-events', roles: ['host'] },
+        { name: 'Manage my events', link: '/organizer', roles: ['host'] },
         { name: 'Tickets', link: '/tickets', roles: ['attendee'] },
         { name: 'Likes', link: '/likes' , roles: ['attendee']},
         { name: 'Followings', link: '/followings', roles: ['attendee'] },
         { name: 'Interests', link: '/interests', roles: ['attendee'] },
         { name: 'Account Settings', link: '/account-settings', public: true},
-        { name: 'Profile', link: '/profile', public: true},
+        { name: 'Profile', link: '/organizer/u', roles: ['host']},
+        { name: 'Profile', link: '/profile', roles: ['attendee']},
     ];
     const [fullName] = useState(getUserData('fullName'))
 
@@ -45,7 +46,6 @@ function LoggedInUserNav(){
 
     return (
         <div className={'logged-in-user-nav'}>
-
             <Stack direction={'row'} alignItems={'center'} columnGap={1}>
                 <Avatar src={ppImage} alt="profile">
                     {fullName.charAt(0)}
