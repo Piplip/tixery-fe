@@ -46,13 +46,15 @@ function OrganizerHome(){
                                     <p>Start here</p>
                                 </Stack>
                             </Stack>
-                            <div className={'checklist-steps'}>
-                                <Stack>
-                                    <p>Set up your organizer profile</p>
-                                    <p>Highlight your brand by adding your organizer a name,
-                                        logo and bio</p>
-                                </Stack>
-                            </div>
+                            <Link to={`profile/info/${getUserData('profileID')}`}>
+                                <div className={'checklist-steps'}>
+                                    <Stack>
+                                        <p>Set up your organizer profile</p>
+                                        <p>Highlight your brand by adding your organizer a name,
+                                            logo and bio</p>
+                                    </Stack>
+                                </div>
+                            </Link>
                             <div className={'checklist-steps'}>
                                 <Stack>
                                     <p>Add your bank account</p>
@@ -62,15 +64,17 @@ function OrganizerHome(){
                         </Stack>
                     </Stack>
                 </Stack>
-                <Stack className={'organizer-setup-profile-cta'} rowGap={1}>
-                    <Typography variant={'h6'} fontWeight={'bold'}>
-                        Set up your organizer profile
-                    </Typography>
-                    <Typography variant={'body2'}>
-                        A complete profile can increase discoverability, highlight your brand and trust among attendees
-                    </Typography>
-                    <Link to={'/organizer/info'}>Set up your profile →</Link>
-                </Stack>
+                <Link to={'u'}>
+                    <Stack className={'organizer-setup-profile-cta'} rowGap={1}>
+                        <Typography variant={'h6'} fontWeight={'bold'}>
+                            Set up your organizer profile
+                        </Typography>
+                        <Typography variant={'body2'}>
+                            A complete profile can increase discoverability, highlight your brand and trust among attendees
+                        </Typography>
+                        <p className={'link'}>Set up your profile →</p>
+                    </Stack>
+                </Link>
             </Stack>
         </div>
     )
