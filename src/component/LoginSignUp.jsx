@@ -21,7 +21,7 @@ import accountAxios from "../config/axiosConfig.js";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import {getUserData} from "../common/Utilities.js";
-import {jwtDecode} from "jwt-decode";
+import ForgotPasswordDialog from "./ForgotPasswordDialog.jsx";
 
 const alertRef = {
     'already-used': 'Email already used! Please login directly with that email',
@@ -32,6 +32,7 @@ const alertRef = {
 function LoginSignUp(){
     const isSignUpPage = useLocation().pathname.includes('sign-up')
     const location = useLocation()
+    const [openForgotPassword, setOpenForgotPassword] = useState(false)
     const [awaitResponse, setAwaitResponse] = useState(false)
     const [disabledSend, setDisabledSend] = useState(false)
     const [emailExist, setEmailExist] = useState(false)
@@ -79,7 +80,6 @@ function LoginSignUp(){
             email: data.email,
             password: data.password
         }).then(async res => {
-            console.log(res.data)
             setAwaitResponse(false)
             if(res.data.status === 'OK'){
                 setShowSuccessLogin(true)
@@ -97,9 +97,9 @@ function LoginSignUp(){
             else{
                 setAlertMsg(res.data.message)
             }
-        }).catch(err => {
-            console.log(err)
+        }).catch(() => {
             setAwaitResponse(false)
+            setAlertMsg("Invalid email or password")
             resetForm()
         })
     }
@@ -127,6 +127,8 @@ function LoginSignUp(){
         window.location.href = 'http://localhost:10000/accounts/oauth2/authorization/facebook'
     }
 
+    // TODO: Provide a check when the email is associated with oauth2 account
+
     return (
         <div className={'login-page'}>
             <Snackbar
@@ -138,6 +140,7 @@ function LoginSignUp(){
                     {alertMsg ? alertMsg : ""}
                 </Alert>
             </Snackbar>
+            <ForgotPasswordDialog open={openForgotPassword} handleClose={() => setOpenForgotPassword(false)}/>
             <div className={'login-page__img-wrapper'}>
                 <img className={'login-page__img'}
                     src={'https://preview.redd.it/arcane-season-2-fanart-poster-v0-1b1syno6q8qd1.jpeg?width=1080&crop=smart&auto=webp&s=62c457f3dca468d3d6fc9515d40625dd72b5d0b0'} alt={'login-page-img'} />
@@ -188,7 +191,7 @@ function LoginSignUp(){
                                        value={values.password}
                                        error={touched.password && Boolean(errors.password)}
                                        helperText={touched.password && errors.password}
-                                       variant="outlined" autoComplete={"one-time-code"}
+                                       variant="outlined"
                                        slotProps={{
                                            input: {
                                                endAdornment: <InputAdornment position="start">
@@ -230,7 +233,11 @@ function LoginSignUp(){
                                     />
                                 </>
                             }
-                            {!isSignUpPage && <FormHelperText>{"Forgot password ?"}</FormHelperText>}
+                            {!isSignUpPage && <FormHelperText>
+                                <span className={'link'}
+                                    onClick={() => setOpenForgotPassword(true)}
+                                >Forgot password ?</span>
+                            </FormHelperText>}
                             <Button variant={'contained'} type={'submit'} disabled={disabledSend || emailExist}
                                     onSubmit={handleSubmit}
                                     sx={{
