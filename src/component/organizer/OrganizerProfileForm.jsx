@@ -3,7 +3,6 @@ import {
     Alert,
     Button,
     IconButton,
-    OutlinedInput,
     Snackbar,
     Stack,
     Switch,
@@ -12,7 +11,7 @@ import {
 } from "@mui/material";
 import {CopyAll, Edit} from "@mui/icons-material";
 import "../../styles/organizer-edit-profile-styles.css"
-import {Link, useLocation, useNavigate} from "react-router-dom";
+import {Link, useLocation} from "react-router-dom";
 import DragAndDropZone from "../DragAndDropZone.jsx";
 import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
@@ -21,6 +20,7 @@ import {generateFileName, getUserData} from "../../common/Utilities.js";
 import {accountAxiosWithToken} from "../../config/axiosConfig.js";
 import SaveIcon from '@mui/icons-material/Save';
 import PropTypes from "prop-types";
+import TextAreaWithLimit from "../TextAreaWithLimit.jsx";
 
 OrganizerProfileForm.propTypes = {
     profileData: PropTypes.object
@@ -29,7 +29,6 @@ OrganizerProfileForm.propTypes = {
 function OrganizerProfileForm({profileData}){
     initializeApp(firebaseConfig);
     const storage = getStorage()
-    const navigate = useNavigate()
     const [formData, setFormData] = useState({
         organizerName: profileData && profileData.profile_name !== null ? profileData.profile_name : "",
         organizerBio: profileData && profileData.description !== null ? profileData.description : "",
@@ -54,11 +53,28 @@ function OrganizerProfileForm({profileData}){
             ...prevData,
             [name]: type === "checkbox" ? checked : value,
         }));
+        if(name === 'customURL'){
+            accountAxiosWithToken.get(`/organizer/profile/custom-url/check?url=${value}`)
+                .then(r => {
+                    if(r.data.message !== "Unique"){
+                        setErrors((prevErrors) => ({...prevErrors, customURL: "This URL is already taken. Please choose another one."}))
+                    }
+                })
+        }
     }
 
     function validateForm() {
         const newErrors = {};
         if (!formData.organizerName.trim()) newErrors.organizerName = "Organizer Name is required.";
+        if(formData.socialMedia !== ""){
+            const socialMediaLinks = formData.socialMedia.split(',').map(link => link.trim());
+            for(const link of socialMediaLinks){
+                if(!link.includes('facebook') && !link.includes('x.com') && !link.includes('instagram') && !link.includes('linkedin')){
+                    newErrors.socialMedia = "Please enter a valid social media link";
+                    break;
+                }
+            }
+        }
         return newErrors;
     }
 
@@ -69,17 +85,13 @@ function OrganizerProfileForm({profileData}){
     async function uploadImage() {
         const fileName = generateFileName();
         const storageRef = ref(storage, `/profile-image/${fileName}`);
-        try {
-            const res = await uploadBytes(storageRef, formData.ppImageURL);
-            const fullPath = res.metadata.fullPath;
-            setFormData((prevData) => ({
-                ...prevData,
-                ppImageURL: fullPath,
-            }));
-            return fullPath;
-        } catch (err) {
-            throw err;
-        }
+        const res = await uploadBytes(storageRef, formData.ppImageURL);
+        const fullPath = res.metadata.fullPath;
+        setFormData((prevData) => ({
+            ...prevData,
+            ppImageURL: fullPath,
+        }));
+        return fullPath;
     }
 
     async function saveProfile() {
@@ -94,13 +106,18 @@ function OrganizerProfileForm({profileData}){
             if(formData.ppImageURL !== ppImageURLRef.current){
                 uploadedPath = await uploadImage();
             }
+            else {
+                uploadedPath = formData.ppImageURL
+            }
         } catch (err) {
             console.error('Error saving profile:', err);
         } finally {
-            const regex = /http:\/\/localhost:5173\/organizer\/profile\/info\/.+/g
+            console.log(uploadedPath)
+            console.log(formData)
+            const regex = /\/organizer\/profile\/info\/.+/g
             const url = regex.test(location.pathname)
-                ? `/organizer/profile/create?u=${getUserData("sub")}`
-                : `/organizer/profile/update?pid=${profileData.profile_id}`
+                ? `/organizer/profile/update?pid=${profileData.profile_id}&u=${getUserData("sub")}`
+                : `/organizer/profile/create?u=${getUserData("sub")}`
             accountAxiosWithToken.post(url, {
                 ppName: formData.organizerName, ppImageURL: uploadedPath, ppDescription: formData.organizerBio,
                 emailOptIn: formData.emailOptIn ? '1' : '0', socialMediaLinks: formData.socialMedia, customURL: formData.customURL
@@ -111,17 +128,18 @@ function OrganizerProfileForm({profileData}){
                         setAlert({open: true, message: "New profile added successfully!"})
                     }
                     else if(r.data.message === "Profile updated"){
+                        if(r.data.data !== null){
+                            localStorage.setItem('tk', r.data.data)
+                        }
                         setAlert({open: true, message: "Profile updated successfully!"})
                     }
                     setTimeout(() => {
-                        navigate('/organizer/u')
+                        window.location.href = '/organizer/u'
                     }, 2000)
                 })
                 .catch(err => console.log(err))
         }
     }
-
-    // TODO: adding a check for unique custom URL
 
     return (
         <div className="edit-organizer-profile">
@@ -177,12 +195,15 @@ function OrganizerProfileForm({profileData}){
                                         {editCustomURL ?
                                             <Stack direction={'row'} columnGap={1} alignItems={'center'}>
                                                 https://example.com/
-                                                <OutlinedInput name={"customURL"} value={formData.customURL}
-                                                    onChange={handleInputChange}
-                                                    size={"small"} type={'text'} autoFocus/>
+                                                <TextField name={"customURL"} value={formData.customURL}
+                                                           onChange={handleInputChange}
+                                                           size={"small"} type={'text'} autoFocus
+                                                           error={!!errors.customURL}
+                                                           helperText={errors.customURL}
+                                                />
                                             </Stack>
                                             :
-                                            <Link to={`/o/${formData.customURL ? formData.customURL : 'your-organizer-name'}`}>
+                                            <Link to={`${formData.customURL ? `/o/${formData.customURL}` : '#'}`}>
                                                 {`https://example.com/${formData.customURL ? formData.customURL : 'your-organizer-name'}`}
                                             </Link>
                                         }
@@ -194,7 +215,7 @@ function OrganizerProfileForm({profileData}){
                                     <CopyAll/>
                                 </IconButton>
                             </Tooltip>
-                            <Tooltip title={`${editCustomURL ? 'Save' : 'Edit'} URL`} onClick={() => setEditCustomURL(prev => !prev)}>
+                            <Tooltip title={`${editCustomURL ? 'Save' : 'Edit'} URL`} onClick={() => {setEditCustomURL(prev => !prev)}}>
                                 <IconButton>
                                     {editCustomURL ? <SaveIcon/> : <Edit />}
                                 </IconButton>
@@ -207,13 +228,9 @@ function OrganizerProfileForm({profileData}){
                             Describe who you are, the types of events you host, or your mission. The bio is displayed on
                             your organizer profile.
                         </p>
-                        <TextField multiline rows={4}
-                            name="organizerBio"
-                            className="edit-organizer-profile__textarea"
-                            placeholder="Write about the organizer..."
-                            value={formData.organizerBio}
-                            onChange={handleInputChange}
-                        ></TextField>
+                        <TextAreaWithLimit name="organizerBio"
+                            value={formData.organizerBio} handleChange={handleInputChange}
+                            maxChars={500} placeholder={"Write about the organizer..."} />
                     </div>
                 </Stack>
                 <Stack rowGap={2}>
@@ -224,8 +241,10 @@ function OrganizerProfileForm({profileData}){
                     <div className="edit-organizer-profile__field">
                         <TextField name="socialMedia" variant="outlined" fullWidth
                                    label="Social Media Link"
-                                   placeholder={"Put your social media links here, separated by commas"}
+                                   placeholder={"Put your social media links here, separated by commas (accepted links: facebook, twitter, instagram, linkedin)"}
                                    value={formData.socialMedia} onChange={handleInputChange}
+                                   error={!!errors.socialMedia}
+                                   helperText={errors.socialMedia}
                         />
                     </div>
                     <Stack direction={'row'} columnGap={1}>
