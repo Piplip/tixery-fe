@@ -94,7 +94,8 @@ function App() {
                     },
                 }
             ]
-        }
+        },
+        {path: '/dev', element: <LoadingFallback />}
     ])
 
     return (
