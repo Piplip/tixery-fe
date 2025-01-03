@@ -67,12 +67,11 @@ function OrganizerSettingProfile() {
         }
     }, [loadImage]);
 
-    console.log(profiles)
-
     function handleDeleteProfile(){
-        accountAxiosWithToken.delete(`/organizer/profile/delete?pid=${selectedProfile[0]}&u=${getUserData("sub")}`)
-            .then(() => {
-                setProfiles(profiles.filter(profile => profile[0] !== selectedProfile[0]))
+        accountAxiosWithToken.delete(`/organizer/profile/delete?pid=${selectedProfile}&u=${getUserData("sub")}`)
+            .then((r) => {
+                localStorage.setItem('tk', r.data.data)
+                setTimeout(() => window.location.reload(), 1000)
                 setDeleteDialogOpen(false)
                 setAlert({open: true, message: "Profile deleted successfully"})
             })
@@ -101,10 +100,10 @@ function OrganizerSettingProfile() {
                                 alt={profile.name} className="organizer-profile__avatar"/>
                         <p className="organizer-profile__name">{profile[1]}</p>
                         <CustomMenu options={['View', 'Edit', 'Delete']}
-                                    handlers={[() => navigate(`/o/${profile[0]}`),
+                                    handlers={[() => window.open(`/o/${profile[0]}`),
                                         () => navigate(`/organizer/profile/info/${profile[0]}`),
                                         () => {
-                                            setSelectedProfile(profile);
+                                            setSelectedProfile(profile[0]);
                                             setDeleteDialogOpen(true)
                                         }]}
                         />
@@ -135,13 +134,10 @@ function OrganizerSettingProfile() {
                     Are you sure you want to create a new <br/>organizer profile?</DialogTitle>
                 <DialogContent sx={{paddingInline: '3rem'}}>
                     <Typography variant={'body2'} color={'gray'}>
-                        We created an existing organizer profile for you so that you can easily edit it.
+                        You can create a new profile for a different organizer
                     </Typography>
                 </DialogContent>
                 <DialogActions sx={{alignSelf: 'center', marginBottom: '.5rem'}}>
-                    <Button onClick={handleDialogClose} variant="outlined">
-                        Edit Existing
-                    </Button>
                     <Link to={'/organizer/profile/info'}>
                         <Button variant="contained">
                             Create New
