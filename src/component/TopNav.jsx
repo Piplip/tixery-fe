@@ -4,7 +4,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import {Stack} from "@mui/material";
 import "../styles/top-nav-styles.css"
 import {Link, useLocation} from "react-router-dom";
-import {hasRole, checkLoggedIn} from "../common/Utilities.js";
+import {hasRole, checkLoggedIn, getUserData} from "../common/Utilities.js";
 import LoggedInUserNav from "./LoggedInUserNav.jsx";
 import * as PropsType from "prop-types";
 
@@ -15,6 +15,7 @@ TopNav.propTypes = {
 function TopNav(props){
     const isLoggedIn = checkLoggedIn();
     const location = useLocation()
+    const homeLocation = getUserData('role') === 'host' ? '/organizer' : '/'
 
     const navLinks = [
         {
@@ -57,7 +58,7 @@ function TopNav(props){
 
     return (
         <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'} className={`top-nav-container`}>
-            <Link to={'/'}>
+            <Link to={homeLocation}>
                 <img src={Logo} alt="logo" width={'100px'}/>
             </Link>
             {!location.pathname.includes('organizer') &&
@@ -86,7 +87,7 @@ function TopNav(props){
                         </Stack>
                     );
                 })}
-                {isLoggedIn && props.isLoggedIn && <LoggedInUserNav />}
+                {(isLoggedIn || props.isLoggedIn) && <LoggedInUserNav />}
             </Stack>
         </Stack>
     )
