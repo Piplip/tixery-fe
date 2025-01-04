@@ -2,7 +2,7 @@
     width: 100%;
     height: 100dvh;
 }
-.organizer-template-outlet-wrapper{
+.organizer-template-outlet-wrapper > *{
     padding-top: 5rem;
 }
 .organizer-template > *:not(.left-nav, .top-nav-container) {

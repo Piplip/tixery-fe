@@ -39,6 +39,7 @@ function OrganizerProfileForm({profileData}){
     });
     const ppImageURLRef = useRef(formData.ppImageURL);
     const [isLoading, setIsLoading] = useState(false)
+    const formRef = useRef(formData)
     const [alert, setAlert] = useState({
         open: false, message: ""
     })
@@ -79,7 +80,12 @@ function OrganizerProfileForm({profileData}){
     }
 
     function handleCopyUrl() {
-        navigator.clipboard.writeText(formData.website);
+        const url = `http://localhost:5173/o/${formData.customURL}`;
+        navigator.clipboard.writeText(url)
+            .then(() => {
+                setAlert({open: true, message: "URL copied to clipboard!"})
+            })
+            .catch(err => console.log(err))
     }
 
     async function uploadImage() {
@@ -94,56 +100,67 @@ function OrganizerProfileForm({profileData}){
         return fullPath;
     }
 
+    function isChanged(){
+        return formRef.current.organizerName !== formData.organizerName ||
+            formRef.current.organizerBio !== formData.organizerBio ||
+            formRef.current.socialMedia !== formData.socialMedia ||
+            formRef.current.emailOptIn !== formData.emailOptIn ||
+            formRef.current.ppImageURL !== formData.ppImageURL ||
+            formRef.current.customURL !== formData.customURL
+    }
+
     async function saveProfile() {
         const validationErrors = validateForm();
         if (Object.keys(validationErrors).length) {
             setErrors(validationErrors);
             return;
         }
-        setIsLoading(true)
-        let uploadedPath
-        try {
-            if(formData.ppImageURL !== ppImageURLRef.current){
-                uploadedPath = await uploadImage();
-            }
-            else {
-                uploadedPath = formData.ppImageURL
-            }
-        } catch (err) {
-            console.error('Error saving profile:', err);
-        } finally {
-            console.log(uploadedPath)
-            console.log(formData)
-            const regex = /\/organizer\/profile\/info\/.+/g
-            const url = regex.test(location.pathname)
-                ? `/organizer/profile/update?pid=${profileData.profile_id}&u=${getUserData("sub")}`
-                : `/organizer/profile/create?u=${getUserData("sub")}`
-            accountAxiosWithToken.post(url, {
-                ppName: formData.organizerName, ppImageURL: uploadedPath, ppDescription: formData.organizerBio,
-                emailOptIn: formData.emailOptIn ? '1' : '0', socialMediaLinks: formData.socialMedia, customURL: formData.customURL
-            })
-                .then((r) => {
-                    setIsLoading(false)
-                    if(r.data.message === "Profile created"){
-                        setAlert({open: true, message: "New profile added successfully!"})
-                    }
-                    else if(r.data.message === "Profile updated"){
-                        if(r.data.data !== null){
-                            localStorage.setItem('tk', r.data.data)
-                        }
-                        setAlert({open: true, message: "Profile updated successfully!"})
-                    }
-                    setTimeout(() => {
-                        window.location.href = '/organizer/u'
-                    }, 2000)
+        if(isChanged()){
+            setIsLoading(true)
+            let uploadedPath
+            try {
+                if(formData.ppImageURL !== ppImageURLRef.current){
+                    uploadedPath = await uploadImage();
+                }
+                else {
+                    uploadedPath = formData.ppImageURL
+                }
+            } catch (err) {
+                console.error('Error saving profile:', err);
+            } finally {
+                console.log(uploadedPath)
+                console.log(formData)
+                const regex = /\/organizer\/profile\/info\/.+/g
+                const url = regex.test(location.pathname)
+                    ? `/organizer/profile/update?pid=${profileData.profile_id}&u=${getUserData("sub")}`
+                    : `/organizer/profile/create?u=${getUserData("sub")}`
+                accountAxiosWithToken.post(url, {
+                    ppName: formData.organizerName, ppImageURL: uploadedPath, ppDescription: formData.organizerBio,
+                    emailOptIn: formData.emailOptIn ? '1' : '0', socialMediaLinks: formData.socialMedia, customURL: formData.customURL
                 })
-                .catch(err => console.log(err))
+                    .then((r) => {
+                        setIsLoading(false)
+                        if(r.data.message === "Profile created"){
+                            setAlert({open: true, message: "New profile added successfully!"})
+                        }
+                        else if(r.data.message === "Profile updated"){
+                            if(r.data.data !== null){
+                                localStorage.setItem('tk', r.data.data)
+                            }
+                            setAlert({open: true, message: "Profile updated successfully!"})
+                        }
+                        setTimeout(() => {
+                            window.location.href = '/organizer/u'
+                        }, 2000)
+                    })
+                    .catch(err => console.log(err))
+            }
         }
     }
 
     return (
         <div className="edit-organizer-profile">
-            <Snackbar sx={{marginTop: '3rem'}}
+            <Snackbar sx={{marginTop: '3rem'}} autoHideDuration={3000}
                 anchorOrigin={{vertical: 'top', horizontal: 'right'}}
                 open={alert.open} onClose={() => setAlert({open: false, message: ""})}
             >
@@ -203,7 +220,7 @@ function OrganizerProfileForm({profileData}){
                                                 />
                                             </Stack>
                                             :
-                                            <Link to={`${formData.customURL ? `/o/${formData.customURL}` : '#'}`}>
+                                            <Link to={`${formData.customURL ? `/o/${formData.customURL}` : '#'}`} target={'_blank'}>
                                                 {`https://example.com/${formData.customURL ? formData.customURL : 'your-organizer-name'}`}
                                             </Link>
                                         }
@@ -212,7 +229,7 @@ function OrganizerProfileForm({profileData}){
                             </div>
                             <Tooltip title="Copy URL">
                                 <IconButton onClick={handleCopyUrl}>
-                                    <CopyAll/>
+                                    <CopyAll />
                                 </IconButton>
                             </Tooltip>
                             <Tooltip title={`${editCustomURL ? 'Save' : 'Edit'} URL`} onClick={() => {setEditCustomURL(prev => !prev)}}>

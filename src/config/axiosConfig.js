@@ -34,6 +34,7 @@ accountAxiosWithToken.interceptors.request.use(
 accountAxiosWithToken.interceptors.response.use(
     response => response,
     error => {
+        console.log(error)
         if (error.response && error.response.status === 401) {
             const data = error.response.data;
             if (data.redirect) {

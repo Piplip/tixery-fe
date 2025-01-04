@@ -33,7 +33,6 @@ function OrganizerSettingProfile() {
     const [alert, setAlert] = useState({
         open: false, message: ""
     })
-
     const handleDialogOpen = () => setDialogOpen(true);
     const handleDialogClose = () => setDialogOpen(false);
 
@@ -53,7 +52,7 @@ function OrganizerSettingProfile() {
                 profiles.map(async (profile) => {
                     if (profile[2] && !profile[2].includes('googleusercontent')) {
                         const loadedUrl = await loadImage(profile[2]);
-                        return [...profile.slice(0, 2), loadedUrl];
+                        profile[2] = loadedUrl || profile[2];
                     }
                     return profile;
                 })
@@ -100,7 +99,7 @@ function OrganizerSettingProfile() {
                                 alt={profile.name} className="organizer-profile__avatar"/>
                         <p className="organizer-profile__name">{profile[1]}</p>
                         <CustomMenu options={['View', 'Edit', 'Delete']}
-                                    handlers={[() => window.open(`/o/${profile[0]}`),
+                                    handlers={[() => window.open(`/o/${profile[3] ? profile[3] : profile[0]}`),
                                         () => navigate(`/organizer/profile/info/${profile[0]}`),
                                         () => {
                                             setSelectedProfile(profile[0]);

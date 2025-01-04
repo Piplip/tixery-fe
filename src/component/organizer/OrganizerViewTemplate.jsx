@@ -4,8 +4,8 @@ import TopNav from "../TopNav.jsx";
 function OrganizerViewTemplate() {
     return (
         <div>
-            <TopNav/>
-            <Outlet/>
+            <TopNav enableScrollEffect={true}/>
+            <Outlet />
         </div>
     );
 }

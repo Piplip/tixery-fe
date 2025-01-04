@@ -7,15 +7,19 @@ import {Link, useLocation} from "react-router-dom";
 import {hasRole, checkLoggedIn, getUserData} from "../common/Utilities.js";
 import LoggedInUserNav from "./LoggedInUserNav.jsx";
 import * as PropsType from "prop-types";
+import {useEffect, useState} from "react";
 
 TopNav.propTypes = {
-    isLoggedIn: PropsType.bool
+    isLoggedIn: PropsType.bool,
+    enableScrollEffect: PropsType.bool
 }
 
 function TopNav(props){
     const isLoggedIn = checkLoggedIn();
     const location = useLocation()
     const homeLocation = getUserData('role') === 'host' ? '/organizer' : '/'
+    const [isVisible, setIsVisible] = useState(true);
+    const [lastScrollPos, setLastScrollPos] = useState(0);
 
     const navLinks = [
         {
@@ -56,8 +60,28 @@ function TopNav(props){
         }
     ];
 
+    useEffect(() => {
+        if (!props.enableScrollEffect) return;
+
+        const handleScroll = () => {
+            const currentScrollPos = window.scrollY;
+
+            if (currentScrollPos > lastScrollPos && currentScrollPos > 50) {
+                setIsVisible(false);
+            } else {
+                setIsVisible(true);
+            }
+            setLastScrollPos(currentScrollPos);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [props.enableScrollEffect, lastScrollPos]);
+
     return (
-        <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'} className={`top-nav-container`}>
+        <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}
+               className={`top-nav-container ${isVisible ? 'visible' : 'hidden'}`}
+        >
             <Link to={homeLocation}>
                 <img src={Logo} alt="logo" width={'100px'}/>
             </Link>

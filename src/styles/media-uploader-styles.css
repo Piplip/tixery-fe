@@ -1,0 +1,221 @@
+.media-uploader {
+    position: relative;
+    max-width: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.media-uploader__initial-state {
+    position: relative;
+    text-align: center;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 25rem;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.media-uploader__carousel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 0;
+    filter: brightness(0.7) grayscale(0.5) blur(1px);
+}
+
+.media-uploader__carousel-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transform: scale(1.2);
+    transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+}
+
+.media-uploader__carousel-image.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.media-uploader__carousel-indicators {
+    position: absolute;
+    bottom: 2rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    z-index: 2;
+}
+
+.media-uploader__carousel-dot {
+    width: 10px;
+    height: 10px;
+    background: #ffffff;
+    opacity: 0.5;
+    border-radius: 50%;
+    transition: opacity 0.3s;
+}
+
+.media-uploader__carousel-dot.active {
+    opacity: 1;
+    background: #2e73d2;
+}
+
+.media-uploader__upload-button {
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    padding: 2rem 1rem;
+    border-radius: .5rem;
+}
+
+.media-uploader__upload-icon {
+    color: #2e73d2;
+    .MuiSvgIcon-root {
+        font-size: 3rem;
+    }
+}
+.media-uploader__upload-button:hover{
+    background-color: #f5f5f5;
+}
+.media-uploader__upload-button p {
+    margin-top: 1rem;
+    font-size: .9rem;
+    font-weight: 500;
+    color: #2e73d2;
+    font-family: "MS Outlook", sans-serif;
+}
+
+.media-uploader__expanded-state {
+    max-width: 100%;
+    padding: 1rem;
+}
+.media-uploader__expanded-state > section:not(:last-child) {
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+}
+
+.media-uploader__description {
+    margin: 0.5rem 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.media-uploader__drop-zone {
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    color: #999;
+    cursor: pointer;
+    position: relative;
+}
+
+.media-uploader__drop-zone input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.media-uploader__preview-container {
+    display: flex;
+    gap: 1rem;
+    padding-block: 1rem;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+}
+
+.media-uploader__preview-item {
+    position: relative;
+    cursor: pointer;
+    width: 120px;
+    height: 120px;
+    overflow: hidden;
+    border-radius: 8px;
+    background-color: #f0f0f0;
+    animation: fadeIn 0.5s ease-in-out;
+    flex: 0 0 auto;
+}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+.media-uploader__preview-item img,
+.media-uploader__preview-item video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.media-uploader__delete-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(255, 0, 0, 0.7);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.media-uploader__preview-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.media-uploader__preview-overlay img {
+    width: 30rem;
+    max-width: 200%;
+    max-height: 200%;
+}
+
+.media-uploader__preview-overlay .media-uploader__delete-btn {
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    color: black;
+}
+.media-uploader__drop-zone.drag-over {
+    background-color: #f0f8ff;
+    border-color: #007bff;
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+    transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+}

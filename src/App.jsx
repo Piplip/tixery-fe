@@ -22,6 +22,7 @@ import {Suspense} from "react";
 import LoadingFallback from "./component/LoadingFallback.jsx";
 import OrganizerNewProfile from "./component/organizer/OrganizerNewProfile.jsx";
 import OrganizerEditProfile from "./component/organizer/OrganizerEditProfile.jsx";
+import CreateEvent from "./component/organizer/CreateEvent.jsx";
 
 function App() {
     const routers = createBrowserRouter([
@@ -52,6 +53,7 @@ function App() {
                 {
                     index: true,
                     element: <OrganizerHome />,
+                    loader: () => accountAxiosWithToken.get(`/organizer/profile?u=${getUserData('sub')}`)
                 },
                 {
                     path: 'u',
@@ -74,6 +76,12 @@ function App() {
 
                         return response.data;
                     },
+                },
+                {
+                    path: 'events',
+                    children: [
+                        {path: 'create', element: <CreateEvent />}
+                    ]
                 }
             ]
         },

@@ -29,7 +29,7 @@ function OrganizerNavBar(){
                 {navItems.map((item) => (
                     <li key={item.label} className="left-nav__item">
                         <NavLink
-                            to={item.to} end
+                            to={item.to} end={item.to === ''}
                             className={({ isActive }) =>
                                 isActive ? 'left-nav__link active' : 'left-nav__link'
                             }

@@ -1,5 +1,5 @@
 import Carousel from "../Carousel.jsx";
-import {Button, Stack} from "@mui/material";
+import {Stack} from "@mui/material";
 import MusicNoteOutlinedIcon from '@mui/icons-material/MusicNoteOutlined';
 import FastfoodOutlinedIcon from '@mui/icons-material/FastfoodOutlined';
 import BusinessOutlinedIcon from '@mui/icons-material/BusinessOutlined';
@@ -9,27 +9,23 @@ import VideoCallOutlinedIcon from '@mui/icons-material/VideoCallOutlined';
 import SportsGymnasticsOutlinedIcon from '@mui/icons-material/SportsGymnasticsOutlined';
 import BeachAccessOutlinedIcon from '@mui/icons-material/BeachAccessOutlined';
 import "../../styles/attendee-hero.css"
-import {accountAxiosWithToken} from "../../config/axiosConfig.js";
 
 function AttendeeHero() {
     const images = [
         {
-            imgURL:
-                "https://cdn.evbstatic.com/s3-build/fe/build/images/427ab8dca801f117ae14301b994842b2-nye_citybrowse_desktop.webp",
+            imgURL: "https://cdn.evbstatic.com/s3-build/fe/build/images/427ab8dca801f117ae14301b994842b2-nye_citybrowse_desktop.webp",
             imgAlt: "img-1"
         },
         {
-            imgURL:
-                "https://cdn.evbstatic.com/s3-build/fe/build/images/38704ac58762310b375e6fed15bef2f5-nye_category_desktop.webp",
+            imgURL: "https://cdn.evbstatic.com/s3-build/fe/build/images/38704ac58762310b375e6fed15bef2f5-nye_category_desktop.webp",
             imgAlt: "img-2"
         },
         {
-            imgURL:
-                "https://cdn.evbstatic.com/s3-build/fe/build/images/f55095eaf945235b290443c5c0827da1-nye_nightlife_desktop.webp",
+            imgURL: "https://cdn.evbstatic.com/s3-build/fe/build/images/f55095eaf945235b290443c5c0827da1-nye_nightlife_desktop.webp",
             imgAlt: "img-3"
         },
         {
-            imgURL: "https://4kwallpapers.com/images/wallpapers/lisa-frankenstein-2560x1080-14961.jpg",
+            imgURL: "https://cdn.evbstatic.com/s3-build/fe/build/images/389ece7b7e2dc7ff8d28524bad30d52c-dsrp_desktop.webp",
             imgAlt: "img-4"
         },
     ];
@@ -66,18 +62,6 @@ function AttendeeHero() {
                     )
                 })}
             </Stack>
-            <Button onClick={() => {
-                console.log('Token before send', localStorage.getItem('tk'))
-                accountAxiosWithToken.get('/protected', {
-                    headers: {
-                        'Authorization': 'Bearer ' + localStorage.getItem('tk'),
-                    }
-                })
-                    .then(r => console.log(r))
-                    .catch(err => console.log(err))
-            }}>
-                Test Protected
-            </Button>
         </Stack>
     )
 }

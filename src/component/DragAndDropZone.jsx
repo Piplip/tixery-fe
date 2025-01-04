@@ -21,6 +21,7 @@ function DragAndDropZone({onFileSelect, image}) {
 
     const loadImage = useCallback(async (url) => {
         if (!url) return null;
+        if (url.includes('googleusercontent')) return url;
         try {
             const storageRef = ref(storage, url);
             return await getDownloadURL(storageRef);

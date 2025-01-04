@@ -7,13 +7,14 @@ import {
     TextField,
     Stack,
     Typography,
-    LinearProgress
+    LinearProgress, Box
 } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import PropTypes from "prop-types";
 import "../styles/forgot-password-dialog-styles.css"
 import accountAxios from "../config/axiosConfig.js";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
 ForgotPasswordDialog.propTypes = {
     open: PropTypes.bool.isRequired,
@@ -146,6 +147,16 @@ function ForgotPasswordDialog ({ open, handleClose }) {
     }
 
     function handleResend () {
+        setIsLoading(true)
+        accountAxios.post(`/forgot-password?u=${formik.values.email}`)
+            .then(r => {
+                if(r.data.status === "OK"){
+                    setIsLoading(false)
+                }
+                else {
+                    alert(r.data.message);
+                }
+            })
         setResendDisabled(true);
         setResendTimeout(30);
     }
@@ -182,7 +193,9 @@ function ForgotPasswordDialog ({ open, handleClose }) {
 
                     {step === 2 && (
                         <Stack spacing={2} alignItems="center">
-                            <Typography variant="h6">Enter Verification Code</Typography>
+                            <Typography variant="h6" textAlign={'center'}>
+                                A verification code has been sent to your email<br/>Please enter the code
+                            </Typography>
                             <Stack
                                 direction="row"
                                 spacing={1}
@@ -254,10 +267,20 @@ function ForgotPasswordDialog ({ open, handleClose }) {
                     )}
 
                     {step === 4 && (
-                        <Stack spacing={2} alignItems="center">
-                            <Typography variant="h6">Success!</Typography>
-                            <Typography variant="body2">
-                                Your password has been reset successfully.
+                        <Stack spacing={3} alignItems="center" className="success-screen">
+                            <Box className="success-animation">
+                                <CheckCircleOutlineIcon
+                                    style={{
+                                        fontSize: '5rem',
+                                        color: '#4caf50',
+                                    }}
+                                />
+                            </Box>
+                            <Typography variant="h4" className="success-message">
+                                Password Reset Successfully!
+                            </Typography>
+                            <Typography variant="body1" className="success-description">
+                                You can now use your new password to log in to your account.
                             </Typography>
                         </Stack>
                     )}

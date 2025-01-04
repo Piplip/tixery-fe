@@ -107,3 +107,26 @@
 .organizer-view-hero__main .MuiAvatar-root:hover {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
+.organizer-view-main{
+    background-color: white;
+    padding: 5rem 5%;
+}
+.organizer-view-main__title{
+    font-family: DengXian, sans-serif;
+    color: #282f38;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+.event-category-wrapper > p{
+    font-family: Rockwell, sans-serif;
+    color: #282f38;
+    font-size: 1.15rem;
+    margin-bottom: 1rem;
+    border: 1px solid;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+}
+.event-category-wrapper > p:hover{
+    cursor: pointer;
+}

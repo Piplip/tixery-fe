@@ -17,6 +17,7 @@ function OrganizerView() {
 
     const loadImage = useCallback(async (url) => {
         if (!url) return null;
+        if(url.includes('googleusercontent')) return url;
         try {
             const storageRef = ref(storage, url);
             return await getDownloadURL(storageRef);
@@ -25,7 +26,7 @@ function OrganizerView() {
             return null;
         }
     }, [storage]);
-    console.log(data)
+
     useEffect(() => {
         if(data['profile_image_url']){
             loadImage(data['profile_image_url']).then((url) => setProfileImage(url))
@@ -34,7 +35,6 @@ function OrganizerView() {
             setProfileImage("#")
         }
     }, [])
-
 
     return (
         profileImage ?
@@ -66,7 +66,7 @@ function OrganizerView() {
                                     {data['description']}
                                 </p>
                                 <Stack direction={'row'} alignSelf={'center'} flexGrow={1} marginTop={5} columnGap={2}>
-                                    {data['social_media_links'].split(',').map((link, index) => {
+                                    {data['social_media_links'] && data['social_media_links'].split(',').map((link, index) => {
                                         return (
                                             <Link to={link} key={index} target={'_blank'}>
                                                 {link.includes('facebook') ?
@@ -80,6 +80,20 @@ function OrganizerView() {
                         </Stack>
                     </div>
                 }
+                <div className={'organizer-view-main'}>
+                    <div style={{borderBottom: '3px solid #c2c2c2', paddingBottom: '.5rem', marginBottom: '2rem'}}>
+                        <p style={{borderBottom: '3px solid #ff2d2d', display: 'inline', paddingBottom: '.5rem', fontSize: '1.25rem'}}>
+                            Events</p>
+                    </div>
+                    <p className={'organizer-view-main__title'}>Events</p>
+                    <Stack className={'event-category-wrapper'} direction={'row'} columnGap={1}>
+                        <p>Upcoming (0)</p>
+                        <p>Past (0)</p>
+                    </Stack>
+                    <div>
+                        <p>Sorry, there are no upcoming events</p>
+                    </div>
+                </div>
             </div>
             :
             <LoadingFallback />

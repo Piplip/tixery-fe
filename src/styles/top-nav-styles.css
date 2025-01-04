@@ -1,6 +1,5 @@
 .top-nav-container{
     padding: 10px 1.5rem;
-    transition: top .3s;
     position: fixed;
     width: 100%;
     top: 0;
@@ -9,6 +8,16 @@
     border-bottom: 1px solid gray;
     font-family: DengXian, sans-serif;
     font-size: .9rem;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.top-nav-container.hidden {
+    transform: translateY(-100%);
+    opacity: 0;
+}
+
+.top-nav-container.visible {
+    transform: translateY(0);
+    opacity: 1;
 }
 .top-nav-input-container{
     border: 1px solid #c5c5c5;
