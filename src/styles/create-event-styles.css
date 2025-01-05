@@ -1,14 +1,16 @@
 .create-events-wrapper{
     display: flex;
     align-items: center;
-    height: 100dvh;
 }
 .create-events__stepper{
-    height: fit-content;
-    background-color: rgba(245, 245, 245, 0.55);
+    background-color: rgba(236, 236, 236, 0.55);
     padding: 1rem 1.5rem;
     width: 30%;
     max-width: 20rem;
+    position: fixed;
+    height: fit-content;
+    top: 50%;
+    transform: translateY(-50%);
 }
 .create-events-stepper__main{
     border-block: 1px solid grey;
@@ -65,20 +67,115 @@
     cursor: default;
 }
 .create-events__main{
-    flex-grow: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
+    row-gap: 1.5rem;
+    flex-grow: 1;
+    margin-left: 20%;
+    align-self: flex-end;
+    padding-block: 1rem;
+    width: 100%;
 }
 .create-events__main > div{
-    width: fit-content;
-    max-width: 70%;
+    /*width: fit-content;*/
+    width: 55%;
     min-width: clamp(20rem, 70%, 40rem);
-    border: 2px solid #004b86;
-    height: fit-content;
+    border: 2px solid #bbbbbb;
     padding: 1.25rem;
     border-radius: 1rem;
     display: flex;
+    height: fit-content;
     flex-direction: column;
     row-gap: 1rem;
+    position: relative;
+}
+.create-events__main > div:hover{
+    border-color: #004b86;
+}
+.expand-btn{
+    position: absolute;
+    background-color: #004b86;
+    right: .5rem;
+    top: .5rem;
+    font-size: 2rem;
+    font-weight: bold;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+}
+.expand-btn:hover{
+    cursor: pointer;
+}
+.create-events-main__event-title{
+    font-family: "Microsoft Tai Le", sans-serif;
+    font-size: .9rem;
+    color: #656565;
+}
+.create-events-title__title{
+    font-size: 3rem;
+    font-weight: 1000;
+    font-family: "Gill Sans MT", sans-serif;
+    color: black;
+}
+.event-overview-form {
+    max-width: 600px;
+    background-color: #fff;
+    border-radius: 8px;
+}
+
+.event-overview-form .form-label {
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.event-overview-form .form-description {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.event-overview-form .see-examples {
+    color: #2464e0;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.event-overview-form .input-wrapper {
+    position: relative;
+}
+
+.event-overview-form .character-counter {
+    text-align: right;
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 0.5rem;
+}
+
+.event-overview-form .suggest-summary-btn {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #2464e0;
+    border-color: #2464e0;
+}
+.create-events-main__continue-btn {
+    background-color: rgba(196, 18, 18, 0.7);
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    padding: .75rem 1.25rem;
+    color: white;
+    border: 1px solid rgba(196, 18, 18, 0.7);
+}
+
+.create-events-main__continue-btn:hover{
+    background-color: rgba(196, 18, 18, 1);
+    cursor: pointer;
 }

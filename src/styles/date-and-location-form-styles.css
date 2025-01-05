@@ -1,0 +1,70 @@
+.date-and-location {
+    border: 1px solid #dfe1e6;
+    border-radius: 8px;
+    padding: 24px;
+    background: #fff;
+}
+
+.date-and-location h2, h3{
+    font-weight: bold;
+    font-family: "Microsoft Tai Le", sans-serif;
+    color: #656565;
+}
+
+.event-type__button {
+    width: 50%;
+    border-radius: 1rem;
+    background: #f9f9f9;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    column-gap: .5rem;
+}
+.event-type__button p:first-child{
+    font-family: Sylfaen, sans-serif;
+    color: #115e91;
+    font-size: 1.1rem;
+}
+.event-type__button p:last-child{
+    font-size: .55rem;
+    color: black;
+}
+.event-type__button:hover{
+    box-shadow: 0 0 10px #c9ddff;
+}
+.event-type__button.active {
+    border: 1px solid #0052cc;
+    box-shadow: 0 0 10px #c9ddff;
+    background-color: rgba(231, 250, 255, 0.42);
+}
+
+.event-type__icon {
+    font-size: 20px;
+}
+
+.date-time-section {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.date-time-info {
+    color: #6b778c;
+}
+
+.location-section {
+    margin-top: 24px;
+}
+
+.online-event-info {
+    font-size: 14px;
+    color: #6b778c;
+    margin-top: 16px;
+}
+.date-and-location__more-options{
+    color: #0086d9;
+}
+.date-and-location__more-options:hover{
+    cursor: pointer;
+}

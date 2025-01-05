@@ -21,9 +21,9 @@ Section.propTypes = {
 }
 
 const carouselImages = [
-    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNwmiO5Xo1icoqyNo7t-Mob-BVQeIA_cLxlg&s',
-    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmgEX_k9Fts97FWAIsWqNEAG3NK1eF53HL1Q&s',
-    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSfNYhk72dlwbgovRwcWR5UqCPV5g8DfkPyQ&s',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSaF2mDHqqeufnHfVh6xdwBJt7NcUOhopTiOQ&s',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqofGVlqQONkX26S2FYN9IVjBDBlHqs8TvZg&s',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSnEys5tBHYLbhADjGJzoM5BloFy9AP-uyRzg&s'
 ];
 
 const IMAGE_MAX_SIZE_MB = 5;
