@@ -17,6 +17,8 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import RadioButtonCheckedSharpIcon from '@mui/icons-material/RadioButtonCheckedSharp';
 import * as Yup from 'yup';
 import {Field, Form, Formik} from "formik";
+import Switch from '@mui/material/Switch';
+import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 
 const checkboxStyle = {
     sx: {
@@ -101,19 +103,25 @@ function DateAndLocationForm(){
                         label="Date"
                         value={selectedDate}
                         onChange={(newValue) => setSelectedDate(newValue)}
-                        renderInput={(params) => <TextField {...params} />}
+                        slotProps={{
+                            textField: {variant: 'outlined'}
+                        }}
                     />
                     <TimePicker
                         label="Start time"
                         value={startTime}
                         onChange={(newValue) => setStartTime(newValue)}
-                        renderInput={(params) => <TextField {...params} />}
+                        slotProps={{
+                            textField: {variant: 'outlined'}
+                        }}
                     />
                     <TimePicker
                         label="End time"
                         value={endTime}
                         onChange={(newValue) => setEndTime(newValue)}
-                        renderInput={(params) => <TextField {...params} />}
+                        slotProps={{
+                            textField: {variant: 'outlined'}
+                        }}
                     />
                 </div>
             </LocalizationProvider>
@@ -137,12 +145,32 @@ function DateAndLocationForm(){
                     <Tab label="To be announced" value="tba"/>
                 </Tabs>
                 {activeTab === "venue" && (
-                    <TextField
-                        label="Location *"
-                        fullWidth
-                        placeholder="Enter a location"
-                        margin="normal"
-                    />
+                    <Stack>
+                        <TextField
+                            label="Location *"
+                            fullWidth
+                            placeholder="Enter a location"
+                            margin="normal"
+                        />
+                        <div className={'location-venue__reserve-seating'}>
+                            <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
+                                <p style={{fontWeight: 'bold'}}>Reserved seating</p>
+                                <Switch/>
+                            </Stack>
+                            <p>Use your venue map to set price tiers for each section and choose whether attendees can
+                                pick their seat.</p>
+                        </div>
+                        {selectedDate && startTime && endTime && eventType && initialValues.timezone &&
+                            <Stack className={'location-venue__verify-phone'} direction={'row'} alignItems={'center'} columnGap={2}>
+                                <PriorityHighIcon sx={{backgroundColor: '#ffed41'}}/>
+                                <Stack rowGap={1}>
+                                    <p>Verify your phone number</p>
+                                    <p>We&#39;ll send the phone number you enter a one-time verification code. This keeps Eventbrite a place to host real events.</p>
+                                </Stack>
+                                <Button variant={'text'} sx={{width: 'fit=content', fontSize: '.8rem'}}>Verify now</Button>
+                            </Stack>
+                        }
+                    </Stack>
                 )}
                 {activeTab === "online" && (
                     <p className="online-event-info">

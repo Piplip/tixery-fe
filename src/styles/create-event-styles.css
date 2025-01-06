@@ -40,14 +40,18 @@
 .create-events-stepper__step{
     display: flex;
     color: gray;
+    border: 2px solid transparent;
+    transition: all .15s linear;
     div{
         display: flex;
         flex-direction: column;
         justify-content: center;
     }
 }
-.create-events-stepper__step:hover{
-    cursor: not-allowed;
+.create-events-stepper__step:hover:not(.create-events__disabled-step, .create-events__active-step){
+    border-color: white;
+    background-color: #e1e1e1;
+    cursor: pointer;
 }
 .create-events-stepper__step p:first-child{
     font-weight: 500;
@@ -57,7 +61,7 @@
     font-size: .9rem;
     margin-top: .2rem;
 }
-.create-events-stepper__current-step{
+.create-events__active-step{
     color: black;
     background-color: rgb(222, 222, 222);
     padding-block: .5rem;
@@ -77,9 +81,8 @@
     padding-block: 1rem;
     width: 100%;
 }
-.create-events__main > div{
-    /*width: fit-content;*/
-    width: 55%;
+.create-events__main > div:not(.organizer-create-ticket, .event-publish){
+    width: 60%;
     min-width: clamp(20rem, 70%, 40rem);
     border: 2px solid #bbbbbb;
     padding: 1.25rem;
@@ -123,7 +126,6 @@
     color: black;
 }
 .event-overview-form {
-    max-width: 600px;
     background-color: #fff;
     border-radius: 8px;
 }
@@ -166,16 +168,25 @@
     border-color: #2464e0;
 }
 .create-events-main__continue-btn {
-    background-color: rgba(196, 18, 18, 0.7);
     position: fixed;
     right: 1rem;
-    bottom: 1rem;
+    bottom: 1.5rem;
     padding: .75rem 1.25rem;
-    color: white;
-    border: 1px solid rgba(196, 18, 18, 0.7);
+    font-size: 1rem;
+    background-color: white;
+    color: black;
+    transition: all .15s linear;
+    border-color: #2e73d2;
 }
 
-.create-events-main__continue-btn:hover{
-    background-color: rgba(196, 18, 18, 1);
+.create-events-main__continue-btn:hover {
     cursor: pointer;
+    color: white;
+    background-color: #004b86;
+}
+.create-events__disabled-step{
+    color: #c4c4c4;
+}
+.create-events__disabled-step:hover{
+    cursor: not-allowed;
 }

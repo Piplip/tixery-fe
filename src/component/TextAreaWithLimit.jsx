@@ -11,13 +11,15 @@ TextAreaWithLimit.propTypes = {
     error: PropTypes.object,
     helperText: PropTypes.string,
     onBlur: PropTypes.func,
-    rows: PropTypes.number
+    rows: PropTypes.number,
+    label: PropTypes.string,
 }
 
-function TextAreaWithLimit({ maxChars = 200, placeholder, value, handleChange, name, error, helperText, onBlur, rows}){
+function TextAreaWithLimit({ label, maxChars = 200, placeholder, value, handleChange, name, error, helperText, onBlur, rows}){
     return (
-        <Stack className="text-area-wrapper" spacing={1}>
+        <Stack className="text-area-wrapper">
             <TextField
+                label={label}
                 name={name}
                 rows={rows || 5}
                 value={value}

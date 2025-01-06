@@ -23,6 +23,10 @@ import LoadingFallback from "./component/LoadingFallback.jsx";
 import OrganizerNewProfile from "./component/organizer/OrganizerNewProfile.jsx";
 import OrganizerEditProfile from "./component/organizer/OrganizerEditProfile.jsx";
 import CreateEvent from "./component/organizer/CreateEvent.jsx";
+import OrganizerBuildEventPage from "./component/organizer/OrganizerBuildEventPage.jsx";
+import OrganizerCreateTicket from "./component/organizer/OrganizerCreateTicket.jsx";
+import OrganizerTicketAdmission from "./component/organizer/OrganizerTicketAdmission.jsx";
+import OrganizerPublishEvent from "./component/organizer/OrganizerPublishEvent.jsx";
 
 function App() {
     const routers = createBrowserRouter([
@@ -78,9 +82,17 @@ function App() {
                     },
                 },
                 {
-                    path: 'events',
+                    path: 'events/:id',
+                    element: <CreateEvent />,
                     children: [
-                        {path: 'create', element: <CreateEvent />}
+                        {index: true, element: <OrganizerBuildEventPage />},
+                        {
+                            path: 'tickets', element: <OrganizerCreateTicket />,
+                            children: [
+                                {index: true, element: <OrganizerTicketAdmission />}
+                            ]
+                        },
+                        {path: 'publish', element: <OrganizerPublishEvent />}
                     ]
                 }
             ]

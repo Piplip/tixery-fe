@@ -35,6 +35,10 @@ input{
     cursor: pointer;
     text-decoration: underline;
 }
-.disabled:hover{
+#disabled{
+    user-select: none;
+    pointer-events: none;
+}
+#disabled:hover{
     cursor: not-allowed;
 }

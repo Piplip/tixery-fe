@@ -49,6 +49,7 @@
     font-size: 0.8rem;
     color: #e74c3c;
     margin-top: 4px;
+    margin-left: .5rem;
 }
 
 .faq-section__submit {
@@ -66,7 +67,32 @@
 }
 
 .faq-section__item {
-    border-top: 1px solid #e1e1e1;
+    border-bottom: 1px solid #e1e1e1;
+    padding: .25rem 1rem;
+    cursor: pointer;
+}
+
+.faq-section__item--expanded {
+    background-color: #f9f9f9;
+}
+
+.faq-section__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.faq-section__question {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.faq-section__toggle-icon {
+    font-size: 1.5rem;
+    color: #007bff;
+}
+
+.faq-section__body {
     padding: 8px 0;
 }
 
@@ -74,13 +100,10 @@
     margin-bottom: 8px;
 }
 
-.faq-section__question {
-    font-weight: 600;
-    margin-bottom: 4px;
-}
-
 .faq-section__answer {
+    font-size: 0.9rem;
     color: #666;
+    margin-bottom: 8px;
 }
 
 .faq-section__actions {
@@ -99,6 +122,10 @@
     color: #007bff;
 }
 
+.faq-section__action--delete {
+    color: #e74c3c;
+}
+
 .faq-section__action--edit:hover {
     text-decoration: underline;
 }
@@ -109,4 +136,35 @@
 
 .faq-section__action--delete:hover {
     text-decoration: underline;
+}
+.faq-section__bulk-actions {
+    margin-top: 16px;
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    justify-content: flex-end;
+}
+
+.faq-section__bulk-action {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.faq-section__bulk-action:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.faq-section__bulk-action--delete {
+    background-color: #e74c3c;
+}
+
+.faq-section__checkbox {
+    margin-right: 12px;
+    cursor: pointer;
 }

@@ -1,0 +1,181 @@
+.event-publish {
+    font-family: Arial, sans-serif;
+    width: 80%;
+}
+.event-publish__container{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1.5rem;
+    background-color: rgba(245, 245, 245, 0.31);
+}
+
+.event-publish__heading {
+    font-size: 30px;
+    font-family: "Microsoft Tai Le", sans-serif;
+    font-weight: bold;
+}
+
+.event-publish__subheading {
+    margin-block: 1rem 24px;
+    color: #595959;
+    font-weight: 600;
+    font-family: "Arial Rounded MT Bold", sans-serif;
+}
+
+.event-publish__details-card {
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 1rem;
+    background-color: #ffffff;
+    height: fit-content;
+}
+
+.event-publish__image {
+    width: 100%;
+    height: 250px;
+    background-color: #f9fafb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.event-publish__image-icon {
+    color: #9ca3af;
+}
+
+.event-publish__details {
+    text-align: left;
+}
+
+.event-publish__title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.event-publish__datetime,
+.event-publish__online {
+    color: #6b7280;
+    margin: 4px 0;
+}
+
+.event-publish__info {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    margin: 8px 0;
+}
+.event-publish__info > span{
+    display: flex;
+    align-items: center;
+    column-gap: .1rem;
+    .MuiSvgIcon-root {
+        font-size: 1.2rem;
+        color: #6b7280;
+    }
+}
+
+.event-publish__preview {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #007af3;
+    font-size: .8rem;
+    .MuiSvgIcon-root{
+        font-size: 1rem;
+    }
+}
+.event-publish__form-section {
+    margin: 1rem 1rem 1rem 0;
+    display: flex;
+    flex-direction: column;
+    row-gap: 1rem;
+}
+
+.event-publish__dropdown {
+    width: 100%;
+}
+
+.event-publish__tags-info {
+    margin-top: 8px;
+    color: #6b7280;
+}
+
+.event-publish__organizer-info {
+    font-family: "Microsoft Tai Le", sans-serif;
+    font-size: .8rem;
+    color: #6b7280;
+}
+
+.event-publish__organizer-link {
+    color: #007af3;
+    font-size: .8rem;
+    text-decoration: none;
+}
+.publish-settings {
+    margin-top: 3rem;
+    font-family: Arial, sans-serif;
+    color: #111827;
+}
+
+.publish-settings__heading {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 16px;
+}
+
+.publish-settings__container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.publish-settings__form {
+    width: 65%;
+}
+
+.publish-settings__section {
+    margin-bottom: 24px;
+}
+
+.publish-settings__description {
+    color: #919191;
+    margin-left: 1rem;
+    font-size: .9rem;
+}
+
+.publish-settings__input {
+    margin: 8px 0;
+    width: 50%;
+}
+
+.publish-settings__tips {
+    font-family: "Microsoft Tai Le", sans-serif;
+    max-width: 35%;
+    padding: 1rem;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+}
+
+.publish-settings__tips h3 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 16px;
+}
+
+.publish-settings__tip-link {
+    display: block;
+    color: #0a73af;
+    margin-bottom: 8px;
+    text-decoration: none;
+    font-size: .85rem;
+}
+
+.publish-settings__tip-link:hover {
+    text-decoration: underline;
+}
+.radio-group{
+    display: flex;
+    flex-direction: column;
+    row-gap: .5rem;
+}

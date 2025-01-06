@@ -1,0 +1,44 @@
+.tickets-section__ticket{
+    display: grid;
+    grid-template-columns: 1fr 7fr 3fr 2fr 1fr;
+    column-gap: 1.5rem;
+    align-items: center;
+    font-size: .9rem;
+    font-family: "Microsoft Tai Le", sans-serif;
+    transition: all .3s linear;
+    padding-inline: 1rem;
+}
+.tickets-section__ticket:hover{
+    background-color: rgba(246, 246, 246, 0.16);
+    box-shadow: 0 1px 5px 1px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+.tickets-section__ticket-list > div:not(:last-child){
+    border-bottom: 1px solid rgb(222, 222, 222);
+    padding-block: 1rem;
+}
+.tickets-section__ticket-capacity{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-block: .25rem .5rem;
+    border-bottom: 1px solid rgb(222, 222, 222);
+}
+.tickets-section__capacity-count{
+    font-size: 1.25rem;
+    font-family: 'Poppins', sans-serif;
+}
+.tickets-section__ticket-title{
+    font-size: 1.15rem;
+}
+.tickets-section__ticket-dates{
+    font-size: .8rem;
+}
+.tickets-section__edit-capacity{
+    font-size: .9rem;
+    text-transform: capitalize;
+}
+.add-more-tickets{
+    width: fit-content;
+    align-self: flex-end;
+}

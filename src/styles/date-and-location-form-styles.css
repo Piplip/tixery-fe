@@ -63,8 +63,34 @@
     margin-top: 16px;
 }
 .date-and-location__more-options{
+    width: fit-content;
     color: #0086d9;
 }
 .date-and-location__more-options:hover{
     cursor: pointer;
+}
+.location-venue__verify-phone{
+    border: 2px solid #fff200;
+    background-color: #fffaee;
+    padding: 1rem;
+    border-radius: .75rem;
+}
+.location-venue__verify-phone > .MuiSvgIcon-root{
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+}
+.location-venue__verify-phone p{
+    font-size: .9rem;
+    font-family: "Microsoft Tai Le", sans-serif;
+}
+.location-venue__verify-phone p:first-child{
+    font-weight: bold;
+}
+.location-venue__reserve-seating{
+    border: 1px solid;
+    padding-inline: 1rem;
+    padding-block: .25rem 1rem;
+    margin-block: .5rem 1rem;
+    font-family: "Microsoft Tai Le", sans-serif;
 }

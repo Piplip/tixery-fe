@@ -1,0 +1,201 @@
+.organizer-create-ticket{
+    margin-left: -20rem;
+    position: relative;
+}
+.organizer-create-ticket__title{
+    font-size: 3rem;
+    font-weight: 1000;
+    font-family: "Gill Sans MT", sans-serif;
+    color: black;
+}
+.organizer-create-ticket__ticket-type{
+    border: 2px solid rgba(239, 239, 239, 0.44);
+    padding: 1.5rem;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: .25rem;
+}
+.ticket-type__title, .organizer-create-ticket{
+    font-family: "Microsoft Tai Le", sans-serif;
+}
+.ticket-type__title{
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+.ticket-type__description{
+    font-size: .9rem;
+    color: gray;
+}
+.organizer-create-ticket__ticket-type:hover{
+    cursor: pointer;
+    border-color: #004b86;
+}
+.organizer-create-ticket__detail{
+    position: fixed;
+    right: 0;
+    padding: 1rem;
+    width: 23rem;
+    background-color: rgba(255, 255, 255, 0.55);
+    box-shadow: 0 0 1rem rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    height: 90%;
+    max-height: fit-content;
+    bottom: 0;
+}
+.organizer-detail__main{
+    border-block: 1px solid #bbbbbb;
+    margin-block: 1rem;
+    padding-block: 1rem;
+}
+.organizer-ticket-detail__ticket-type{
+    border: 1px solid gray;
+    padding: .5rem 1.75rem;
+}
+.organizer-ticket-detail__ticket-type:hover{
+    cursor: pointer;
+    border: 1px solid #004b86;
+    background-color: rgba(0, 75, 134, 0.1);
+}
+.ticket-type-active {
+    border-color: #004b86;
+    background-color: rgba(0, 75, 134, 0.1);
+    box-shadow: 0 0 1rem rgba(0, 0, 0, 0.1);
+}
+.organizer-ticket-detail__actions{
+    background-color: white;
+}
+.organizer-ticket-detail__actions button{
+    border: 1px solid #004b86;
+    background-color: transparent;
+    padding: .5rem 1rem;
+    width: 50%;
+}
+.organizer-ticket-detail__actions button:last-child{
+    background-color: #004b86;
+    color: white;
+}
+.organizer-ticket-detail__actions button:hover{
+    cursor: pointer;
+}
+@keyframes slideInFromLeft {
+    0% {
+        transform: translateX(-80%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.organizer-create-ticket__detail {
+    animation: slideInFromLeft 0.4s ease-out;
+}
+.tickets-section {
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    &__tabs {
+        display: flex;
+        gap: 16px;
+    }
+
+    &__tab {
+        text-decoration: none;
+        color: #4a4a4a;
+        padding: 8px 16px;
+        border-bottom: 2px solid transparent;
+        font-size: 14px;
+
+        &:hover {
+            color: #000;
+        }
+
+        &--active {
+            color: #000;
+            border-color: #0070f3;
+            font-weight: bold;
+        }
+    }
+
+    &__add-button {
+        background-color: #d64933;
+        color: #fff;
+        &:hover {
+            background-color: #c0392b;
+        }
+    }
+
+    &__content {
+        padding: 16px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: #fff;
+    }
+
+    &__ticket {
+        padding: 16px;
+        border-bottom: 1px solid #ddd;
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    &__ticket-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    &__ticket-name {
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    &__ticket-info {
+        margin-bottom: 16px;
+        color: #666;
+        font-size: 14px;
+    }
+
+    &__ticket-capacity {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .tickets-section__info-icon {
+            font-size: 16px;
+            margin-left: 4px;
+            cursor: pointer;
+        }
+
+        &-count {
+            font-weight: bold;
+        }
+    }
+
+    &__edit-capacity {
+        color: #0070f3;
+        font-size: 14px;
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    &__next-button {
+        background-color: #d64933;
+        color: #fff;
+        float: right;
+        margin-top: 20px;
+
+        &:hover {
+            background-color: #c0392b;
+        }
+    }
+}

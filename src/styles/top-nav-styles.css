@@ -3,7 +3,7 @@
     position: fixed;
     width: 100%;
     top: 0;
-    z-index: 20;
+    z-index: 1000;
     background-color: white;
     border-bottom: 1px solid gray;
     font-family: DengXian, sans-serif;
