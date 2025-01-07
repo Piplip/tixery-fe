@@ -4,10 +4,9 @@ import ReceiptIcon from '@mui/icons-material/Receipt';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FreeIcon from "../../assets/free-icon.png"
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import {useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import * as Yup from "yup";
 import {useFormik} from "formik";
-import dayjs from "dayjs";
 import {DatePicker, TimePicker} from "@mui/x-date-pickers";
 import {Accordion, AccordionDetails, AccordionGroup, AccordionSummary} from "@mui/joy";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -16,7 +15,7 @@ import Dropdown from "@mui/joy/Dropdown";
 import MenuButton from "@mui/joy/MenuButton";
 import Menu from "@mui/joy/Menu";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import {NavLink, Outlet} from "react-router-dom";
+import {NavLink, Outlet, useLocation, useNavigate, useOutletContext} from "react-router-dom";
 
 const ticketTypes = [
     {
@@ -36,31 +35,90 @@ const ticketTypes = [
     }
 ]
 
+const tabs = [
+    { label: 'Admission', to: '/tickets/admission' },
+    { label: 'Add-ons', to: '/tickets/add-ons' },
+    { label: 'Promotions', to: '/tickets/promotions' },
+    { label: 'Holds', to: '/tickets/holds' },
+    { label: 'Settings', to: '/tickets/settings' },
+];
+
+const ticketVisibility = [
+    { label: 'Visible', value: 'visible' },
+    { label: 'Hidden', value: 'hidden' },
+    { label: 'Hidden when not on sale', value: 'hid-on-sale' },
+    { label: 'Custom', value: 'custom' },
+]
+
 function OrganizerCreateTicket(){
+    const [open, setOpen] = useState(false)
+    const {validate} = useOutletContext()
     const [tickets, setTickets] = useState([])
     const [openDetail, setOpenDetail] = useState({
         type: null, open: false
     });
+    const navigate = useNavigate()
+    const location = useLocation()
 
-    const tabs = [
-        { label: 'Admission', to: '/tickets/admission' },
-        { label: 'Add-ons', to: '/tickets/add-ons' },
-        { label: 'Promotions', to: '/tickets/promotions' },
-        { label: 'Holds', to: '/tickets/holds' },
-        { label: 'Settings', to: '/tickets/settings' },
-    ];
+    useEffect(() => {
+        if (!validate(0) && location.pathname.includes('tickets')) {
+            const basePath = location.pathname.split('/tickets')[0];
+            navigate(basePath);
+        }
+    }, [location]);
+
+    const handleOpenChange = useCallback((event, isOpen) => {
+        setOpen(isOpen);
+    }, []);
 
     const validationSchema = Yup.object().shape({
         ticketName: Yup.string()
             .required("Ticket name is required.")
             .max(50, "Ticket name type cannot exceed 50 characters."),
         quantity: Yup.number()
+            .typeError("Quantity must be a number.")
             .required("Quantity is required."),
-        price: Yup.mixed().oneOf([Yup.string(), Yup.number(), Yup.array()]).required('Price is required'),
+        price: Yup.mixed().when('type', {
+            is: 'Paid',
+            then: Yup.number().required('Price is required').typeError('Price must be a number'),
+            otherwise: Yup.mixed().notRequired()
+        }),
         startDate: Yup.date()
-            .required("Start date is required."),
-        endDate: Yup.date()
-            .required("End date is required."),
+            .required('Start date is required')
+            .typeError('Start date must be a valid date')
+            .test(
+                'is-before-end-date',
+                'Start date must be earlier than the end date',
+                function (value) {
+                    const { endDate } = this.parent;
+                    return !endDate || !value || value <= endDate;
+                }
+            ),
+        endDate: Yup.date() .required('End date is required')
+            .typeError('End date must be a valid date')
+            .test(
+                'is-after-start-date',
+                'End date must be later than the start date',
+                function (value) {
+                    const { startDate } = this.parent;
+                    return !startDate || !value || value >= startDate;
+                }
+            ),
+        startTime: Yup.date()
+            .required("Start time is required."),
+        endTime: Yup.date()
+            .required('End time is required.')
+            .test(
+                'is-valid-end-time',
+                'End time cannot be earlier than start time.',
+                function (value) {
+                    const { startTime, startDate, endDate } = this.parent;
+                    if (startDate && endDate && new Date(startDate).toDateString() === new Date(endDate).toDateString()) {
+                        return !startTime || !value || value >= startTime;
+                    }
+                    return true;
+                }
+            ),
         minQuantity: Yup.number()
             .required("Minimum quantity is required."),
         maxQuantity: Yup.number()
@@ -69,11 +127,12 @@ function OrganizerCreateTicket(){
 
     const formik = useFormik({
         initialValues: {
-            ticketName: "", quantity: '', price: '', startDate: dayjs(), endDate: dayjs(),
+            ticketName: "", quantity: '', price: '', startDate: null, endDate: null, startTime: null, endTime: null,
+            minPerOrder: 1, maxPerOrder: 10, visibility: 0, description: ''
         },
         validationSchema,
         onSubmit: (values) => {
-            alert("Event Overview Submitted Successfully!");
+            console.log(values)
         },
     });
 
@@ -88,6 +147,9 @@ function OrganizerCreateTicket(){
         else formik.setFieldValue('price', '');
         setOpenDetail({type: type, open: true});
     }
+
+    // TODO: Fix the price validation for donation and free tickets
+    // TODO: Handle the form submission
 
     return (
         <Stack className={'organizer-create-ticket'} rowGap={2}>
@@ -138,129 +200,163 @@ function OrganizerCreateTicket(){
                     </div>
                 </div>
             }
-            <Stack className={'organizer-create-ticket__detail'} sx={{display: openDetail.open ? 'flex' : 'none'}}>
-                <p>Add tickets</p>
-                <Stack className={'organizer-detail__main'} rowGap={2}>
-                    <Stack direction={'row'} justifyContent={'space-between'}>
-                        {['Paid', 'Free', 'Donation'].map((type, index) => (
-                            <div key={index}
-                                 className={`organizer-ticket-detail__ticket-type ${openDetail.type === type ? 'ticket-type-active' : ''}`}
-                                 onClick={() => handleTypeSelect(type)}
-                            >
-                                {type}
-                            </div>
-                        ))}
-                    </Stack>
-                    <TextField name={'ticketName'} label={'Ticket name'} variant={'outlined'} fullWidth
-                               value={formik.values.ticketName} focused
-                               onChange={formik.handleChange} onBlur={formik.handleBlur}
-                               error={formik.touched.ticketName && Boolean(formik.errors.ticketName)}
-                               helperText={formik.touched.ticketName && formik.errors.ticketName}
-                    />
-                    <TextField name={'quantity'} label={'Available Quantity'} variant={'outlined'} fullWidth
-                               value={formik.values.quantity} focused
-                               onChange={formik.handleChange} onBlur={formik.handleBlur}
-                               error={formik.touched.quantity && Boolean(formik.errors.quantity)}
-                               helperText={formik.touched.quantity && formik.errors.quantity}
-                    />
-                    <TextField name={'price'} label={'Price'} variant={'outlined'} fullWidth
-                               value={formik.values.price} placeholder={'0.00'} focused
-                               disabled={openDetail.type === 'Donation' || openDetail.type === 'Free'}
-                               onChange={formik.handleChange} onBlur={formik.handleBlur}
-                               error={formik.touched.price && Boolean(formik.errors.price)}
-                               helperText={formik.touched.price && formik.errors.price}
-                    />
-                    {openDetail.type === 'Donation' &&
-                        <Stack direction={'row'} alignItems={'center'} marginBlock={'0 .5rem'}>
-                            <Checkbox defaultChecked={false}/>
-                            <p style={{fontSize: '.8rem'}}>Absorb fees: Ticketing fees are deducted from your donation
-                                amount</p>
+            <form onSubmit={formik.handleSubmit}>
+                <Stack className={'organizer-create-ticket__detail'} sx={{display: openDetail.open ? 'flex' : 'none'}}>
+                    <p>Add tickets</p>
+                    <Stack className={'organizer-detail__main'} rowGap={2}>
+                        <Stack direction={'row'} justifyContent={'space-between'}>
+                            {['Paid', 'Free', 'Donation'].map((type, index) => (
+                                <div key={index}
+                                     className={`organizer-ticket-detail__ticket-type ${openDetail.type === type ? 'ticket-type-active' : ''}`}
+                                     onClick={() => handleTypeSelect(type)}
+                                >
+                                    {type}
+                                </div>
+                            ))}
                         </Stack>
-                    }
-                    <Stack direction={'row'} columnGap={1}>
-                        <DatePicker name={'startDate'} label={'Sales start'} value={formik.values.startDate}
-                                    onChange={(date) => formik.setFieldValue('startDate', date)}
-                                    error={formik.touched.startDate && Boolean(formik.errors.startDate)}
-                                    helperText={formik.touched.startDate && formik.errors.startDate}
+                        <TextField name={'ticketName'} label={'Ticket name'} variant={'outlined'} fullWidth
+                                   value={formik.values.ticketName} focused
+                                   onChange={formik.handleChange} onBlur={formik.handleBlur}
+                                   error={formik.touched.ticketName && Boolean(formik.errors.ticketName)}
+                                   helperText={formik.touched.ticketName && formik.errors.ticketName}
                         />
-                        <TimePicker name={'startTime'} label={'Start time'} value={formik.values.startDate}
-                                    onChange={(date) => formik.setFieldValue('startDate', date)}
-                                    error={formik.touched.startDate && Boolean(formik.errors.startDate)}
-                                    helperText={formik.touched.startDate && formik.errors.startDate}
+                        <TextField name={'quantity'} label={'Available Quantity'} variant={'outlined'} fullWidth
+                                   value={formik.values.quantity} focused
+                                   onChange={formik.handleChange} onBlur={formik.handleBlur}
+                                   error={formik.touched.quantity && Boolean(formik.errors.quantity)}
+                                   helperText={formik.touched.quantity && formik.errors.quantity}
                         />
-                    </Stack>
-                    <Stack direction={'row'} columnGap={1}>
-                        <DatePicker name={'endDate'} label={'Sales end'} value={formik.values.endDate}
-                                    onChange={(date) => formik.setFieldValue('endDate', date)}
-                                    error={formik.touched.endDate && Boolean(formik.errors.endDate)}
-                                    helperText={formik.touched.endDate && formik.errors.endDate}
+                        <TextField name={'price'} label={'Price'} variant={'outlined'} fullWidth
+                                   value={formik.values.price} placeholder={'0.00'} focused
+                                   disabled={openDetail.type === 'Donation' || openDetail.type === 'Free'}
+                                   onChange={formik.handleChange} onBlur={formik.handleBlur}
+                                   error={formik.touched.price && Boolean(formik.errors.price)}
+                                   helperText={formik.touched.price && formik.errors.price}
                         />
-                        <TimePicker name={'endTime'} label={'End time'} value={formik.values.endDate}
-                                    onChange={(date) => formik.setFieldValue('endDate', date)}
-                                    error={formik.touched.endDate && Boolean(formik.errors.endDate)}
-                                    helperText={formik.touched.endDate && formik.errors.endDate}
-                        />
-                    </Stack>
-                    <Stack direction={'row'} alignItems={'center'} columnGap={.5}>
-                        <Typography variant={'caption'}>Event time zone is KST</Typography>
-                        <Tooltip title={'Test'} placement={'bottom'}>
-                            <InfoOutlinedIcon sx={{fontSize: '.9rem'}}/>
-                        </Tooltip>
-                    </Stack>
-                    <AccordionGroup transition={{
-                        initial: "0.3s ease-out",
-                        expanded: "0.2s ease",
-                    }}>
-                        <Accordion sx={{p: 0, m: 0}}>
-                            <AccordionSummary>
-                                <Typography component="span">Advanced Options</Typography>
-                            </AccordionSummary>
-                            <AccordionDetails>
-                                <Stack rowGap={1}>
-                                    <TextAreaWithLimit value={''} maxChars={2500} rows={3}
-                                                       placeholder={'Tell attendee more about this ticket'}/>
-                                    <Dropdown>
-                                        <MenuButton>
-                                            Visibility
-                                            <ArrowDropDownIcon/>
-                                        </MenuButton>
-                                        <Menu>
-                                            <MenuItem>Visible</MenuItem>
-                                            <MenuItem>Hidden</MenuItem>
-                                            <MenuItem>Hidden when not on sales</MenuItem>
-                                            <MenuItem>Custom</MenuItem>
-                                        </Menu>
-                                    </Dropdown>
-
+                        {openDetail.type === 'Donation' &&
+                            <Stack direction={'row'} alignItems={'center'} marginBlock={'0 .5rem'}>
+                                <Checkbox defaultChecked={false}/>
+                                <p style={{fontSize: '.8rem'}}>Absorb fees: Ticketing fees are deducted from your donation
+                                    amount</p>
+                            </Stack>
+                        }
+                        <Stack direction={'row'} columnGap={1}>
+                            <DatePicker name={'startDate'} label={'Sales start'} value={formik.values.startDate}
+                                        onChange={(date) => formik.setFieldValue('startDate', date)}
+                                        disablePast format={'DD/MM/YYYY'}
+                                        slotProps={{
+                                            textField: {
+                                                onBlur: formik.handleBlur,
+                                                error: formik.touched.startDate && Boolean(formik.errors.startDate),
+                                                helperText: formik.touched.startDate && formik.errors.startDate,
+                                            },
+                                        }}
+                            />
+                            <TimePicker name={'startTime'} label={'Start time'} value={formik.values.startTime} ampm={false}
+                                        onChange={(date) => formik.setFieldValue('startTime', date)}
+                                        slotProps={{
+                                            textField: {
+                                                onBlur: formik.handleBlur,
+                                                error: formik.touched.startTime && Boolean(formik.errors.startTime),
+                                                helperText: formik.touched.startTime && formik.errors.startTime,
+                                            },
+                                        }}
+                            />
+                        </Stack>
+                        <Stack direction={'row'} columnGap={1}>
+                            <DatePicker name={'endDate'} label={'Sales end'} value={formik.values.endDate}
+                                        onChange={(date) => formik.setFieldValue('endDate', date)}
+                                        disablePast format={'DD/MM/YYYY'}
+                                        slotProps={{
+                                            textField: {
+                                                onBlur: formik.handleBlur,
+                                                error: formik.touched.endDate && Boolean(formik.errors.endDate),
+                                                helperText: formik.touched.endDate && formik.errors.endDate,
+                                            },
+                                        }}
+                            />
+                            <TimePicker name={'endTime'} label={'End time'} value={formik.values.endTime} ampm={false}
+                                        onChange={(date) => formik.setFieldValue('endTime', date)}
+                                        error={formik.touched.endTime && Boolean(formik.errors.endTime)}
+                                        slotProps={{
+                                            textField: {
+                                                onBlur: formik.handleBlur,
+                                                error: formik.touched.endTime && Boolean(formik.errors.endTime),
+                                                helperText: formik.touched.endTime && formik.errors.endTime,
+                                            },
+                                        }}
+                            />
+                        </Stack>
+                        <Stack direction={'row'} alignItems={'center'} columnGap={.5}>
+                            <Typography variant={'caption'}>Event time zone is KST</Typography>
+                            <Tooltip title={'Test'} placement={'bottom'}>
+                                <InfoOutlinedIcon sx={{fontSize: '.9rem'}}/>
+                            </Tooltip>
+                        </Stack>
+                        <AccordionGroup transition={{
+                            initial: "0.3s ease-out",
+                            expanded: "0.2s ease",
+                        }}>
+                            <Accordion sx={{p: 0, m: 0}} defaultExpanded>
+                                <AccordionSummary>
+                                    <Typography component="span">Advanced Options</Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
                                     <Stack rowGap={1}>
-                                        <p>Tickets per order</p>
-                                        <Stack direction={'row'} columnGap={1}>
-                                            <TextField name={'minQuantity'} label={'Minimum Quantity'}
-                                                       variant={'outlined'} fullWidth
-                                                       value={formik.values.minQuantity} focused size={'small'}
-                                                       onChange={formik.handleChange} onBlur={formik.handleBlur}
-                                                       error={formik.touched.minQuantity && Boolean(formik.errors.minQuantity)}
-                                                       helperText={formik.touched.minQuantity && formik.errors.minQuantity}
-                                            />
-                                            <TextField name={'maxQuantity'} label={'Maximum Quantity'}
-                                                       variant={'outlined'} fullWidth
-                                                       value={formik.values.maxQuantity} focused size={'small'}
-                                                       onChange={formik.handleChange} onBlur={formik.handleBlur}
-                                                       error={formik.touched.maxQuantity && Boolean(formik.errors.maxQuantity)}
-                                                       helperText={formik.touched.maxQuantity && formik.errors.maxQuantity}
-                                            />
+                                        <TextAreaWithLimit value={formik.values.description} maxChars={2500} rows={3}
+                                                          handleChange={formik.handleChange} onBlur={formik.handleBlur}
+                                                           name={'description'}
+                                                           placeholder={'Tell attendee more about this ticket'}
+                                        />
+                                        <Dropdown open={open} onOpenChange={handleOpenChange}>
+                                            <MenuButton>
+                                                Visibility: {ticketVisibility[formik.values.visibility].label || "Visible"}
+                                            </MenuButton>
+                                            <Menu>
+                                                {ticketVisibility.map((visibility, index) => (
+                                                    <MenuItem key={index} onClick={() => {
+                                                        formik.setFieldValue('visibility', index)
+                                                        setOpen(false)
+                                                    }}>
+                                                        {visibility.label}
+                                                    </MenuItem>
+                                                ))}
+                                            </Menu>
+                                        </Dropdown>
+
+                                        <Stack rowGap={1}>
+                                            <p>Tickets per order</p>
+                                            <Stack direction={'row'} columnGap={1}>
+                                                <TextField name={'minPerOrder'} label={'Minimum Quantity'}
+                                                           variant={'outlined'} fullWidth
+                                                           value={formik.values.minPerOrder} focused
+                                                           onChange={formik.handleChange} onBlur={formik.handleBlur}
+                                                           error={formik.touched.minPerOrder && Boolean(formik.errors.minPerOrder)}
+                                                           helperText={formik.touched.minPerOrder && formik.errors.minPerOrder}
+                                                />
+                                                <TextField name={'maxPerOrder'} label={'Maximum Quantity'}
+                                                           variant={'outlined'} fullWidth
+                                                           value={formik.values.maxPerOrder} focused
+                                                           onChange={formik.handleChange} onBlur={formik.handleBlur}
+                                                           error={formik.touched.maxPerOrder && Boolean(formik.errors.maxPerOrder)}
+                                                           helperText={formik.touched.maxPerOrder && formik.errors.maxPerOrder}
+                                                />
+                                            </Stack>
                                         </Stack>
                                     </Stack>
-                                </Stack>
-                            </AccordionDetails>
-                        </Accordion>
-                    </AccordionGroup>
+                                </AccordionDetails>
+                            </Accordion>
+                        </AccordionGroup>
+                    </Stack>
+                    <Stack direction={'row'} className={'organizer-ticket-detail__actions'} columnGap={1}>
+                        <button type={'button'} onClick={() => {
+                            setOpenDetail({type: null, open: false})
+                            formik.resetForm()
+                        }}>Cancel</button>
+                        <button type={'submit'}>Save</button>
+                    </Stack>
                 </Stack>
-                <Stack direction={'row'} className={'organizer-ticket-detail__actions'} columnGap={1}>
-                    <button onClick={() => setOpenDetail({type: null, open: false})}>Cancel</button>
-                    <button>Save</button>
-                </Stack>
-            </Stack>
+            </form>
         </Stack>
     )
 }

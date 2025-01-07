@@ -1,8 +1,14 @@
-import {useEffect, useState} from 'react';
+import {useContext, useEffect, useState} from 'react';
 import {Alert, Snackbar, Stack, Typography} from '@mui/material';
 import PropTypes from "prop-types";
 import "../styles/media-uploader-styles.css"
 import UploadIcon from '@mui/icons-material/Upload';
+import {initializeApp} from "firebase/app";
+import {firebaseConfig} from "../config/firebaseConfig.js";
+import {getStorage, ref, uploadBytes} from "firebase/storage";
+import {generateFileName} from "../common/Utilities.js";
+import {useLocation} from "react-router-dom";
+import {EventContext} from "../context.js";
 
 const Section = ({ title, description, children }) => (
     <div className="media-uploader__section">
@@ -30,20 +36,26 @@ const IMAGE_MAX_SIZE_MB = 5;
 const VIDEO_MAX_SIZE_MB = 10;
 
 function MediaUploader () {
+    initializeApp(firebaseConfig);
+    const storage = getStorage()
+    const {data, setData} = useContext(EventContext)
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const [isUploadActive, setIsUploadActive] = useState(false);
+    const [isUploadActive, setIsUploadActive] = useState(data.images !== undefined || data.videos !== undefined);
     const [uploadedImages, setUploadedImages] = useState([]);
     const [uploadedVideos, setUploadedVideos] = useState([]);
-    const [currentPreview, setCurrentPreview] = useState(null);
+    const [currentPreview, setCurrentPreview] = useState({type: '', src: null});
     const [isDragOver, setIsDragOver] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [showError, setShowError] = useState(false);
+    const location = useLocation()
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentImageIndex((prevIndex) => (prevIndex + 1) % carouselImages.length);
-        }, 3000);
-        return () => clearInterval(interval);
+        if(isUploadActive === false){
+            const interval = setInterval(() => {
+                setCurrentImageIndex((prevIndex) => (prevIndex + 1) % carouselImages.length);
+            }, 3000);
+            return () => clearInterval(interval);
+        }
     }, []);
 
     const validateFile = (file, isImage) => {
@@ -70,8 +82,10 @@ function MediaUploader () {
         if(errors){
             setShowError(true);
             setErrorMessage(errors);
+            return
         }
-        else setUploadedImages((prev) => [...prev, ...files]);
+        uploadMedia(files[0], 'img');
+        setUploadedImages((prev) => [...prev, ...files]);
     };
 
     const handleDragOver = (event) => {
@@ -92,6 +106,7 @@ function MediaUploader () {
             setErrorMessage(errors);
             return
         }
+        uploadMedia(files[0], 'img');
         setUploadedImages((prev) => [...prev, ...files]);
         setIsDragOver(false);
     };
@@ -100,8 +115,34 @@ function MediaUploader () {
         setShowError(false);
     };
 
+    async function uploadMedia(src, type) {
+        const fileName = generateFileName();
+        const prefix = `${location.pathname.split('/')[3]}`
+        const storageRef = ref(storage, `/events/${prefix}/${fileName}`);
+        const res = await uploadBytes(storageRef, src);
+        if(type === 'img')
+            setData(prev => ({...prev, images: prev.images === undefined ? res.metadata.fullPath : prev.images + ',' + res.metadata.fullPath}))
+        else
+            setData(prev => ({...prev, videos: prev.videos === undefined ? res.metadata.fullPath : prev.videos + ',' + res.metadata.fullPath}))
+    }
+
+    const handleVideoUpload = (event) => {
+        const files = Array.from(event.target.files);
+        const errors = validateFile(files[0], false);
+        if(errors){
+            setShowError(true);
+            setErrorMessage(errors);
+            return
+        }
+        uploadMedia(files[0], 'video');
+        setUploadedVideos((prev) => [...prev, ...files]);
+    }
+
+    // TODO: Add a function to remove images and videos from the database when the user deletes them from the uploader
+    // TODO: Retrieve images and videos from the database when the user navigates back to the page
+
     return (
-        <div className="media-uploader">
+        <div className={`media-uploader ${data.images !== undefined || data.videos !== undefined ? 'complete-section' : ''}`}>
             <Snackbar open={showError} autoHideDuration={6000} onClose={handleCloseSnackbar}
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }} sx={{marginTop: '3rem'}}
             >
@@ -166,7 +207,7 @@ function MediaUploader () {
                                 <div
                                     key={index}
                                     className="media-uploader__preview-item"
-                                    onClick={() => setCurrentPreview(URL.createObjectURL(file))}
+                                    onClick={() => setCurrentPreview({type: 'img', src: URL.createObjectURL(file)})}
                                     style={{animationDelay: `${index * 100}ms`}}
                                 >
                                     <img src={URL.createObjectURL(file)} alt={`Preview ${index}`}/>
@@ -196,16 +237,7 @@ function MediaUploader () {
                             <input
                                 type="file"
                                 accept="video/*"
-                                onChange={(event) => {
-                                    const files = Array.from(event.target.files);
-                                    const errors = validateFile(files[0], false);
-                                    if(errors){
-                                        setShowError(true);
-                                        setErrorMessage(errors);
-                                        return
-                                    }
-                                    setUploadedVideos((prev) => [...prev, ...files]);
-                                }}
+                                onChange={handleVideoUpload}
                             />
                         </div>
                         <div className="media-uploader__preview-container">
@@ -213,11 +245,17 @@ function MediaUploader () {
                                 <div
                                     key={index}
                                     className="media-uploader__preview-item"
-                                    onClick={() => setCurrentPreview(URL.createObjectURL(file))}
-                                    style={{animationDelay: `${index * 100}ms`}}
+                                    onClick={() => {setCurrentPreview({type: 'video', src: URL.createObjectURL(file)})}}
                                 >
                                     <video src={URL.createObjectURL(file)}/>
-                                    <button className="media-uploader__delete-btn">
+                                    <button className="media-uploader__delete-btn"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setUploadedVideos((prev) =>
+                                                    prev.filter((_, i) => i !== index)
+                                                );
+                                            }}
+                                    >
                                         ✕
                                     </button>
                                 </div>
@@ -225,18 +263,12 @@ function MediaUploader () {
                         </div>
                     </section>
 
-                    {currentPreview && (
-                        <div className="media-uploader__preview-overlay" onClick={() => setCurrentPreview(null)}>
-                            <img src={currentPreview} alt="Preview"/>
-                            <button
-                                className="media-uploader__delete-btn"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setCurrentPreview(null);
-                                }}
-                            >
-                                ✕
-                            </button>
+                    {currentPreview.src && (
+                        <div className="media-uploader__preview-overlay" onClick={() => setCurrentPreview({type: '', src: null})}>
+                            {currentPreview.type === 'video' ? (
+                                <video src={currentPreview.src} autoPlay controls/>
+                                ) : <img src={currentPreview.src} alt={'Preview'}/>
+                            }
                         </div>
                     )}
                 </Stack>

@@ -1,6 +1,6 @@
 import "../../styles/create-event-styles.css"
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import { Checkbox, Stack,} from "@mui/material";
+import {Alert, Checkbox, Snackbar, Stack,} from "@mui/material";
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import {useRef, useState} from "react";
@@ -13,6 +13,7 @@ import MenuItem from '@mui/joy/MenuItem';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import PropTypes from "prop-types";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import {EventContext} from "../../context.js";
 
 const checkboxStyle = {
     sx: {
@@ -55,12 +56,25 @@ const steps = [
 ]
 
 function CreateEvent() {
+    const [eventData, setEventData] = useState({
+        eventType: 'single',
+        locationType: 'venue',
+        language: 'en-US',
+        timezone: 'GMT+7',
+        displayEndTime: true,
+
+    })
     const [currentStep, setCurrentStep] = useState(0);
     const maxStep =  useRef(0)
+    const [alert, setAlert] = useState("")
 
     const navigate = useNavigate()
 
     function handleContinue(){
+        if(!validateStep()){
+            setAlert("Please fill in all required fields or correct any errors before continuing.")
+            return
+        }
         if(currentStep < steps.length - 1){
             setCurrentStep(currentStep + 1)
             maxStep.current = Math.max(maxStep.current, currentStep + 1)
@@ -68,18 +82,37 @@ function CreateEvent() {
         }
     }
 
+    function validateStep(){
+        switch (currentStep){
+            case 0: {
+                return !(!eventData.eventTitle || !eventData.summary || !eventData.eventType || !eventData.eventStartTime || !eventData.eventDate ||
+                    eventData.location === "" || (eventData.eventStartTime > eventData.eventEndTime));
+            }
+            default: {
+                return true
+            }
+        }
+    }
+
     function handleSetStep(index){
         if(maxStep.current < index) return
-
         setCurrentStep(index)
         navigate(steps[index].to)
     }
 
-    console.log('currentStep', currentStep)
-    console.log('maxStep', maxStep.current)
+    console.log(eventData)
 
     return (
         <div className={'create-events-wrapper'}>
+            <Snackbar
+                anchorOrigin={{vertical: 'top', horizontal: 'right'}}
+                open={alert !== ""} sx={{marginTop: '3rem'}}
+                autoHideDuration={5000} onClose={() => setAlert("")}
+            >
+                <Alert severity={"error"} variant="filled" sx={{ width: '100%'}}>
+                    {alert}
+                </Alert>
+            </Snackbar>
             <div className={'create-events__stepper'}>
                 <Link to={'/organizer/events'}>
                     <Stack className={'link'} direction={'row'} alignItems={'center'}>
@@ -124,7 +157,9 @@ function CreateEvent() {
                 </div>
             </div>
             <div className={'create-events__main'}>
-                <Outlet/>
+                <EventContext.Provider value={{data: eventData, setData: setEventData}}>
+                    <Outlet context={{validate: validateStep}}/>
+                </EventContext.Provider>
             </div>
             <button className={'create-events-main__continue-btn'}
                 onClick={handleContinue}

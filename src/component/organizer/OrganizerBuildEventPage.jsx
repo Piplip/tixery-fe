@@ -6,35 +6,53 @@ import DateAndLocationForm from "./DateAndLocationForm.jsx";
 import OrganizerFAQ from "./OrganizerFAQ.jsx";
 import * as Yup from "yup";
 import {useFormik} from "formik";
-import {useRef, useState} from "react";
+import {useContext, useEffect, useMemo, useRef, useState} from "react";
+import {EventContext} from "../../context.js";
+import { debounce } from "lodash";
+
+const validationSchema = Yup.object().shape({
+    eventTitle: Yup.string()
+        .required("Event title is required.")
+        .max(100, "Event title cannot exceed 100 characters."),
+    summary: Yup.string()
+        .required("Summary is required.")
+        .max(140, "Summary cannot exceed 140 characters."),
+});
 
 function OrganizerBuildEventPage(){
-    const [collapsed, setCollapsed] = useState({})
+    const {data, setData} = useContext(EventContext);
+    const [collapsed, setCollapsed] = useState({});
     const sectionRefs = useRef({});
-
-    const validationSchema = Yup.object().shape({
-        eventTitle: Yup.string()
-            .required("Event title is required.")
-            .max(100, "Event title cannot exceed 100 characters."),
-        summary: Yup.string()
-            .required("Summary is required.")
-            .max(140, "Summary cannot exceed 140 characters."),
-    });
 
     const formik = useFormik({
         initialValues: {
-            eventTitle: "",
-            summary: "",
+            eventTitle: data.eventTitle || '',
+            summary: data.summary || '',
         },
         validationSchema,
-        onSubmit: (values) => {
-            alert("Event Overview Submitted Successfully!");
-        },
     });
+
+    const memoizedValues = useMemo(() => formik.values, [formik.values]);
+
+    useEffect(() => {
+        const debouncedSetData = debounce((values) => {
+            setData(prevData => ({
+                ...prevData,
+                eventTitle: values.eventTitle,
+                summary: values.summary,
+            }));
+        }, 300);
+
+        debouncedSetData(memoizedValues);
+
+        return () => {
+            debouncedSetData.cancel();
+        };
+    }, [memoizedValues, setData]);
 
     const handleExpandClick = (name) => {
         setCollapsed(prevState => {
-            const newState = {...prevState, [name]: !prevState[name]};
+            const newState = { ...prevState, [name]: !prevState[name] };
             if (!prevState[name]) {
                 setTimeout(() => {
                     if (!prevState[name]) {
@@ -51,7 +69,8 @@ function OrganizerBuildEventPage(){
     return (
         <>
             <MediaUploader />
-            <Stack className={`create-events-main__event-title`} ref={el => sectionRefs.current['eventTitle'] = el}>
+            <Stack className={`create-events-main__event-title ${data.eventTitle && data.summary ? 'complete-section' : ''}`}
+                   ref={el => sectionRefs.current['eventTitle'] = el}>
                 <div className={'expand-btn'} onClick={() => {
                     handleExpandClick('eventTitle')
                 }}>
@@ -61,8 +80,12 @@ function OrganizerBuildEventPage(){
                     <div onClick={
                         () => handleExpandClick('eventTitle')
                     }>
-                        <p className={'create-events-title__title'}>Event Title</p>
-                        <p>A short and sweet sentence about your event</p>
+                        <p className={'create-events-title__title'}>
+                            {data.eventTitle || 'Event Title'}
+                        </p>
+                        <p>
+                            {data.summary || 'A short and sweet sentence about your event'}
+                        </p>
                     </div>
                     :
                     <form onSubmit={formik.handleSubmit}>
@@ -79,22 +102,20 @@ function OrganizerBuildEventPage(){
                                     about.
                                 </p>
                                 <div className="input-wrapper">
-                                    <TextField
-                                        id="eventTitle"
-                                        name="eventTitle"
-                                        variant="outlined"
-                                        fullWidth
+                                    <TextField name="eventTitle" variant="outlined" fullWidth
                                         error={formik.touched.eventTitle && Boolean(formik.errors.eventTitle)}
                                         helperText={formik.touched.eventTitle && formik.errors.eventTitle}
                                         value={formik.values.eventTitle}
                                         onChange={formik.handleChange}
                                         onBlur={formik.handleBlur}
-                                        InputProps={{
-                                            endAdornment: formik.errors.eventTitle && (
-                                                <IconButton disabled>
-                                                    <ErrorOutlinedIcon color="error"/>
-                                                </IconButton>
-                                            ),
+                                        slotProps={{
+                                            input: {
+                                                endAdornment: formik.errors.eventTitle && (
+                                                    <IconButton disabled>
+                                                        <ErrorOutlinedIcon color="error"/>
+                                                    </IconButton>
+                                                )
+                                            }
                                         }}
                                     />
                                 </div>

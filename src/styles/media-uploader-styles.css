@@ -199,12 +199,16 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 100;
 }
 
 .media-uploader__preview-overlay img {
     width: 30rem;
     max-width: 200%;
     max-height: 200%;
+}
+.media-uploader__preview-overlay video{
+    width: 50rem;
 }
 
 .media-uploader__preview-overlay .media-uploader__delete-btn {

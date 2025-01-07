@@ -169,9 +169,11 @@
 }
 .create-events-main__continue-btn {
     position: fixed;
-    right: 1rem;
-    bottom: 1.5rem;
+    bottom: 1rem;
+    left: 6rem;
+    width: 17rem;
     padding: .75rem 1.25rem;
+    margin: 0;
     font-size: 1rem;
     background-color: white;
     color: black;
@@ -189,4 +191,20 @@
 }
 .create-events__disabled-step:hover{
     cursor: not-allowed;
+}
+.complete-section{
+    box-shadow: 0 0 10px 0 rgba(0, 255, 0, 0.5);
+    position: relative;
+}
+.complete-section::after{
+    content: "✅";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    font-size: 3rem;
+    transform: translateY(-50%) translateX(-125%);
+    background-color: rgba(245, 245, 245, 0.7);
+    padding: 1rem;
+    border-radius: 50%;
+    z-index: 1;
 }

@@ -1,7 +1,16 @@
-import {useState} from "react";
+import {useContext, useState} from "react";
 import {
     Button,
-    Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, MenuItem,
+    Checkbox,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    FormControl,
+    FormControlLabel, FormHelperText,
+    InputLabel,
+    MenuItem,
+    Select,
     Stack,
     TextField
 } from "@mui/material";
@@ -16,9 +25,10 @@ import EventIcon from '@mui/icons-material/Event';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import RadioButtonCheckedSharpIcon from '@mui/icons-material/RadioButtonCheckedSharp';
 import * as Yup from 'yup';
-import {Field, Form, Formik} from "formik";
+import {useFormik} from "formik";
 import Switch from '@mui/material/Switch';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
+import {EventContext} from "../../context.js";
 
 const checkboxStyle = {
     sx: {
@@ -44,83 +54,126 @@ CustomCheckbox.propTypes = {
 }
 
 const timezones = ['GMT+7', 'GMT+5', 'GMT+1', 'UTC'];
-const languages = ['English (US)', 'English (UK)', 'Spanish', 'French'];
-
-const MoreOptionsSchema = Yup.object().shape({
-    timezone: Yup.string().required('Timezone is required'),
-    language: Yup.string().required('Language is required'),
-});
-
-const initialValues = {
-    displayEndTime: true,
-    timezone: '',
-    language: 'English (US)',
-};
+const languages = [
+    {value: 'en-US', label: 'English (US)'},
+    {value: 'en-UK', label: 'English (UK)'},
+    {value: 'vi', label: 'Vietnamese'},
+    {value: 'fr', label: 'French'},
+];
 
 function DateAndLocationForm(){
-    const [eventType, setEventType] = useState("single");
-    const [selectedDate, setSelectedDate] = useState(dayjs());
-    const [startTime, setStartTime] = useState(dayjs().hour(10).minute(0));
-    const [endTime, setEndTime] = useState(dayjs().hour(12).minute(0));
     const [activeTab, setActiveTab] = useState("venue");
     const [open, setOpen] = useState(false);
+    const {data, setData} = useContext(EventContext)
+
+    const validationSchema = Yup.object().shape({
+        timezone: Yup.string().required('Timezone is required'),
+        language: Yup.string().required('Language is required'),
+        location: Yup.string().required('Location is required'),
+        eventDate: Yup.date().required('Event date is required'),
+        eventStartTime: Yup.date().required('Event start time is required'),
+        eventEndTime: Yup.date().required('Event end time is required')
+            .test('is-greater', 'End time must be greater than start time', function (value) {
+                return value > this.parent.eventStartTime;
+            }),
+    });
+
+    const initialValues = {
+        displayEndTime: data.displayEndTime,
+        timezone: data.timezone,
+        language: data.language,
+        location: data.location || '',
+        eventDate: data.eventDate !== undefined ? dayjs(data.eventDate, 'DD/MM/YYYY') : null,
+        eventStartTime: data.eventStartTime !== undefined ? dayjs(data.eventStartTime, 'HH:mm') : null,
+        eventEndTime: data.eventEndTime ? dayjs(data.eventEndTime, 'HH:mm') : null,
+    };
+
+    const formik = useFormik({
+        initialValues: initialValues,
+        validationSchema: validationSchema,
+    });
+
+    function isValidData(){
+        return formik.values.eventDate !== null && formik.values.eventStartTime !== null && formik.values.eventEndTime !== null
+            && formik.values.timezone !== undefined && formik.values.location !== '' && formik.errors.eventDate === undefined
+            && formik.errors.eventStartTime === undefined && formik.errors.eventEndTime === undefined
+    }
 
     return (
-        <div className="date-and-location">
+        <div className={`date-and-location ${isValidData() ? 'complete-section' : ''}`}>
             <h2>Date and Location</h2>
             <Stack rowGap={1}>
                 <h3>Type of event</h3>
                 <Stack direction={'row'} marginBottom={'1rem'} columnGap={1}>
-                    <Button onClick={() => setEventType("single")} sx={{border: '1px solid #bebebe'}}
+                    <Button onClick={() => setData(prev => ({...prev, eventType: 'single'}))} sx={{border: '1px solid #bebebe'}}
                             className={`event-type__button ${
-                                eventType === "single" ? "active" : ""
+                                data.eventType === "single" || data.eventType === undefined ? "active" : ""
                             }`}
                     >
-                        <EventIcon sx={{color: eventType === 'single' ? '#175486' : 'gray'}}/>
+                        <EventIcon sx={{color: data.eventType === 'single' || data.eventType === undefined ? '#175486' : 'gray'}}/>
                         <Stack alignItems={'flex-start'}>
                             <p>Single event</p>
                             <p>For event that happen once</p>
                         </Stack>
-                        <CustomCheckbox checked={eventType === 'single'}/>
+                        <CustomCheckbox checked={data.eventType === 'single' || data.eventType === undefined}/>
                     </Button>
-                    <Button onClick={() => setEventType("recurring")} sx={{border: '1px solid #bebebe'}}
+                    <Button onClick={() => setData(prev => ({...prev, eventType: 'recurring'}))} sx={{border: '1px solid #bebebe'}}
                             className={`event-type__button ${
-                                eventType === "recurring" ? "active" : ""
+                                data.eventType === "recurring" ? "active" : ""
                             }`}
                     >
-                        <CalendarMonthIcon sx={{color: eventType === 'recurring' ? '#175486' : 'gray'}}/>
+                        <CalendarMonthIcon sx={{color: data.eventType === 'recurring' ? '#175486' : 'gray'}}/>
                         <Stack alignItems={'flex-start'}>
                             <p>Recurring event</p>
                             <p>For timed entry and multiple days</p>
                         </Stack>
-                        <CustomCheckbox checked={eventType === 'recurring'}/>
+                        <CustomCheckbox checked={data.eventType === 'recurring'}/>
                     </Button>
                 </Stack>
             </Stack>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <div className="date-time-section">
-                    <DatePicker
-                        label="Date"
-                        value={selectedDate}
-                        onChange={(newValue) => setSelectedDate(newValue)}
+                    <DatePicker format={'DD/MM/YYYY'} disablePast label="Event Date *"
+                        value={formik.values.eventDate} name={'eventDate'}
+                        onChange={(newValue) => {
+                            setData(prev => ({...prev, eventDate: newValue.format('DD/MM/YYYY')}))
+                            formik.setFieldValue('eventDate', newValue)
+                        }}
                         slotProps={{
-                            textField: {variant: 'outlined'}
+                            textField: {
+                                onBlur: formik.handleBlur,
+                                error: formik.touched.eventDate && Boolean(formik.errors.eventDate),
+                                helperText: formik.touched.eventDate && formik.errors.eventDate,
+                            },
+                        }}
+                    />
+                    <TimePicker label="Start time *" ampm={false} name={'eventStartTime'}
+                        value={formik.values.eventStartTime}
+                        onChange={(newValue) => {
+                            setData(prev => ({...prev, eventStartTime: newValue.format('HH:mm')}))
+                            formik.setFieldValue('eventStartTime', newValue)
+                        }}
+                        slotProps={{
+                            textField: {
+                                onBlur: formik.handleBlur,
+                                error: formik.touched.eventStartTime && Boolean(formik.errors.eventStartTime),
+                                helperText: formik.touched.eventStartTime && formik.errors.eventStartTime,
+                            },
                         }}
                     />
                     <TimePicker
-                        label="Start time"
-                        value={startTime}
-                        onChange={(newValue) => setStartTime(newValue)}
-                        slotProps={{
-                            textField: {variant: 'outlined'}
+                        label="End time *" ampm={false} name={'eventEndTime'}
+                        value={formik.values.eventEndTime}
+                        onChange={(newValue) => {
+                            setData(prev => ({...prev, eventEndTime: newValue.format('HH:mm')}))
+                            formik.setFieldValue('eventEndTime', newValue)
                         }}
-                    />
-                    <TimePicker
-                        label="End time"
-                        value={endTime}
-                        onChange={(newValue) => setEndTime(newValue)}
                         slotProps={{
-                            textField: {variant: 'outlined'}
+                            textField: {
+                                onBlur: formik.handleBlur,
+                                error: formik.touched.eventEndTime && Boolean(formik.errors.eventEndTime),
+                                helperText: formik.touched.eventEndTime && formik.errors.eventEndTime,
+                            },
                         }}
                     />
                 </div>
@@ -137,7 +190,10 @@ function DateAndLocationForm(){
                 <h3>Location</h3>
                 <Tabs
                     value={activeTab}
-                    onChange={(e, newValue) => setActiveTab(newValue)}
+                    onChange={(e, newValue) => {
+                        setActiveTab(newValue)
+                        setData(prev => ({...prev, locationType: newValue}))
+                    }}
                     aria-label="Location Tabs"
                 >
                     <Tab label="Venue" value="venue"/>
@@ -146,26 +202,32 @@ function DateAndLocationForm(){
                 </Tabs>
                 {activeTab === "venue" && (
                     <Stack>
-                        <TextField
-                            label="Location *"
-                            fullWidth
-                            placeholder="Enter a location"
-                            margin="normal"
+                        <TextField label="Location *" fullWidth placeholder="Enter a location" margin="normal"
+                                   name='location' onBlur={formik.handleBlur}
+                            value={formik.values.location}
+                                   onChange={(e) => {
+                                       setData(prev => ({...prev, location: e.target.value}))
+                                       formik.handleChange(e)
+                                    }}
+                                   error={formik.touched.location && !!formik.errors.location}
+                                   helperText={formik.touched.location && formik.errors.location}
                         />
                         <div className={'location-venue__reserve-seating'}>
                             <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
                                 <p style={{fontWeight: 'bold'}}>Reserved seating</p>
-                                <Switch/>
+                                <Switch checked={data.reserveSeating || false}
+                                        onChange={() => setData(prev => ({...prev, reserveSeating: !prev.reserveSeating}))}/>
                             </Stack>
                             <p>Use your venue map to set price tiers for each section and choose whether attendees can
                                 pick their seat.</p>
                         </div>
-                        {selectedDate && startTime && endTime && eventType && initialValues.timezone &&
+                        {data.eventDate !== undefined && data.startTime !== undefined && data.endTime !== undefined
+                            && data.eventType !== undefined && data.timezone !== undefined && data.location !== '' &&
                             <Stack className={'location-venue__verify-phone'} direction={'row'} alignItems={'center'} columnGap={2}>
                                 <PriorityHighIcon sx={{backgroundColor: '#ffed41'}}/>
                                 <Stack rowGap={1}>
                                     <p>Verify your phone number</p>
-                                    <p>We&#39;ll send the phone number you enter a one-time verification code. This keeps Eventbrite a place to host real events.</p>
+                                    <p>We&#39;ll send the phone number you enter a one-time verification code. This keeps Tixery a place to host real events.</p>
                                 </Stack>
                                 <Button variant={'text'} sx={{width: 'fit=content', fontSize: '.8rem'}}>Verify now</Button>
                             </Stack>
@@ -184,89 +246,83 @@ function DateAndLocationForm(){
                 <DialogTitle textAlign={'center'}>
                     More options
                 </DialogTitle>
-                <Formik
-                    initialValues={initialValues}
-                    validationSchema={MoreOptionsSchema}
-                    onSubmit={(values) => {
-                        console.log(values)
-                    }}
-                >
-                    {({ errors, touched, handleChange, values }) => (
-                        <Form>
-                            <DialogContent>
-                                <div>
-                                    <FormControl fullWidth>
-                                        <FormControlLabel
-                                            control={
-                                                <Field
-                                                    as={Checkbox}
-                                                    name="displayEndTime"
-                                                    checked={values.displayEndTime}
-                                                />
-                                            }
-                                            label={
-                                                <div>
-                                                    <strong>Display end time</strong>
-                                                    <p style={{ fontSize: '0.9rem', margin: '0' }}>
-                                                        The time your event ends will appear on your event page
-                                                    </p>
-                                                </div>
-                                            }
+                <form onSubmit={formik.handleSubmit}>
+                    <DialogContent>
+                        <div>
+                            <FormControl fullWidth>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            name="displayEndTime"
+                                            checked={formik.values.displayEndTime}
+                                            onChange={formik.handleChange}
                                         />
-                                    </FormControl>
-                                </div>
+                                    }
+                                    label={
+                                        <div>
+                                            <strong>Display end time</strong>
+                                            <p style={{fontSize: '0.9rem', margin: '0'}}>
+                                                The time your event ends will appear on your event page
+                                            </p>
+                                        </div>
+                                    }
+                                />
+                            </FormControl>
+                        </div>
 
-                                <div style={{ marginTop: '16px' }}>
-                                    <FormControl fullWidth>
-                                        <Field
-                                            as={TextField}
-                                            select
-                                            name="timezone"
-                                            label="Timezone"
-                                            onChange={handleChange}
-                                            error={touched.timezone && !!errors.timezone}
-                                            helperText={touched.timezone && errors.timezone}
-                                        >
-                                            {timezones.map((tz) => (
-                                                <MenuItem key={tz} value={tz}>
-                                                    {tz}
-                                                </MenuItem>
-                                            ))}
-                                        </Field>
-                                    </FormControl>
-                                </div>
+                        <div style={{marginTop: '16px'}}>
+                            <FormControl fullWidth>
+                                <InputLabel id="demo-simple-select-label">Timezone</InputLabel>
+                                <Select
+                                    label="Timezone"
+                                    name="timezone"
+                                    value={formik.values.timezone}
+                                    onChange={formik.handleChange}
+                                    error={formik.touched.timezone && !!formik.errors.timezone}
+                                >
+                                    {timezones.map((timezone) => (
+                                        <MenuItem key={timezone} value={timezone}>
+                                            {timezone}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                {formik.touched.timezone && formik.errors.timezone && (
+                                    <FormHelperText error>{formik.errors.timezone}</FormHelperText>
+                                )}
+                            </FormControl>
+                        </div>
 
-                                <div style={{ marginTop: '16px' }}>
-                                    <FormControl fullWidth>
-                                        <Field
-                                            as={TextField}
-                                            select
-                                            name="language"
-                                            label="Language"
-                                            onChange={handleChange}
-                                            error={touched.language && !!errors.language}
-                                            helperText={touched.language && errors.language}
-                                        >
-                                            {languages.map((lang) => (
-                                                <MenuItem key={lang} value={lang}>
-                                                    {lang}
-                                                </MenuItem>
-                                            ))}
-                                        </Field>
-                                    </FormControl>
-                                </div>
-                            </DialogContent>
-                            <DialogActions>
-                                <Button onClick={() => setOpen(false)} variant="outlined">
-                                    Cancel
-                                </Button>
-                                <Button type="submit" variant="contained" color="error">
-                                    Save
-                                </Button>
-                            </DialogActions>
-                        </Form>
-                    )}
-                </Formik>
+                        <div style={{marginTop: '16px'}}>
+                            <FormControl fullWidth>
+                                <InputLabel>Language</InputLabel>
+                                <Select
+                                    name="language"
+                                    label="Language"
+                                    value={formik.values.language}
+                                    onChange={formik.handleChange}
+                                    error={formik.touched.language && !!formik.errors.language}
+                                >
+                                    {languages.map((lang) => (
+                                        <MenuItem key={lang.label} value={lang.value}>
+                                            {lang.label}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                {formik.touched.language && formik.errors.language && (
+                                    <FormHelperText error>{formik.errors.language}</FormHelperText>
+                                )}
+                            </FormControl>
+                        </div>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setOpen(false)} variant="outlined">
+                            Cancel
+                        </Button>
+                        <Button type="submit" variant="contained" color="error">
+                            Save
+                        </Button>
+                    </DialogActions>
+                </form>
             </Dialog>
         </div>
     );

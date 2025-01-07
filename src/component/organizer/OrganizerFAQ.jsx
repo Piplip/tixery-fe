@@ -1,12 +1,14 @@
 import {useFormik} from "formik";
-import {useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import * as Yup from "yup";
 import "../../styles/organizer-fag-styles.css"
 import TextAreaWithLimit from "../TextAreaWithLimit.jsx";
 import {Stack} from "@mui/material";
+import {EventContext} from "../../context.js";
 
 function OrganizerFAQ(){
-    const [faqList, setFaqList] = useState([]);
+    const {data, setData} = useContext(EventContext)
+    const [faqList, setFaqList] = useState(data.faq || []);
     const [editIndex, setEditIndex] = useState(null);
     const [expandedIndex, setExpandedIndex] = useState([]);
     const [selectedFaqs, setSelectedFaqs] = useState([]);
@@ -32,6 +34,10 @@ function OrganizerFAQ(){
             resetForm();
         },
     });
+
+    useEffect(() => {
+        setData(prev => ({...prev, faq: faqList}))
+    }, [faqList]);
 
     const handleEdit = (index) => {
         setEditIndex(index);
@@ -72,7 +78,7 @@ function OrganizerFAQ(){
     };
 
     return (
-        <div className="faq-section">
+        <div className={`faq-section ${faqList.length !== 0 ? 'complete-section' : ''}`}>
             <h2 className="faq-section__title">Good to know</h2>
             <p className="faq-section__description">
                 Use this section to feature specific information about your event. Add highlights and frequently asked
@@ -88,10 +94,7 @@ function OrganizerFAQ(){
                     <label htmlFor="question" className="faq-section__label">
                         Question
                     </label>
-                    <input
-                        id="question"
-                        name="question"
-                        type="text"
+                    <input name="question" type="text" placeholder={'Enter your question'}
                         className={`faq-section__input ${
                             formik.errors.question && formik.touched.question ? "faq-section__input--error" : ""
                         }`}

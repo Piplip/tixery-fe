@@ -127,8 +127,6 @@ function LoginSignUp(){
         window.location.href = 'http://localhost:10000/accounts/oauth2/authorization/facebook'
     }
 
-    // TODO: Provide a check when the email is associated with oauth2 account
-
     return (
         <div className={'login-page'}>
             <Snackbar

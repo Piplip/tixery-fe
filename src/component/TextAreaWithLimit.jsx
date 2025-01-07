@@ -8,7 +8,7 @@ TextAreaWithLimit.propTypes = {
     value: PropTypes.string,
     handleChange: PropTypes.func,
     name: PropTypes.string,
-    error: PropTypes.object,
+    error: PropTypes.bool,
     helperText: PropTypes.string,
     onBlur: PropTypes.func,
     rows: PropTypes.number,
