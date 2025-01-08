@@ -6,12 +6,19 @@ import BookOnlineIcon from '@mui/icons-material/BookOnline';
 import PersonIcon from '@mui/icons-material/Person';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import {Radio, RadioGroup} from "@mui/joy";
-import {useState} from "react";
+import {useContext} from "react";
 import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
 import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
 import PropTypes from "prop-types";
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
+import {EventContext} from "../../context.js";
+import dayjs from "dayjs";
+import {capitalizeFirstLetter, getUserData} from "../../common/Utilities.js";
+import {DatePicker, TimePicker} from "@mui/x-date-pickers";
+import {initializeApp} from "firebase/app";
+import {firebaseConfig} from "../../config/firebaseConfig.js";
+import {getStorage, ref} from "firebase/storage";
 
 const checkboxStyle = {
     sx: {
@@ -36,8 +43,38 @@ CustomCheckbox.propTypes = {
     checked: PropTypes.bool,
 }
 
+const eventData = {
+    sports: {
+        categories: {
+            football: ["Premier League", "La Liga", "Serie A"],
+            basketball: ["NBA", "EuroLeague"],
+        },
+    },
+    music: {
+        categories: {
+            rock: ["Classic Rock", "Alternative Rock"],
+            pop: ["K-Pop", "Synth Pop"],
+        },
+    },
+};
+
+
 function OrganizerPublishEvent(){
-    const [refundDays, setRefundDays] = useState(7);
+    initializeApp(firebaseConfig);
+    const storage = getStorage()
+    const {data, setData} = useContext(EventContext)
+
+    const availableCategories =
+        data.type && eventData[data.type]?.categories
+            ? Object.keys(eventData[data.type].categories)
+            : [];
+
+    const availableSubCategories =
+        data.category && eventData[data.type]?.categories[data.category]
+            ? eventData[data.type].categories[data.category]
+            : [];
+
+    // TODO: Get the event image from the storage
 
     return (
         <div className="event-publish">
@@ -56,14 +93,16 @@ function OrganizerPublishEvent(){
                                 <ImageIcon className="event-publish__image-icon" sx={{fontSize: '3rem'}}/>
                             </div>
                             <div className="event-publish__details">
-                                <p className="event-publish__title">Foo</p>
+                                <p className="event-publish__title">{data.eventTitle}</p>
                                 <p className="event-publish__datetime">
-                                    Saturday, February 15 • 8 - 10am GMT+7
+                                    {dayjs(data.eventDate, 'DD/MM/YYYY').format('dddd, DD MMMM')} • {data.eventStartTime} - {data.eventEndTime} {data.timezone}
                                 </p>
-                                <p className="event-publish__online">Online event</p>
+                                <p className="event-publish__online">
+                                    {data.locationType === 'venue' ? 'Offline event' : 'Online event'}
+                                </p>
                                 <Stack direction={'row'} justifyContent={'space-between'}>
                                     <div className="event-publish__info">
-                                        <span><BookOnlineIcon/> $5.23</span>
+                                        <span><BookOnlineIcon/> {data.tickets[0].price.toUpperCase()}</span>
                                         <span><PersonIcon/> 500</span>
                                     </div>
                                     <Link to="/preview" className="event-publish__preview">
@@ -76,12 +115,11 @@ function OrganizerPublishEvent(){
                             <h3>Organized by</h3>
                             <Select
                                 color="neutral"
-                                disabled={false}
-                                placeholder="Organizer"
+                                disabled
+                                placeholder={getUserData('profileName')}
                                 size="md"
                                 variant="soft"
                             >
-                                <Option value={''}>...</Option>
                             </Select>
                             <p className="event-publish__organizer-info">
                                 Your event will appear on this organizer&#39;s profile page.
@@ -102,27 +140,46 @@ function OrganizerPublishEvent(){
                                     placeholder="Type"
                                     size="md"
                                     variant="soft"
+                                    value={data.type}
+                                    onChange={(_, val) => setData(prev => ({...prev, type: val}))}
                                 >
-                                    <Option value={''}>...</Option>
+                                    <Option value={''}>Select a type</Option>
+                                    {Object.keys(eventData).map((type) => (
+                                        <Option key={type} value={type}>
+                                            {capitalizeFirstLetter(type)}
+                                        </Option>
+                                    ))}
                                 </Select>
                                 <Stack direction={'row'} columnGap={2}>
                                     <Select sx={{width: '100%'}}
                                         color="neutral"
-                                        disabled={false}
                                         placeholder="Catergory"
-                                            size="md"
+                                        size="md"
                                         variant="soft"
+                                        value={data.category} disabled={!data.type}
+                                            onChange={(_, val) => setData(prev => ({...prev, category: val}))}
                                     >
-                                        <Option value={''}>...</Option>
+                                        <Option value={''}>Select a category</Option>
+                                        {availableCategories.map((category) => (
+                                            <Option key={category} value={category}>
+                                                {capitalizeFirstLetter(category)}
+                                            </Option>
+                                        ))}
                                     </Select>
                                     <Select sx={{width: '100%'}}
                                         color="neutral"
-                                        disabled={false}
                                         placeholder="Sub category"
                                         size="md"
-                                        variant="soft"
+                                        variant="soft"  disabled={!data.category}
+                                        value={data.subCategory}
+                                            onChange={(_, val) => setData(prev => ({...prev, subCategory: val}))}
                                     >
-                                        <Option value={''}>...</Option>
+                                        <Option value={''}>Select sub category</Option>
+                                        {availableSubCategories.map((subCategory) => (
+                                            <Option key={subCategory} value={subCategory}>
+                                                {capitalizeFirstLetter(subCategory)}
+                                            </Option>
+                                        ))}
                                     </Select>
                                 </Stack>
                             </Stack>
@@ -135,10 +192,13 @@ function OrganizerPublishEvent(){
                                 event’s theme, topic, vibe, location, and more.
                             </Typography>
                             <TextField
+                                value={data.tags}
+                                onChange={(e) => setData(prev => ({...prev, tags: e.target.value}))}
                                 multiline
                                 rows={4}
                                 placeholder="Add search keywords to your event"
                                 variant="outlined"
+                                helperText={data.tags ? `${data.tags.split(',').length}/12 tags` : 'Separate tags with commas'}
                             />
                         </Box>
                     </Stack>
@@ -154,7 +214,9 @@ function OrganizerPublishEvent(){
                                 <Stack>
                                     <FormControlLabel
                                         value="public"
-                                        control={<Radio sx={{marginRight: 1}}/>}
+                                        control={<Radio sx={{marginRight: 1}}
+                                                        checked={data.eventVisibility === 'public'}
+                                                        onClick={() => setData(prev => ({...prev, eventVisibility: 'public'}))}/>}
                                         label="Public"
                                     />
                                     <p className="publish-settings__description">
@@ -164,7 +226,9 @@ function OrganizerPublishEvent(){
                                 <Stack>
                                     <FormControlLabel
                                         value="private"
-                                        control={<Radio sx={{marginRight: 1}}/>}
+                                        control={<Radio sx={{marginRight: 1}}
+                                                        onClick={() => setData(prev => ({...prev, eventVisibility: 'private'}))}
+                                                        checked={data.eventVisibility === 'private'}/>}
                                         label="Private"
                                     />
                                     <p className="publish-settings__description">
@@ -179,14 +243,17 @@ function OrganizerPublishEvent(){
                                 After your event is published, you can only update your policy to make it more flexible
                                 for your attendees.
                             </p>
-                            <RadioGroup name="refundPolicy" defaultValue="allowRefunds" className={'radio-group'}>
+                            <RadioGroup name="refundPolicy" defaultValue="allowRefunds" className={'radio-group'}
+                                        value={data.allowRefund}
+                                onChange={(e) => setData(prev => ({...prev, allowRefund: e.target.value}))}
+                            >
                                 <FormControlLabel
-                                    value="allowRefunds"
+                                    value={true}
                                     control={<Radio sx={{marginRight: 1}}/>}
                                     label="Allow refunds"
                                 />
                                 <FormControlLabel
-                                    value="noRefunds"
+                                    value={false}
                                     control={<Radio sx={{marginRight: 1}}/>}
                                     label="Don't allow refunds"
                                 />
@@ -195,8 +262,8 @@ function OrganizerPublishEvent(){
                                 <TextField
                                     className="publish-settings__input"
                                     type="number"
-                                    value={refundDays}
-                                    onChange={(e) => setRefundDays(e.target.value)}
+                                    value={data.daysForRefund}
+                                    onChange={(e) => setData(prev => ({...prev, daysForRefund: e.target.value}))}
                                     label="Days before the event"
                                     inputProps={{min: 1, max: 30}}
                                 />
@@ -214,24 +281,29 @@ function OrganizerPublishEvent(){
                                 cover the request. If turned off, you must respond to all refund requests within five
                                 days.
                             </p>
-                            <RadioGroup name="automateRefunds" defaultValue="manual" className={'radio-group'}>
+                            <RadioGroup name="automateRefunds" defaultValue="manual" className={'radio-group'}
+                                value={data.automatedRefund}
+                                onChange={(e) => setData(prev => ({...prev, automatedRefund: e.target.value}))}
+                            >
                                 <FormControlLabel
-                                    value="auto"
+                                    value={true}
                                     control={<Radio sx={{marginRight: 1}}/>}
                                     label="Yes, automate refunds"
                                 />
                                 <FormControlLabel
-                                    value="manual"
+                                    value={false}
                                     control={<Radio sx={{marginRight: 1}}/>}
                                     label="No, I'll respond to each request"
                                 />
                             </RadioGroup>
                         </Stack>
 
-                        {/* Publish Timing */}
                         <Stack className="publish-settings__section" rowGap={1}>
                             <h3>When should we publish your event?</h3>
-                            <RadioGroup name="publishTiming" defaultValue="now" className={'radio-group'}>
+                            <RadioGroup name="publishTiming" defaultValue="now" className={'radio-group'}
+                                value={data.publishType}
+                                onChange={(e) => setData(prev => ({...prev, publishType: e.target.value}))}
+                            >
                                 <FormControlLabel
                                     value="now"
                                     control={<Radio sx={{marginRight: 1}}/>}
@@ -243,6 +315,16 @@ function OrganizerPublishEvent(){
                                     label="Schedule for later"
                                 />
                             </RadioGroup>
+                            {data.publishType === 'schedule' && (
+                                <Stack marginTop={2} direction={'row'} columnGap={1}>
+                                    <DatePicker format={'DD/MM/YYYY'} disablePast
+                                                value={dayjs(data.publishDate, 'DD/MM/YYYY')}
+                                                onChange={(date) => setData(prev => ({...prev, publishDate: date.format('DD/MM/YYYY')}))}/>
+                                    <TimePicker format={'HH:mm'} value={data.publishTime} ampm={false}
+                                        onChange={(time) => setData(prev => ({...prev, publishTime: time}))}
+                                    />
+                                </Stack>
+                            )}
                         </Stack>
                     </Box>
 

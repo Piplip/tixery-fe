@@ -62,7 +62,14 @@ function CreateEvent() {
         language: 'en-US',
         timezone: 'GMT+7',
         displayEndTime: true,
-
+        eventVisibility: 'public',
+        allowRefund: false,
+        daysForRefund: 7,
+        automatedRefund: false,
+        publishType: 'now',
+        type: '',
+        category: '',
+        subCategory: '',
     })
     const [currentStep, setCurrentStep] = useState(0);
     const maxStep =  useRef(0)
@@ -71,9 +78,10 @@ function CreateEvent() {
     const navigate = useNavigate()
 
     function handleContinue(){
-        if(!validateStep()){
-            setAlert("Please fill in all required fields or correct any errors before continuing.")
-            return
+        const msg = validateStep()
+        if(typeof msg === 'string'){
+            setAlert(msg);
+            return;
         }
         if(currentStep < steps.length - 1){
             setCurrentStep(currentStep + 1)
@@ -85,8 +93,24 @@ function CreateEvent() {
     function validateStep(){
         switch (currentStep){
             case 0: {
-                return !(!eventData.eventTitle || !eventData.summary || !eventData.eventType || !eventData.eventStartTime || !eventData.eventDate ||
-                    eventData.location === "" || (eventData.eventStartTime > eventData.eventEndTime));
+                if((!eventData.eventTitle || !eventData.summary || !eventData.eventType || !eventData.eventStartTime || !eventData.eventDate ||
+                    eventData.location === "" || (eventData.eventStartTime > eventData.eventEndTime))){
+                    return "Please fill in all required fields or correct any errors before continuing."
+                }
+                break;
+            }
+            case 1: {
+                if((!eventData.tickets || eventData.tickets.length === 0)){
+                    return "Tickets are required to continue."
+                }
+                break;
+            }
+            case 2: {
+                if((!eventData.publishType || (eventData.publishType === 'schedule' && !eventData.publishDate && !eventData.publishTime)
+                    || eventData.daysForRefund === "")){
+                    return "Please fill in all required fields or correct any errors before continuing."
+                }
+                break;
             }
             default: {
                 return true

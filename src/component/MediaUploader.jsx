@@ -5,7 +5,7 @@ import "../styles/media-uploader-styles.css"
 import UploadIcon from '@mui/icons-material/Upload';
 import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../config/firebaseConfig.js";
-import {getStorage, ref, uploadBytes} from "firebase/storage";
+import {deleteObject, getMetadata, getDownloadURL, getStorage, listAll, ref, uploadBytes} from "firebase/storage";
 import {generateFileName} from "../common/Utilities.js";
 import {useLocation} from "react-router-dom";
 import {EventContext} from "../context.js";
@@ -50,13 +50,37 @@ function MediaUploader () {
     const location = useLocation()
 
     useEffect(() => {
-        if(isUploadActive === false){
+        if (isUploadActive === false) {
             const interval = setInterval(() => {
                 setCurrentImageIndex((prevIndex) => (prevIndex + 1) % carouselImages.length);
             }, 3000);
             return () => clearInterval(interval);
+        } else {
+            const prefix = `${location.pathname.split('/')[3]}`;
+            fetchMediaFromFirebase(storage, prefix).then(({ images, videos }) => {
+                setUploadedImages(images);
+                setData((prev) => ({...prev, images: images.map(image => image.path)}));
+                setUploadedVideos(videos);
+                setData((prev) => ({...prev, videos: videos.map(video => video.path)}));
+            });
         }
-    }, []);
+    }, [isUploadActive]);
+
+    async function fetchMediaFromFirebase(storage, prefix) {
+        const storageRef = ref(storage, `/events/${prefix}`);
+        const result = await listAll(storageRef);
+        const mediaUrls = await Promise.all(result.items.map(async (item) => {
+            const url = await getDownloadURL(item);
+            const metadata = await getMetadata(item);
+            return { url, contentType: metadata.contentType, fullPath: metadata.fullPath};
+        }));
+        const images = mediaUrls
+            .filter(media => media.contentType.startsWith('image/'))
+            .map(media => ({ url: media.url, path: media.fullPath }));
+        const videos = mediaUrls.filter(media => media.contentType.startsWith('video/'))
+            .map(media => ({ url: media.url, path: media.fullPath }));
+        return { images, videos };
+    }
 
     const validateFile = (file, isImage) => {
         const maxSizeMB = isImage ? IMAGE_MAX_SIZE_MB : VIDEO_MAX_SIZE_MB;
@@ -85,7 +109,6 @@ function MediaUploader () {
             return
         }
         uploadMedia(files[0], 'img');
-        setUploadedImages((prev) => [...prev, ...files]);
     };
 
     const handleDragOver = (event) => {
@@ -107,7 +130,6 @@ function MediaUploader () {
             return
         }
         uploadMedia(files[0], 'img');
-        setUploadedImages((prev) => [...prev, ...files]);
         setIsDragOver(false);
     };
 
@@ -119,11 +141,29 @@ function MediaUploader () {
         const fileName = generateFileName();
         const prefix = `${location.pathname.split('/')[3]}`
         const storageRef = ref(storage, `/events/${prefix}/${fileName}`);
-        const res = await uploadBytes(storageRef, src);
-        if(type === 'img')
-            setData(prev => ({...prev, images: prev.images === undefined ? res.metadata.fullPath : prev.images + ',' + res.metadata.fullPath}))
-        else
-            setData(prev => ({...prev, videos: prev.videos === undefined ? res.metadata.fullPath : prev.videos + ',' + res.metadata.fullPath}))
+
+        try {
+            const res = await uploadBytes(storageRef, src);
+            const url = await getDownloadURL(storageRef);
+            const fullPath = res.metadata.fullPath;
+
+            if (type === 'img') {
+                setUploadedImages(prev => [...prev, { url, path: fullPath }]);
+                setData((prev) => ({
+                    ...prev,
+                    images: prev.images ? [...prev.images, fullPath] : [fullPath]
+                }));
+            } else {
+                setUploadedVideos(prev => [...prev, { url, path: fullPath }]);
+                setData((prev) => ({
+                    ...prev,
+                    videos: prev.videos ? [...prev.videos, fullPath] : [fullPath]
+                }));
+            }
+        } catch (error) {
+            setShowError(true);
+            setErrorMessage('Error uploading file. Please try again.');
+        }
     }
 
     const handleVideoUpload = (event) => {
@@ -135,14 +175,25 @@ function MediaUploader () {
             return
         }
         uploadMedia(files[0], 'video');
-        setUploadedVideos((prev) => [...prev, ...files]);
     }
 
-    // TODO: Add a function to remove images and videos from the database when the user deletes them from the uploader
-    // TODO: Retrieve images and videos from the database when the user navigates back to the page
+    function isFile(file){
+        return file instanceof File
+    }
+
+    function deleteFile(file){
+        const deleteRef = ref(storage, file)
+        deleteObject(deleteRef)
+            .then(() => {
+                console.log('File deleted successfully')
+            }
+        ).catch((error) => {
+            console.error('Error deleting file:', error)
+        })
+    }
 
     return (
-        <div className={`media-uploader ${data.images !== undefined || data.videos !== undefined ? 'complete-section' : ''}`}>
+        <div className={`media-uploader ${data.images !== undefined || data.videos !== undefined || uploadedImages || uploadedVideos? 'complete-section' : ''}`}>
             <Snackbar open={showError} autoHideDuration={6000} onClose={handleCloseSnackbar}
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }} sx={{marginTop: '3rem'}}
             >
@@ -207,14 +258,15 @@ function MediaUploader () {
                                 <div
                                     key={index}
                                     className="media-uploader__preview-item"
-                                    onClick={() => setCurrentPreview({type: 'img', src: URL.createObjectURL(file)})}
+                                    onClick={() => setCurrentPreview({type: 'img', src: isFile(file) ? URL.createObjectURL(file) : file.url})}
                                     style={{animationDelay: `${index * 100}ms`}}
                                 >
-                                    <img src={URL.createObjectURL(file)} alt={`Preview ${index}`}/>
+                                    <img src={isFile(file) ? URL.createObjectURL(file) : file.url} alt={`Preview ${index}`}/>
                                     <button
                                         className="media-uploader__delete-btn"
                                         onClick={(e) => {
                                             e.stopPropagation();
+                                            deleteFile(file.path)
                                             setUploadedImages((prev) =>
                                                 prev.filter((_, i) => i !== index)
                                             );
@@ -245,12 +297,13 @@ function MediaUploader () {
                                 <div
                                     key={index}
                                     className="media-uploader__preview-item"
-                                    onClick={() => {setCurrentPreview({type: 'video', src: URL.createObjectURL(file)})}}
+                                    onClick={() => {setCurrentPreview({type: 'video', src: isFile(file) ? URL.createObjectURL(file) : file.url})}}
                                 >
-                                    <video src={URL.createObjectURL(file)}/>
+                                    <video src={isFile(file) ? URL.createObjectURL(file) : file.url}/>
                                     <button className="media-uploader__delete-btn"
                                             onClick={(e) => {
                                                 e.stopPropagation();
+                                                deleteFile(file.path)
                                                 setUploadedVideos((prev) =>
                                                     prev.filter((_, i) => i !== index)
                                                 );

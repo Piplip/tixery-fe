@@ -1,0 +1,28 @@
+.tickets-section__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+}
+
+.tickets-section__tabs {
+  display: flex;
+}
+
+.tickets-section__tab {
+  padding: .5rem 1rem;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  color: #333;
+  font-size: 14px;
+
+  &:hover {
+    border-color: #007bff;
+  }
+
+  &.tickets-section__tab--active {
+    color: #007bff;
+    border-color: #007bff;
+    font-weight: bold;
+  }
+}

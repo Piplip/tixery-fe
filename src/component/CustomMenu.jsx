@@ -7,10 +7,11 @@ const ITEM_HEIGHT = 48;
 
 CustomMenu.propTypes = {
     options: PropTypes.array.isRequired,
-    handlers: PropTypes.array.isRequired,
+    handlers: PropTypes.array,
+    handlersWithParams: PropTypes.array
 }
 
-function CustomMenu({options, handlers}){
+function CustomMenu({options, handlers, handlersWithParams}){
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -46,7 +47,14 @@ function CustomMenu({options, handlers}){
             >
                 {options.map((option) => (
                     <MenuItem key={option} selected={option === 'Pyxis'}
-                              onClick={handlers[options.indexOf(option)]}
+                              onClick={() => {
+                                    if(handlersWithParams){
+                                        handlersWithParams[options.indexOf(option)]()()
+                                    } else {
+                                        handlers[options.indexOf(option)]
+                                    }
+                                  handleClose()
+                              }}
                     >
                         {option}
                     </MenuItem>

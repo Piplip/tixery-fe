@@ -221,8 +221,7 @@ function DateAndLocationForm(){
                             <p>Use your venue map to set price tiers for each section and choose whether attendees can
                                 pick their seat.</p>
                         </div>
-                        {data.eventDate !== undefined && data.startTime !== undefined && data.endTime !== undefined
-                            && data.eventType !== undefined && data.timezone !== undefined && data.location !== '' &&
+                        {isValidData() &&
                             <Stack className={'location-venue__verify-phone'} direction={'row'} alignItems={'center'} columnGap={2}>
                                 <PriorityHighIcon sx={{backgroundColor: '#ffed41'}}/>
                                 <Stack rowGap={1}>
