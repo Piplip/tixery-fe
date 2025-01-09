@@ -91,3 +91,7 @@
 .organizer-create-ticket__detail {
     animation: slideInFromLeft 0.4s ease-out;
 }
+.tickets-section__tab-active{
+    color: white;
+    background-color: rgba(212, 242, 255, 0.72);
+}

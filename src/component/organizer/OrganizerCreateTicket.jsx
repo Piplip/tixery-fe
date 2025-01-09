@@ -64,7 +64,8 @@ function OrganizerCreateTicket(){
     const [editTicket, setEditTicket] = useState(null)
 
     useEffect(() => {
-        if ((validate(0) instanceof String) && location.pathname.includes('tickets')) {
+        const msg = validate(0)
+        if (typeof msg === 'string' && location.pathname.includes('tickets')) {
             const basePath = location.pathname.split('/tickets')[0];
             navigate(basePath);
         }
@@ -281,8 +282,6 @@ function OrganizerCreateTicket(){
         setOpenDetail({type: type, open: true});
     }
 
-    // TODO: Add an indicator for visibility of the ticket
-
     return (
         <Stack className={'organizer-create-ticket'} rowGap={2}>
             <p className={'organizer-create-ticket__title'}>Create tickets</p>
@@ -295,7 +294,7 @@ function OrganizerCreateTicket(){
                                 <NavLink
                                     key={tab.label}
                                     to={tab.to}
-                                    className="tickets-section__tab"
+                                    className={({isActive}) => `tickets-section__tab ${isActive ? 'tickets-section__tab-active' : ''}`}
                                 >
                                     {tab.label}
                                 </NavLink>

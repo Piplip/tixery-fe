@@ -70,6 +70,7 @@ function CreateEvent() {
         type: '',
         category: '',
         subCategory: '',
+        capacity: 100
     })
     const [currentStep, setCurrentStep] = useState(0);
     const maxStep =  useRef(0)
@@ -90,8 +91,8 @@ function CreateEvent() {
         }
     }
 
-    function validateStep(){
-        switch (currentStep){
+    function validateStep(step){
+        switch (step !== undefined ? step : currentStep){
             case 0: {
                 if((!eventData.eventTitle || !eventData.summary || !eventData.eventType || !eventData.eventStartTime || !eventData.eventDate ||
                     eventData.location === "" || (eventData.eventStartTime > eventData.eventEndTime))){
@@ -124,7 +125,8 @@ function CreateEvent() {
         navigate(steps[index].to)
     }
 
-    console.log(eventData)
+    // TODO: Enhanced the checking of the fields
+    // TODO: Adding UI for publishing the event
 
     return (
         <div className={'create-events-wrapper'}>
