@@ -208,3 +208,48 @@
     border-radius: 50%;
     z-index: 1;
 }
+.event-dialog-content {
+    padding: 2rem 1rem;
+}
+
+.event-dialog-content .event-status {
+    font-weight: bold;
+}
+
+.event-dialog-content .event-status.live {
+    color: green;
+}
+
+.event-dialog-content .event-status.scheduled {
+    color: #394652;
+}
+
+.event-dialog-content .event-date-time {
+    font-family: "Microsoft Tai Le", sans-serif;
+    color: gray;
+}
+
+.event-dialog-content .event-progress {
+    margin-top: 1.5rem;
+    width: 100%;
+    height: 1rem;
+    border-radius: 1rem;
+}
+
+.event-dialog-content button {
+    text-transform: none;
+    font-weight: 500;
+}
+
+.event-dialog-content button.MuiButton-contained {
+    background-color: #d32f2f;
+}
+
+.event-dialog-content button.MuiButton-contained:hover {
+    background-color: #9a0007;
+}
+
+.event-dialog-content button.MuiButton-outlined {
+    border-color: #d32f2f;
+    color: #d32f2f;
+}

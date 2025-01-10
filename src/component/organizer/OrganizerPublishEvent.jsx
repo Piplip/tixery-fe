@@ -6,7 +6,7 @@ import BookOnlineIcon from '@mui/icons-material/BookOnline';
 import PersonIcon from '@mui/icons-material/Person';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import {Radio, RadioGroup} from "@mui/joy";
-import {useContext} from "react";
+import {useContext, useEffect, useState} from "react";
 import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
 import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
 import PropTypes from "prop-types";
@@ -18,7 +18,7 @@ import {capitalizeFirstLetter, getUserData} from "../../common/Utilities.js";
 import {DatePicker, TimePicker} from "@mui/x-date-pickers";
 import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
-import {getStorage, ref} from "firebase/storage";
+import {getDownloadURL, getStorage, ref} from "firebase/storage";
 
 const checkboxStyle = {
     sx: {
@@ -63,6 +63,7 @@ function OrganizerPublishEvent(){
     initializeApp(firebaseConfig);
     const storage = getStorage()
     const {data, setData} = useContext(EventContext)
+    const [eventImg, setEventImg] = useState(null)
 
     const availableCategories =
         data.type && eventData[data.type]?.categories
@@ -74,7 +75,18 @@ function OrganizerPublishEvent(){
             ? eventData[data.type].categories[data.category]
             : [];
 
-    // TODO: Get the event image from the storage
+    useEffect(() => {
+        if(eventImg === null){
+            const imageRef = ref(storage, data.images[0])
+            getDownloadURL(imageRef)
+                .then((url) => {
+                    setEventImg(url)
+                })
+                .catch(err => console.log(err))
+        }
+    }, []);
+
+    // TODO: Should add a check if the publish date and time is after the event date and time
 
     return (
         <div className="event-publish">
@@ -89,9 +101,13 @@ function OrganizerPublishEvent(){
                 <div className="event-publish__container">
                     <Stack sx={{margin: '1rem 0 1rem 1rem'}}>
                         <Box className="event-publish__details-card">
-                            <div className="event-publish__image">
-                                <ImageIcon className="event-publish__image-icon" sx={{fontSize: '3rem'}}/>
-                            </div>
+                            {eventImg ?
+                                <img src={eventImg} alt="event" className="event-publish__image"/>
+                                :
+                                <div className="event-publish__image">
+                                    <ImageIcon className="event-publish__image-icon" sx={{fontSize: '3rem'}}/>
+                                </div>
+                            }
                             <div className="event-publish__details">
                                 <p className="event-publish__title">{data.eventTitle}</p>
                                 <p className="event-publish__datetime">
@@ -245,7 +261,9 @@ function OrganizerPublishEvent(){
                             </p>
                             <RadioGroup name="refundPolicy" defaultValue="allowRefunds" className={'radio-group'}
                                         value={data.allowRefund}
-                                onChange={(e) => setData(prev => ({...prev, allowRefund: e.target.value}))}
+                                onChange={() => {
+                                    setData(prev => ({...prev, allowRefund: !prev.allowRefund, daysForRefund: prev.allowRefund ? null : 1}))
+                                }}
                             >
                                 <FormControlLabel
                                     value={true}
@@ -258,51 +276,65 @@ function OrganizerPublishEvent(){
                                     label="Don't allow refunds"
                                 />
                             </RadioGroup>
-                            <Stack rowGap={.5} marginTop={2}>
-                                <TextField
-                                    className="publish-settings__input"
-                                    type="number"
-                                    value={data.daysForRefund}
-                                    onChange={(e) => setData(prev => ({...prev, daysForRefund: e.target.value}))}
-                                    label="Days before the event"
-                                    inputProps={{min: 1, max: 30}}
-                                />
-                                <p className="publish-settings__description">
-                                    Set how many days (1 to 30) before the event that attendees can request refunds.
-                                </p>
-                            </Stack>
+                            {data.allowRefund &&
+                                <Stack rowGap={.5} marginTop={2}>
+                                    <TextField
+                                        className="publish-settings__input"
+                                        type="number"
+                                        value={data.daysForRefund}
+                                        onChange={(e) => setData(prev => ({...prev, daysForRefund: e.target.value}))}
+                                        label="Days before the event"
+                                        error={data.daysForRefund < 1 || data.daysForRefund > 30}
+                                        helperText={data.daysForRefund < 1 || data.daysForRefund > 30 ? 'Please enter a number between 1 and 30' : ''}
+                                        slotProps={{
+                                            htmlInput: {
+                                                min: 1, max: 30
+                                            }
+                                        }}
+                                    />
+                                    <p className="publish-settings__description">
+                                        Set how many days (1 to 30) before the event that attendees can request refunds.
+                                    </p>
+                                </Stack>
+                            }
                         </Stack>
 
-                        {/* Automated Refunds */}
-                        <Stack className="publish-settings__section" rowGap={1}>
-                            <h3>Automate refunds</h3>
-                            <p className="publish-settings__description">
-                                Automatically approve refund requests for orders of one ticket if the event balance can
-                                cover the request. If turned off, you must respond to all refund requests within five
-                                days.
-                            </p>
-                            <RadioGroup name="automateRefunds" defaultValue="manual" className={'radio-group'}
-                                value={data.automatedRefund}
-                                onChange={(e) => setData(prev => ({...prev, automatedRefund: e.target.value}))}
-                            >
-                                <FormControlLabel
-                                    value={true}
-                                    control={<Radio sx={{marginRight: 1}}/>}
-                                    label="Yes, automate refunds"
-                                />
-                                <FormControlLabel
-                                    value={false}
-                                    control={<Radio sx={{marginRight: 1}}/>}
-                                    label="No, I'll respond to each request"
-                                />
-                            </RadioGroup>
-                        </Stack>
+                        {data.allowRefund &&
+                            <Stack className="publish-settings__section" rowGap={1}>
+                                <h3>Automate refunds</h3>
+                                <p className="publish-settings__description">
+                                    Automatically approve refund requests for orders of one ticket if the event balance can
+                                    cover the request. If turned off, you must respond to all refund requests within five
+                                    days.
+                                </p>
+                                <RadioGroup name="automateRefunds" defaultValue="manual" className={'radio-group'}
+                                            value={data.automatedRefund}
+                                            onChange={(e) => setData(prev => ({...prev, automatedRefund: e.target.value}))}
+                                >
+                                    <FormControlLabel
+                                        value={true}
+                                        control={<Radio sx={{marginRight: 1}}/>}
+                                        label="Yes, automate refunds"
+                                    />
+                                    <FormControlLabel
+                                        value={false}
+                                        control={<Radio sx={{marginRight: 1}}/>}
+                                        label="No, I'll respond to each request"
+                                    />
+                                </RadioGroup>
+                            </Stack>
+                        }
 
                         <Stack className="publish-settings__section" rowGap={1}>
                             <h3>When should we publish your event?</h3>
                             <RadioGroup name="publishTiming" defaultValue="now" className={'radio-group'}
                                 value={data.publishType}
-                                onChange={(e) => setData(prev => ({...prev, publishType: e.target.value}))}
+                                onChange={(e) => {
+                                    setData(prev => ({...prev, publishType: e.target.value}))
+                                    if(e.target.value === 'now'){
+                                        setData(prev => ({...prev, publishDate: null, publishTime: null}))
+                                    }
+                                }}
                             >
                                 <FormControlLabel
                                     value="now"
@@ -319,9 +351,22 @@ function OrganizerPublishEvent(){
                                 <Stack marginTop={2} direction={'row'} columnGap={1}>
                                     <DatePicker format={'DD/MM/YYYY'} disablePast
                                                 value={dayjs(data.publishDate, 'DD/MM/YYYY')}
-                                                onChange={(date) => setData(prev => ({...prev, publishDate: date.format('DD/MM/YYYY')}))}/>
-                                    <TimePicker format={'HH:mm'} value={data.publishTime} ampm={false}
-                                        onChange={(time) => setData(prev => ({...prev, publishTime: time}))}
+                                                onChange={(date) => setData(prev => ({...prev, publishDate: date.format('DD/MM/YYYY')}))}
+                                            slotProps={{
+                                                textField: {
+                                                    error: data.publishDate === undefined,
+                                                    helperText: data.publishDate === undefined ? 'Please select a date' : ''
+                                                }
+                                            }}
+                                    />
+                                    <TimePicker format={'HH:mm'} value={dayjs(data.publishTime, 'HH:mm')} ampm={false}
+                                        onChange={(time) => setData(prev => ({...prev, publishTime: time.format("HH:mm")}))}
+                                                slotProps={{
+                                                    textField: {
+                                                        error: data.publishTime === undefined,
+                                                        helperText: data.publishTime === undefined ? 'Please select a time' : ''
+                                                    }
+                                                }}
                                     />
                                 </Stack>
                             )}

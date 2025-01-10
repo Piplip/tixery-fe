@@ -40,9 +40,9 @@ function MediaUploader () {
     const storage = getStorage()
     const {data, setData} = useContext(EventContext)
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const [isUploadActive, setIsUploadActive] = useState(data.images !== undefined || data.videos !== undefined);
     const [uploadedImages, setUploadedImages] = useState([]);
     const [uploadedVideos, setUploadedVideos] = useState([]);
+    const [isUploadActive, setIsUploadActive] = useState(uploadedImages !== undefined || uploadedVideos !== undefined);
     const [currentPreview, setCurrentPreview] = useState({type: '', src: null});
     const [isDragOver, setIsDragOver] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');

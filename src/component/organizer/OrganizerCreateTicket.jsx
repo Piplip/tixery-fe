@@ -282,6 +282,8 @@ function OrganizerCreateTicket(){
         setOpenDetail({type: type, open: true});
     }
 
+    // TODO: Adding a check if the start, end sales ticket date and time is after the event start date and time
+
     return (
         <Stack className={'organizer-create-ticket'} rowGap={2}>
             <p className={'organizer-create-ticket__title'}>Create tickets</p>
