@@ -82,8 +82,7 @@ function OrganizerCreateTicket(){
         quantity: Yup.number()
             .typeError("Quantity must be a number.")
             .required("Quantity is required."),
-        price: Yup.mixed()
-            .required("Price is required.")
+        price: Yup.mixed().nullable()
             .test(
                 'is-valid-price',
                 'Price must be a valid number.',
@@ -92,7 +91,7 @@ function OrganizerCreateTicket(){
                         return true;
                     }
                     else {
-                        return this.parent.price > 0;
+                        return this.parent.price > 0 && this.parent.price !== undefined;
                     }
                 }
             ),
@@ -273,10 +272,10 @@ function OrganizerCreateTicket(){
     function handleTypeSelect(type){
         formik.setTouched({}, false)
         if(type === 'Free'){
-            formik.setFieldValue('price', 'free');
+            formik.setFieldValue('price', 0);
         }
         else if(type === 'Donation'){
-            formik.setFieldValue('price', 'donation');
+            formik.setFieldValue('price', 0);
         }
         else formik.setFieldValue('price', '');
         setOpenDetail({type: type, open: true});

@@ -29,7 +29,7 @@ function OrganizerTicketAdmission(){
     const [openCapacity, setOpenCapacity] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(Array(data.tickets.length).fill(false));
     const handleAddMoreTicketChange = useCallback((event, isOpen) => {
-        setOpen(!isOpen)
+        setOpen(isOpen)
     }, []);
 
     const handleEditTicketChange = useCallback((index, isOpen) => {
@@ -80,7 +80,7 @@ function OrganizerTicketAdmission(){
                     <Button variant={'contained'} type="submit">Change</Button>
                 </DialogActions>
             </Dialog>
-            <Dropdown onOpenChange={handleAddMoreTicketChange} open={open[0]}>
+            <Dropdown onOpenChange={handleAddMoreTicketChange} open={open}>
                 <MenuButton className={'add-more-tickets'}>
                     Add more tickets <ArrowDropDownIcon />
                 </MenuButton>
@@ -88,17 +88,17 @@ function OrganizerTicketAdmission(){
                     <MenuItem onClick={() => {
                         setEditTicket(null)
                         handleTypeSelect('Free')
-                        setOpen(prev => [!prev[0], prev[1]])
+                        setOpen(prev => !prev)
                     }}>Free</MenuItem>
                     <MenuItem onClick={() => {
                         setEditTicket(null)
                         handleTypeSelect('Paid')
-                        setOpen(prev => [!prev[0], prev[1]])
+                        setOpen(prev => !prev)
                     }}>Paid</MenuItem>
                     <MenuItem onClick={() => {
                         setEditTicket(null)
                         handleTypeSelect('Donation')
-                        setOpen(prev => [!prev[0], prev[1]])
+                        setOpen(prev => !prev)
                     }}>Donation</MenuItem>
                 </Menu>
             </Dropdown>

@@ -28,6 +28,7 @@ import dayjs from "dayjs";
 import SuccessAnimation from "../../animation/success-animation.json"
 import { motion } from 'framer-motion';
 import Lottie from 'react-lottie';
+import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 
 const checkboxStyle = {
     sx: {
@@ -74,7 +75,7 @@ function CreateEvent() {
         eventType: 'single',
         locationType: 'venue',
         language: 'en-US',
-        timezone: 'GMT+7',
+        timezone: '7',
         displayEndTime: true,
         eventVisibility: 'public',
         allowRefund: false,
@@ -106,13 +107,14 @@ function CreateEvent() {
             return;
         }
         if(currentStep < steps.length - 1){
-            setCurrentStep(currentStep + 1)
-            maxStep.current = Math.max(maxStep.current, currentStep + 1)
-            navigate(steps[currentStep + 1].to)
+            handleSave().then(() => {
+                setIsLoading(false)
+                // setCurrentStep(currentStep + 1)
+                // maxStep.current = Math.max(maxStep.current, currentStep + 1)
+                // navigate(steps[currentStep + 1].to)
+            })
         }
-        else{
-            handleSave()
-        }
+        else handleSave()
     }
 
     function validateStep(step){
@@ -151,11 +153,45 @@ function CreateEvent() {
 
     // TODO: Enhanced the checking of the fields
 
-    function handleSave(){
+    async function handleSave(){
+        setIsLoading(true)
         switch (currentStep) {
+            case 0: {
+                eventAxiosWithToken.post(`/create?step=${currentStep}`, {
+                    images: eventData.images,
+                    videos: eventData.videos,
+                    title: eventData.eventTitle,
+                    summary: eventData.summary,
+                    eventType: eventData.eventType,
+                    eventDate: eventData.eventDate,
+                    eventStartTime: eventData.eventStartTime,
+                    eventEndTime: eventData.eventEndTime,
+                    displayEndTime: eventData.displayEndTime,
+                    timezone: eventData.timezone,
+                    language: eventData.language,
+                    locationType: eventData.locationType,
+                    location: eventData.location,
+                    reserveSeating: eventData.reserveSeating,
+                    faqs: eventData.faq,
+                })
+                    .then(r => {
+                        console.log(r.data)
+                        sessionStorage.setItem('EID', r.data.data)
+                    })
+                    .catch(err => console.log(err.response.data))
+                break;
+            }
+            case 1: {
+                eventAxiosWithToken.post(`/create?step=${currentStep}&eid=${sessionStorage.getItem('EID')}`, {
+                    tickets: eventData.tickets
+                })
+                    .then(r => {
+                        console.log(r.data)
+                    })
+                    .catch(err => console.log(err.response.data))
+                break;
+            }
             case 2: {
-                setIsLoading(true)
-                // mimic api call
                 setTimeout(() => {
                     setIsLoading(false)
                     setShowSuccessDialog(true)
@@ -188,6 +224,8 @@ function CreateEvent() {
             preserveAspectRatio: 'xMidYMid slice'
         }
     };
+
+    console.log(eventData)
 
     return (
         <div className={'create-events-wrapper'}>
