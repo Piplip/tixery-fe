@@ -116,6 +116,10 @@ function DateAndLocationForm(){
     const formik = useFormik({
         initialValues: initialValues,
         validationSchema: validationSchema,
+        onSubmit: (values) => {
+            setData(prev => ({...prev, timezone: values.timezone, language: values.language}));
+            setOpen(false)
+        }
     });
 
     function isValidData(){
