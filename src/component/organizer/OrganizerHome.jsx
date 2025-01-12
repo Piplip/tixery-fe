@@ -12,6 +12,7 @@ import {useCallback, useEffect, useState} from "react";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 
 const checkboxStyle = {
     sx: {
@@ -49,6 +50,7 @@ function OrganizerHome(){
             return null;
         }
     }, [storage]);
+    const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
         async function loadAllImages() {
@@ -72,9 +74,18 @@ function OrganizerHome(){
 
     function handleCopyProfileURL(){
         let customURL = profiles[selectProfile][3]
-        console.log(customURL)
         const url = `${window.location.origin}/o/${customURL ? customURL : profiles[selectProfile][0]}`
         navigator.clipboard.writeText(url);
+    }
+
+    function handleCreateEventRequest(){
+        setIsLoading(true)
+        eventAxiosWithToken.post(`/create/request?pid=${getUserData('profileID')}&u=${getUserData("sub")}`)
+            .then(r => {
+                navigate(`events/${r.data.data}`)
+                setIsLoading(false)
+            })
+            .catch(err => console.log(err))
     }
 
     return (
@@ -85,16 +96,23 @@ function OrganizerHome(){
                         Hi there, {getUserData('fullName')}
                     </Typography>
                     <Stack direction={'row'} columnGap={'1rem'}>
-                        <div className={'create-events-item'}>
-                            <EditIcon />
-                            <Typography variant={'h5'}>Start from scratch</Typography>
-                            <Typography variant={'body2'}>Add all your event details, create new tickets, and set up
-                                recurring events</Typography>
-                            <Link to={'events/create'}>
-                                <button>Create event</button>
-                            </Link>
-                        </div>
-                        <div className={'create-events-item'}>
+                        <div className={'create-events-item'} onClick={handleCreateEventRequest}>
+                            {isLoading ?
+                                <Stack style={{height: '100%'}} alignItems={'center'} justifyContent={'center'}>
+                                    <div className={'loader-02'}></div>
+                                </Stack>
+                                    :
+                                    <>
+                                        <EditIcon/>
+                                        <Typography variant={'h5'}>Start from scratch</Typography>
+                                        <Typography variant={'body2'}>Add all your event details, create new tickets,
+                                            and set up
+                                            recurring events</Typography>
+                                        <button>Create event</button>
+                                    </>
+                                    }
+                                </div>
+                                <div className={'create-events-item'}>
                             <AutoFixHighIcon />
                             <Typography variant={'h5'}>Create with AI</Typography>
                             <Typography variant={'body2'}>Answer a few quick questions to generate an event that&#39;s ready to publish almost instantly</Typography>

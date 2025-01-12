@@ -111,7 +111,7 @@ function OrganizerPublishEvent(){
                             <div className="event-publish__details">
                                 <p className="event-publish__title">{data.eventTitle}</p>
                                 <p className="event-publish__datetime">
-                                    {dayjs(data.eventDate, 'DD/MM/YYYY').format('dddd, DD MMMM')} • {data.eventStartTime} - {data.eventEndTime} {data.timezone}
+                                    {dayjs(data.eventDate, 'DD/MM/YYYY').format('dddd, DD MMMM')} • {data.eventStartTime} - {data.eventEndTime} GMT+{data.timezone}
                                 </p>
                                 <p className="event-publish__online">
                                     {data.locationType === 'venue' ? 'Offline event' : 'Online event'}
@@ -119,7 +119,7 @@ function OrganizerPublishEvent(){
                                 <Stack direction={'row'} justifyContent={'space-between'}>
                                     <div className="event-publish__info">
                                         <span><BookOnlineIcon/> {data.tickets[0].price.toUpperCase()}</span>
-                                        <span><PersonIcon/> 500</span>
+                                        <span><PersonIcon/>{data.capacity}</span>
                                     </div>
                                     <Link to="/preview" className="event-publish__preview">
                                         Preview <OpenInNewIcon/>
@@ -140,7 +140,7 @@ function OrganizerPublishEvent(){
                             <p className="event-publish__organizer-info">
                                 Your event will appear on this organizer&#39;s profile page.
                             </p>
-                            <Link to="/organizer-info" className="event-publish__organizer-link">
+                            <Link to="/organizer/u" target={'_blank'} className="event-publish__organizer-link">
                                 View organizer info
                             </Link>
                         </Box>

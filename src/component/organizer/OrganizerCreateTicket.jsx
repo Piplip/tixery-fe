@@ -18,20 +18,21 @@ import {NavLink, Outlet, useLocation, useNavigate, useOutletContext} from "react
 import {EventContext} from "../../context.js";
 import dayjs from "dayjs";
 import "../../styles/organizer-create-ticket-styles.scss"
+import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 
 const ticketTypes = [
     {
-        name: 'Free',
+        name: 'free',
         icon: FreeIcon,
         description: 'Create a free ticket for your event.',
     },
     {
-        name: 'Paid',
+        name: 'paid',
         icon: <ReceiptIcon sx={{color: '#007aa2', backgroundColor: '#fafafa', width: '3.5rem', height: '3.5rem', p: 1}}/>,
         description: 'Sell tickets to your event and start making money.',
     },
     {
-        name: 'Donation',
+        name: 'donation',
         icon: <FavoriteBorderIcon sx={{color: 'red', backgroundColor: '#fdecff', width: '3.5rem', height: '3.5rem', p: 1}}/>,
         description: 'Let attendees choose how much they want to pay for a ticket.',
     }
@@ -87,7 +88,7 @@ function OrganizerCreateTicket(){
                 'is-valid-price',
                 'Price must be a valid number.',
                 function (){
-                    if(openDetail.type === 'Free' || openDetail.type === 'Donation'){
+                    if(openDetail.type === 'free' || openDetail.type === 'donation'){
                         return true;
                     }
                     else {
@@ -235,13 +236,24 @@ function OrganizerCreateTicket(){
         enableReinitialize: true,
         onSubmit: (values) => {
             setOpenDetail({type: null, open: false})
-            if(editTicket !== null){
-                const updatedTickets = [...data.tickets];
-                updatedTickets[editTicket] = transformData(values);
-                setData({...data, tickets: updatedTickets});
-            }
-            else{
-                setData(prev => ({...prev, tickets: prev.tickets ? prev.tickets.concat(transformData(values)) : [transformData(values)]}))
+            let newData = transformData(values)
+            if (editTicket !== null) {
+                eventAxiosWithToken.put(`/tickets/update?tid=${data.tickets[editTicket].ticketID}&timezone=${data.timezone}`, newData)
+                    .then(r => {
+                        console.log(r.data)
+                        const updatedTickets = [...data.tickets];
+                        updatedTickets[editTicket] = newData;
+                        setData({...data, tickets: updatedTickets});
+                    })
+                    .catch(err => console.log(err))
+            } else {
+                eventAxiosWithToken.post(`/tickets/add?eid=${location.pathname.split('/')[3]}&timezone=${data.timezone}`, newData)
+                    .then(r => {
+                        console.log(r.data)
+                        newData = {...newData, ticketID: r.data.data};
+                        setData(prev => ({...prev, tickets: prev.tickets ? prev.tickets.concat(newData) : [newData]}));
+                    })
+                    .catch(err => console.log(err));
             }
             formik.resetForm()
         },
@@ -271,10 +283,10 @@ function OrganizerCreateTicket(){
 
     function handleTypeSelect(type){
         formik.setTouched({}, false)
-        if(type === 'Free'){
+        if(type === 'free'){
             formik.setFieldValue('price', 0);
         }
-        else if(type === 'Donation'){
+        else if(type === 'donation'){
             formik.setFieldValue('price', 0);
         }
         else formik.setFieldValue('price', '');
@@ -313,7 +325,7 @@ function OrganizerCreateTicket(){
                                onClick={() => handleTypeSelect(ticketType.name)}
                         >
                             <Stack direction={'row'} columnGap={2} alignItems={'center'}>
-                                {ticketType.name === 'Free' ?
+                                {ticketType.name === 'free' ?
                                     <img style={{
                                         backgroundColor: 'rgba(245,245,245,0.46)',
                                         width: '3.5rem',
@@ -337,7 +349,7 @@ function OrganizerCreateTicket(){
                     <p>Add tickets</p>
                     <Stack className={'organizer-detail__main'} rowGap={2}>
                         <Stack direction={'row'} justifyContent={'space-between'}>
-                            {['Paid', 'Free', 'Donation'].map((type, index) => (
+                            {['paid', 'free', 'donation'].map((type, index) => (
                                 <div key={index}
                                      className={`organizer-ticket-detail__ticket-type ${openDetail.type === type ? 'ticket-type-active' : ''}`}
                                      onClick={() => handleTypeSelect(type)}
@@ -359,9 +371,9 @@ function OrganizerCreateTicket(){
                                    helperText={formik.touched.quantity && formik.errors.quantity}
                         />
                         <TextField name={'price'} label={'Price'} variant={'outlined'} fullWidth
-                                   value={openDetail.type === 'Free' ? 'Free' : openDetail.type === 'Donation' ? 'Donation' : formik.values.price}
+                                   value={openDetail.type === 'free' ? 'Free' : openDetail.type === 'donation' ? 'Donation' : formik.values.price}
                                    placeholder={'0.00'} focused
-                                   disabled={openDetail.type === 'Donation' || openDetail.type === 'Free'}
+                                   disabled={openDetail.type === 'donation' || openDetail.type === 'free'}
                                    onChange={formik.handleChange} onBlur={formik.handleBlur}
                                    error={formik.touched.price && Boolean(formik.errors.price)}
                                    helperText={formik.touched.price && formik.errors.price}

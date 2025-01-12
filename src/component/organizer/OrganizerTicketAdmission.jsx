@@ -21,6 +21,7 @@ import {EventContext} from "../../context.js";
 import {MoreVert} from "@mui/icons-material";
 import CircleIcon from '@mui/icons-material/Circle';
 import dayjs from "dayjs";
+import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 
 function OrganizerTicketAdmission(){
     const {data, setData} = useContext(EventContext)
@@ -38,10 +39,16 @@ function OrganizerTicketAdmission(){
 
     function handleEdit(index){
         setEditTicket(index)
-        setOpenDetail({open: true, type: data.tickets[index].ticketType[0].toUpperCase() + data.tickets[index].ticketType.slice(1)})
+        setOpenDetail({open: true, type: data.tickets[index].ticketType})
     }
 
     function handleDelete(index){
+        eventAxiosWithToken.post(`/tickets/remove&tid=${data.tickets[index].ticketID}`)
+            .then(r => {
+                console.log(r.data)
+            })
+            .catch(err => console.log(err))
+
         const newTickets = data.tickets.filter((ticket, i) => i !== index)
         setData({...data, tickets: newTickets})
     }
@@ -87,17 +94,17 @@ function OrganizerTicketAdmission(){
                 <Menu>
                     <MenuItem onClick={() => {
                         setEditTicket(null)
-                        handleTypeSelect('Free')
+                        handleTypeSelect('free')
                         setOpen(prev => !prev)
                     }}>Free</MenuItem>
                     <MenuItem onClick={() => {
                         setEditTicket(null)
-                        handleTypeSelect('Paid')
+                        handleTypeSelect('paid')
                         setOpen(prev => !prev)
                     }}>Paid</MenuItem>
                     <MenuItem onClick={() => {
                         setEditTicket(null)
-                        handleTypeSelect('Donation')
+                        handleTypeSelect('donation')
                         setOpen(prev => !prev)
                     }}>Donation</MenuItem>
                 </Menu>
