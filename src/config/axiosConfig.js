@@ -66,6 +66,23 @@ export const eventAxiosWithToken = axios.create({
     }
 })
 
+eventAxiosWithToken.interceptors.response.use(
+    response => response,
+    error => {
+        console.log(error)
+        if (error.response && error.response.status === 401) {
+            const data = error.response.data;
+            if (data.redirect) {
+                localStorage.removeItem('tk');
+                setTimeout(() => {
+                    window.location.href = data.redirect;
+                }, 500)
+            }
+        }
+        return Promise.reject(error);
+    }
+)
+
 eventAxiosWithToken.interceptors.request.use(
     config => {
         const token = localStorage.getItem('tk');
