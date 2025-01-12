@@ -120,3 +120,12 @@
     background-color: #e3e3e3;
     cursor: pointer;
 }
+.loader-02 {
+    width: 75px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 8px solid;
+    border-color: #ec0a0a #0000;
+    animation: l1 1s infinite;
+}
+@keyframes l1 {to{transform: rotate(.5turn)}}

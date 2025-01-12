@@ -42,3 +42,6 @@
     width: fit-content;
     align-self: flex-end;
 }
+.tickets-section__ticket-type{
+    text-transform: capitalize;
+}

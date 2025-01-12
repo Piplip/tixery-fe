@@ -21,6 +21,7 @@
 .ticket-type__title{
     font-size: 1.25rem;
     font-weight: bold;
+    text-transform: capitalize;
 }
 .ticket-type__description{
     font-size: .9rem;
@@ -50,6 +51,7 @@
 .organizer-ticket-detail__ticket-type{
     border: 1px solid gray;
     padding: .5rem 1.75rem;
+    text-transform: capitalize;
 }
 .organizer-ticket-detail__ticket-type:hover{
     cursor: pointer;
