@@ -14,7 +14,7 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import {useRef, useState} from "react";
 import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
-import {Link, Outlet, useNavigate} from "react-router-dom";
+import {Link, Outlet, useLocation, useNavigate} from "react-router-dom";
 import Dropdown from '@mui/joy/Dropdown';
 import Menu from '@mui/joy/Menu';
 import MenuButton from '@mui/joy/MenuButton';
@@ -93,6 +93,7 @@ function CreateEvent() {
     const [isLoading, setIsLoading] = useState(false)
     const [showSuccessDialog, setShowSuccessDialog] = useState(false)
     const isLive = eventData.publishType === "now";
+    const location = useLocation()
 
     const navigate = useNavigate()
 
@@ -106,15 +107,12 @@ function CreateEvent() {
             setAlert(msg);
             return;
         }
-        if(currentStep < steps.length - 1){
-            handleSave().then(() => {
-                setIsLoading(false)
-                // setCurrentStep(currentStep + 1)
-                // maxStep.current = Math.max(maxStep.current, currentStep + 1)
-                // navigate(steps[currentStep + 1].to)
-            })
+        if(currentStep !== 1) handleSave()
+        else {
+            setCurrentStep(currentStep + 1)
+            maxStep.current = Math.max(maxStep.current, currentStep + 1)
+            navigate(steps[currentStep + 1].to)
         }
-        else handleSave()
     }
 
     function validateStep(step){
@@ -152,12 +150,14 @@ function CreateEvent() {
     }
 
     // TODO: Enhanced the checking of the fields
+    // TODO: Adding check at ticket steps to only allow go next if has al least 1 ticket type
 
-    async function handleSave(){
+    function handleSave(){
         setIsLoading(true)
+        let payload;
         switch (currentStep) {
             case 0: {
-                eventAxiosWithToken.post(`/create?step=${currentStep}`, {
+                payload = {
                     images: eventData.images,
                     videos: eventData.videos,
                     title: eventData.eventTitle,
@@ -172,33 +172,41 @@ function CreateEvent() {
                     locationType: eventData.locationType,
                     location: eventData.location,
                     reserveSeating: eventData.reserveSeating,
-                    faqs: eventData.faq,
-                })
-                    .then(r => {
-                        console.log(r.data)
-                        sessionStorage.setItem('EID', r.data.data)
-                    })
-                    .catch(err => console.log(err.response.data))
+                    faqs: eventData.faq
+                }
                 break;
             }
             case 1: {
-                eventAxiosWithToken.post(`/create?step=${currentStep}&eid=${sessionStorage.getItem('EID')}`, {
-                    tickets: eventData.tickets
-                })
-                    .then(r => {
-                        console.log(r.data)
-                    })
-                    .catch(err => console.log(err.response.data))
+                payload = {
+                    tickets: eventData.tickets, timezone: eventData.timezone
+                }
                 break;
             }
             case 2: {
-                setTimeout(() => {
-                    setIsLoading(false)
-                    setShowSuccessDialog(true)
-                }, 2000)
+                payload = {
+                    type: eventData.type, category: eventData.category, subCategory: eventData.subCategory,
+                    tags: eventData.tags.split(','), eventVisibility: eventData.eventVisibility, allowRefund: eventData.allowRefund,
+                    daysForRefund: eventData.daysForRefund, automatedRefund: eventData.automatedRefund, publishType: eventData.publishType,
+                    publishDate: eventData.publishDate, publishTime: eventData.publishTime, timezone: eventData.timezone, capacity: eventData.capacity
+                }
                 break;
             }
         }
+        eventAxiosWithToken.post(`/create?step=${currentStep}&eid=${location.pathname.split('/')[3]}`, payload)
+            .then(r => {
+                if(r.data.status === 'OK'){
+                    setIsLoading(false)
+                    if(currentStep < steps.length - 1){
+                        setCurrentStep(currentStep + 1)
+                        maxStep.current = Math.max(maxStep.current, currentStep + 1)
+                        navigate(steps[currentStep + 1].to)
+                    }
+                    else{
+                        setShowSuccessDialog(true)
+                    }
+                }
+            })
+            .catch(err => console.log(err.response.data))
     }
 
     const formatPublishDate = (date, time) => {
@@ -232,23 +240,17 @@ function CreateEvent() {
             {isLoading &&
                 <LinearProgress color={'error'} sx={{position: 'fixed', width: '100%', zIndex: 1, bottom: 0, height: '.75rem'}}/>}
             <Dialog
-                onClose={handleClose}
+                onClose={(e, reason) => {
+                    if(reason !== "backdropClick") {
+                        handleClose()
+                    }
+                }}
+                disableEscapeKeyDown
                 open={showSuccessDialog}
             >
-                <DialogTitle sx={{ m: 0, p: 2 }}>
+                <DialogTitle sx={{ m: 0, p: 2, textAlign: 'center'}}>
                     EVENT PUBLISHING
                 </DialogTitle>
-                <IconButton
-                    onClick={handleClose}
-                    sx={(theme) => ({
-                        position: 'absolute',
-                        right: 8,
-                        top: 8,
-                        color: theme.palette.grey[500],
-                    })}
-                >
-                    <CloseIcon />
-                </IconButton>
                 <DialogContent dividers sx={{ paddingInline: '7.5rem' }}>
                     <Stack direction="column" spacing={5} className="event-dialog-content">
                         {isLive && <Lottie options={defaultOptions} height={'10rem'} width={'10rem'}/>}
@@ -257,7 +259,7 @@ function CreateEvent() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5 }}
                         >
-                            <Stack direction="row" alignItems="center" spacing={2}>
+                            <Stack direction="row" alignItems="center" spacing={2} justifyContent={'center'}>
                                 <Typography variant="h6" className={`event-status ${isLive ? 'live' : 'scheduled'}`}>
                                     {isLive ? "Your event is now live!" : "Your event is scheduled to be published on"}
                                 </Typography>
@@ -284,6 +286,7 @@ function CreateEvent() {
                                 {isLive ? (
                                     <>
                                         <Button variant="contained" color="primary">View Event</Button>
+                                        <Button variant="contained" color="primary">Dashboard</Button>
                                         <Button variant="outlined" color="secondary">Share</Button>
                                     </>
                                 ) : (
