@@ -1,0 +1,70 @@
+.event-list {
+    padding: 5rem 5rem 1rem 5rem;
+    font-family: Arial, sans-serif;
+}
+
+.event-list > .title{
+    font-family: "Microsoft Tai Le", sans-serif;
+    font-size: 3.5rem;
+    font-weight: bold;
+}
+.event-list__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.event-list__filters {
+    padding-left: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-left: 1px solid;
+}
+
+.event-list__create-button {
+    padding: .75rem 1rem;
+    border-radius: 4px;
+    border: none;
+    background-color: #ea4910;
+    color: white;
+    transition: all .1s linear;
+}
+.event-list__create-button:hover {
+    background-color: #37a8d0;
+    color: white;
+}
+
+.event-list__footer {
+    text-align: right;
+}
+
+.event-list__export-link {
+    color: #3b82f6;
+    text-decoration: underline;
+}
+.event-list__list{
+    margin-bottom: 1rem;
+}
+.event-list__list > div{
+    display: grid;
+    grid-template-columns: 8fr 3fr 2fr 2fr 1fr;
+    padding: .75rem 1rem;
+    column-gap: 2rem;
+    align-items: center;
+    border-bottom: 1px solid gray;
+    transition: all .2s ease-in-out;
+    color: gray;
+}
+.event-list__list > div:first-child{
+    background-color: #e5e5e5;
+}
+.event-list__list > div:not(:first-child):hover{
+    background-color: rgba(246, 246, 246, 0.22);
+    box-shadow: 0 1px 5px 1px rgba(0, 0, 0, 0.2);
+}
+.event-list__list > div img{
+    width: 5rem;
+    aspect-ratio: 1;
+}
