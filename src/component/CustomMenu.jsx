@@ -8,10 +8,9 @@ const ITEM_HEIGHT = 48;
 CustomMenu.propTypes = {
     options: PropTypes.array.isRequired,
     handlers: PropTypes.array,
-    handlersWithParams: PropTypes.array
 }
 
-function CustomMenu({options, handlers, handlersWithParams}){
+function CustomMenu({options, handlers}){
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -23,38 +22,31 @@ function CustomMenu({options, handlers, handlersWithParams}){
 
     return (
         <div>
-            <IconButton onClick={handleClick}
-                        aria-label="more"
-                        id="long-button"
-                        aria-controls={open ? 'long-menu' : undefined}
-                        aria-expanded={open ? 'true' : undefined}
-                        aria-haspopup="true"
-            >
+            <IconButton onClick={handleClick}>
                 <MoreVertIcon />
             </IconButton>
-            <Menu open={open} anchorEl={anchorEl} onClose={handleClose}
-                MenuListProps={{
-                    'aria-labelledby': 'long-button',
-                }}
+            <Menu
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handleClose}
                 slotProps={{
                     paper: {
                         style: {
-                            maxHeight: ITEM_HEIGHT * 4.5,
+                            maxHeight: ITEM_HEIGHT * 5,
                             width: '20ch',
                         },
                     },
                 }}
             >
-                {options.map((option) => (
-                    <MenuItem key={option} selected={option === 'Pyxis'}
-                              onClick={() => {
-                                    if(handlersWithParams){
-                                        handlersWithParams[options.indexOf(option)]()()
-                                    } else {
-                                        handlers[options.indexOf(option)]
-                                    }
-                                  handleClose()
-                              }}
+                {options.map((option, index) => (
+                    <MenuItem
+                        key={option}
+                        onClick={() => {
+                            if (handlers[index]) {
+                                handlers[index]();
+                            }
+                            handleClose()
+                        }}
                     >
                         {option}
                     </MenuItem>
