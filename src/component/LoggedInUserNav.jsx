@@ -14,7 +14,7 @@ function LoggedInUserNav(){
     const [ppImage, setPpImage] = useState(null)
     const attendeeOptions = [
         { name: 'Browse Events', link: '/events', roles: ['attendee'] },
-        { name: 'Manage my events', link: '/organizer', roles: ['host'] },
+        { name: 'Manage my events', link: '/organizer/events', roles: ['host'] },
         { name: 'Tickets', link: '/tickets', roles: ['attendee'] },
         { name: 'Likes', link: '/likes' , roles: ['attendee']},
         { name: 'Followings', link: '/followings', roles: ['attendee'] },
