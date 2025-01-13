@@ -1,7 +1,5 @@
 import {Avatar, Checkbox, Stack, Tooltip, Typography} from "@mui/material";
 import {getUserData} from "../../common/Utilities.js";
-import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
-import EditIcon from '@mui/icons-material/Edit';
 import {Link, useLoaderData, useNavigate} from "react-router-dom";
 import '../../styles/organizer-home-styles.css'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
@@ -12,7 +10,7 @@ import {useCallback, useEffect, useState} from "react";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import {eventAxiosWithToken} from "../../config/axiosConfig.js";
+import CreateEventMenu from "./CreateEventMenu.jsx";
 
 const checkboxStyle = {
     sx: {
@@ -38,8 +36,9 @@ function OrganizerHome(){
     const storage = getStorage()
     const navigate = useNavigate();
     const [profiles, setProfiles] = useState(useLoaderData().data.records)
-    const [selectProfile, setSelectProfile] = useState(profiles.findIndex(profile => profile[0] === getUserData('profileID')))
+    const [selectProfile, setSelectProfile] = useState(profiles.findIndex(profile => profile[0] == getUserData('profileID')))
     const [clicked, setClicked] = useState(false)
+
     const loadImage = useCallback(async (url) => {
         if (!url) return null;
         try {
@@ -50,7 +49,6 @@ function OrganizerHome(){
             return null;
         }
     }, [storage]);
-    const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
         async function loadAllImages() {
@@ -78,16 +76,6 @@ function OrganizerHome(){
         navigator.clipboard.writeText(url);
     }
 
-    function handleCreateEventRequest(){
-        setIsLoading(true)
-        eventAxiosWithToken.post(`/create/request?pid=${getUserData('profileID')}&u=${getUserData("sub")}`)
-            .then(r => {
-                navigate(`events/${r.data.data}`)
-                setIsLoading(false)
-            })
-            .catch(err => console.log(err))
-    }
-
     return (
         <div className={'organizer-home-container'}>
             <Stack direction={'row'} columnGap={'4rem'}>
@@ -95,30 +83,7 @@ function OrganizerHome(){
                     <Typography variant={'h2'} fontWeight={'bold'}>
                         Hi there, {getUserData('fullName')}
                     </Typography>
-                    <Stack direction={'row'} columnGap={'1rem'}>
-                        <div className={'create-events-item'} onClick={handleCreateEventRequest}>
-                            {isLoading ?
-                                <Stack style={{height: '100%'}} alignItems={'center'} justifyContent={'center'}>
-                                    <div className={'loader-02'}></div>
-                                </Stack>
-                                    :
-                                    <>
-                                        <EditIcon/>
-                                        <Typography variant={'h5'}>Start from scratch</Typography>
-                                        <Typography variant={'body2'}>Add all your event details, create new tickets,
-                                            and set up
-                                            recurring events</Typography>
-                                        <button>Create event</button>
-                                    </>
-                                    }
-                                </div>
-                                <div className={'create-events-item'}>
-                            <AutoFixHighIcon />
-                            <Typography variant={'h5'}>Create with AI</Typography>
-                            <Typography variant={'body2'}>Answer a few quick questions to generate an event that&#39;s ready to publish almost instantly</Typography>
-                            <button>Create with AI</button>
-                        </div>
-                    </Stack>
+                    <CreateEventMenu />
                     <Stack rowGap={1} className={'checklist-wrapper'}>
                         <Typography variant={'h4'} fontWeight={'bold'}>Your checklist</Typography>
                         <Typography variant={'body1'}>

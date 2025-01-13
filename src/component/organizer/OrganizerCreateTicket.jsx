@@ -106,6 +106,14 @@ function OrganizerCreateTicket(){
                     const { endDate } = this.parent;
                     return !endDate || !value || value <= endDate;
                 }
+            )
+            .test(
+                'is-after-event-start',
+                'Ticket sales start date should before the event start date',
+                function (value) {
+                    const eventStartDate = data.eventDate;
+                    return !eventStartDate || !value || value < eventStartDate;
+                }
             ),
         endDate: Yup.date() .required('End date is required')
             .typeError('End date must be a valid date')
@@ -116,9 +124,32 @@ function OrganizerCreateTicket(){
                     const { startDate } = this.parent;
                     return !startDate || !value || value >= startDate;
                 }
+            )
+            .test(
+                'is-after-event-start',
+                'Ticket sales end date should before the event start date',
+                function (value) {
+                    const eventStartDate = data.eventDate
+                    return !eventStartDate || !value || value <= eventStartDate;
+                }
             ),
         startTime: Yup.date()
-            .required("Start time is required."),
+            .required("Start time is required.")
+            .test(
+                'is-after-event-start-time',
+                'Ticket sales start time must be after the event start time',
+                function (value) {
+                    const eventStartDateTime = dayjs(data.eventDate + " " + data.eventStartTime, "DD/MM/YYYY HH:mm");
+                    const ticketStartDateTime = dayjs(this.parent.startDate)
+                        .hour(dayjs(value).hour())
+                        .minute(dayjs(value).minute())
+                    return (
+                        !eventStartDateTime ||
+                        !value ||
+                        ticketStartDateTime.isSameOrAfter(eventStartDateTime)
+                    );
+                }
+            ),
         endTime: Yup.date()
             .required('End time is required.')
             .test(
@@ -130,6 +161,21 @@ function OrganizerCreateTicket(){
                         return !startTime || !value || value >= startTime;
                     }
                     return true;
+                }
+            )
+            .test(
+                'is-after-event-start-time',
+                'Ticket sales start time must be after the event start time',
+                function (value) {
+                    const eventStartDateTime = dayjs(data.eventDate + " " + data.eventStartTime, "DD/MM/YYYY HH:mm");
+                    const ticketEndDateTime = dayjs(this.parent.startDate)
+                        .hour(dayjs(value).hour())
+                        .minute(dayjs(value).minute())
+                    return (
+                        !eventStartDateTime ||
+                        !value ||
+                        ticketEndDateTime.isSameOrAfter(eventStartDateTime)
+                    );
                 }
             ),
         minPerOrder: Yup.number()
@@ -167,7 +213,7 @@ function OrganizerCreateTicket(){
                 }
             ),
     });
-
+    
     const [initialValues, setInitialValues] = useState({
         ticketName: "",
         quantity: '',
@@ -188,7 +234,7 @@ function OrganizerCreateTicket(){
     });
 
     useEffect(() => {
-        if (editTicket !== null) {
+        if (editTicket !== null && editTicket !== undefined) {
             setInitialValues({
                 ticketName: data.tickets[editTicket].ticketName,
                 quantity: data.tickets[editTicket].quantity,
@@ -293,7 +339,7 @@ function OrganizerCreateTicket(){
         setOpenDetail({type: type, open: true});
     }
 
-    // TODO: Adding a check if the start, end sales ticket date and time is after the event start date and time
+    // TODO: Review and fix the check of sales start date - time and sales end date - time
 
     return (
         <Stack className={'organizer-create-ticket'} rowGap={2}>

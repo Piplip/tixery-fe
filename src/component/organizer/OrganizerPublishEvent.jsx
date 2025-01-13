@@ -86,8 +86,6 @@ function OrganizerPublishEvent(){
         }
     }, []);
 
-    // TODO: Should add a check if the publish date and time is after the event date and time
-
     return (
         <div className="event-publish">
             <div>
@@ -207,7 +205,7 @@ function OrganizerPublishEvent(){
                                 Help people discover your event by adding tags related to your
                                 event’s theme, topic, vibe, location, and more.
                             </Typography>
-                            <TextField
+                            <TextField spellCheck={"false"}
                                 value={data.tags}
                                 onChange={(e) => setData(prev => ({...prev, tags: e.target.value}))}
                                 multiline

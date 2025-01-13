@@ -43,14 +43,13 @@ function OrganizerTicketAdmission(){
     }
 
     function handleDelete(index){
-        eventAxiosWithToken.post(`/tickets/remove&tid=${data.tickets[index].ticketID}`)
+        eventAxiosWithToken.post(`/tickets/remove?tid=${data.tickets[index].ticketID}`)
             .then(r => {
                 console.log(r.data)
+                const newTickets = data.tickets.filter((ticket, i) => i !== index)
+                setData({...data, tickets: newTickets})
             })
             .catch(err => console.log(err))
-
-        const newTickets = data.tickets.filter((ticket, i) => i !== index)
-        setData({...data, tickets: newTickets})
     }
 
     return (

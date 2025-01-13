@@ -98,7 +98,7 @@ function OrganizerSettingProfile() {
                         <Avatar src={profile[2]}
                                 alt={profile.name} className="organizer-profile__avatar"/>
                         <p className="organizer-profile__name">{profile[1]}</p>
-                        <CustomMenu options={['View', 'Edit', 'Delete']}
+                        <CustomMenu options={['View', 'Edit', 'Delete']} handlersWithParams={true}
                                     handlers={[() => window.open(`/o/${profile[3] ? profile[3] : profile[0]}`),
                                         () => navigate(`/organizer/profile/info/${profile[0]}`),
                                         () => {

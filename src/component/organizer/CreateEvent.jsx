@@ -1,11 +1,13 @@
 import "../../styles/create-event-styles.css"
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import {
-    Alert, Button,
-    Checkbox, Dialog,
+    Alert,
+    Button,
+    Checkbox,
+    Dialog,
     DialogContent,
     DialogTitle,
-    IconButton, LinearProgress,
+    LinearProgress,
     Snackbar,
     Stack,
     Typography,
@@ -23,10 +25,9 @@ import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import PropTypes from "prop-types";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {EventContext} from "../../context.js";
-import CloseIcon from "@mui/icons-material/Close";
 import dayjs from "dayjs";
 import SuccessAnimation from "../../animation/success-animation.json"
-import { motion } from 'framer-motion';
+import {motion} from 'framer-motion';
 import Lottie from 'react-lottie';
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 
@@ -109,18 +110,37 @@ function CreateEvent() {
         }
         if(currentStep !== 1) handleSave()
         else {
-            setCurrentStep(currentStep + 1)
-            maxStep.current = Math.max(maxStep.current, currentStep + 1)
-            navigate(steps[currentStep + 1].to)
+            if(eventData.tickets !== undefined){
+                setCurrentStep(currentStep + 1)
+                maxStep.current = Math.max(maxStep.current, currentStep + 1)
+                navigate(steps[currentStep + 1].to)
+            }
         }
     }
 
     function validateStep(step){
         switch (step !== undefined ? step : currentStep){
             case 0: {
-                if((!eventData.eventTitle || !eventData.summary || !eventData.eventType || !eventData.eventStartTime || !eventData.eventDate ||
-                    eventData.location === "" || (eventData.eventStartTime > eventData.eventEndTime))){
-                    return "Please fill in all required fields or correct any errors before continuing."
+                if (!eventData.eventTitle) {
+                    return "Event title is required.";
+                }
+                if (!eventData.summary) {
+                    return "Event summary is required.";
+                }
+                if (!eventData.eventType) {
+                    return "Event type is required.";
+                }
+                if (!eventData.eventDate) {
+                    return "Event date is required.";
+                }
+                if (!eventData.eventStartTime) {
+                    return "Event start time is required.";
+                }
+                if (eventData.location === "" || eventData.location === undefined) {
+                    return "Event location is required.";
+                }
+                if (eventData.eventStartTime > eventData.eventEndTime) {
+                    return "Start time cannot be later than end time.";
                 }
                 break;
             }
@@ -131,9 +151,33 @@ function CreateEvent() {
                 break;
             }
             case 2: {
-                if((!eventData.publishType || (eventData.publishType === 'schedule' && !eventData.publishDate && !eventData.publishTime)
-                    || eventData.daysForRefund === "")){
-                    return "Please fill in all required fields or correct any errors before continuing."
+                if (!eventData.publishType) {
+                    return "Publish type is required.";
+                }
+                if (eventData.publishType === 'schedule' && (!eventData.publishDate || !eventData.publishTime)) {
+                    return "Publish date and time are required for scheduled publish type.";
+                }
+                if (eventData.publishType === 'schedule' && eventData.publishDate && eventData.publishTime &&
+                    dayjs(`${eventData.eventDate} ${eventData.eventStartTime}`).isBefore(dayjs(`${eventData.publishDate} ${eventData.publishTime}`))) {
+                    return "Publish date/time cannot be after the event start time.";
+                }
+                if (eventData.daysForRefund === "") {
+                    return "Days for refund is required.";
+                }
+                if (!eventData.type) {
+                    return "Event type is required.";
+                }
+                if (!eventData.category) {
+                    return "Event category is required.";
+                }
+                if (!eventData.subCategory) {
+                    return "Event subcategory is required.";
+                }
+                if (!eventData.tags || eventData.tags.trim() === "") {
+                    return "Event tags are required.";
+                }
+                if (eventData.capacity === "" || eventData.capacity <= 0) {
+                    return "Event capacity must be greater than zero.";
                 }
                 break;
             }
@@ -149,9 +193,6 @@ function CreateEvent() {
         navigate(steps[index].to)
     }
 
-    // TODO: Enhanced the checking of the fields
-    // TODO: Adding check at ticket steps to only allow go next if has al least 1 ticket type
-
     function handleSave(){
         setIsLoading(true)
         let payload;
@@ -165,7 +206,7 @@ function CreateEvent() {
                     eventType: eventData.eventType,
                     eventDate: eventData.eventDate,
                     eventStartTime: eventData.eventStartTime,
-                    eventEndTime: eventData.eventEndTime,
+                    eventEndTime: eventData.eventEndTime || dayjs().startOf('day').format('HH:mm'),
                     displayEndTime: eventData.displayEndTime,
                     timezone: eventData.timezone,
                     language: eventData.language,
@@ -232,9 +273,7 @@ function CreateEvent() {
             preserveAspectRatio: 'xMidYMid slice'
         }
     };
-
-    console.log(eventData)
-
+    
     return (
         <div className={'create-events-wrapper'}>
             {isLoading &&
