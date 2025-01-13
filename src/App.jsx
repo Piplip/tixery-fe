@@ -16,7 +16,7 @@ import OrganizerSettings from "./component/organizer/OrganizerSettings.jsx";
 import OrganizerSettingProfile from "./component/organizer/OrganizerSettingProfile.jsx";
 import OrganizerViewTemplate from "./component/organizer/OrganizerViewTemplate.jsx";
 import OrganizerView from "./component/organizer/OrganizerView.jsx";
-import {accountAxiosWithToken} from "./config/axiosConfig.js";
+import {accountAxiosWithToken, eventAxiosWithToken} from "./config/axiosConfig.js";
 import {getUserData} from "./common/Utilities.js";
 import {Suspense} from "react";
 import LoadingFallback from "./component/LoadingFallback.jsx";
@@ -27,6 +27,7 @@ import OrganizerBuildEventPage from "./component/organizer/OrganizerBuildEventPa
 import OrganizerCreateTicket from "./component/organizer/OrganizerCreateTicket.jsx";
 import OrganizerTicketAdmission from "./component/organizer/OrganizerTicketAdmission.jsx";
 import OrganizerPublishEvent from "./component/organizer/OrganizerPublishEvent.jsx";
+import OrganizerEvent from "./component/organizer/OrganizerEvent.jsx";
 
 function App() {
     const routers = createBrowserRouter([
@@ -80,6 +81,10 @@ function App() {
 
                         return response.data;
                     },
+                },
+                {
+                    path: 'events', element: <OrganizerEvent />,
+                    loader: () => eventAxiosWithToken.get('/get?uid=' + getUserData("userID"))
                 },
                 {
                     path: 'events/:id',
