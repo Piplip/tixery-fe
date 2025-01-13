@@ -17,7 +17,6 @@ function AttendeeHome(){
         }
     }, [])
 
-    // TODO: Send a request to check if the JWT is expired or not when loading the page
     // TODO: handle the case where user haven't set up roles
 
     return (
