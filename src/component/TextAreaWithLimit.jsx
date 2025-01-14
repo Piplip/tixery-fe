@@ -25,7 +25,7 @@ function TextAreaWithLimit({ label, maxChars = 200, placeholder, value, handleCh
                 value={value}
                 error={error}
                 onChange={handleChange} onBlur={onBlur}
-                helperText={error ? helperText : `${value.length}/${maxChars}`}
+                helperText={error ? helperText : `${value ? value.length : 0}/${maxChars}`}
                 multiline
                 placeholder={placeholder || ""}
                 slotProps={{

@@ -8,7 +8,7 @@ import {EventContext} from "../../context.js";
 
 function OrganizerFAQ(){
     const {data, setData} = useContext(EventContext)
-    const [faqList, setFaqList] = useState(data.faq || []);
+    const [faqList, setFaqList] = useState(data.faqs || []);
     const [editIndex, setEditIndex] = useState(null);
     const [expandedIndex, setExpandedIndex] = useState([]);
     const [selectedFaqs, setSelectedFaqs] = useState([]);
@@ -36,7 +36,13 @@ function OrganizerFAQ(){
     });
 
     useEffect(() => {
-        setData(prev => ({...prev, faq: faqList}))
+        if (data.faqs) {
+            setFaqList(data.faqs)
+        }
+    }, [data.faqs]);
+
+    useEffect(() => {
+        setData(prev => ({...prev, faqs: faqList}))
     }, [faqList]);
 
     const handleEdit = (index) => {

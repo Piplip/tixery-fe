@@ -29,6 +29,7 @@ import {useFormik} from "formik";
 import Switch from '@mui/material/Switch';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import {EventContext} from "../../context.js";
+import {useLocation} from "react-router-dom";
 
 const checkboxStyle = {
     sx: {
@@ -90,7 +91,7 @@ function DateAndLocationForm(){
     const [activeTab, setActiveTab] = useState("venue");
     const [open, setOpen] = useState(false);
     const {data, setData} = useContext(EventContext)
-
+    const location = useLocation()
     const validationSchema = Yup.object().shape({
         timezone: Yup.string().required('Timezone is required'),
         language: Yup.string().required('Language is required'),
@@ -108,14 +109,15 @@ function DateAndLocationForm(){
         timezone: data.timezone,
         language: data.language,
         location: data.location || '',
-        eventDate: data.eventDate !== undefined ? dayjs(data.eventDate, 'DD/MM/YYYY') : null,
-        eventStartTime: data.eventStartTime !== undefined ? dayjs(data.eventStartTime, 'HH:mm') : null,
-        eventEndTime: data.eventEndTime ? dayjs(data.eventEndTime, 'HH:mm') : null,
+        eventDate: data.eventDate !== undefined ? location.pathname.includes("edit") ? data.eventDate : dayjs(data.eventDate, 'DD/MM/YYYY') : null,
+        eventStartTime: data.eventStartTime !== undefined ? location.pathname.includes("edit") ? data.eventStartTime : dayjs(data.eventStartTime, 'HH:mm') : null,
+        eventEndTime: data.eventEndTime ? location.pathname.includes("edit") ? data.eventEndTime : dayjs(data.eventEndTime, 'HH:mm') : null,
     };
 
     const formik = useFormik({
         initialValues: initialValues,
         validationSchema: validationSchema,
+        enableReinitialize: true,
         onSubmit: (values) => {
             setData(prev => ({...prev, timezone: values.timezone, language: values.language}));
             setOpen(false)
@@ -127,6 +129,8 @@ function DateAndLocationForm(){
             && formik.values.timezone !== undefined && formik.values.location !== '' && formik.errors.eventDate === undefined
             && formik.errors.eventStartTime === undefined && formik.errors.eventEndTime === undefined
     }
+
+    // TODO: Handle display timezone, language, display end time label
 
     return (
         <div className={`date-and-location ${isValidData() ? 'complete-section' : ''}`}>

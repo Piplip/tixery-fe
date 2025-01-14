@@ -3,7 +3,6 @@ import {
     Dialog, DialogActions,
     DialogContent,
     DialogTitle,
-    IconButton,
     MenuItem,
     Stack, TextField,
     Tooltip
@@ -18,23 +17,18 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import {useOutletContext} from "react-router-dom";
 import {useCallback, useContext, useState} from "react";
 import {EventContext} from "../../context.js";
-import {MoreVert} from "@mui/icons-material";
 import CircleIcon from '@mui/icons-material/Circle';
 import dayjs from "dayjs";
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
+import CustomMenu from "../CustomMenu.jsx";
 
 function OrganizerTicketAdmission(){
     const {data, setData} = useContext(EventContext)
     const {handleTypeSelect, setOpenDetail, setEditTicket} = useOutletContext();
     const [open, setOpen] = useState(false);
     const [openCapacity, setOpenCapacity] = useState(false);
-    const [dropdownOpen, setDropdownOpen] = useState(Array(data.tickets.length).fill(false));
     const handleAddMoreTicketChange = useCallback((event, isOpen) => {
         setOpen(isOpen)
-    }, []);
-
-    const handleEditTicketChange = useCallback((index, isOpen) => {
-        setDropdownOpen(prev => prev.map((open, i) => i === index ? isOpen : open));
     }, []);
 
     function handleEdit(index){
@@ -126,10 +120,10 @@ function OrganizerTicketAdmission(){
                                         }
                                     </Stack>
                                     <p className="tickets-section__ticket-dates">
-                                        {/*On Sale - Ends {ticket.endDate} at {ticket.endTime}*/}
                                         {
                                             dayjs(ticket.startTime + " " + ticket.startDate, 'HH:mm DD/MM/YYYY').isBefore(dayjs()) ?
-                                                'On Sale - Ends ' + ticket.endDate + ' at ' + ticket.endTime
+                                                'On Sale - Ends ' + dayjs(ticket.endDate, "DD/MM/YYYY").format("DD/MM/YYYY") + ' at '
+                                                + dayjs(ticket.endTime, "HH:mm").format("HH:mm")
                                                 :
                                                 'Starts ' + ticket.startDate + ' at ' + ticket.startTime + ' - Ends ' + ticket.endDate + ' at ' + ticket.endTime
                                         }
@@ -137,24 +131,13 @@ function OrganizerTicketAdmission(){
                                 </Stack>
                                 <p className="tickets-section__ticket-sold">Sold: 0 / {ticket.quantity || 'Unlimited'}</p>
                                 <p className="tickets-section__ticket-type">{ticket.ticketType}</p>
-                                <Dropdown open={dropdownOpen[index]} onOpenChange={(isOpen) => handleEditTicketChange(index, isOpen)}>
-                                    <MenuButton
-                                        slots={{ root: IconButton }}
-                                        slotProps={{ root: { variant: 'outlined', color: 'neutral' } }}
-                                    >
-                                        <MoreVert />
-                                    </MenuButton>
-                                    <Menu>
-                                        <MenuItem onClick={() => {
-                                            handleEdit(index)
-                                            setDropdownOpen(prev => prev.map((open, i) => i === index ? !open : open));
-                                        }}>Edit</MenuItem>
-                                        <MenuItem onClick={() => {
-                                            handleDelete(index)
-                                            setDropdownOpen(prev => prev.map((open, i) => i === index ? !open : open));
-                                        }}>Delete</MenuItem>
-                                    </Menu>
-                                </Dropdown>
+                                <CustomMenu options={['Edit', 'Delete']}
+                                    handlers={[() => {
+                                        handleEdit(index)
+                                    }, () => {
+                                        handleDelete(index)
+                                    }]}
+                                />
                             </div>
                         )
                     })}

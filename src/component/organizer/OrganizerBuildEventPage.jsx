@@ -8,7 +8,7 @@ import * as Yup from "yup";
 import {useFormik} from "formik";
 import {useContext, useEffect, useMemo, useRef, useState} from "react";
 import {EventContext} from "../../context.js";
-import { debounce } from "lodash";
+import {debounce} from "lodash";
 
 const validationSchema = Yup.object().shape({
     eventTitle: Yup.string()
@@ -25,6 +25,7 @@ function OrganizerBuildEventPage(){
     const sectionRefs = useRef({});
 
     const formik = useFormik({
+        enableReinitialize: true,
         initialValues: {
             eventTitle: data.eventTitle || '',
             summary: data.summary || '',
@@ -38,8 +39,8 @@ function OrganizerBuildEventPage(){
         const debouncedSetData = debounce((values) => {
             setData(prevData => ({
                 ...prevData,
-                eventTitle: values.eventTitle,
-                summary: values.summary,
+                eventTitle: values.eventTitle || prevData.eventTitle,
+                summary: values.summary || prevData.summary,
             }));
         }, 300);
 

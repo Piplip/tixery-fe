@@ -72,6 +72,50 @@ function OrganizerCreateTicket(){
         }
     }, [location]);
 
+    useEffect(() => {
+        if (editTicket !== null && editTicket !== undefined) {
+            setInitialValues({
+                ticketID: data.tickets[editTicket].ticketID,
+                ticketName: data.tickets[editTicket].ticketName,
+                quantity: data.tickets[editTicket].quantity,
+                price: data.tickets[editTicket].price,
+                startDate: data.tickets[editTicket].startDate ? dayjs(data.tickets[editTicket].startDate, 'DD/MM/YYYY') : null,
+                endDate: data.tickets[editTicket].endDate ? dayjs(data.tickets[editTicket].endDate, 'DD/MM/YYYY') : null,
+                startTime: data.tickets[editTicket].startTime ? dayjs(data.tickets[editTicket].startTime, 'HH:mm') : null,
+                endTime: data.tickets[editTicket].endTime ? dayjs(data.tickets[editTicket].endTime, 'HH:mm') : null,
+                minPerOrder: data.tickets[editTicket].minPerOrder,
+                maxPerOrder: data.tickets[editTicket].maxPerOrder,
+                visibility: ticketVisibility.findIndex(v => v.value === data.tickets[editTicket].visibility),
+                description: data.tickets[editTicket].description,
+                visibleStartDate: data.tickets[editTicket].visibleStartDate ? dayjs(data.tickets[editTicket].visibleStartDate, 'DD/MM/YYYY') : null,
+                visibleEndDate: data.tickets[editTicket].visibleEndDate ? dayjs(data.tickets[editTicket].visibleEndDate, 'DD/MM/YYYY') : null,
+                visibleStartTime: data.tickets[editTicket].visibleStartTime ? dayjs(data.tickets[editTicket].visibleStartTime, 'HH:mm') : null,
+                visibleEndTime: data.tickets[editTicket].visibleEndTime ? dayjs(data.tickets[editTicket].visibleEndTime, 'HH:mm') : null,
+                absorbFee: data.tickets[editTicket].absorbFee
+            });
+        }
+        else{
+            setInitialValues({
+                ticketName: "",
+                quantity: '',
+                price: '',
+                startDate: null,
+                endDate: null,
+                startTime: null,
+                endTime: null,
+                minPerOrder: '',
+                maxPerOrder: '',
+                visibility: 0,
+                description: '',
+                visibleStartDate: null,
+                visibleEndDate: null,
+                visibleStartTime: null,
+                visibleEndTime: null,
+                absorbFee: false
+            });
+        }
+    }, [data.tickets, editTicket]);
+
     const handleOpenChange = useCallback((event, isOpen) => {
         setOpen(isOpen);
     }, []);
@@ -108,48 +152,49 @@ function OrganizerCreateTicket(){
                 }
             )
             .test(
-                'is-after-event-start',
-                'Ticket sales start date should before the event start date',
+                'is-before-event-start',
+                'Ticket sales start date should be before the event start date',
                 function (value) {
-                    const eventStartDate = data.eventDate;
-                    return !eventStartDate || !value || value < eventStartDate;
+                    if (!value) return true;
+
+                    const ticketSalesDate = dayjs(value);
+                    const eventStartDate = dayjs(data.eventDate, "DD/MM/YYYY");
+
+                    if (!ticketSalesDate.isValid() || !eventStartDate.isValid()) {
+                        return false;
+                    }
+
+                    return ticketSalesDate.isBefore(eventStartDate);
                 }
             ),
         endDate: Yup.date() .required('End date is required')
             .typeError('End date must be a valid date')
             .test(
                 'is-after-start-date',
-                'End date must be later than the start date',
+                'End date must be after the start date',
                 function (value) {
                     const { startDate } = this.parent;
                     return !startDate || !value || value >= startDate;
                 }
             )
             .test(
-                'is-after-event-start',
-                'Ticket sales end date should before the event start date',
+                'is-before-event-start',
+                'Ticket sales start date should be before the event start date',
                 function (value) {
-                    const eventStartDate = data.eventDate
-                    return !eventStartDate || !value || value <= eventStartDate;
+                    if (!value) return true;
+
+                    const ticketSalesDate = dayjs(value);
+                    const eventStartDate = dayjs(data.eventDate, "DD/MM/YYYY");
+
+                    if (!ticketSalesDate.isValid() || !eventStartDate.isValid()) {
+                        return false;
+                    }
+
+                    return ticketSalesDate.isBefore(eventStartDate);
                 }
             ),
         startTime: Yup.date()
-            .required("Start time is required.")
-            .test(
-                'is-after-event-start-time',
-                'Ticket sales start time must be after the event start time',
-                function (value) {
-                    const eventStartDateTime = dayjs(data.eventDate + " " + data.eventStartTime, "DD/MM/YYYY HH:mm");
-                    const ticketStartDateTime = dayjs(this.parent.startDate)
-                        .hour(dayjs(value).hour())
-                        .minute(dayjs(value).minute())
-                    return (
-                        !eventStartDateTime ||
-                        !value ||
-                        ticketStartDateTime.isSameOrAfter(eventStartDateTime)
-                    );
-                }
-            ),
+            .required("Start time is required."),
         endTime: Yup.date()
             .required('End time is required.')
             .test(
@@ -161,21 +206,6 @@ function OrganizerCreateTicket(){
                         return !startTime || !value || value >= startTime;
                     }
                     return true;
-                }
-            )
-            .test(
-                'is-after-event-start-time',
-                'Ticket sales start time must be after the event start time',
-                function (value) {
-                    const eventStartDateTime = dayjs(data.eventDate + " " + data.eventStartTime, "DD/MM/YYYY HH:mm");
-                    const ticketEndDateTime = dayjs(this.parent.startDate)
-                        .hour(dayjs(value).hour())
-                        .minute(dayjs(value).minute())
-                    return (
-                        !eventStartDateTime ||
-                        !value ||
-                        ticketEndDateTime.isSameOrAfter(eventStartDateTime)
-                    );
                 }
             ),
         minPerOrder: Yup.number()
@@ -233,49 +263,6 @@ function OrganizerCreateTicket(){
         absorbFee: false
     });
 
-    useEffect(() => {
-        if (editTicket !== null && editTicket !== undefined) {
-            setInitialValues({
-                ticketName: data.tickets[editTicket].ticketName,
-                quantity: data.tickets[editTicket].quantity,
-                price: data.tickets[editTicket].price,
-                startDate: data.tickets[editTicket].startDate ? dayjs(data.tickets[editTicket].startDate, 'DD/MM/YYYY') : null,
-                endDate: data.tickets[editTicket].endDate ? dayjs(data.tickets[editTicket].endDate, 'DD/MM/YYYY') : null,
-                startTime: data.tickets[editTicket].startTime ? dayjs(data.tickets[editTicket].startTime, 'HH:mm') : null,
-                endTime: data.tickets[editTicket].endTime ? dayjs(data.tickets[editTicket].endTime, 'HH:mm') : null,
-                minPerOrder: data.tickets[editTicket].minPerOrder,
-                maxPerOrder: data.tickets[editTicket].maxPerOrder,
-                visibility: ticketVisibility.findIndex(v => v.value === data.tickets[editTicket].visibility),
-                description: data.tickets[editTicket].description,
-                visibleStartDate: data.tickets[editTicket].visibleStartDate ? dayjs(data.tickets[editTicket].visibleStartDate, 'DD/MM/YYYY') : null,
-                visibleEndDate: data.tickets[editTicket].visibleEndDate ? dayjs(data.tickets[editTicket].visibleEndDate, 'DD/MM/YYYY') : null,
-                visibleStartTime: data.tickets[editTicket].visibleStartTime ? dayjs(data.tickets[editTicket].visibleStartTime, 'HH:mm') : null,
-                visibleEndTime: data.tickets[editTicket].visibleEndTime ? dayjs(data.tickets[editTicket].visibleEndTime, 'HH:mm') : null,
-                absorbFee: data.tickets[editTicket].absorbFee
-            });
-        }
-        else{
-            setInitialValues({
-                ticketName: "",
-                quantity: '',
-                price: '',
-                startDate: null,
-                endDate: null,
-                startTime: null,
-                endTime: null,
-                minPerOrder: '',
-                maxPerOrder: '',
-                visibility: 0,
-                description: '',
-                visibleStartDate: null,
-                visibleEndDate: null,
-                visibleStartTime: null,
-                visibleEndTime: null,
-                absorbFee: false
-            });
-        }
-    }, [data.tickets, editTicket]);
-
     const formik = useFormik({
         initialValues: initialValues,
         validationSchema,
@@ -284,7 +271,7 @@ function OrganizerCreateTicket(){
             setOpenDetail({type: null, open: false})
             let newData = transformData(values)
             if (editTicket !== null) {
-                eventAxiosWithToken.put(`/tickets/update?tid=${data.tickets[editTicket].ticketID}&timezone=${data.timezone}`, newData)
+                eventAxiosWithToken.put(`/tickets/update?tid=${values.ticketID}&timezone=${data.timezone}`, newData)
                     .then(r => {
                         console.log(r.data)
                         const updatedTickets = [...data.tickets];
@@ -338,8 +325,6 @@ function OrganizerCreateTicket(){
         else formik.setFieldValue('price', '');
         setOpenDetail({type: type, open: true});
     }
-
-    // TODO: Review and fix the check of sales start date - time and sales end date - time
 
     return (
         <Stack className={'organizer-create-ticket'} rowGap={2}>

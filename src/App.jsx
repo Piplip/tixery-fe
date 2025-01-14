@@ -18,7 +18,7 @@ import OrganizerViewTemplate from "./component/organizer/OrganizerViewTemplate.j
 import OrganizerView from "./component/organizer/OrganizerView.jsx";
 import {accountAxiosWithToken, eventAxiosWithToken} from "./config/axiosConfig.js";
 import {getUserData} from "./common/Utilities.js";
-import {Suspense} from "react";
+import {lazy, Suspense} from "react";
 import LoadingFallback from "./component/LoadingFallback.jsx";
 import OrganizerNewProfile from "./component/organizer/OrganizerNewProfile.jsx";
 import OrganizerEditProfile from "./component/organizer/OrganizerEditProfile.jsx";
@@ -98,6 +98,31 @@ function App() {
                             ]
                         },
                         {path: 'publish', element: <OrganizerPublishEvent />}
+                    ]
+                },
+                {
+                    path: 'events/edit/:id',
+                    element: <CreateEvent />,
+                    loader: ({params}) => eventAxiosWithToken.get('/get/specific?eid=' + params.id),
+                    children: [
+                        {
+                            index: true,
+                            element: lazy(() => import('./component/organizer/OrganizerBuildEventPage'))
+                        },
+                        {
+                            path: 'tickets',
+                            element: lazy(() => import('./component/organizer/OrganizerCreateTicket')),
+                            children: [
+                                {
+                                    index: true,
+                                    element: lazy(() => import('./component/organizer/OrganizerTicketAdmission'))
+                                }
+                            ]
+                        },
+                        {
+                            path: 'publish',
+                            element: lazy(() => import('./component/organizer/OrganizerPublishEvent'))
+                        }
                     ]
                 }
             ]

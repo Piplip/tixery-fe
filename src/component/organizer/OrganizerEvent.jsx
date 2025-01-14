@@ -20,7 +20,7 @@ import {Radio, RadioGroup} from "@mui/joy";
 import {useEffect, useRef, useState} from "react";
 import CreateEventMenu from "./CreateEventMenu.jsx";
 import CloseIcon from "@mui/icons-material/Close";
-import {useLoaderData} from "react-router-dom";
+import {useLoaderData, useNavigate} from "react-router-dom";
 import dayjs from "dayjs";
 import {accountAxiosWithToken} from "../../config/axiosConfig.js";
 import {getUserData} from "../../common/Utilities.js";
@@ -40,6 +40,7 @@ function OrganizerEvent() {
         keyword: "",
         profile: "all",
     });
+    const navigate = useNavigate()
 
     useEffect(() => {
         if(profiles === null) {{
@@ -101,6 +102,7 @@ function OrganizerEvent() {
             setEvents(filteredEvents);
         }
     }, [filters]);
+
     function handleTypeChange(value, name) {
         setFilters(prevFilters => ({
             ...prevFilters,
@@ -188,13 +190,13 @@ function OrganizerEvent() {
                                     <p style={{fontSize: '1.5rem'}}>{dayjs(item.start_date).format("DD").toUpperCase()}</p>
                                 </Stack>
                                 <img
-                                    src={item.images[0]}
+                                    src={item.images && item.images[0]}
                                     alt={''}/>
                                 <Stack justifyContent={'space-between'}>
                                     <p style={{color: 'black'}}>{item.name}</p>
                                     <Stack marginTop={.5}>
                                         <Typography variant={'body2'} color={'gray'} style={{textTransform: 'capitalize'}}>
-                                            {item.location.locationType} event</Typography>
+                                            {item.location && item.location.locationType} event</Typography>
                                         <Typography variant={'body2'} color={'gray'}>
                                             {dayjs(item.start_date).format('dddd, MMMM D, YYYY [at] HH:mm [GMT]Z')}
                                         </Typography>
@@ -211,7 +213,12 @@ function OrganizerEvent() {
                             <p>$0.00</p>
                             <p style={{textTransform: 'uppercase'}}>{item.status}</p>
                             <CustomMenu
-                                options={['Promote on Tixery', 'View', 'Edit', 'Copy Link', 'Copy Event', 'Delete']}/>
+                                options={['Promote on Tixery', 'View', 'Edit', 'Copy Link', 'Copy Event', 'Delete']}
+                                handlers={[null,
+                                    null,
+                                    () => {navigate(`edit/${item.event_id}`)}
+                                ]}
+                            />
                         </div>
                     )
                 })}

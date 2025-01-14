@@ -14,9 +14,9 @@ import {
 } from "@mui/material";
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import {useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
-import {Link, Outlet, useLocation, useNavigate} from "react-router-dom";
+import {Link, Outlet, useLoaderData, useLocation, useNavigate} from "react-router-dom";
 import Dropdown from '@mui/joy/Dropdown';
 import Menu from '@mui/joy/Menu';
 import MenuButton from '@mui/joy/MenuButton';
@@ -72,31 +72,90 @@ const steps = [
 ]
 
 function CreateEvent() {
-    const [eventData, setEventData] = useState({
-        eventType: 'single',
-        locationType: 'venue',
-        language: 'en-US',
-        timezone: '7',
-        displayEndTime: true,
-        eventVisibility: 'public',
-        allowRefund: false,
-        daysForRefund: 7,
-        automatedRefund: false,
-        publishType: 'now',
-        type: '',
-        category: '',
-        subCategory: '',
-        capacity: 100
-    })
+    const loader = useLoaderData()
+    const location = useLocation()
+    const navigate = useNavigate()
+    const [eventData, setEventData] = useState({})
     const [currentStep, setCurrentStep] = useState(0);
-    const maxStep =  useRef(0)
+    const maxStep =  useRef(location.pathname.includes('edit') ? 2 : 0)
     const [alert, setAlert] = useState("")
     const [isLoading, setIsLoading] = useState(false)
     const [showSuccessDialog, setShowSuccessDialog] = useState(false)
     const isLive = eventData.publishType === "now";
-    const location = useLocation()
+    const isEdit = location.pathname.includes("edit");
 
-    const navigate = useNavigate()
+    useEffect(() => {
+        let loaderData = loader ? loader.data : undefined
+        let newEventData
+        if(loaderData !== undefined){
+            newEventData = {
+                eventTitle: loaderData.name,
+                summary: loaderData.description,
+                eventType: loaderData.is_recurring ? 'recurring' : 'single',
+                eventDate: dayjs(loaderData.start_time),
+                eventStartTime: dayjs(loaderData.start_time),
+                eventEndTime: dayjs(loaderData.end_time),
+                displayEndTime: loaderData.show_end_time,
+                timezone: loaderData.timezone || 7,
+                language: loaderData.language,
+                locationType: loaderData.location.locationType,
+                location: loaderData.location.location,
+                reserveSeating: loaderData.location.reserveSeating || false,
+                faqs: loaderData.faq,
+                tickets: loaderData.tickets.map((ticket) => ({
+                    ticketID: ticket.ticket_type_id,
+                    type: ticket.ticket_type,
+                    ticketName: ticket.name,
+                    ticketType: ticket.ticket_type,
+                    quantity: ticket.quantity,
+                    price: ticket.price,
+                    absorbFee: ticket.absorbFee || false,
+                    startDate: dayjs(ticket.sale_start_time),
+                    startTime: dayjs(ticket.sale_start_time),
+                    endDate: dayjs(ticket.sale_end_time),
+                    endTime: dayjs(ticket.sale_end_time),
+                    description: ticket.description,
+                    visibility: ticket.status,
+                    visibleStartDate: ticket.vis_start_time ? dayjs(ticket.vis_start_time) : null,
+                    visibleStartTime: ticket.vis_start_time ? dayjs(ticket.vis_start_time) : null,
+                    visibleEndDate: ticket.vis_end_time ? dayjs(ticket.vis_end_time) : null,
+                    visibleEndTime: ticket.vis_end_time ? dayjs(ticket.vis_end_time) : null,
+                    maxPerOrder: ticket.max_per_order,
+                    minPerOrder: ticket.min_per_order
+                })),
+                eventVisibility: 'public',
+                allowRefund: loaderData.refundPolicy || false,
+                daysForRefund: loaderData.daysForRefund || 7,
+                automatedRefund: loaderData.automatedRefund || false,
+                publishType: loaderData.status !== 'published' ? "schedule" :'now',
+                type: loaderData.event_type,
+                category: loaderData.category,
+                subCategory: loaderData.sub_category,
+                capacity: loaderData.capacity || 100,
+                tags: loaderData.tags || ''
+            }
+        }
+        else {
+            newEventData = {
+                eventType: 'single',
+                locationType: 'venue',
+                language: 'en-US',
+                timezone: '7',
+                displayEndTime: true,
+                eventVisibility: 'public',
+                allowRefund: false,
+                daysForRefund: 7,
+                automatedRefund: false,
+                publishType: 'now',
+                type: '',
+                category: '',
+                subCategory: '',
+                capacity: 100,
+                reserveSeating: false
+            }
+        }
+        setEventData(newEventData)
+    }, []);
 
     function handleClose(){
         setShowSuccessDialog(false)
@@ -148,12 +207,12 @@ function CreateEvent() {
                 if((!eventData.tickets || eventData.tickets.length === 0)){
                     return "Tickets are required to continue."
                 }
+                if (eventData.capacity === "" || eventData.capacity <= 0) {
+                    return "Event capacity must be greater than zero.";
+                }
                 break;
             }
             case 2: {
-                if (!eventData.publishType) {
-                    return "Publish type is required.";
-                }
                 if (eventData.publishType === 'schedule' && (!eventData.publishDate || !eventData.publishTime)) {
                     return "Publish date and time are required for scheduled publish type.";
                 }
@@ -161,23 +220,11 @@ function CreateEvent() {
                     dayjs(`${eventData.eventDate} ${eventData.eventStartTime}`).isBefore(dayjs(`${eventData.publishDate} ${eventData.publishTime}`))) {
                     return "Publish date/time cannot be after the event start time.";
                 }
-                if (eventData.daysForRefund === "") {
+                if (eventData.allowRefund && eventData.daysForRefund === "") {
                     return "Days for refund is required.";
                 }
                 if (!eventData.type) {
                     return "Event type is required.";
-                }
-                if (!eventData.category) {
-                    return "Event category is required.";
-                }
-                if (!eventData.subCategory) {
-                    return "Event subcategory is required.";
-                }
-                if (!eventData.tags || eventData.tags.trim() === "") {
-                    return "Event tags are required.";
-                }
-                if (eventData.capacity === "" || eventData.capacity <= 0) {
-                    return "Event capacity must be greater than zero.";
                 }
                 break;
             }
@@ -198,22 +245,25 @@ function CreateEvent() {
         let payload;
         switch (currentStep) {
             case 0: {
+                const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/
+                const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/
                 payload = {
                     images: eventData.images,
                     videos: eventData.videos,
                     title: eventData.eventTitle,
                     summary: eventData.summary,
                     eventType: eventData.eventType,
-                    eventDate: eventData.eventDate,
-                    eventStartTime: eventData.eventStartTime,
-                    eventEndTime: eventData.eventEndTime || dayjs().startOf('day').format('HH:mm'),
+                    eventDate: dateRegex.test(eventData.eventDate) ? eventData.eventDate : dayjs(eventData.eventDate).format("DD/MM/YYYY"),
+                    eventStartTime: timeRegex.test(eventData.eventStartTime) ? eventData.eventStartTime : dayjs(eventData.eventStartTime).format("HH:mm"),
+                    eventEndTime: eventData.eventEndTime ? timeRegex.test(eventData.eventEndTime) ? eventData.eventEndTime : dayjs(eventData.eventEndTime).format("HH:mm")
+                        : dayjs().startOf('day').format('HH:mm'),
                     displayEndTime: eventData.displayEndTime,
                     timezone: eventData.timezone,
                     language: eventData.language,
                     locationType: eventData.locationType,
                     location: eventData.location,
                     reserveSeating: eventData.reserveSeating,
-                    faqs: eventData.faq
+                    faqs: eventData.faqs
                 }
                 break;
             }
@@ -226,15 +276,17 @@ function CreateEvent() {
             case 2: {
                 payload = {
                     type: eventData.type, category: eventData.category, subCategory: eventData.subCategory,
-                    tags: eventData.tags.split(','), eventVisibility: eventData.eventVisibility, allowRefund: eventData.allowRefund,
+                    tags: location.pathname.includes("edit") ? eventData.tags : eventData.tags.split(','), eventVisibility: eventData.eventVisibility,
+                    allowRefund: eventData.allowRefund,
                     daysForRefund: eventData.daysForRefund, automatedRefund: eventData.automatedRefund, publishType: eventData.publishType,
                     publishDate: eventData.publishDate, publishTime: eventData.publishTime, timezone: eventData.timezone, capacity: eventData.capacity
                 }
                 break;
             }
         }
-        eventAxiosWithToken.post(`/create?step=${currentStep}&eid=${location.pathname.split('/')[3]}`, payload)
+        eventAxiosWithToken.post(`/create?step=${currentStep}&eid=${location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3]}`, payload)
             .then(r => {
+                console.log(r.data)
                 if(r.data.status === 'OK'){
                     setIsLoading(false)
                     if(currentStep < steps.length - 1){
@@ -273,7 +325,9 @@ function CreateEvent() {
             preserveAspectRatio: 'xMidYMid slice'
         }
     };
-    
+
+    console.log(eventData)
+
     return (
         <div className={'create-events-wrapper'}>
             {isLoading &&
@@ -288,7 +342,7 @@ function CreateEvent() {
                 open={showSuccessDialog}
             >
                 <DialogTitle sx={{ m: 0, p: 2, textAlign: 'center'}}>
-                    EVENT PUBLISHING
+                    {isEdit ? "EDIT EVENT" : "EVENT PUBLISHING"}
                 </DialogTitle>
                 <DialogContent dividers sx={{ paddingInline: '7.5rem' }}>
                     <Stack direction="column" spacing={5} className="event-dialog-content">
@@ -324,7 +378,9 @@ function CreateEvent() {
                             <Stack direction="row" spacing={2} justifyContent="center">
                                 {isLive ? (
                                     <>
-                                        <Button variant="contained" color="primary">View Event</Button>
+                                        <Link to={'../events'}>
+                                            <Button variant="contained" color="primary">View Events</Button>
+                                        </Link>
                                         <Button variant="contained" color="primary">Dashboard</Button>
                                         <Button variant="outlined" color="secondary">Share</Button>
                                     </>
@@ -351,7 +407,7 @@ function CreateEvent() {
             <div className={'create-events__stepper'}>
                 <Link to={'/organizer/events'}>
                     <Stack className={'link'} direction={'row'} alignItems={'center'}>
-                        <ChevronLeftIcon/> Back to events
+                        <ChevronLeftIcon /> Back to events
                     </Stack>
                 </Link>
                 <div className={'create-events-stepper__main'}>
@@ -378,7 +434,7 @@ function CreateEvent() {
                                      ${maxStep.current < index ? 'create-events__disabled-step' : ''}`}
                                      onClick={() => handleSetStep(index)}
                                 >
-                                    <CustomCheckbox checked={currentStep === index} completed={maxStep.current > index}/>
+                                    <CustomCheckbox checked={currentStep === index} completed={maxStep.current >= index}/>
                                     <div>
                                         <p>{step.title}</p>
                                         {currentStep === index &&

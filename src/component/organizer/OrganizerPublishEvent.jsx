@@ -1,5 +1,5 @@
 import {Box, Checkbox, FormControlLabel, Stack, TextField, Typography} from "@mui/material";
-import {Link, NavLink} from "react-router-dom";
+import {Link, NavLink, useLocation} from "react-router-dom";
 import ImageIcon from '@mui/icons-material/Image';
 import "../../styles/organizer-publish-event-styles.css"
 import BookOnlineIcon from '@mui/icons-material/BookOnline';
@@ -58,12 +58,12 @@ const eventData = {
     },
 };
 
-
 function OrganizerPublishEvent(){
     initializeApp(firebaseConfig);
     const storage = getStorage()
     const {data, setData} = useContext(EventContext)
     const [eventImg, setEventImg] = useState(null)
+    const location = useLocation()
 
     const availableCategories =
         data.type && eventData[data.type]?.categories
@@ -76,7 +76,7 @@ function OrganizerPublishEvent(){
             : [];
 
     useEffect(() => {
-        if(eventImg === null){
+        if(data.images && data.images[0] && eventImg === null){
             const imageRef = ref(storage, data.images[0])
             getDownloadURL(imageRef)
                 .then((url) => {
@@ -85,6 +85,8 @@ function OrganizerPublishEvent(){
                 .catch(err => console.log(err))
         }
     }, []);
+
+    // TODO: Fixing minor bugs of publish page
 
     return (
         <div className="event-publish">
@@ -109,14 +111,14 @@ function OrganizerPublishEvent(){
                             <div className="event-publish__details">
                                 <p className="event-publish__title">{data.eventTitle}</p>
                                 <p className="event-publish__datetime">
-                                    {dayjs(data.eventDate, 'DD/MM/YYYY').format('dddd, DD MMMM')} • {data.eventStartTime} - {data.eventEndTime} GMT+{data.timezone}
+                                    {dayjs(data.eventDate, 'DD/MM/YYYY').format('dddd, DD MMMM')} • {dayjs(data.eventStartTime).format("HH:mm")} - {dayjs(data.eventEndTime).format("HH:mm")} GMT+{data.timezone}
                                 </p>
                                 <p className="event-publish__online">
                                     {data.locationType === 'venue' ? 'Offline event' : 'Online event'}
                                 </p>
                                 <Stack direction={'row'} justifyContent={'space-between'}>
                                     <div className="event-publish__info">
-                                        <span><BookOnlineIcon/> {data.tickets[0].price.toUpperCase()}</span>
+                                        <span><BookOnlineIcon/> {data.tickets && data.tickets[0].price}</span>
                                         <span><PersonIcon/>{data.capacity}</span>
                                     </div>
                                     <Link to="/preview" className="event-publish__preview">
@@ -206,13 +208,13 @@ function OrganizerPublishEvent(){
                                 event’s theme, topic, vibe, location, and more.
                             </Typography>
                             <TextField spellCheck={"false"}
-                                value={data.tags}
+                                value={location.pathname.includes("edit") ? data.tags.join(",") : data.tags}
                                 onChange={(e) => setData(prev => ({...prev, tags: e.target.value}))}
                                 multiline
                                 rows={4}
                                 placeholder="Add search keywords to your event"
                                 variant="outlined"
-                                helperText={data.tags ? `${data.tags.split(',').length}/12 tags` : 'Separate tags with commas'}
+                                       helperText={`Tags: ${data?.tags ? data.tags.split(',').filter(tag => tag.trim() !== '').length : 0} / 10`}
                             />
                         </Box>
                     </Stack>
@@ -257,8 +259,8 @@ function OrganizerPublishEvent(){
                                 After your event is published, you can only update your policy to make it more flexible
                                 for your attendees.
                             </p>
-                            <RadioGroup name="refundPolicy" defaultValue="allowRefunds" className={'radio-group'}
-                                        value={data.allowRefund}
+                            <RadioGroup name="refundPolicy" className={'radio-group'}
+                                        value={data.allowRefund || false}
                                 onChange={() => {
                                     setData(prev => ({...prev, allowRefund: !prev.allowRefund, daysForRefund: prev.allowRefund ? null : 1}))
                                 }}

@@ -42,7 +42,7 @@ function MediaUploader () {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [uploadedImages, setUploadedImages] = useState([]);
     const [uploadedVideos, setUploadedVideos] = useState([]);
-    const [isUploadActive, setIsUploadActive] = useState(uploadedImages !== undefined || uploadedVideos !== undefined);
+    const [isUploadActive, setIsUploadActive] = useState(data.images !== undefined || data.videos !== undefined);
     const [currentPreview, setCurrentPreview] = useState({type: '', src: null});
     const [isDragOver, setIsDragOver] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -55,16 +55,19 @@ function MediaUploader () {
                 setCurrentImageIndex((prevIndex) => (prevIndex + 1) % carouselImages.length);
             }, 3000);
             return () => clearInterval(interval);
-        } else {
-            const prefix = `${location.pathname.split('/')[3]}`;
-            fetchMediaFromFirebase(storage, prefix).then(({ images, videos }) => {
-                setUploadedImages(images);
-                setData((prev) => ({...prev, images: images.map(image => image.path)}));
-                setUploadedVideos(videos);
-                setData((prev) => ({...prev, videos: videos.map(video => video.path)}));
-            });
         }
-    }, [isUploadActive]);
+    }, []);
+
+    useEffect(() => {
+        const prefix = `${location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3]}`;
+        fetchMediaFromFirebase(storage, prefix).then(({ images, videos }) => {
+            setUploadedImages(images);
+            setData((prev) => ({...prev, images: images.map(image => image.path)}));
+            setUploadedVideos(videos);
+            setData((prev) => ({...prev, videos: videos.map(video => video.path)}));
+        });
+        setIsUploadActive(true)
+    }, []);
 
     async function fetchMediaFromFirebase(storage, prefix) {
         const storageRef = ref(storage, `/events/${prefix}`);
