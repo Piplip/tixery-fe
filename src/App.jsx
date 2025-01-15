@@ -24,6 +24,7 @@ import OrganizerNewProfile from "./component/organizer/OrganizerNewProfile.jsx";
 import OrganizerEditProfile from "./component/organizer/OrganizerEditProfile.jsx";
 import CreateEvent from "./component/organizer/CreateEvent.jsx";
 import OrganizerEvent from "./component/organizer/OrganizerEvent.jsx";
+import EventView from "./component/shared/EventView.jsx";
 
 function App() {
     const OrganizerBuildEventPage = lazy(() => import('./component/organizer/OrganizerBuildEventPage'))
@@ -145,6 +146,9 @@ function App() {
                     },
                 }
             ]
+        },
+        {
+            path: '/events/:id', element: <EventView />
         },
         {path: '/dev', element: <LoadingFallback />}
     ])
