@@ -1,5 +1,5 @@
-import '../styles/login-page-styles.css'
-import Logo from "../assets/logo.svg"
+import '../../styles/login-page-styles.css'
+import Logo from "../../assets/logo.svg"
 import {Form, Formik} from "formik";
 import {
     Alert,
@@ -15,12 +15,12 @@ import {
 import {useState} from "react";
 import {Link, useLocation, useNavigate} from "react-router-dom";
 import * as Yup from "yup";
-import FacebookIcon from "../assets/facebook.png"
-import GoogleIcon from "../assets/google.png"
-import accountAxios from "../config/axiosConfig.js";
+import FacebookIcon from "../../assets/facebook.png"
+import GoogleIcon from "../../assets/google.png"
+import accountAxios from "../../config/axiosConfig.js";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import {getUserData} from "../common/Utilities.js";
+import {getUserData} from "../../common/Utilities.js";
 import ForgotPasswordDialog from "./ForgotPasswordDialog.jsx";
 
 const alertRef = {

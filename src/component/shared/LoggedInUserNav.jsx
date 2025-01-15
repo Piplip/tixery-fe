@@ -1,9 +1,9 @@
-import "../styles/logged-in-user-nav-styles.css"
+import "../../styles/logged-in-user-nav-styles.css"
 import {getDownloadURL, getStorage, ref} from "firebase/storage";
 import {initializeApp} from "firebase/app";
-import {firebaseConfig} from "../config/firebaseConfig.js";
+import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {Avatar, Stack} from "@mui/material";
-import {checkLoggedIn, getUserData, hasRole, logout} from "../common/Utilities.js";
+import {checkLoggedIn, getUserData, hasRole, logout} from "../../common/Utilities.js";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {useEffect, useState} from "react";
 import {Link} from "react-router-dom";

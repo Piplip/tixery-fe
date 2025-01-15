@@ -14,11 +14,11 @@ import {useCallback, useEffect, useState} from "react";
 import CloseIcon from '@mui/icons-material/Close';
 import '../../styles/organizer-setting-profile-styles.css'
 import {Link, useLoaderData, useNavigate} from "react-router-dom";
-import CustomMenu from "../CustomMenu.jsx";
+import CustomMenu from "../shared/CustomMenu.jsx";
 import {getDownloadURL, getStorage, ref} from "firebase/storage";
 import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
-import DeleteDialog from "../DeleteDialog.jsx";
+import DeleteDialog from "../shared/DeleteDialog.jsx";
 import {accountAxiosWithToken} from "../../config/axiosConfig.js";
 import {getUserData} from "../../common/Utilities.js";
 

@@ -12,8 +12,8 @@ import {
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import PropTypes from "prop-types";
-import "../styles/forgot-password-dialog-styles.css"
-import accountAxios from "../config/axiosConfig.js";
+import "../../styles/forgot-password-dialog-styles.css"
+import accountAxios from "../../config/axiosConfig.js";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
 ForgotPasswordDialog.propTypes = {

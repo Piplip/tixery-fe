@@ -54,7 +54,7 @@
     column-gap: 2rem;
     align-items: center;
     border-bottom: 1px solid gray;
-    transition: all .2s ease-in-out;
+    transition: all .1s linear;
     color: gray;
 }
 .event-list__list > div:first-child{

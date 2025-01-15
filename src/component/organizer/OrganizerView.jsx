@@ -5,7 +5,7 @@ import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {getDownloadURL, getStorage, ref} from "firebase/storage";
 import {useCallback, useEffect, useState} from "react";
-import LoadingFallback from "../LoadingFallback.jsx";
+import LoadingFallback from "../shared/LoadingFallback.jsx";
 import FacebookRoundedIcon from '@mui/icons-material/FacebookRounded';
 import XIcon from '@mui/icons-material/X';
 

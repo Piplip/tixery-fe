@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import PropTypes from "prop-types";
-import "../styles/carousel-styles.css"
+import "../../styles/carousel-styles.css"
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 

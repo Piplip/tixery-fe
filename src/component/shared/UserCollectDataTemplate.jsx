@@ -1,5 +1,5 @@
 import {Outlet} from "react-router-dom";
-import '../styles/user-collect-data-template-styles.css'
+import '../../styles/user-collect-data-template-styles.css'
 
 function UserCollectDataTemplate(){
     return (

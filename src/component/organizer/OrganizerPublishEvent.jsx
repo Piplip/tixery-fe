@@ -86,8 +86,6 @@ function OrganizerPublishEvent(){
         }
     }, []);
 
-    // TODO: Fixing minor bugs of publish page
-
     return (
         <div className="event-publish">
             <div>
@@ -111,7 +109,7 @@ function OrganizerPublishEvent(){
                             <div className="event-publish__details">
                                 <p className="event-publish__title">{data.eventTitle}</p>
                                 <p className="event-publish__datetime">
-                                    {dayjs(data.eventDate, 'DD/MM/YYYY').format('dddd, DD MMMM')} • {dayjs(data.eventStartTime).format("HH:mm")} - {dayjs(data.eventEndTime).format("HH:mm")} GMT+{data.timezone}
+                                    {dayjs(data.eventDate, 'DD/MM/YYYY').format('dddd, DD MMMM')} • {dayjs(data.eventStartTime, "HH:mm").format("HH:mm")} - {dayjs(data.eventEndTime, "HH:mm").format("HH:mm")} GMT+{data.timezone}
                                 </p>
                                 <p className="event-publish__online">
                                     {data.locationType === 'venue' ? 'Offline event' : 'Online event'}
@@ -208,7 +206,7 @@ function OrganizerPublishEvent(){
                                 event’s theme, topic, vibe, location, and more.
                             </Typography>
                             <TextField spellCheck={"false"}
-                                value={location.pathname.includes("edit") ? data.tags.join(",") : data.tags}
+                                value={data.tags}
                                 onChange={(e) => setData(prev => ({...prev, tags: e.target.value}))}
                                 multiline
                                 rows={4}

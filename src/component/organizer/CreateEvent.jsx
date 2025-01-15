@@ -13,14 +13,9 @@ import {
     Typography,
 } from "@mui/material";
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import {useEffect, useRef, useState} from "react";
 import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
 import {Link, Outlet, useLoaderData, useLocation, useNavigate} from "react-router-dom";
-import Dropdown from '@mui/joy/Dropdown';
-import Menu from '@mui/joy/Menu';
-import MenuButton from '@mui/joy/MenuButton';
-import MenuItem from '@mui/joy/MenuItem';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import PropTypes from "prop-types";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -87,6 +82,7 @@ function CreateEvent() {
     useEffect(() => {
         let loaderData = loader ? loader.data : undefined
         let newEventData
+        console.log(loaderData)
         if(loaderData !== undefined){
             newEventData = {
                 eventTitle: loaderData.name,
@@ -98,9 +94,9 @@ function CreateEvent() {
                 displayEndTime: loaderData.show_end_time,
                 timezone: loaderData.timezone || 7,
                 language: loaderData.language,
-                locationType: loaderData.location.locationType,
+                locationType: loaderData.locatiion ? loaderData.location.locationType : "venue",
                 location: loaderData.location.location,
-                reserveSeating: loaderData.location.reserveSeating || false,
+                reserveSeating: loaderData.locatiion ? loaderData.location.reserveSeating : false,
                 faqs: loaderData.faq,
                 tickets: loaderData.tickets.map((ticket) => ({
                     ticketID: ticket.ticket_type_id,
@@ -127,12 +123,12 @@ function CreateEvent() {
                 allowRefund: loaderData.refundPolicy || false,
                 daysForRefund: loaderData.daysForRefund || 7,
                 automatedRefund: loaderData.automatedRefund || false,
-                publishType: loaderData.status !== 'published' ? "schedule" :'now',
+                publishType: loaderData.status === 'scheduled' ? "schedule" : "now",
                 type: loaderData.event_type,
                 category: loaderData.category,
                 subCategory: loaderData.sub_category,
                 capacity: loaderData.capacity || 100,
-                tags: loaderData.tags || ''
+                tags: loaderData.tags !== "" && loaderData.tags !== null ? loaderData.tags.join(',') : ''
             }
         }
         else {
@@ -276,7 +272,7 @@ function CreateEvent() {
             case 2: {
                 payload = {
                     type: eventData.type, category: eventData.category, subCategory: eventData.subCategory,
-                    tags: location.pathname.includes("edit") ? eventData.tags : eventData.tags.split(','), eventVisibility: eventData.eventVisibility,
+                    tags: eventData.tags.split(','), eventVisibility: eventData.eventVisibility,
                     allowRefund: eventData.allowRefund,
                     daysForRefund: eventData.daysForRefund, automatedRefund: eventData.automatedRefund, publishType: eventData.publishType,
                     publishDate: eventData.publishDate, publishTime: eventData.publishTime, timezone: eventData.timezone, capacity: eventData.capacity
@@ -412,18 +408,15 @@ function CreateEvent() {
                 </Link>
                 <div className={'create-events-stepper__main'}>
                     <Stack className={'create-events__summary'}>
-                        <p>Event Title</p>
+                        <p>{eventData.eventTitle || "Event Title"}</p>
                         <Stack direction={'row'} alignItems={'center'} columnGap={1}>
-                            <CalendarTodayIcon/> Thu, Feb 13, 2025, 10:00 AM
+                            <CalendarTodayIcon/> {eventData.eventDate && eventData.eventStartTime
+                            ? `${dayjs(eventData.eventDate, "DD/MM/YYYY").format('ddd, MMM D, YYYY')} 
+                            ${dayjs(eventData.eventStartTime, "HH:mm").format(" HH:mm")}` : "Event Date"}
                         </Stack>
-                        <Dropdown>
-                            <MenuButton>
-                                Draft <ArrowDropDownIcon/>
-                            </MenuButton>
-                            <Menu>
-                                <MenuItem disabled={currentStep !== 3}>Publish</MenuItem>
-                            </Menu>
-                        </Dropdown>
+                        <Stack sx={{border: '1px solid grey', p: 1, textAlign: 'center', borderRadius: '.5rem'}}>
+                            {eventData.publishType === 'schedule' ? 'SCHEDULED' : 'DRAFT'}
+                        </Stack>
                     </Stack>
                     <Stack className={'create-events-stepper__wrapper'}>
                         <p>Steps</p>

@@ -1,14 +1,14 @@
 import {useContext, useEffect, useState} from 'react';
 import {Alert, Snackbar, Stack, Typography} from '@mui/material';
 import PropTypes from "prop-types";
-import "../styles/media-uploader-styles.css"
+import "../../styles/media-uploader-styles.css"
 import UploadIcon from '@mui/icons-material/Upload';
 import {initializeApp} from "firebase/app";
-import {firebaseConfig} from "../config/firebaseConfig.js";
+import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {deleteObject, getMetadata, getDownloadURL, getStorage, listAll, ref, uploadBytes} from "firebase/storage";
-import {generateFileName} from "../common/Utilities.js";
+import {generateFileName} from "../../common/Utilities.js";
 import {useLocation} from "react-router-dom";
-import {EventContext} from "../context.js";
+import {EventContext} from "../../context.js";
 
 const Section = ({ title, description, children }) => (
     <div className="media-uploader__section">

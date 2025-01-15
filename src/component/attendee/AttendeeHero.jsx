@@ -1,4 +1,4 @@
-import Carousel from "../Carousel.jsx";
+import Carousel from "../shared/Carousel.jsx";
 import {Stack} from "@mui/material";
 import MusicNoteOutlinedIcon from '@mui/icons-material/MusicNoteOutlined';
 import FastfoodOutlinedIcon from '@mui/icons-material/FastfoodOutlined';

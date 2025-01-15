@@ -1,10 +1,10 @@
-import Logo from "../assets/logo.svg"
+import Logo from "../../assets/logo.svg"
 import SearchIcon from '@mui/icons-material/Search';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import {Stack} from "@mui/material";
-import "../styles/top-nav-styles.css"
+import "../../styles/top-nav-styles.css"
 import {Link, useLocation} from "react-router-dom";
-import {hasRole, checkLoggedIn, getUserData} from "../common/Utilities.js";
+import {hasRole, checkLoggedIn, getUserData} from "../../common/Utilities.js";
 import LoggedInUserNav from "./LoggedInUserNav.jsx";
 import * as PropsType from "prop-types";
 import {useEffect, useState} from "react";

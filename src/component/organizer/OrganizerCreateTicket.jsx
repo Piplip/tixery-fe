@@ -10,7 +10,7 @@ import {useFormik} from "formik";
 import {DatePicker, TimePicker} from "@mui/x-date-pickers";
 import {Accordion, AccordionDetails, AccordionGroup, AccordionSummary} from "@mui/joy";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import TextAreaWithLimit from "../TextAreaWithLimit.jsx";
+import TextAreaWithLimit from "../shared/TextAreaWithLimit.jsx";
 import Dropdown from "@mui/joy/Dropdown";
 import MenuButton from "@mui/joy/MenuButton";
 import Menu from "@mui/joy/Menu";

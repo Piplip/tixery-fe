@@ -1,5 +1,5 @@
 import {Outlet} from "react-router-dom";
-import TopNav from "../TopNav.jsx";
+import TopNav from "../shared/TopNav.jsx";
 
 function OrganizerViewTemplate() {
     return (

@@ -1,40 +1,47 @@
 import "../../styles/organizer-event-styles.css"
 import {
+    Alert,
     Avatar,
     Dialog,
-    DialogContent,
-    DialogTitle,
     FormControlLabel,
     IconButton,
     InputAdornment,
     LinearProgress,
-    OutlinedInput,
+    OutlinedInput, Snackbar,
     Stack,
     Typography
 } from "@mui/material";
+import Button from '@mui/joy/Button';
+import DialogTitle from '@mui/joy/DialogTitle';
+import DialogContent from '@mui/joy/DialogContent';
+import DialogActions from '@mui/joy/DialogActions';
 import SearchIcon from "@mui/icons-material/Search";
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
-import CustomMenu from "../CustomMenu.jsx";
-import {Radio, RadioGroup} from "@mui/joy";
+import CustomMenu from "../shared/CustomMenu.jsx";
+import {Divider, Modal, ModalDialog, Radio, RadioGroup} from "@mui/joy";
 import {useEffect, useRef, useState} from "react";
 import CreateEventMenu from "./CreateEventMenu.jsx";
 import CloseIcon from "@mui/icons-material/Close";
 import {useLoaderData, useNavigate} from "react-router-dom";
 import dayjs from "dayjs";
-import {accountAxiosWithToken} from "../../config/axiosConfig.js";
+import {accountAxiosWithToken, eventAxiosWithToken} from "../../config/axiosConfig.js";
 import {getUserData} from "../../common/Utilities.js";
 import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {getDownloadURL, getStorage, ref} from "firebase/storage";
+import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded';
 
 function OrganizerEvent() {
     initializeApp(firebaseConfig);
     const storage = getStorage()
     const [open, setOpen] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
     const [events, setEvents] = useState(useLoaderData().data)
     const refEvents = useRef()
     const [profiles, setProfiles] = useState(null)
+    const [alert, setAlert] = useState("")
+    const [currentSelectedEvent, setCurrentSelectedEvent] = useState(null)
     const [filters, setFilters] = useState({
         status: "all",
         keyword: "",
@@ -64,9 +71,13 @@ function OrganizerEvent() {
     useEffect(() => {
         Promise.all(events.map(async (event) => {
             try {
-                const imgRef = ref(storage, event.images[0]);
-                const url = await getDownloadURL(imgRef);
-                return {...event, images: [url, ...event.images.slice(1)]};
+                if (event.images && event.images[0]) {
+                    const imgRef = ref(storage, event.images[0]);
+                    const url = await getDownloadURL(imgRef);
+                    return {...event, images: [url, ...event.images.slice(1)]};
+                } else {
+                    return event;
+                }
             } catch (err) {
                 console.log(err);
                 return event;
@@ -118,12 +129,55 @@ function OrganizerEvent() {
         }));
     }
 
+    function handlePreDelete(id){
+        setCurrentSelectedEvent(id)
+        setOpenModal(true)
+    }
+
+    function handleDelete(){
+        events.filter(event => event.event_id !== currentSelectedEvent)
+        eventAxiosWithToken.post(`delete?eid=${currentSelectedEvent}`)
+            .then(r => {
+                setAlert(r.data.message)
+                setOpenModal(false)
+            })
+    }
+
     // TODO: Implement calendar view later
 
     console.log(events)
 
     return (
         <div className="event-list">
+            <Snackbar
+                anchorOrigin={{vertical: 'top', horizontal: 'right'}}
+                open={alert !== ""} sx={{marginTop: '3rem'}}
+                autoHideDuration={5000} onClose={() => setAlert("")}
+            >
+                <Alert severity={"success"} variant="filled" sx={{ width: '100%'}}>
+                    {alert}
+                </Alert>
+            </Snackbar>
+            <Modal open={openModal} onClose={() => setOpenModal(false)}>
+                <ModalDialog variant="outlined" role="alertdialog">
+                    <DialogTitle>
+                        <ErrorOutlineRoundedIcon />
+                        Confirmation
+                    </DialogTitle>
+                    <Divider />
+                    <DialogContent>
+                        Are you sure you want to delete this event? This action cannot be undone.
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="solid" color="danger" onClick={handleDelete}>
+                            Delete
+                        </Button>
+                        <Button variant="plain" color="neutral" onClick={() => setOpenModal(false)}>
+                            Cancel
+                        </Button>
+                    </DialogActions>
+                </ModalDialog>
+            </Modal>
             <Typography className={'title'}>
                 Events
             </Typography>
@@ -182,45 +236,48 @@ function OrganizerEvent() {
                     <p>Status</p>
                 </div>
                 {events && events.map((item, index) => {
-                    return (
-                        <div key={index}>
-                            <Stack direction={'row'} columnGap={2} alignItems={'center'}>
-                                <Stack textAlign={'center'}>
-                                    <p style={{fontSize: '.9rem', color: 'darkblue'}}>{dayjs(item.start_date).format("MMM").toUpperCase()}</p>
-                                    <p style={{fontSize: '1.5rem'}}>{dayjs(item.start_date).format("DD").toUpperCase()}</p>
-                                </Stack>
-                                <img
-                                    src={item.images && item.images[0]}
-                                    alt={''}/>
-                                <Stack justifyContent={'space-between'}>
-                                    <p style={{color: 'black'}}>{item.name}</p>
-                                    <Stack marginTop={.5}>
-                                        <Typography variant={'body2'} color={'gray'} style={{textTransform: 'capitalize'}}>
-                                            {item.location && item.location.locationType} event</Typography>
-                                        <Typography variant={'body2'} color={'gray'}>
-                                            {dayjs(item.start_date).format('dddd, MMMM D, YYYY [at] HH:mm [GMT]Z')}
-                                        </Typography>
+                    if(item?.name){
+                        return (
+                            <div key={index}>
+                                <Stack direction={'row'} columnGap={2} alignItems={'center'}>
+                                    <Stack textAlign={'center'}>
+                                        <p style={{fontSize: '.9rem', color: 'darkblue'}}>{item?.start_time && dayjs(item.start_time).format("MMM").toUpperCase()}</p>
+                                        <p style={{fontSize: '1.5rem'}}>{item?.start_time && dayjs(item.start_time).format("DD").toUpperCase()}</p>
+                                    </Stack>
+                                    <img
+                                        src={item?.images && item.images[0]}
+                                        alt={''}/>
+                                    <Stack justifyContent={'space-between'}>
+                                        <p style={{color: 'black'}}>{item?.name}</p>
+                                        <Stack marginTop={.5}>
+                                            <Typography variant={'body2'} color={'gray'} style={{textTransform: 'capitalize'}}>
+                                                {item?.location && item.location.locationType} event</Typography>
+                                            <Typography variant={'body2'} color={'gray'}>
+                                                {item?.start_date && dayjs(item.start_date).format('dddd, MMMM D, YYYY [at] HH:mm [GMT]Z')}
+                                            </Typography>
+                                        </Stack>
                                     </Stack>
                                 </Stack>
-                            </Stack>
-                            <Stack rowGap={.5}>
-                                <p>0 / {item.ticketCount}</p>
-                                <LinearProgress sx={{height: '.3rem', borderRadius: '.25rem'}}
-                                                variant={"determinate"}
-                                                value={50}
+                                <Stack rowGap={.5}>
+                                    <p>0 / {item?.ticketCount}</p>
+                                    <LinearProgress sx={{height: '.3rem', borderRadius: '.25rem'}}
+                                                    variant={"determinate"}
+                                                    value={50}
+                                    />
+                                </Stack>
+                                <p>$0.00</p>
+                                <p style={{textTransform: 'uppercase'}}>{item?.status}</p>
+                                <CustomMenu
+                                    options={['Promote on Tixery', 'View', 'Edit', 'Delete']}
+                                    handlers={[null,
+                                        null,
+                                        () => {navigate(`edit/${item.event_id}`)},
+                                        () => handlePreDelete(item.event_id)
+                                    ]}
                                 />
-                            </Stack>
-                            <p>$0.00</p>
-                            <p style={{textTransform: 'uppercase'}}>{item.status}</p>
-                            <CustomMenu
-                                options={['Promote on Tixery', 'View', 'Edit', 'Copy Link', 'Copy Event', 'Delete']}
-                                handlers={[null,
-                                    null,
-                                    () => {navigate(`edit/${item.event_id}`)}
-                                ]}
-                            />
-                        </div>
-                    )
+                            </div>
+                        )
+                    }
                 })}
             </Stack>
             <div className="event-list__footer">

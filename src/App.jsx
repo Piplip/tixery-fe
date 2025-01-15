@@ -1,10 +1,10 @@
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import AttendeeHome from "./component/attendee/AttendeeHome.jsx";
-import LoginSignUp from "./component/LoginSignUp.jsx";
-import VerifyAccountSuccess from "./component/VerifyAccountSuccess.jsx";
-import VerifyAccountFailed from "./component/VerifyAccountFailed.jsx";
-import SelectRole from "./component/SelectRole.jsx";
-import UserCollectDataTemplate from "./component/UserCollectDataTemplate.jsx";
+import LoginSignUp from "./component/shared/LoginSignUp.jsx";
+import VerifyAccountSuccess from "./component/shared/VerifyAccountSuccess.jsx";
+import VerifyAccountFailed from "./component/shared/VerifyAccountFailed.jsx";
+import SelectRole from "./component/shared/SelectRole.jsx";
+import UserCollectDataTemplate from "./component/shared/UserCollectDataTemplate.jsx";
 import AttendeeCollectnfo from "./component/attendee/AttendeeCollectnfo.jsx";
 import {LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
@@ -19,17 +19,18 @@ import OrganizerView from "./component/organizer/OrganizerView.jsx";
 import {accountAxiosWithToken, eventAxiosWithToken} from "./config/axiosConfig.js";
 import {getUserData} from "./common/Utilities.js";
 import {lazy, Suspense} from "react";
-import LoadingFallback from "./component/LoadingFallback.jsx";
+import LoadingFallback from "./component/shared/LoadingFallback.jsx";
 import OrganizerNewProfile from "./component/organizer/OrganizerNewProfile.jsx";
 import OrganizerEditProfile from "./component/organizer/OrganizerEditProfile.jsx";
 import CreateEvent from "./component/organizer/CreateEvent.jsx";
-import OrganizerBuildEventPage from "./component/organizer/OrganizerBuildEventPage.jsx";
-import OrganizerCreateTicket from "./component/organizer/OrganizerCreateTicket.jsx";
-import OrganizerTicketAdmission from "./component/organizer/OrganizerTicketAdmission.jsx";
-import OrganizerPublishEvent from "./component/organizer/OrganizerPublishEvent.jsx";
 import OrganizerEvent from "./component/organizer/OrganizerEvent.jsx";
 
 function App() {
+    const OrganizerBuildEventPage = lazy(() => import('./component/organizer/OrganizerBuildEventPage'))
+    const OrganizerCreateTicket = lazy(() => import('./component/organizer/OrganizerCreateTicket'))
+    const OrganizerTicketAdmission = lazy(() => import('./component/organizer/OrganizerTicketAdmission'))
+    const OrganizerPublishEvent = lazy(() => import('./component/organizer/OrganizerPublishEvent'))
+
     const routers = createBrowserRouter([
         {path: '/', element: <AttendeeHome />},
         {path: '/login', element: <LoginSignUp />},
@@ -107,21 +108,21 @@ function App() {
                     children: [
                         {
                             index: true,
-                            element: lazy(() => import('./component/organizer/OrganizerBuildEventPage'))
+                            element: <OrganizerBuildEventPage />
                         },
                         {
                             path: 'tickets',
-                            element: lazy(() => import('./component/organizer/OrganizerCreateTicket')),
+                            element: <OrganizerCreateTicket />,
                             children: [
                                 {
                                     index: true,
-                                    element: lazy(() => import('./component/organizer/OrganizerTicketAdmission'))
+                                    element: <OrganizerTicketAdmission />
                                 }
                             ]
                         },
                         {
                             path: 'publish',
-                            element: lazy(() => import('./component/organizer/OrganizerPublishEvent'))
+                            element: <OrganizerPublishEvent />
                         }
                     ]
                 }

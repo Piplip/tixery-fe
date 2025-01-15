@@ -12,7 +12,7 @@ import {
 import {CopyAll, Edit} from "@mui/icons-material";
 import "../../styles/organizer-edit-profile-styles.css"
 import {Link, useLocation} from "react-router-dom";
-import DragAndDropZone from "../DragAndDropZone.jsx";
+import DragAndDropZone from "../shared/DragAndDropZone.jsx";
 import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {getStorage, ref, uploadBytes} from "firebase/storage";
@@ -20,7 +20,7 @@ import {generateFileName, getUserData} from "../../common/Utilities.js";
 import {accountAxiosWithToken} from "../../config/axiosConfig.js";
 import SaveIcon from '@mui/icons-material/Save';
 import PropTypes from "prop-types";
-import TextAreaWithLimit from "../TextAreaWithLimit.jsx";
+import TextAreaWithLimit from "../shared/TextAreaWithLimit.jsx";
 
 OrganizerProfileForm.propTypes = {
     profileData: PropTypes.object

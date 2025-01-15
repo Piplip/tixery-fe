@@ -1,8 +1,8 @@
-import "../styles/account-verify.css";
+import "../../styles/account-verify.css";
 import {Stack} from "@mui/material";
-import FailedIcon from "../assets/error-icon.png";
+import FailedIcon from "../../assets/error-icon.png";
 import {Link, useLocation} from "react-router-dom";
-import accountAxios from "../config/axiosConfig.js";
+import accountAxios from "../../config/axiosConfig.js";
 import {useState} from "react";
 
 const errorRef = {

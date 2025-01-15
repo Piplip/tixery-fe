@@ -1,4 +1,4 @@
-import TopNav from "../TopNav.jsx";
+import TopNav from "../shared/TopNav.jsx";
 import OrganizerHero from "./OrganizerHero.jsx";
 
 function OrganizerOverview(){

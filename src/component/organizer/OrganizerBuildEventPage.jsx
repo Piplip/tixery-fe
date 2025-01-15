@@ -1,7 +1,7 @@
-import MediaUploader from "../MediaUploader.jsx";
+import MediaUploader from "../shared/MediaUploader.jsx";
 import {Button, IconButton, Stack, TextField} from "@mui/material";
 import ErrorOutlinedIcon from "@mui/icons-material/ErrorOutlined";
-import TextAreaWithLimit from "../TextAreaWithLimit.jsx";
+import TextAreaWithLimit from "../shared/TextAreaWithLimit.jsx";
 import DateAndLocationForm from "./DateAndLocationForm.jsx";
 import OrganizerFAQ from "./OrganizerFAQ.jsx";
 import * as Yup from "yup";

@@ -1,10 +1,10 @@
 import {useCallback, useEffect, useRef, useState} from "react";
 import PropTypes from "prop-types";
-import '../styles/drag-and-drop-zone-styles.css'
+import '../../styles/drag-and-drop-zone-styles.css'
 import {Stack, Typography} from "@mui/material";
 import {getDownloadURL, getStorage, ref} from "firebase/storage";
 import {initializeApp} from "firebase/app";
-import {firebaseConfig} from "../config/firebaseConfig.js";
+import {firebaseConfig} from "../../config/firebaseConfig.js";
 
 DragAndDropZone.propTypes = {
     onFileSelect: PropTypes.func.isRequired,

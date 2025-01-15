@@ -20,7 +20,6 @@ function CreateEventMenu(){
                     navigate(`${r.data.data}`)
                 }
                 else navigate(`events/${r.data.data}`)
-                setIsLoading(false)
             })
             .catch(err => console.log(err))
     }

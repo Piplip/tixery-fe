@@ -1,8 +1,8 @@
 import {useFormik} from "formik";
-import {useContext, useEffect, useState} from "react";
+import {useContext, useEffect, useRef, useState} from "react";
 import * as Yup from "yup";
 import "../../styles/organizer-fag-styles.css"
-import TextAreaWithLimit from "../TextAreaWithLimit.jsx";
+import TextAreaWithLimit from "../shared/TextAreaWithLimit.jsx";
 import {Stack} from "@mui/material";
 import {EventContext} from "../../context.js";
 
@@ -12,6 +12,8 @@ function OrganizerFAQ(){
     const [editIndex, setEditIndex] = useState(null);
     const [expandedIndex, setExpandedIndex] = useState([]);
     const [selectedFaqs, setSelectedFaqs] = useState([]);
+    const [collapsed, setCollapsed] = useState();
+    const sectionRef = useRef({});
 
     const formik = useFormik({
         initialValues: {
@@ -44,6 +46,19 @@ function OrganizerFAQ(){
     useEffect(() => {
         setData(prev => ({...prev, faqs: faqList}))
     }, [faqList]);
+
+    const handleExpandClick = () => {
+        setCollapsed(prevState => {
+            setTimeout(() => {
+                if (!prevState) {
+                    setTimeout(() => {
+                        sectionRef.current.scrollIntoView({ behavior: 'smooth' });
+                    }, 0);
+                }
+            }, 0);
+            return !prevState;
+        });
+    };
 
     const handleEdit = (index) => {
         setEditIndex(index);
@@ -84,50 +99,59 @@ function OrganizerFAQ(){
     };
 
     return (
-        <div className={`faq-section ${faqList.length !== 0 ? 'complete-section' : ''}`}>
+        <div className={`faq-section ${faqList.length !== 0 ? 'complete-section' : ''}`} ref={sectionRef}>
+            <div className={'expand-btn'} onClick={() => {
+                handleExpandClick()
+            }}>
+                {!collapsed ? '+' : '-'}
+            </div>
             <h2 className="faq-section__title">Good to know</h2>
             <p className="faq-section__description">
                 Use this section to feature specific information about your event. Add highlights and frequently asked
                 questions for attendees.
             </p>
-            <h3 className="faq-section__subtitle">Frequently asked questions</h3>
-            <p className="faq-section__instructions">
-                Answer questions your attendees may have about the event, like accessibility and amenities.
-            </p>
+            {collapsed &&
+                <>
+                    <h3 className="faq-section__subtitle">Frequently asked questions</h3>
+                    <p className="faq-section__instructions">
+                        Answer questions your attendees may have about the event, like accessibility and amenities.
+                    </p>
 
-            <form className="faq-section__form" onSubmit={formik.handleSubmit}>
-                <div className="faq-section__form-group">
-                    <label htmlFor="question" className="faq-section__label">
-                        Question
-                    </label>
-                    <input name="question" type="text" placeholder={'Enter your question'}
-                        className={`faq-section__input ${
-                            formik.errors.question && formik.touched.question ? "faq-section__input--error" : ""
-                        }`}
-                        value={formik.values.question}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                    />
-                    {formik.errors.question && formik.touched.question && (
-                        <div className="faq-section__error">{formik.errors.question}</div>
-                    )}
-                </div>
-                <div className="faq-section__form-group">
-                    <label htmlFor="question" className="faq-section__label">
-                        Answer
-                    </label>
-                    <TextAreaWithLimit name={'answer'} value={formik.values.answer}
-                                       error={formik.errors.answer && formik.touched.answer}
-                                       handleChange={formik.handleChange}
-                                       onBlur={formik.handleBlur} rows={4}
-                                       maxChars={300} helperText={formik.errors.answer} placeholder={"Answer"}
+                    <form className="faq-section__form" onSubmit={formik.handleSubmit}>
+                        <div className="faq-section__form-group">
+                            <label htmlFor="question" className="faq-section__label">
+                                Question
+                            </label>
+                            <input name="question" type="text" placeholder={'Enter your question'}
+                                   className={`faq-section__input ${
+                                       formik.errors.question && formik.touched.question ? "faq-section__input--error" : ""
+                                   }`}
+                                   value={formik.values.question}
+                                   onChange={formik.handleChange}
+                                   onBlur={formik.handleBlur}
+                            />
+                            {formik.errors.question && formik.touched.question && (
+                                <div className="faq-section__error">{formik.errors.question}</div>
+                            )}
+                        </div>
+                        <div className="faq-section__form-group">
+                            <label htmlFor="question" className="faq-section__label">
+                                Answer
+                            </label>
+                            <TextAreaWithLimit name={'answer'} value={formik.values.answer}
+                                               error={formik.errors.answer && formik.touched.answer}
+                                               handleChange={formik.handleChange}
+                                               onBlur={formik.handleBlur} rows={4}
+                                               maxChars={300} helperText={formik.errors.answer} placeholder={"Answer"}
 
-                    />
-                </div>
-                <button type="submit" className="faq-section__submit">
-                    {editIndex !== null ? "Update Question" : "Add Question"}
-                </button>
-            </form>
+                            />
+                        </div>
+                        <button type="submit" className="faq-section__submit">
+                            {editIndex !== null ? "Update Question" : "Add Question"}
+                        </button>
+                    </form>
+                </>
+            }
 
             {faqList.length !== 0 &&
                 <div className="faq-section__bulk-actions">

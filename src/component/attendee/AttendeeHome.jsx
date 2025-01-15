@@ -1,4 +1,4 @@
-import TopNav from "../TopNav.jsx";
+import TopNav from "../shared/TopNav.jsx";
 import AttendeeHero from "./AttendeeHero.jsx";
 import {useEffect, useState} from "react";
 import {clearCookie, getCookie} from "../../common/Utilities.js";

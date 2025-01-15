@@ -20,7 +20,7 @@ import {EventContext} from "../../context.js";
 import CircleIcon from '@mui/icons-material/Circle';
 import dayjs from "dayjs";
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
-import CustomMenu from "../CustomMenu.jsx";
+import CustomMenu from "../shared/CustomMenu.jsx";
 
 function OrganizerTicketAdmission(){
     const {data, setData} = useContext(EventContext)

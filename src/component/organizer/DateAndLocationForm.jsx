@@ -7,17 +7,19 @@ import {
     DialogContent,
     DialogTitle,
     FormControl,
-    FormControlLabel, FormHelperText,
+    FormControlLabel,
+    FormHelperText,
     InputLabel,
     MenuItem,
     Select,
     Stack,
+    Tab,
+    Tabs,
     TextField
 } from "@mui/material";
 import {DatePicker, LocalizationProvider, TimePicker} from "@mui/x-date-pickers";
-import {Tab, Tabs} from "@mui/material";
 import "../../styles/date-and-location-form-styles.css"
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from "dayjs";
 import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
 import PropTypes from "prop-types";
@@ -130,8 +132,6 @@ function DateAndLocationForm(){
             && formik.errors.eventStartTime === undefined && formik.errors.eventEndTime === undefined
     }
 
-    // TODO: Handle display timezone, language, display end time label
-
     return (
         <div className={`date-and-location ${isValidData() ? 'complete-section' : ''}`}>
             <h2>Date and Location</h2>
@@ -216,7 +216,9 @@ function DateAndLocationForm(){
                 onClick={() => setOpen(true)}
             >More options</p>
             <p className="date-time-info">
-                GMT+7, Display start and end time, English (US)
+                {formik.values.timezone && `GMT${formik.values.timezone >= 0 ? `+` : `-`}${formik.values.timezone}, `}
+                {formik.values.displayEndTime ? 'Display start and end time, ' : 'Display start time only, '}
+                {languages.find(lang => lang.value === formik.values.language)?.label || 'Language not selected'}
             </p>
 
             <div className="location-section">

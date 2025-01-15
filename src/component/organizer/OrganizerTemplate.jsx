@@ -1,7 +1,7 @@
 import {Outlet} from "react-router-dom";
 import OrganizerNavBar from "./OrganizerNavBar.jsx";
 import '../../styles/organizer-template-styles.css'
-import TopNav from "../TopNav.jsx";
+import TopNav from "../shared/TopNav.jsx";
 import {useEffect, useState} from "react";
 import {checkLoggedIn, clearCookie, getCookie} from "../../common/Utilities.js";
 

@@ -1,5 +1,5 @@
-import "../styles/loading-fallback-styles.css"
-import Logo from "../assets/logo.svg"
+import "../../styles/loading-fallback-styles.css"
+import Logo from "../../assets/logo.svg"
 
 function LoadingFallback() {
     return (
