@@ -148,17 +148,24 @@ function App() {
             ]
         },
         {
-            path: '/events/:id', element: <EventView />
+            path: '/events/:id', element: <EventView />,
+            hydrateFallbackElement: <LoadingFallback />,
+            loader: async ({ params }) => {
+                const eventId = params.id;
+
+                const response = await eventAxiosWithToken.get(
+                    `/get/specific?eid=${eventId}`
+                );
+
+                return response.data;
+            }
         },
-        {path: '/dev', element: <LoadingFallback />}
     ])
 
     return (
-        <Suspense fallback={<LoadingFallback />}>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <RouterProvider router={routers} />
-            </LocalizationProvider>
-        </Suspense>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <RouterProvider router={routers} />
+        </LocalizationProvider>
     )
 }
 

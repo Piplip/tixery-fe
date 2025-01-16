@@ -145,8 +145,6 @@ function OrganizerEvent() {
 
     // TODO: Implement calendar view later
 
-    console.log(events)
-
     return (
         <div className="event-list">
             <Snackbar
@@ -270,7 +268,7 @@ function OrganizerEvent() {
                                 <CustomMenu
                                     options={['Promote on Tixery', 'View', 'Edit', 'Delete']}
                                     handlers={[null,
-                                        null,
+                                        () => navigate(`../../events/${item.event_id}`),
                                         () => {navigate(`edit/${item.event_id}`)},
                                         () => handlePreDelete(item.event_id)
                                     ]}

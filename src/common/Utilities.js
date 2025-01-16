@@ -1,4 +1,5 @@
 import {jwtDecode} from "jwt-decode";
+import {getDownloadURL, ref} from "firebase/storage";
 
 export function hasRole(roles){
     const token = localStorage.getItem('tk');
@@ -51,4 +52,15 @@ export function hasSearchParam(param){
 
 export function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+export async function fetchImage(storage, imagePath) {
+    if(!imagePath) return null;
+    try {
+        const imageRef = ref(storage, imagePath);
+        return await getDownloadURL(imageRef);
+    } catch (error) {
+        console.error("Error loading image from Firebase:", error);
+        throw error;
+    }
 }

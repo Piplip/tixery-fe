@@ -5,7 +5,7 @@
     row-gap: 3rem;
 }
 .event-view__hero{
-    margin-top: 5rem;
+    margin-top: 6rem;
     width: 100%;
     display: flex;
     justify-content: center;
@@ -24,7 +24,8 @@
 }
 .event-view__hero img{
     height: 100%;
-    scale: 1.5;
+    scale: 1.3;
+    max-width: 60%;
 }
 .event-view__content{
     width: 80%;
@@ -34,6 +35,7 @@
 .event-view__date{
     font-size: 1.25rem;
     color: #344c50;
+    font-family: Arial, sans-serif;
 }
 .event-view__title{
     font-size: 3.25rem;
@@ -65,8 +67,12 @@
     align-items: center;
     column-gap: .5rem;
 }
+.event-view__registration-price{
+    text-transform: capitalize;
+}
 .event-view__location-map{
     color: #3b82f6;
+    cursor: pointer;
 }
 .event-view__organizer-overview{
     background-color: #f8f8f8;
@@ -74,7 +80,7 @@
 }
 .event-view__organizer-name{
     font-size: 1.2rem;
-    font-weight: bold;
+    font-family: "Microsoft Tai Le", sans-serif;
 }
 .event-view__follow-button, .event-view__contact-button{
     padding: .5rem 1rem;
@@ -117,6 +123,7 @@
     border-radius: .5rem;
 }
 .event-view__quantity-button{
+    cursor: pointer;
     background-color: #3b82f6;
     color: white;
     font-size: 1.75rem;
@@ -126,6 +133,7 @@
     width: 2rem;
     height: 2rem;
     border-radius: .5rem;
+    user-select: none;
 }
 .event-view__registration-button{
     background-color: #d00d0d;
@@ -138,7 +146,7 @@
     font-weight: bold;
 }
 .event-view__registration-button:hover{
-    background-color: #ff0000;
+    background-color: #e84545;
 }
 .event-view__report{
     column-gap: .5rem;
@@ -149,6 +157,60 @@
     background-color: #f8f8f8;
     cursor: pointer;
 }
-.event-view__social-links > .MuiSvgIcon-root:hover{
+.event-view__social-links .MuiSvgIcon-root:hover{
     color: black;
+}
+.event-view__sale-ending{
+    column-gap: .25rem;
+    font-size: .9rem;
+    display: flex;
+    align-items: center;
+    align-self: flex-end;
+    background-color: #f8ff9e;
+    color: #e51010;
+    padding: .5rem .75rem;
+    font-weight: bold;
+    border-radius: .5rem;
+    font-family: "Microsoft Tai Le", sans-serif;
+}
+.event-view__tag{
+    background-color: #f8f8f8;
+    padding: .5rem 1.25rem;
+    border-radius: 1rem;
+    font-size: .9rem;
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+    color: #4f4242;
+}
+.event-view__tag:hover{
+    background-color: #e8e8e8;
+}
+.ended-notify{
+    background-color: #d9d9d9;
+    color: #1d1d1e;
+    padding: .75rem 1rem;
+    font-size: 1rem;
+    font-weight: bold;
+    font-family: "Microsoft Tai Le", sans-serif;
+    position: absolute;
+    top: 4rem;
+    width: 100%;
+}
+.view-more-btn{
+    background-color: #b92020;
+    color: white;
+    padding: .5rem 1rem;
+    border: none;
+    border-radius: .25rem;
+    cursor: pointer;
+    font-size: 1.15rem;
+    font-weight: bold;
+}
+.event-view__view-detail-btn{
+    background-color: transparent;
+    padding: .5rem 2rem;
+    border-radius: .25rem;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
 }

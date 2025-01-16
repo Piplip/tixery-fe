@@ -8,6 +8,7 @@ import {useCallback, useEffect, useState} from "react";
 import LoadingFallback from "../shared/LoadingFallback.jsx";
 import FacebookRoundedIcon from '@mui/icons-material/FacebookRounded';
 import XIcon from '@mui/icons-material/X';
+import LanguageIcon from '@mui/icons-material/Language';
 
 function OrganizerView() {
     initializeApp(firebaseConfig);
@@ -70,7 +71,8 @@ function OrganizerView() {
                                         return (
                                             <Link to={link} key={index} target={'_blank'}>
                                                 {link.includes('facebook') ?
-                                                    <FacebookRoundedIcon sx={{color: 'blue'}}/> : <XIcon />
+                                                    <FacebookRoundedIcon sx={{color: 'blue'}}/> :
+                                                    link.includes('x') ? <XIcon /> : <LanguageIcon />
                                                 }
                                             </Link>
                                         )

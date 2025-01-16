@@ -54,3 +54,24 @@
 .top-nav-input-container:hover{
     box-shadow: 2px 3px 10px 0 #989898;
 }
+.drop-down-suggestion{
+    width: 110%;
+    background-color: white;
+    position: absolute;
+    top: 100%;
+    padding-block: .5rem;
+    row-gap: .75rem;
+    border-radius: 0 0 10px 10px;
+    transform: translateY(10%);
+    > *{
+        padding: .5rem 1rem;
+        border-radius: .5rem;
+        cursor: pointer;
+        align-items: center;
+        column-gap: 1rem;
+        width: 100%;
+    }
+    > *:hover{
+        background-color: #f8f8f8;
+    }
+}
