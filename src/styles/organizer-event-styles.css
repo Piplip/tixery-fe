@@ -47,7 +47,7 @@
 .event-list__list{
     margin-bottom: 1rem;
 }
-.event-list__list > div{
+.event-list__list > div:not(.no-event){
     display: grid;
     grid-template-columns: 8fr 3fr 2fr 2fr 1fr;
     padding: .75rem 1rem;
@@ -67,4 +67,13 @@
 .event-list__list > div img{
     width: 5rem;
     aspect-ratio: 1;
+}
+.no-event{
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    color: gray;
+    min-height: 15rem;
+    border: 1px solid #e0e0e0;
+    font-size: 1.5rem;
 }

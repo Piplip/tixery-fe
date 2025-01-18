@@ -11,6 +11,10 @@
     color: #656565;
 }
 
+.date-and-location h2{
+    color: black;
+}
+
 .event-type__button {
     width: 50%;
     border-radius: 1rem;

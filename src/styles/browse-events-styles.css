@@ -1,0 +1,33 @@
+.browse-events{
+    padding-inline: 7.5%;
+    display: flex;
+    flex-direction: column;
+    row-gap: 2rem;
+}
+.browse-events__header{
+    align-items: center;
+    column-gap: 1.5rem;
+    font-size: 2rem;
+    font-family: "Bookman Old Style", sans-serif;
+}
+.browse-events__header-input{
+    font-size: 3rem;
+    font-family: Inconsolata, monospace;
+    border-bottom: 2px solid #c20606;
+    padding-bottom: .5rem;
+}
+.browse-events__genres{
+    justify-content: space-between;
+    cursor: pointer;
+    font-family: "JetBrains Mono Thin", sans-serif;
+    color: #494949;
+    font-size: .9rem;
+}
+.browse-events__genre:not(.browse-events__genre--active):hover{
+    color: #c20606;
+}
+.browse-events__genre--active{
+    color: red;
+    border-bottom: 2px solid red;
+    padding-bottom: .5rem;
+}

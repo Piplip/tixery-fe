@@ -9,6 +9,7 @@ import {useFormik} from "formik";
 import {useContext, useEffect, useMemo, useRef, useState} from "react";
 import {EventContext} from "../../context.js";
 import {debounce} from "lodash";
+import EventAdditionalInfo from "./EventAdditionalInfo.jsx";
 
 const validationSchema = Yup.object().shape({
     eventTitle: Yup.string()
@@ -156,6 +157,7 @@ function OrganizerBuildEventPage(){
             </Stack>
             <DateAndLocationForm />
             <OrganizerFAQ />
+            <EventAdditionalInfo />
         </>
     )
 }

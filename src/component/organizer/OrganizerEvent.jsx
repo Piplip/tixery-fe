@@ -233,12 +233,13 @@ function OrganizerEvent() {
                     <p>Gross</p>
                     <p>Status</p>
                 </div>
-                {events && events.map((item, index) => {
-                    if(item?.name){
+                {events.length !== 0 ?
+                    events.map((item, index) => {
+                        if(!item?.name){
                         return (
                             <div key={index}>
                                 <Stack direction={'row'} columnGap={2} alignItems={'center'}>
-                                    <Stack textAlign={'center'}>
+                                    <Stack sx={{textAlign: 'center'}}>
                                         <p style={{fontSize: '.9rem', color: 'darkblue'}}>{item?.start_time && dayjs(item.start_time).format("MMM").toUpperCase()}</p>
                                         <p style={{fontSize: '1.5rem'}}>{item?.start_time && dayjs(item.start_time).format("DD").toUpperCase()}</p>
                                     </Stack>
@@ -276,16 +277,24 @@ function OrganizerEvent() {
                             </div>
                         )
                     }
-                })}
+                        })
+                    :
+                    <div className={'no-event'}>
+                        <p>No events found. Create one to see it here!</p>
+                    </div>
+                }
             </Stack>
-            <div className="event-list__footer">
-                <a href="#" className="event-list__export-link">
-                    CSV Export
-                </a>
-            </div>
+            {events.length !== 0 &&
+                <div className="event-list__footer">
+                    <a href="#" className="event-list__export-link">
+                        CSV Export
+                    </a>
+                </div>
+            }
             <Dialog onClose={() => setOpen(false)} open={open} maxWidth={"md"}>
-                <DialogTitle textAlign={'center'} sx={{marginTop: 2, fontSize: '1.75rem'}}>CREATE NEW
-                    EVENT</DialogTitle>
+                <DialogTitle sx={{marginTop: 2, fontSize: '1.75rem', padding: '.5rem 1rem 0', textAlign: 'center'}}>
+                    CREATE NEW EVENT
+                </DialogTitle>
                 <IconButton
                     aria-label="close"
                     onClick={() => setOpen(false)}
@@ -298,8 +307,7 @@ function OrganizerEvent() {
                 >
                     <CloseIcon/>
                 </IconButton>
-
-                <DialogContent>
+                <DialogContent sx={{p: 2}}>
                     <CreateEventMenu/>
                 </DialogContent>
             </Dialog>

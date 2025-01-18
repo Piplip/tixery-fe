@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ckeditor/ckeditor5-react": "^9.4.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@fontsource/inter": "^5.1.1",
@@ -20,6 +21,7 @@
     "@mui/styled-engine-sc": "^6.2.1",
     "@mui/x-date-pickers": "^7.23.3",
     "axios": "^1.7.9",
+    "ckeditor5": "^44.1.0",
     "compress.js": "^2.1.2",
     "dayjs": "^1.11.13",
     "firebase": "^11.1.0",

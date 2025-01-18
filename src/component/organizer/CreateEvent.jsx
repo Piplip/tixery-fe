@@ -82,11 +82,10 @@ function CreateEvent() {
     useEffect(() => {
         let loaderData = loader ? loader.data : undefined
         let newEventData
-        console.log(loaderData)
         if(loaderData !== undefined){
             newEventData = {
                 eventTitle: loaderData.name,
-                summary: loaderData.description,
+                summary: loaderData.short_description,
                 eventType: loaderData.is_recurring ? 'recurring' : 'single',
                 eventDate: dayjs(loaderData.start_time),
                 eventStartTime: dayjs(loaderData.start_time),
@@ -150,7 +149,8 @@ function CreateEvent() {
                 reserveSeating: false
             }
         }
-        setEventData(newEventData)
+
+        setEventData(newEventData);
     }, []);
 
     function handleClose(){
@@ -259,7 +259,8 @@ function CreateEvent() {
                     locationType: eventData.locationType,
                     location: eventData.location,
                     reserveSeating: eventData.reserveSeating,
-                    faqs: eventData.faqs
+                    faqs: eventData.faqs,
+                    additionalInfo: eventData.additionalInfo
                 }
                 break;
             }

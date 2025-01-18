@@ -6,7 +6,6 @@ import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {getStorage, ref, getDownloadURL} from "firebase/storage";
 import {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
 
 EventCard.propTypes = {
     event: PropTypes.shape({

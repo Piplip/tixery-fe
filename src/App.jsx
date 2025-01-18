@@ -18,7 +18,7 @@ import OrganizerViewTemplate from "./component/organizer/OrganizerViewTemplate.j
 import OrganizerView from "./component/organizer/OrganizerView.jsx";
 import {accountAxiosWithToken, eventAxiosWithToken} from "./config/axiosConfig.js";
 import {getUserData} from "./common/Utilities.js";
-import {lazy, Suspense} from "react";
+import {lazy} from "react";
 import LoadingFallback from "./component/shared/LoadingFallback.jsx";
 import OrganizerNewProfile from "./component/organizer/OrganizerNewProfile.jsx";
 import OrganizerEditProfile from "./component/organizer/OrganizerEditProfile.jsx";
@@ -56,6 +56,7 @@ function App() {
         {
             path: '/organizer',
             element: <OrganizerTemplate />,
+            hydrateFallbackElement: <LoadingFallback />,
             children: [
                 {
                     index: true,
