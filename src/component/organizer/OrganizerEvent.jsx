@@ -235,7 +235,6 @@ function OrganizerEvent() {
                 </div>
                 {events.length !== 0 ?
                     events.map((item, index) => {
-                        if(!item?.name){
                         return (
                             <div key={index}>
                                 <Stack direction={'row'} columnGap={2} alignItems={'center'}>
@@ -275,9 +274,7 @@ function OrganizerEvent() {
                                     ]}
                                 />
                             </div>
-                        )
-                    }
-                        })
+                        )})
                     :
                     <div className={'no-event'}>
                         <p>No events found. Create one to see it here!</p>

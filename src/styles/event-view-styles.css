@@ -3,6 +3,7 @@
     flex-direction: column;
     align-items: center;
     row-gap: 3rem;
+    font-family: "Nunito", sans-serif;
 }
 .event-view__hero{
     margin-top: 6rem;
@@ -57,9 +58,9 @@
     align-items: center;
     column-gap: .5rem;
 }
-.event-view__details-heading, .event-view__location-heading, .event-view__about-heading, .event-view__organizer-title{
+.event-view__details-heading, .event-view__location-heading, .event-view__about-heading, .event-view__organizer-title, .event-view__refund-policy-heading, .event-view__faqs-heading{
     font-size: 1.5rem;
-    color: #344c50;
+    color: #bd1c1c;
     font-family: "Microsoft Tai Le", sans-serif;
 }
 .event-view__location-map, .event-view__details-date, .event-view__registration-price{
@@ -69,6 +70,8 @@
 }
 .event-view__registration-price{
     text-transform: capitalize;
+    color: #2c313d;
+    font-size: 1rem;
 }
 .event-view__location-map{
     color: #3b82f6;
@@ -114,7 +117,7 @@
     padding: 1.05rem;
     border-radius: 1rem;
     font-family: "Microsoft Tai Le", sans-serif;
-    font-size: 1.25rem;
+    font-size: 1.15rem;
 }
 .event-view__registration{
     background-color: rgb(250, 250, 250);
@@ -124,7 +127,7 @@
 }
 .event-view__quantity-button{
     cursor: pointer;
-    background-color: #3b82f6;
+    background-color: #2f6cc5;
     color: white;
     font-size: 1.75rem;
     display: flex;
@@ -146,7 +149,7 @@
     font-weight: bold;
 }
 .event-view__registration-button:hover{
-    background-color: #e84545;
+    background-color: #bb0303;
 }
 .event-view__report{
     column-gap: .5rem;
@@ -213,4 +216,12 @@
     cursor: pointer;
     font-size: 1rem;
     font-weight: bold;
+}
+.event-view__about-duration{
+    font-family: "Microsoft Tai Le", sans-serif;
+    color: #2c313d;
+    font-size: 1.1rem;
+    > .MuiSvgIcon-root{
+        font-size: 2rem;
+    }
 }

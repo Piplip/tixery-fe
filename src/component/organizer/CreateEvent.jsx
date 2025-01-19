@@ -127,7 +127,8 @@ function CreateEvent() {
                 category: loaderData.category,
                 subCategory: loaderData.sub_category,
                 capacity: loaderData.capacity || 100,
-                tags: loaderData.tags !== "" && loaderData.tags !== null ? loaderData.tags.join(',') : ''
+                tags: loaderData.tags !== "" && loaderData.tags !== null ? loaderData.tags.join(',') : '',
+                additionalInfo: loaderData.full_description
             }
         }
         else {
@@ -273,7 +274,7 @@ function CreateEvent() {
             case 2: {
                 payload = {
                     type: eventData.type, category: eventData.category, subCategory: eventData.subCategory,
-                    tags: eventData.tags.split(','), eventVisibility: eventData.eventVisibility,
+                    tags: eventData?.tag ? eventData.tags.split(',') : null, eventVisibility: eventData.eventVisibility,
                     allowRefund: eventData.allowRefund,
                     daysForRefund: eventData.daysForRefund, automatedRefund: eventData.automatedRefund, publishType: eventData.publishType,
                     publishDate: eventData.publishDate, publishTime: eventData.publishTime, timezone: eventData.timezone, capacity: eventData.capacity

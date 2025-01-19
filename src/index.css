@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
 :root {
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -41,4 +43,19 @@ input{
 }
 #disabled:hover{
     cursor: not-allowed;
+}
+.render-html{
+    line-height: 2;
+    font-family: "Raleway", sans-serif;
+    color: #2a2727;
+    font-optical-sizing: auto;
+    a{
+        color: #0040e5;
+    }
+    p{
+        font-size: 1.1rem;
+    }
+    li{
+        margin-left: 2rem;
+    }
 }

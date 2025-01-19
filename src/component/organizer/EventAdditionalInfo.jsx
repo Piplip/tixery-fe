@@ -1,311 +1,72 @@
-import {useState, useEffect, useRef, useMemo, useContext} from 'react';
-import { CKEditor } from '@ckeditor/ckeditor5-react';
-import {
-    ClassicEditor,
-    Alignment,
-    Autoformat,
-    AutoImage,
-    AutoLink,
-    Autosave,
-    BalloonToolbar,
-    Base64UploadAdapter,
-    Bold,
-    Code,
-    Essentials,
-    FontBackgroundColor,
-    FontColor,
-    FontFamily,
-    FontSize,
-    GeneralHtmlSupport,
-    Heading,
-    Highlight,
-    HorizontalLine,
-    HtmlEmbed,
-    ImageBlock,
-    ImageCaption,
-    ImageInline,
-    ImageInsert,
-    ImageInsertViaUrl,
-    ImageResize,
-    ImageStyle,
-    ImageTextAlternative,
-    ImageToolbar,
-    ImageUpload,
-    Indent,
-    IndentBlock,
-    Italic,
-    Link,
-    LinkImage,
-    List,
-    ListProperties,
-    MediaEmbed,
-    Paragraph,
-    PasteFromOffice,
-    RemoveFormat,
-    SpecialCharacters,
-    SpecialCharactersArrows,
-    SpecialCharactersCurrency,
-    SpecialCharactersEssentials,
-    SpecialCharactersLatin,
-    SpecialCharactersMathematical,
-    SpecialCharactersText,
-    Strikethrough,
-    Table,
-    TableCaption,
-    TableCellProperties,
-    TableColumnResize,
-    TableProperties,
-    TableToolbar,
-    TextTransformation,
-    Underline
-} from 'ckeditor5';
-
-import 'ckeditor5/ckeditor5.css';
+import { useRef, useContext} from 'react';
+import { Editor } from '@tinymce/tinymce-react';
 import "../../styles/event-additional-info-styles.css"
 import {Stack} from "@mui/material";
 import {EventContext} from "../../context.js";
 
-const LICENSE_KEY =
-    'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3Njg3ODA3OTksImp0aSI6IjFlMzczMGZlLWY1MjUtNGM2OS1hODQ0LWQ2NzZjNGUyZTAxYiIsImxpY2Vuc2VkSG9zdHMiOlsiMTI3LjAuMC4xIiwibG9jYWxob3N0IiwiMTkyLjE2OC4qLioiLCIxMC4qLiouKiIsIjE3Mi4qLiouKiIsIioudGVzdCIsIioubG9jYWxob3N0IiwiKi5sb2NhbCJdLCJ1c2FnZUVuZHBvaW50IjoiaHR0cHM6Ly9wcm94eS1ldmVudC5ja2VkaXRvci5jb20iLCJkaXN0cmlidXRpb25DaGFubmVsIjpbImNsb3VkIiwiZHJ1cGFsIl0sImxpY2Vuc2VUeXBlIjoiZGV2ZWxvcG1lbnQiLCJmZWF0dXJlcyI6WyJEUlVQIl0sInZjIjoiZTQxMmYzMjcifQ.AnmRfKXj2Jm6aFBIlDM01X5CnYUfllN8sM_zSoWNsttrs88YBm9Uvw0h1OsWoWMso00M-qXiskza-LE52sdzxA'
-
 function EventAdditionalInfo(){
     const {data, setData} = useContext(EventContext);
-    const editorContainerRef = useRef(null);
     const editorRef = useRef(null);
-    const [isLayoutReady, setIsLayoutReady] = useState(false);
 
-    useEffect(() => {
-        setIsLayoutReady(true);
+    const handleEditorChange = (content, editor) => {
+        setData({...data, additionalInfo: content});
+    }
 
-        return () => setIsLayoutReady(false);
-    }, []);
-
-    const { editorConfig } = useMemo(() => {
-        if (!isLayoutReady) {
-            return {};
-        }
-
-        return {
-            editorConfig: {
-                toolbar: {
-                    items: [
-                        'heading',
-                        '|',
-                        'fontSize',
-                        'fontFamily',
-                        'fontColor',
-                        'fontBackgroundColor',
-                        '|',
-                        'bold',
-                        'italic',
-                        'underline',
-                        'strikethrough',
-                        'code',
-                        'removeFormat',
-                        '|',
-                        'specialCharacters',
-                        'horizontalLine',
-                        'link',
-                        'insertImage',
-                        'mediaEmbed',
-                        'insertTable',
-                        'highlight',
-                        'htmlEmbed',
-                        '|',
-                        'alignment',
-                        '|',
-                        'bulletedList',
-                        'numberedList',
-                        'outdent',
-                        'indent'
-                    ],
-                    shouldNotGroupWhenFull: false
-                },
-                plugins: [
-                    Alignment,
-                    Autoformat,
-                    AutoImage,
-                    AutoLink,
-                    Autosave,
-                    BalloonToolbar,
-                    Base64UploadAdapter,
-                    Bold,
-                    Code,
-                    Essentials,
-                    FontBackgroundColor,
-                    FontColor,
-                    FontFamily,
-                    FontSize,
-                    GeneralHtmlSupport,
-                    Heading,
-                    Highlight,
-                    HorizontalLine,
-                    HtmlEmbed,
-                    ImageBlock,
-                    ImageCaption,
-                    ImageInline,
-                    ImageInsert,
-                    ImageInsertViaUrl,
-                    ImageResize,
-                    ImageStyle,
-                    ImageTextAlternative,
-                    ImageToolbar,
-                    ImageUpload,
-                    Indent,
-                    IndentBlock,
-                    Italic,
-                    Link,
-                    LinkImage,
-                    List,
-                    ListProperties,
-                    MediaEmbed,
-                    Paragraph,
-                    PasteFromOffice,
-                    RemoveFormat,
-                    SpecialCharacters,
-                    SpecialCharactersArrows,
-                    SpecialCharactersCurrency,
-                    SpecialCharactersEssentials,
-                    SpecialCharactersLatin,
-                    SpecialCharactersMathematical,
-                    SpecialCharactersText,
-                    Strikethrough,
-                    Table,
-                    TableCaption,
-                    TableCellProperties,
-                    TableColumnResize,
-                    TableProperties,
-                    TableToolbar,
-                    TextTransformation,
-                    Underline
-                ],
-                balloonToolbar: ['bold', 'italic', '|', 'link', 'insertImage', '|', 'bulletedList', 'numberedList'],
-                fontFamily: {
-                    supportAllValues: true
-                },
-                fontSize: {
-                    options: [10, 12, 14, 'default', 18, 20, 22],
-                    supportAllValues: true
-                },
-                heading: {
-                    options: [
-                        {
-                            model: 'paragraph',
-                            title: 'Paragraph',
-                            class: 'ck-heading_paragraph'
-                        },
-                        {
-                            model: 'heading1',
-                            view: 'h1',
-                            title: 'Heading 1',
-                            class: 'ck-heading_heading1'
-                        },
-                        {
-                            model: 'heading2',
-                            view: 'h2',
-                            title: 'Heading 2',
-                            class: 'ck-heading_heading2'
-                        },
-                        {
-                            model: 'heading3',
-                            view: 'h3',
-                            title: 'Heading 3',
-                            class: 'ck-heading_heading3'
-                        },
-                        {
-                            model: 'heading4',
-                            view: 'h4',
-                            title: 'Heading 4',
-                            class: 'ck-heading_heading4'
-                        },
-                        {
-                            model: 'heading5',
-                            view: 'h5',
-                            title: 'Heading 5',
-                            class: 'ck-heading_heading5'
-                        },
-                        {
-                            model: 'heading6',
-                            view: 'h6',
-                            title: 'Heading 6',
-                            class: 'ck-heading_heading6'
-                        }
-                    ]
-                },
-                htmlSupport: {
-                    allow: [
-                        {
-                            name: /^.*$/,
-                            styles: true,
-                            attributes: true,
-                            classes: true
-                        }
-                    ]
-                },
-                image: {
-                    toolbar: [
-                        'toggleImageCaption',
-                        'imageTextAlternative',
-                        '|',
-                        'imageStyle:inline',
-                        'imageStyle:wrapText',
-                        'imageStyle:breakText',
-                        '|',
-                        'resizeImage'
-                    ]
-                },
-                initialData: '',
-                licenseKey: LICENSE_KEY,
-                link: {
-                    addTargetToExternalLinks: true,
-                    defaultProtocol: 'https://',
-                    decorators: {
-                        toggleDownloadable: {
-                            mode: 'manual',
-                            label: 'Downloadable',
-                            attributes: {
-                                download: 'file'
-                            }
-                        }
-                    }
-                },
-                list: {
-                    properties: {
-                        styles: true,
-                        startIndex: true,
-                        reversed: true
-                    }
-                },
-                placeholder: 'Type or paste your content here!',
-                table: {
-                    contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
-                }
-            }
-        };
-    }, [isLayoutReady]);
-
-    const handleEditorChange = (event, editor) => {
-        const data = editor.getData()
-        setData(prev => ({...prev, additionalInfo: data}));
-        console.log('Editor content:', data);
-    };
+    // TODO: handle loading back html code and set it to the editor
 
     return (
-        <Stack className={data.additionalInfo !== "" ? 'complete-section' : ''}>
+        <Stack className={`additional-info ${data.additionalInfo !== "" && data?.additionalInfo ? 'complete-section' : ''}`}>
             <p className={'more-info_section__title'}>More info for your event</p>
-            <div className="main-container">
-                <div className="editor-container editor-container_classic-editor" ref={editorContainerRef}>
-                    <div className="editor-container__editor">
-                        <div ref={editorRef}>
-                            {editorConfig &&
-                                <CKEditor editor={ClassicEditor} config={editorConfig} onChange={handleEditorChange}
-                                          onReady={(editor) => console.log('Editor instance:', editor)}
-                                />
-                            }
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <Editor onChange={handleEditorChange} onEditorChange={handleEditorChange}
+                apiKey='nw6easal0th8fh6aq4uv1z7la6rxvr47jpzs9y8dgu8xn9jq'
+                onInit={(_evt, editor) => editorRef.current = editor}
+                initialValue=""
+                init={{
+                    selector: 'textarea#open-source-plugins',
+                    plugins: 'preview importcss searchreplace autolink autosave directionality visualblocks visualchars fullscreen image link media charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount charmap quickbars emoticons accordion',
+                    editimage_cors_hosts: ['picsum.photos'],
+                    toolbar: "undo redo | fontfamily fontsize | bold italic underline strikethrough | align numlist bullist | link image media | lineheight outdent indent| forecolor backcolor removeformat | emoticons | preview print",
+                    autosave_ask_before_unload: true,
+                    autosave_interval: '30s',
+                    autosave_restore_when_empty: false,
+                    autosave_retention: '2m',
+                    image_advtab: true,
+                    link_list: [
+                        { title: 'My page 1', value: 'https://www.tiny.cloud' },
+                        { title: 'My page 2', value: 'http://www.moxiecode.com' }
+                    ],
+                    image_list: [
+                        { title: 'My page 1', value: 'https://www.tiny.cloud' },
+                        { title: 'My page 2', value: 'http://www.moxiecode.com' }
+                    ],
+                    image_class_list: [
+                        { title: 'None', value: '' },
+                        { title: 'Some class', value: 'class-name' }
+                    ],
+                    importcss_append: true,
+                    file_picker_callback: (callback, value, meta) => {
+                        if (meta.filetype === 'file') {
+                            callback('https://www.google.com/logos/google.jpg', { text: 'My text' });
+                        }
+
+                        if (meta.filetype === 'image') {
+                            callback('https://www.google.com/logos/google.jpg', { alt: 'My alt text' });
+                        }
+
+                        if (meta.filetype === 'media') {
+                            callback('movie.mp4', { source2: 'alt.ogg', poster: 'https://www.google.com/logos/google.jpg' });
+                        }
+                    },
+                    menubar: false,
+                    height: 600,
+                    image_caption: true,
+                    quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote quickimage quicktable',
+                    noneditable_class: 'mceNonEditable',
+                    toolbar_mode: 'sliding',
+                    contextmenu: 'link image table',
+                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }'
+                }}
+            />
         </Stack>
     )
 }

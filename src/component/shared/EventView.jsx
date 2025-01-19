@@ -2,7 +2,6 @@ import "../../styles/event-view-styles.css"
 import TopNav from "./TopNav.jsx";
 import {Avatar, Stack, Tooltip, Typography} from "@mui/material";
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import ShareIcon from '@mui/icons-material/Share';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import EventIcon from '@mui/icons-material/Event';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
@@ -24,6 +23,8 @@ import {fetchImage} from "../../common/Utilities.js";
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import MoreRelatedByOrganizer from "./MoreRelatedByOrganizer.jsx";
 import ShareDialog from "./ShareDialog.jsx";
+import {Accordion, AccordionDetails, AccordionSummary} from "@mui/joy";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 initializeApp(firebaseConfig);
 const storage = getStorage()
@@ -37,7 +38,7 @@ function EventView(){
     const [quantities, setQuantities] = useState(
         loaderData.tickets.reduce((acc, _, index) => ({ ...acc, [index]: 1 }), {})
     );
-
+    console.log(loaderData)
     useEffect(() => {
         if (loaderData.profile_id && !profile.loaded) {
             accountAxios
@@ -81,6 +82,101 @@ function EventView(){
         return diffInHours <= 24;
     };
 
+    const renderTickets = () => {
+        if (dayjs(loaderData.end_time).isBefore(dayjs())) {
+            return (
+                <Stack rowGap={2}>
+                    <Typography variant={'h6'} textAlign={'center'}>This event has ended</Typography>
+                    <button className={'view-more-btn'}>
+                        View more events
+                    </button>
+                </Stack>
+            );
+        }
+
+        if (loaderData.tickets.length === 0) {
+            return (
+                <div>
+                    <Typography variant={'h6'} textAlign={'center'}>No tickets available</Typography>
+                </div>
+            );
+        }
+
+        return (
+            <>
+                {loaderData.tickets.map((ticket, index) => {
+                    const isExpanded = expandedTickets[index];
+                    const quantity = quantities[index];
+                    const saleEndingSoon = isSaleEndingSoon(ticket.sale_end_time);
+
+                    return (
+                        <Stack key={index} className={'event-view__registration-details'} rowGap={4}>
+                            <p className={'event-view__registration-text'}>
+                                {ticket.name}
+                            </p>
+                            <Stack
+                                className={'event-view__registration-controls'}
+                                direction={'row'}
+                                justifyContent={'space-between'}>
+                                <div className={'event-view__registration-price'}>
+                                    {ticket.ticket_type === 'paid' ? `$${ticket.price}` : ticket.ticket_type}
+                                    <Tooltip title="Show more details">
+                                        <InfoOutlinedIcon
+                                            onClick={() => toggleTicketInfo(index)}
+                                            style={{ cursor: "pointer", marginLeft: 1 }}
+                                        />
+                                    </Tooltip>
+                                </div>
+                                <Stack
+                                    className={'event-view__quantity-controls'}
+                                    direction={'row'}
+                                    alignItems={'center'}
+                                    columnGap={1.5}>
+                                    <div
+                                        className={`event-view__quantity-button ${
+                                            quantity <= 0 ? "disabled" : ""
+                                        }`}
+                                        onClick={() =>
+                                            quantity > 0 && handleQuantityChange(index, "subtract")
+                                        }
+                                    >
+                                        -
+                                    </div>
+                                    <div className={"event-view__quantity-value"}>{quantity}</div>
+                                    <div
+                                        className={"event-view__quantity-button"}
+                                        onClick={() => handleQuantityChange(index, "add")}
+                                    >
+                                        +
+                                    </div>
+                                </Stack>
+                            </Stack>
+                            {saleEndingSoon &&
+                                <div className={'event-view__sale-ending'}>
+                                    <ErrorOutlineOutlinedIcon /> Sale ending soon
+                                </div>
+                            }
+                            {isExpanded && (
+                                <Stack rowGap={1}>
+                                    <Typography variant={"body2"} alignSelf={"end"}>
+                                        Sales end on{" "}
+                                        {dayjs(ticket.sale_end_time).format(
+                                            "HH:mm, DD MMMM YYYY"
+                                        )}
+                                    </Typography>
+                                    <Typography variant={"body2"}>{ticket.description}</Typography>
+                                </Stack>
+                            )}
+                        </Stack>
+                    );
+                })}
+                <button className={'event-view__registration-button'}>
+                    Checkout
+                </button>
+            </>
+        );
+    };
+
     return (
         <>
             <TopNav enableScrollEffect={true}/>
@@ -109,93 +205,9 @@ function EventView(){
                 </div>
                 <div className={'event-view__content'}>
                     <Stack className={'event-view__registration'} rowGap={2}>
-                        {!dayjs(loaderData.end_time).isBefore(dayjs()) ?
-                            dayjs(loaderData.end_time).isBefore(dayjs()) ?
-                                <>
-                                    {loaderData.tickets.map((ticket, index) => {
-                                        const isExpanded = expandedTickets[index];
-                                        const quantity = quantities[index];
-                                        const saleEndingSoon = isSaleEndingSoon(ticket.sale_end_time);
-
-                                        return (
-                                            <Stack key={index} className={'event-view__registration-details'} rowGap={4}>
-                                                <p className={'event-view__registration-text'}>
-                                                    {ticket.name}
-                                                </p>
-                                                <Stack
-                                                    className={'event-view__registration-controls'}
-                                                    direction={'row'}
-                                                    justifyContent={'space-between'}>
-                                                    <div className={'event-view__registration-price'}>
-                                                        {ticket.ticket_type === 'paid' ? `$${ticket.price}` : ticket.ticket_type}
-                                                        <Tooltip title="Show more details">
-                                                            <InfoOutlinedIcon
-                                                                onClick={() => toggleTicketInfo(index)}
-                                                                style={{ cursor: "pointer", marginLeft: 1 }}
-                                                            />
-                                                        </Tooltip>
-                                                    </div>
-                                                    <Stack
-                                                        className={'event-view__quantity-controls'}
-                                                        direction={'row'}
-                                                        alignItems={'center'}
-                                                        columnGap={1.5}>
-                                                        <div
-                                                            className={`event-view__quantity-button ${
-                                                                quantity <= 0 ? "disabled" : ""
-                                                            }`}
-                                                            onClick={() =>
-                                                                quantity > 0 && handleQuantityChange(index, "subtract")
-                                                            }
-                                                        >
-                                                            -
-                                                        </div>
-                                                        <div className={"event-view__quantity-value"}>{quantity}</div>
-                                                        <div
-                                                            className={"event-view__quantity-button"}
-                                                            onClick={() => handleQuantityChange(index, "add")}
-                                                        >
-                                                            +
-                                                        </div>
-                                                    </Stack>
-                                                </Stack>
-                                                {saleEndingSoon &&
-                                                    <div className={'event-view__sale-ending'}>
-                                                        <ErrorOutlineOutlinedIcon /> Sale ending soon
-                                                    </div>
-                                                }
-                                                {isExpanded && (
-                                                    <Stack rowGap={1}>
-                                                        <Typography variant={"body2"} alignSelf={"end"}>
-                                                            Sales end on{" "}
-                                                            {dayjs(ticket.sale_end_time).format(
-                                                                "HH:mm, DD MMMM YYYY"
-                                                            )}
-                                                        </Typography>
-                                                        <Typography variant={"body2"}>{ticket.description}</Typography>
-                                                    </Stack>
-                                                )}
-                                            </Stack>
-                                        )
-                                    })}
-                                    <button className={'event-view__registration-button'}>
-                                        Reserve a spot
-                                    </button>
-                                </>
-                                :
-                                <div>
-                                    <Typography variant={'h6'} textAlign={'center'}>No tickets available</Typography>
-                                </div>
-                            :
-                            <Stack rowGap={2}>
-                                <Typography variant={'h6'} textAlign={'center'}>This event has ended</Typography>
-                                <button className={'view-more-btn'}>
-                                    View more events
-                                </button>
-                            </Stack>
-                        }
+                        {renderTickets()}
                     </Stack>
-                    <Stack style={{width: '60%'}} rowGap={4}>
+                    <Stack style={{width: '60%'}} rowGap={6}>
                         <div>
                             <Stack
                                 className={'event-view__info-bar'}
@@ -217,7 +229,7 @@ function EventView(){
                             <Stack className={'event-view__description'} rowGap={3}>
                                 <p className={'event-view__title'}>{loaderData.name}</p>
                                 <p className={'event-view__summary'}>
-                                    {loaderData.description}
+                                    {loaderData.short_description}
                                 </p>
                                 <Stack
                                     className={'event-view__organizer'}
@@ -250,6 +262,7 @@ function EventView(){
                                     <p className={'event-view__details-heading'}>Date and Time</p>
                                     <div className={'event-view__details-date'}>
                                         <EventIcon /> {dayjs(loaderData.start_time).format("dddd, DD MMMM")} · {dayjs(loaderData.start_time).format("HH:mm")} - {dayjs(loaderData.end_time).format("HH:mm")}
+                                        {` GMT${loaderData.timezone >= 0 ? '+' : ''}${loaderData.timezone}`}
                                     </div>
                                 </Stack>
                                 <Stack className={'event-view__location'} rowGap={1}>
@@ -271,13 +284,26 @@ function EventView(){
                                         </Stack>
                                     </Stack>
                                 </Stack>
-                                <Stack className={'event-view__about'} rowGap={1}>
+                                {loaderData?.refund_policy &&
+                                    <Stack className={'event-view__refund-policy'} rowGap={1}>
+                                        <p className={'event-view__refund-policy-heading'}>Refund policy</p>
+                                        <div>
+                                            {loaderData.refund_policy.allowRefund ?
+                                                <Typography variant={'body1'}>Refunds up to <b>{loaderData.refund_policy.daysForRefund} days</b> before event</Typography>
+                                                :
+                                                "No refunds"
+                                            }
+                                        </div>
+                                    </Stack>
+                                }
+                                <Stack className={'event-view__about'} rowGap={2}>
                                     <p className={'event-view__about-heading'}>About this event</p>
                                     <Stack alignItems={'center'} columnGap={1}
                                            className={'event-view__about-duration'}
                                            direction={'row'}>
-                                        <TimelapseIcon /> Event lasts {dayjs(loaderData.end_time).subtract(dayjs(loaderData.start_time)).hour()} hours
+                                        <TimelapseIcon /> <p>Event lasts <b>{dayjs(loaderData.end_time).subtract(dayjs(loaderData.start_time)).hour()} hours</b></p>
                                     </Stack>
+                                    <div className={'render-html'} dangerouslySetInnerHTML={{__html: loaderData.full_description}}></div>
                                 </Stack>
                                 {loaderData.tags &&
                                     <Stack rowGap={1}>
@@ -305,6 +331,27 @@ function EventView(){
                                                     </div>
                                                 )
                                             })}
+                                        </Stack>
+                                    </Stack>
+                                }
+                                {loaderData?.faq.length !== 0 &&
+                                    <Stack className={'event-view__faqs'} rowGap={1}>
+                                        <p className={'event-view__faqs-heading'}>FAQs</p>
+                                        <Stack rowGap={1}>
+                                            {loaderData.faq.map((faq, index) => (
+                                                <Accordion key={index}>
+                                                    <AccordionSummary>
+                                                        <Typography className={'event-view__faq-question'}>
+                                                            <b>Q:</b> {faq.question}
+                                                        </Typography>
+                                                    </AccordionSummary>
+                                                    <AccordionDetails>
+                                                        <Typography className={'event-view__faq-answer'}>
+                                                            <b>A:</b> {faq.answer}
+                                                        </Typography>
+                                                    </AccordionDetails>
+                                                </Accordion>
+                                            ))}
                                         </Stack>
                                     </Stack>
                                 }

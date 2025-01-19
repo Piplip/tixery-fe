@@ -1,32 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap');
-
-@media print {
-    body {
-        margin: 0 !important;
+.additional-info{
+    li{
+        margin-left: 1rem;
     }
-}
-
-.main-container {
-    font-family: 'Lato', sans-serif;
-    width: 100%;
-}
-
-.ck-content {
-    font-family: 'Lato', sans-serif;
-    line-height: 1.6;
-    word-break: break-word;
-    min-height: 20rem;
-}
-
-.editor-container_classic-editor .editor-container__editor {
-    max-width: 100%;
-}
-li{
-    margin-left: 1.5rem;
-}
-.more-info_section__title{
-    font-size: 1.75rem;
-    font-weight: 600;
-    margin-bottom: 8px;
-    font-family: "Microsoft Tai Le", sans-serif;
 }

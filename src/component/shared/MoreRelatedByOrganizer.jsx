@@ -21,14 +21,15 @@ function MoreRelatedByOrganizer({id, name}) {
     }, []);
 
     return (
-        <Stack rowGap={2}>
-            <Typography variant="h5" fontWeight={'bold'}>More {name} events</Typography>
-            <Stack direction={'row'} gap={3} sx={{flexWrap: 'wrap'}}>
-                {relateEvents.map((event, index) => {
-                    return <EventCard key={index} event={event} organizer={name}/>
-                })}
+        relateEvents.length !== 0 &&
+            <Stack rowGap={2}>
+                <Typography variant="h5" fontWeight={'bold'}>More {name} events</Typography>
+                <Stack direction={'row'} gap={3} sx={{flexWrap: 'wrap'}}>
+                    {relateEvents.map((event, index) => {
+                        return <EventCard key={index} event={event} organizer={name}/>
+                    })}
+                </Stack>
             </Stack>
-        </Stack>
     )
 }
 
