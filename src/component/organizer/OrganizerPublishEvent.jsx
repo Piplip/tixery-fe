@@ -63,7 +63,6 @@ function OrganizerPublishEvent(){
     const storage = getStorage()
     const {data, setData} = useContext(EventContext)
     const [eventImg, setEventImg] = useState(null)
-    const location = useLocation()
 
     const availableCategories =
         data.type && eventData[data.type]?.categories
@@ -257,8 +256,8 @@ function OrganizerPublishEvent(){
                                 After your event is published, you can only update your policy to make it more flexible
                                 for your attendees.
                             </p>
-                            <RadioGroup name="refundPolicy" className={'radio-group'}
-                                        value={data.allowRefund || false}
+                            <RadioGroup name="allowRefund" className={'radio-group'}
+                                        value={data.allowRefund}
                                 onChange={() => {
                                     setData(prev => ({...prev, allowRefund: !prev.allowRefund, daysForRefund: prev.allowRefund ? null : 1}))
                                 }}

@@ -1,4 +1,4 @@
-import { useRef, useContext} from 'react';
+import {useRef, useContext} from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import "../../styles/event-additional-info-styles.css"
 import {Stack} from "@mui/material";
@@ -12,15 +12,13 @@ function EventAdditionalInfo(){
         setData({...data, additionalInfo: content});
     }
 
-    // TODO: handle loading back html code and set it to the editor
-
     return (
         <Stack className={`additional-info ${data.additionalInfo !== "" && data?.additionalInfo ? 'complete-section' : ''}`}>
-            <p className={'more-info_section__title'}>More info for your event</p>
+            <h2 className={'more-info_section__title'}>More info for your event</h2>
             <Editor onChange={handleEditorChange} onEditorChange={handleEditorChange}
                 apiKey='nw6easal0th8fh6aq4uv1z7la6rxvr47jpzs9y8dgu8xn9jq'
                 onInit={(_evt, editor) => editorRef.current = editor}
-                initialValue=""
+                initialValue={data.additionalInfo || ""}
                 init={{
                     selector: 'textarea#open-source-plugins',
                     plugins: 'preview importcss searchreplace autolink autosave directionality visualblocks visualchars fullscreen image link media charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount charmap quickbars emoticons accordion',
@@ -30,6 +28,7 @@ function EventAdditionalInfo(){
                     autosave_interval: '30s',
                     autosave_restore_when_empty: false,
                     autosave_retention: '2m',
+                    content: data.additionalInfo,
                     image_advtab: true,
                     link_list: [
                         { title: 'My page 1', value: 'https://www.tiny.cloud' },

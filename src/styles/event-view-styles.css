@@ -100,7 +100,7 @@
     color: #2c313d;
 }
 .event-view__organizer-stats{
-    background-color: #ffff32;
+    background-color: #ff8787;
     width: fit-content;
     padding: .1rem .5rem;
     border-radius: .5rem;
@@ -224,4 +224,7 @@
     > .MuiSvgIcon-root{
         font-size: 2rem;
     }
+}
+.order-summary{
+    font-family: "Nunito", sans-serif;
 }

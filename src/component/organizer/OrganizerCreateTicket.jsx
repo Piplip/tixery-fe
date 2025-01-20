@@ -19,6 +19,7 @@ import {EventContext} from "../../context.js";
 import dayjs from "dayjs";
 import "../../styles/organizer-create-ticket-styles.scss"
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
+import CurrencySelect from "../shared/CurrencySelect.jsx";
 
 const ticketTypes = [
     {
@@ -91,7 +92,8 @@ function OrganizerCreateTicket(){
                 visibleEndDate: data.tickets[editTicket].visibleEndDate ? dayjs(data.tickets[editTicket].visibleEndDate, 'DD/MM/YYYY') : null,
                 visibleStartTime: data.tickets[editTicket].visibleStartTime ? dayjs(data.tickets[editTicket].visibleStartTime, 'HH:mm') : null,
                 visibleEndTime: data.tickets[editTicket].visibleEndTime ? dayjs(data.tickets[editTicket].visibleEndTime, 'HH:mm') : null,
-                absorbFee: data.tickets[editTicket].absorbFee
+                absorbFee: data.tickets[editTicket].absorbFee,
+                currency: data.tickets[editTicket]?.currency
             });
         }
         else{
@@ -111,7 +113,8 @@ function OrganizerCreateTicket(){
                 visibleEndDate: null,
                 visibleStartTime: null,
                 visibleEndTime: null,
-                absorbFee: false
+                absorbFee: false,
+                currency: 'USD',
             });
         }
     }, [data.tickets, editTicket]);
@@ -252,7 +255,7 @@ function OrganizerCreateTicket(){
         endDate: null,
         startTime: null,
         endTime: null,
-        minPerOrder: '',
+        minPerOrder: 1,
         maxPerOrder: '',
         visibility: 0,
         description: '',
@@ -260,7 +263,10 @@ function OrganizerCreateTicket(){
         visibleEndDate: null,
         visibleStartTime: null,
         visibleEndTime: null,
-        absorbFee: false
+        absorbFee: false,
+        currency: 'USD',
+        sign: '$',
+        label: 'United States Dollar'
     });
 
     const formik = useFormik({
@@ -272,8 +278,7 @@ function OrganizerCreateTicket(){
             let newData = transformData(values)
             if (editTicket !== null) {
                 eventAxiosWithToken.put(`/tickets/update?tid=${values.ticketID}&timezone=${data.timezone}`, newData)
-                    .then(r => {
-                        console.log(r.data)
+                    .then(() => {
                         const updatedTickets = [...data.tickets];
                         updatedTickets[editTicket] = newData;
                         setData({...data, tickets: updatedTickets});
@@ -282,7 +287,6 @@ function OrganizerCreateTicket(){
             } else {
                 eventAxiosWithToken.post(`/tickets/add?eid=${location.pathname.split('/')[3]}&timezone=${data.timezone}`, newData)
                     .then(r => {
-                        console.log(r.data)
                         newData = {...newData, ticketID: r.data.data};
                         setData(prev => ({...prev, tickets: prev.tickets ? prev.tickets.concat(newData) : [newData]}));
                     })
@@ -310,7 +314,10 @@ function OrganizerCreateTicket(){
             visibleEndTime: data.visibleEndTime ? data.visibleEndTime.format('HH:mm') : null,
             minPerOrder: data.minPerOrder,
             maxPerOrder: data.maxPerOrder ? data.maxPerOrder : 100,
-            absorbFee: openDetail.type === 'Donation' ? data.absorbFee : null
+            absorbFee: openDetail.type === 'Donation' ? data.absorbFee : null,
+            currency: data.currency,
+            currencySymbol: data.sign,
+            currencyFullForm: data.label
         }
     }
 
@@ -325,6 +332,9 @@ function OrganizerCreateTicket(){
         else formik.setFieldValue('price', '');
         setOpenDetail({type: type, open: true});
     }
+
+    // TODO: handle display timezone label properly
+    // TODO: handle display on sale message properly (current compare start date to current date improperly)
 
     return (
         <Stack className={'organizer-create-ticket'} rowGap={2}>
@@ -401,14 +411,25 @@ function OrganizerCreateTicket(){
                                    error={formik.touched.quantity && Boolean(formik.errors.quantity)}
                                    helperText={formik.touched.quantity && formik.errors.quantity}
                         />
-                        <TextField name={'price'} label={'Price'} variant={'outlined'} fullWidth
-                                   value={openDetail.type === 'free' ? 'Free' : openDetail.type === 'donation' ? 'Donation' : formik.values.price}
-                                   placeholder={'0.00'} focused
-                                   disabled={openDetail.type === 'donation' || openDetail.type === 'free'}
-                                   onChange={formik.handleChange} onBlur={formik.handleBlur}
-                                   error={formik.touched.price && Boolean(formik.errors.price)}
-                                   helperText={formik.touched.price && formik.errors.price}
-                        />
+                        <Stack direction={'row'} columnGap={1}>
+                            {openDetail.type === 'paid' &&
+                                <CurrencySelect value={formik.values.currency} customHandleChange={
+                                    (value, sign, label) => {
+                                        formik.setFieldValue('currency', value)
+                                        formik.setFieldValue('sign', sign)
+                                        formik.setFieldValue('label', label)
+                                    }
+                                }/>
+                            }
+                            <TextField name={'price'} label={'Price'} variant={'outlined'} fullWidth
+                                       value={openDetail.type === 'free' ? 'Free' : openDetail.type === 'donation' ? 'Donation' : formik.values.price}
+                                       placeholder={'0.00'} focused
+                                       disabled={openDetail.type === 'donation' || openDetail.type === 'free'}
+                                       onChange={formik.handleChange} onBlur={formik.handleBlur}
+                                       error={formik.touched.price && Boolean(formik.errors.price)}
+                                       helperText={formik.touched.price && formik.errors.price}
+                            />
+                        </Stack>
                         {openDetail.type === 'Donation' &&
                             <Stack direction={'row'} alignItems={'center'} marginBlock={'0 .5rem'}>
                                 <Checkbox checked={formik.values.absorbFee} onChange={() => formik.setFieldValue('absorbFee', !formik.values.absorbFee)}/>

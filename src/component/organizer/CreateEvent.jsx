@@ -82,6 +82,7 @@ function CreateEvent() {
     useEffect(() => {
         let loaderData = loader ? loader.data : undefined
         let newEventData
+        console.log(loaderData)
         if(loaderData !== undefined){
             newEventData = {
                 eventTitle: loaderData.name,
@@ -116,12 +117,13 @@ function CreateEvent() {
                     visibleEndDate: ticket.vis_end_time ? dayjs(ticket.vis_end_time) : null,
                     visibleEndTime: ticket.vis_end_time ? dayjs(ticket.vis_end_time) : null,
                     maxPerOrder: ticket.max_per_order,
-                    minPerOrder: ticket.min_per_order
+                    minPerOrder: ticket.min_per_order,
+                    currency: ticket?.currency?.currency || 'USD'
                 })),
                 eventVisibility: 'public',
-                allowRefund: loaderData.refundPolicy || false,
-                daysForRefund: loaderData.daysForRefund || 7,
-                automatedRefund: loaderData.automatedRefund || false,
+                allowRefund: loaderData.refund_policy.allowRefund || false,
+                daysForRefund: loaderData.refund_policy.daysForRefund || 7,
+                automatedRefund: loaderData.refund_policy.automateRefund || false,
                 publishType: loaderData.status === 'scheduled' ? "schedule" : "now",
                 type: loaderData.event_type,
                 category: loaderData.category,
@@ -274,10 +276,10 @@ function CreateEvent() {
             case 2: {
                 payload = {
                     type: eventData.type, category: eventData.category, subCategory: eventData.subCategory,
-                    tags: eventData?.tag ? eventData.tags.split(',') : null, eventVisibility: eventData.eventVisibility,
-                    allowRefund: eventData.allowRefund,
-                    daysForRefund: eventData.daysForRefund, automatedRefund: eventData.automatedRefund, publishType: eventData.publishType,
-                    publishDate: eventData.publishDate, publishTime: eventData.publishTime, timezone: eventData.timezone, capacity: eventData.capacity
+                    tags: eventData?.tags ? eventData.tags.split(',') : null, eventVisibility: eventData.eventVisibility,
+                    allowRefund: eventData.allowRefund, daysForRefund: eventData.daysForRefund, automatedRefund: eventData.automatedRefund,
+                    publishType: eventData.publishType, publishDate: eventData.publishDate, publishTime: eventData.publishTime,
+                    timezone: eventData.timezone, capacity: eventData.capacity
                 }
                 break;
             }
