@@ -6,31 +6,37 @@ import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {getStorage, ref, getDownloadURL} from "firebase/storage";
 import {useEffect, useState} from "react";
+import {Link} from "react-router-dom";
 
 EventCard.propTypes = {
     event: PropTypes.shape({
-        name: PropTypes.string.isRequired,
-        start_time: PropTypes.string.isRequired,
-        price: PropTypes.string.isRequired,
-        images: PropTypes.array.isRequired,
-        event_id: PropTypes.string.isRequired
+        name: PropTypes.string,
+        start_time: PropTypes.string,
+        price: PropTypes.string,
+        images: PropTypes.array,
+        event_id: PropTypes.string,
+        customURL: PropTypes.string
     }),
-    organizer: PropTypes.string
+    organizer: PropTypes.string,
+    id: PropTypes.number,
+    customURL: PropTypes.string
 }
 
 initializeApp(firebaseConfig);
 const storage = getStorage()
 
-function EventCard ({ event, organizer}) {
+function EventCard ({ event, organizer, id, customURL}) {
     const [imageUrl, setImageUrl] = useState(null)
 
     useEffect(() => {
-        const imageRef = ref(storage, event.images[0])
-        getDownloadURL(imageRef)
-            .then(url => {
-                setImageUrl(url)
-            })
-            .catch(err => console.log(err))
+        if(event?.images?.length > 0) {
+            const imageRef = ref(storage, event.images[0])
+            getDownloadURL(imageRef)
+                .then(url => {
+                    setImageUrl(url)
+                })
+                .catch(err => console.log(err))
+        }
     }, []);
 
     return (
@@ -42,7 +48,9 @@ function EventCard ({ event, organizer}) {
                 <p className="event-card__title">{event.name}</p>
                 <p className="event-card__date">{dayjs(event.start_time).format("ddd, DD MMM")} • {dayjs(event.start_time).format("HH:mm [GMT]Z")}</p>
                 <p className="event-card__price">{event.price === 'Free' ? 'Free ' : `From $${event.price}`}</p>
-                <p className="event-card__organizer">{organizer}</p>
+                <Link to={`/organizer/${customURL || id}`} className="event-card__organizer">
+                    <p className="event-card__organizer">{organizer}</p>
+                </Link>
             </Stack>
         </Stack>
     )
