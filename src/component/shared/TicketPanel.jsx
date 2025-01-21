@@ -164,6 +164,8 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
         );
     };
 
+    // TODO: Handle display the currency of the price
+
     return (
         <Stack className={'event-view__registration'} rowGap={2}>
             <Modal open={open} onClose={() => setOpen(false)}>
