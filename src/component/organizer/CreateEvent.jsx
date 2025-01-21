@@ -82,7 +82,6 @@ function CreateEvent() {
     useEffect(() => {
         let loaderData = loader ? loader.data : undefined
         let newEventData
-        console.log(loaderData)
         if(loaderData !== undefined){
             newEventData = {
                 eventTitle: loaderData.name,
@@ -94,8 +93,8 @@ function CreateEvent() {
                 displayEndTime: loaderData.show_end_time,
                 timezone: loaderData.timezone || 7,
                 language: loaderData.language,
-                locationType: loaderData.locatiion ? loaderData.location.locationType : "venue",
-                location: loaderData.location.location,
+                locationType: loaderData.location ? loaderData.location.locationType : "venue",
+                location: loaderData?.location?.location,
                 reserveSeating: loaderData.locatiion ? loaderData.location.reserveSeating : false,
                 faqs: loaderData.faq,
                 tickets: loaderData.tickets.map((ticket) => ({
@@ -106,10 +105,10 @@ function CreateEvent() {
                     quantity: ticket.quantity,
                     price: ticket.price,
                     absorbFee: ticket.absorbFee || false,
-                    startDate: dayjs(ticket.sale_start_time),
-                    startTime: dayjs(ticket.sale_start_time),
-                    endDate: dayjs(ticket.sale_end_time),
-                    endTime: dayjs(ticket.sale_end_time),
+                    startDate: dayjs(ticket.sale_start_time).format("DD/MM/YYYY"),
+                    startTime: dayjs(ticket.sale_start_time).format("HH:mm"),
+                    endDate: dayjs(ticket.sale_end_time).format("DD/MM/YYYY"),
+                    endTime: dayjs(ticket.sale_end_time).format("HH:mm"),
                     description: ticket.description,
                     visibility: ticket.status,
                     visibleStartDate: ticket.vis_start_time ? dayjs(ticket.vis_start_time) : null,
@@ -121,9 +120,9 @@ function CreateEvent() {
                     currency: ticket?.currency?.currency || 'USD'
                 })),
                 eventVisibility: 'public',
-                allowRefund: loaderData.refund_policy.allowRefund || false,
-                daysForRefund: loaderData.refund_policy.daysForRefund || 7,
-                automatedRefund: loaderData.refund_policy.automateRefund || false,
+                allowRefund: loaderData?.refund_policy?.allowRefund || false,
+                daysForRefund: loaderData?.refund_policy?.daysForRefund || 7,
+                automatedRefund: loaderData?.refund_policy?.automateRefund || false,
                 publishType: loaderData.status === 'scheduled' ? "schedule" : "now",
                 type: loaderData.event_type,
                 category: loaderData.category,
@@ -154,6 +153,10 @@ function CreateEvent() {
         }
 
         setEventData(newEventData);
+    }, []);
+
+    useEffect(() => {
+        window.scrollTo()
     }, []);
 
     function handleClose(){
@@ -197,7 +200,7 @@ function CreateEvent() {
                 if (eventData.location === "" || eventData.location === undefined) {
                     return "Event location is required.";
                 }
-                if (eventData.eventStartTime > eventData.eventEndTime) {
+                if (eventData.eventStartTime.isBefore(eventData.eventEndTime)) {
                     return "Start time cannot be later than end time.";
                 }
                 break;
@@ -328,6 +331,8 @@ function CreateEvent() {
 
     console.log(eventData)
 
+    // TODO: handle displaying step checking properly
+
     return (
         <div className={'create-events-wrapper'}>
             {isLoading &&
@@ -446,7 +451,7 @@ function CreateEvent() {
             </div>
             <div className={'create-events__main'}>
                 <EventContext.Provider value={{data: eventData, setData: setEventData}}>
-                    <Outlet context={{validate: validateStep}}/>
+                    <Outlet context={{validate: validateStep, setAlert: setAlert, setCurrentStep: setCurrentStep}}/>
                 </EventContext.Provider>
             </div>
             <button className={'create-events-main__continue-btn'}
