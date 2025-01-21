@@ -57,21 +57,21 @@ CustomCheckbox.propTypes = {
 }
 
 const timezones = [
-    {value: '7', label: 'GMT+7'},
-    {value: '8', label: 'GMT+8'},
-    {value: '9', label: 'GMT+9'},
-    {value: '10', label: 'GMT+10'},
+    {value: '+7', label: 'GMT+7'},
+    {value: '+8', label: 'GMT+8'},
+    {value: '+9', label: 'GMT+9'},
+    {value: '+10', label: 'GMT+10'},
     {value: '-5', label: 'GMT-5'},
     {value: '-6', label: 'GMT-6'},
     {value: '-7', label: 'GMT-7'},
     {value: '-8', label: 'GMT-8'},
-    {value: '0', label: 'GMT'},
-    {value: '1', label: 'GMT+1'},
-    {value: '2', label: 'GMT+2'},
-    {value: '3', label: 'GMT+3'},
-    {value: '4', label: 'GMT+4'},
-    {value: '5', label: 'GMT+5'},
-    {value: '6', label: 'GMT+6'},
+    {value: '+0', label: 'GMT'},
+    {value: '+1', label: 'GMT+1'},
+    {value: '+2', label: 'GMT+2'},
+    {value: '+3', label: 'GMT+3'},
+    {value: '+4', label: 'GMT+4'},
+    {value: '+5', label: 'GMT+5'},
+    {value: '+6', label: 'GMT+6'},
     {value: '-1', label: 'GMT-1'},
     {value: '-2', label: 'GMT-2'},
     {value: '-3', label: 'GMT-3'},
@@ -121,8 +121,8 @@ function DateAndLocationForm(){
         validationSchema: validationSchema,
         enableReinitialize: true,
         onSubmit: (values) => {
-            setData(prev => ({...prev, timezone: values.timezone, language: values.language}));
             setOpen(false)
+            setData(prev => ({...prev, timezone: values.timezone, language: values.language}));
         }
     });
 
@@ -183,7 +183,7 @@ function DateAndLocationForm(){
                     <TimePicker label="Start time *" ampm={false} name={'eventStartTime'}
                         value={formik.values.eventStartTime}
                         onChange={(newValue) => {
-                            setData(prev => ({...prev, eventStartTime: newValue.format('HH:mm')}))
+                            setData(prev => ({...prev, eventStartTime: newValue}))
                             formik.setFieldValue('eventStartTime', newValue)
                         }}
                         slotProps={{
@@ -198,7 +198,7 @@ function DateAndLocationForm(){
                         label="End time *" ampm={false} name={'eventEndTime'}
                         value={formik.values.eventEndTime}
                         onChange={(newValue) => {
-                            setData(prev => ({...prev, eventEndTime: newValue.format('HH:mm')}))
+                            setData(prev => ({...prev, eventEndTime: newValue}))
                             formik.setFieldValue('eventEndTime', newValue)
                         }}
                         slotProps={{
@@ -216,7 +216,7 @@ function DateAndLocationForm(){
                 onClick={() => setOpen(true)}
             >More options</p>
             <p className="date-time-info">
-                {formik.values.timezone && `GMT${formik.values.timezone >= 0 ? `+` : `-`}${formik.values.timezone}, `}
+                {formik.values.timezone && `GMT${formik.values.timezone}, `}
                 {formik.values.displayEndTime ? 'Display start and end time, ' : 'Display start time only, '}
                 {languages.find(lang => lang.value === formik.values.language)?.label || 'Language not selected'}
             </p>
