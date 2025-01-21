@@ -18,7 +18,7 @@ import accountAxios from "../../config/axiosConfig.js";
 import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {getStorage} from "firebase/storage";
-import {fetchImage} from "../../common/Utilities.js";
+import {fetchImage, transformNumber} from "../../common/Utilities.js";
 import MoreRelatedByOrganizer from "./MoreRelatedByOrganizer.jsx";
 import ShareDialog from "./ShareDialog.jsx";
 import {Accordion, AccordionDetails, AccordionSummary} from "@mui/joy";
@@ -56,7 +56,7 @@ function EventView(){
         }
     }, []);
 
-    console.log(loaderData)
+    console.log(profile)
 
     return (
         <>
@@ -124,10 +124,14 @@ function EventView(){
                                             alt={'avatar'} />
                                         <Stack>
                                             <p className={'event-view__organizer-name'}>
-                                                By <b>{profile.profile_name}</b> · 121.8k followers
+                                                By <Link to={`/o/${profile.custom_url || profile.profile_id}`} target={'_blank'}>
+                                                <b>{profile.profile_name}</b>
+                                            </Link> · {transformNumber(profile.total_followers)} followers
                                             </p>
                                             <div className={'event-view__organizer-stats'}>
-                                                <p><b>1.5M</b> attendees hosted</p> <ShowChartIcon />
+                                                {profile.total_event_hosted ? <p><b>{profile.total_event_hosted}</b> events hosted</p>
+                                                    : <p><b>{profile.total_attendee_hosted}</b> attendees hosted</p>
+                                                } <ShowChartIcon />
                                             </div>
                                         </Stack>
                                     </Stack>
@@ -143,7 +147,7 @@ function EventView(){
                                     <p className={'event-view__details-heading'}>Date and Time</p>
                                     <div className={'event-view__details-date'}>
                                         <EventIcon /> {dayjs(loaderData.start_time).format("dddd, DD MMMM")} · {dayjs(loaderData.start_time).format("HH:mm")} - {dayjs(loaderData.end_time).format("HH:mm")}
-                                        {` GMT${loaderData.timezone >= 0 ? '+' : ''}${loaderData.timezone}`}
+                                        {` GMT${loaderData.timezone}`}
                                     </div>
                                 </Stack>
                                 <Stack className={'event-view__location'} rowGap={1}>
@@ -250,14 +254,24 @@ function EventView(){
                                                         className={'event-view__organizer-avatar'}
                                                         alt={'avatar'} />
                                                 <Stack rowGap={.25}>
-                                                    <p className={'event-view__organizer-name'}>
-                                                        <b>{profile.profile_name}</b>
-                                                    </p>
+                                                    <Link to={`/o/${profile.custom_url || profile.profile_id}`} target={'_blank'}>
+                                                        <p className={'event-view__organizer-name'}>
+                                                            <b>{profile.profile_name}</b>
+                                                        </p>
+                                                    </Link>
                                                     <p className={'event-view__organizer-followers'}>
-                                                        <b>121.8k</b> followers
+                                                        <b>{transformNumber(profile.total_followers)}</b> followers
                                                     </p>
                                                     <p className={'event-view__organizer-attendees'}>
-                                                        <b>1.5M</b> attendees hosted
+                                                        {profile.total_event_hosted ?
+                                                            <>
+                                                                <b>{profile.total_event_hosted}</b> events hosted
+                                                            </>
+                                                            :
+                                                            <>
+                                                                <b>{transformNumber(profile.total_attendee_hosted)}</b> attendees hosted
+                                                            </>
+                                                        }
                                                     </p>
                                                 </Stack>
                                             </Stack>
@@ -304,7 +318,7 @@ function EventView(){
                                 </button>
                             </Stack>
                         }
-                        <MoreRelatedByOrganizer id={loaderData.event_id} name={profile.profile_name}/>
+                        <MoreRelatedByOrganizer id={loaderData.event_id} name={profile.profile_name} customURL={profile.custom_url} profileID={profile.profile_id}/>
                     </Stack>
                 </div>
             </div>
