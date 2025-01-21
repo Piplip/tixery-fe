@@ -115,7 +115,7 @@ function OrganizerPublishEvent(){
                                 </p>
                                 <Stack direction={'row'} justifyContent={'space-between'}>
                                     <div className="event-publish__info">
-                                        <span><BookOnlineIcon/> {data.tickets && data.tickets[0].price}</span>
+                                        <span><BookOnlineIcon/> {data.tickets && data.tickets[0]?.price}</span>
                                         <span><PersonIcon/>{data.capacity}</span>
                                     </div>
                                     <Link to="/preview" className="event-publish__preview">
