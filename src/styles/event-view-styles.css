@@ -84,6 +84,7 @@
 .event-view__organizer-name{
     font-size: 1.2rem;
     font-family: "Microsoft Tai Le", sans-serif;
+    width: fit-content;
 }
 .event-view__follow-button, .event-view__contact-button{
     padding: .5rem 1rem;
