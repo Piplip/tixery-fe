@@ -42,7 +42,7 @@ function MediaUploader () {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [uploadedImages, setUploadedImages] = useState([]);
     const [uploadedVideos, setUploadedVideos] = useState([]);
-    const [isUploadActive, setIsUploadActive] = useState(data.images !== undefined || data.videos !== undefined);
+    const [isUploadActive, setIsUploadActive] = useState((data?.images?.length > 0) || (data?.videos?.length > 0));
     const [currentPreview, setCurrentPreview] = useState({type: '', src: null});
     const [isDragOver, setIsDragOver] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -66,7 +66,9 @@ function MediaUploader () {
             setUploadedVideos(videos);
             setData((prev) => ({...prev, videos: videos.map(video => video.path)}));
         });
-        setIsUploadActive(true)
+        if(data?.images?.length > 0 || data?.videos?.length > 0) {
+            setIsUploadActive(true)
+        }
     }, []);
 
     async function fetchMediaFromFirebase(storage, prefix) {
@@ -142,7 +144,7 @@ function MediaUploader () {
 
     async function uploadMedia(src, type) {
         const fileName = generateFileName();
-        const prefix = `${location.pathname.split('/')[3]}`
+        const prefix = `${location.pathname.includes("edit") ? location.pathname.split('/')[4] : location.pathname.split('/')[3]}`
         const storageRef = ref(storage, `/events/${prefix}/${fileName}`);
 
         try {
