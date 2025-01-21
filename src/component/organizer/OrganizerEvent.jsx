@@ -135,10 +135,13 @@ function OrganizerEvent() {
     }
 
     function handleDelete(){
-        events.filter(event => event.event_id !== currentSelectedEvent)
         eventAxiosWithToken.post(`delete?eid=${currentSelectedEvent}`)
             .then(r => {
                 setAlert(r.data.message)
+                const newEvents = [...events]
+                const index = newEvents.findIndex(event => event.event_id === currentSelectedEvent)
+                newEvents.splice(index, 1)
+                setEvents(newEvents)
                 setOpenModal(false)
             })
     }
@@ -243,7 +246,7 @@ function OrganizerEvent() {
                                         <p style={{fontSize: '1.5rem'}}>{item?.start_time && dayjs(item.start_time).format("DD").toUpperCase()}</p>
                                     </Stack>
                                     <img
-                                        src={item?.images && item.images[0]}
+                                        src={item?.images && item.images[0] || "https://www.svgrepo.com/show/508699/landscape-placeholder.svg"}
                                         alt={''}/>
                                     <Stack justifyContent={'space-between'}>
                                         <p style={{color: 'black'}}>{item?.name}</p>
@@ -277,7 +280,7 @@ function OrganizerEvent() {
                         )})
                     :
                     <div className={'no-event'}>
-                        <p>No events found. Create one to see it here!</p>
+                        <p>No events found</p>
                     </div>
                 }
             </Stack>
@@ -305,7 +308,7 @@ function OrganizerEvent() {
                     <CloseIcon/>
                 </IconButton>
                 <DialogContent sx={{p: 2}}>
-                    <CreateEventMenu/>
+                    <CreateEventMenu />
                 </DialogContent>
             </Dialog>
         </div>
