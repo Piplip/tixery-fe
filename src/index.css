@@ -59,3 +59,14 @@ input{
         margin-left: 2rem;
     }
 }
+.default-profile-banner{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Nunito", sans-serif;
+    background-color: #da1111;
+    color: white;
+    padding: .1rem .5rem;
+    border-radius: .5rem;
+    font-size: .8rem;
+}
