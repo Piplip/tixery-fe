@@ -37,6 +37,8 @@ function OrganizerView() {
         }
     }, [])
 
+    // TODO: Implement loading organizer events (bounds to the profile)
+
     return (
         profileImage ?
             <div className={'organizer-view-wrapper'}>
