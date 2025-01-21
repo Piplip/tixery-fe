@@ -63,6 +63,7 @@
     row-gap: .75rem;
     border-radius: 0 0 10px 10px;
     transform: translateY(10%);
+    box-shadow: 0 2px 5px 0 #989898;
     > *{
         padding: .5rem 1rem;
         border-radius: .5rem;

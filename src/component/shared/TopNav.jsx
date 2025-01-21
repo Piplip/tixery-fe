@@ -20,7 +20,7 @@ TopNav.propTypes = {
 function TopNav(props){
     const isLoggedIn = checkLoggedIn();
     const location = useLocation()
-    const homeLocation = getUserData('role') === 'host' ? '/organizer' : '/'
+    const homeLocation = getUserData('role') === 'HOST' ? '/organizer' : '/'
     const [isVisible, setIsVisible] = useState(true);
     const [lastScrollPos, setLastScrollPos] = useState(0);
     const [showLocationOption, setShowLocationOption] = useState(false);
