@@ -1,5 +1,5 @@
 import "../../styles/organizer-create-tickets-styles.css"
-import {Checkbox, MenuItem, Stack, TextField, Tooltip, Typography} from "@mui/material";
+import {Checkbox, MenuItem, Stack, TextField, Typography} from "@mui/material";
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FreeIcon from "../../assets/free-icon.png"
@@ -9,7 +9,6 @@ import * as Yup from "yup";
 import {useFormik} from "formik";
 import {DatePicker, TimePicker} from "@mui/x-date-pickers";
 import {Accordion, AccordionDetails, AccordionGroup, AccordionSummary} from "@mui/joy";
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import TextAreaWithLimit from "../shared/TextAreaWithLimit.jsx";
 import Dropdown from "@mui/joy/Dropdown";
 import MenuButton from "@mui/joy/MenuButton";
@@ -57,7 +56,7 @@ const ticketVisibility = [
 function OrganizerCreateTicket(){
     const [open, setOpen] = useState(false)
     const {data, setData} = useContext(EventContext)
-    const {validate} = useOutletContext()
+    const {validate, setAlert, setCurrentStep} = useOutletContext()
     const [openDetail, setOpenDetail] = useState({
         type: null, open: false
     });
@@ -68,6 +67,8 @@ function OrganizerCreateTicket(){
     useEffect(() => {
         const msg = validate(0)
         if (typeof msg === 'string' && location.pathname.includes('tickets')) {
+            setCurrentStep(0)
+            setTimeout(() => setAlert("Please fulfill the required fields before proceeding."), 500)
             const basePath = location.pathname.split('/tickets')[0];
             navigate(basePath);
         }
@@ -333,9 +334,6 @@ function OrganizerCreateTicket(){
         setOpenDetail({type: type, open: true});
     }
 
-    // TODO: handle display timezone label properly
-    // TODO: handle display on sale message properly (current compare start date to current date improperly)
-
     return (
         <Stack className={'organizer-create-ticket'} rowGap={2}>
             <p className={'organizer-create-ticket__title'}>Create tickets</p>
@@ -485,10 +483,10 @@ function OrganizerCreateTicket(){
                             />
                         </Stack>
                         <Stack direction={'row'} alignItems={'center'} columnGap={.5}>
-                            <Typography variant={'caption'}>Event time zone is KST</Typography>
-                            <Tooltip title={'Test'} placement={'bottom'}>
-                                <InfoOutlinedIcon sx={{fontSize: '.9rem'}}/>
-                            </Tooltip>
+                            <Typography variant={'caption'}>Event time zone is {new Date().toString().match(/\(([A-Za-z\s].*)\)/)[1]}</Typography>
+                            {/*<Tooltip title={'Test'} placement={'bottom'}>*/}
+                            {/*    <InfoOutlinedIcon sx={{fontSize: '.9rem'}}/>*/}
+                            {/*</Tooltip>*/}
                         </Stack>
                         <AccordionGroup transition={{
                             initial: "0.3s ease-out",
