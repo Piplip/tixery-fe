@@ -6,10 +6,12 @@ import {eventAxios} from "../../config/axiosConfig.js";
 
 MoreRelatedByOrganizer.propTypes = {
     id: PropTypes.string.isRequired,
-    name: PropTypes.string
+    name: PropTypes.string,
+    customURL: PropTypes.string,
+    profileID: PropTypes.number
 }
 
-function MoreRelatedByOrganizer({id, name}) {
+function MoreRelatedByOrganizer({id, name, customURL, profileID}) {
     const [relateEvents, setRelatedEvents] = useState([]);
 
     useEffect(() => {
@@ -26,7 +28,7 @@ function MoreRelatedByOrganizer({id, name}) {
                 <Typography variant="h5" fontWeight={'bold'}>More {name} events</Typography>
                 <Stack direction={'row'} gap={3} sx={{flexWrap: 'wrap'}}>
                     {relateEvents.map((event, index) => {
-                        return <EventCard key={index} event={event} organizer={name}/>
+                        return <EventCard key={index} event={event} organizer={name} id={profileID} customURL={customURL}/>
                     })}
                 </Stack>
             </Stack>
