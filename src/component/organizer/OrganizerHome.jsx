@@ -125,7 +125,12 @@ function OrganizerHome(){
                 {profiles ?
                     <Stack className={'organizer-setup-profile-cta'} rowGap={1}>
                         <Stack rowGap={2}>
-                            <Typography variant={'h5'}>{profiles[selectProfile][1]}</Typography>
+                            <Stack direction={'row'} alignItems={'center'} columnGap={1}>
+                                <Typography variant={'h5'}>{profiles[selectProfile][1]}</Typography>
+                                {profiles[selectProfile][0] == getUserData('profileID') &&
+                                    <div className={'default-profile-banner'}>Default</div>
+                                }
+                            </Stack>
                             <Stack direction={'row'} columnGap={3}>
                                 <Link to={`/o/${profiles[selectProfile][3] ? profiles[selectProfile][3] : profiles[selectProfile][0]} `} target={'_blank'}>
                                     <p className={'link'}>View</p>
@@ -141,11 +146,11 @@ function OrganizerHome(){
                             </Stack>
                             <Stack direction={'row'} columnGap={4}>
                                 <Stack>
-                                    <p>--</p>
+                                    <Typography variant={'h6'}>{profiles[selectProfile][4]}</Typography>
                                     <p>Total events</p>
                                 </Stack>
                                 <Stack>
-                                    <p>--</p>
+                                    <Typography variant={'h6'}>{profiles[selectProfile][5]}</Typography>
                                     <p>Total followers</p>
                                 </Stack>
                             </Stack>
