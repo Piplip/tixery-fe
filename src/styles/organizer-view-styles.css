@@ -24,9 +24,9 @@
     transform: scale(3);
 }
 .organizer-view-hero__main{
-    padding: 5rem 3rem;
+    padding: 3rem 3rem;
     width: 55%;
-    height: 80%;
+    height: 85%;
     background-color: rgba(255, 255, 255, 0.76);
     align-self: center;
     border-radius: 1rem 1rem 0 0;
@@ -36,7 +36,7 @@
     button{
         background-color: transparent;
         border: none;
-        padding: 0.5rem 1rem;
+        padding: 0.5rem 2rem;
         border-radius: 0.2rem;
         font-family: "Microsoft Tai Le", sans-serif;
         font-size: 1rem;
@@ -66,6 +66,7 @@
     font-family: "Microsoft Tai Le", sans-serif;
     color: #282f38;
     min-height: 3rem;
+    font-size: .9rem;
 }
 .organizer-view-hero__profile-description:empty::before {
     content: 'No description provided.';
@@ -129,4 +130,8 @@
 }
 .event-category-wrapper > p:hover{
     cursor: pointer;
+}
+.event-category-wrapper > p.active{
+    background-color: #282f38;
+    color: white;
 }
