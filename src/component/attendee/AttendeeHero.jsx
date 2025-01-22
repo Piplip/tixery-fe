@@ -27,6 +27,10 @@ const images = [
         imgURL: "https://cdn.evbstatic.com/s3-build/fe/build/images/389ece7b7e2dc7ff8d28524bad30d52c-dsrp_desktop.webp",
         imgAlt: "img-4"
     },
+    {
+        imgURL: "https://cdn.evbstatic.com/s3-build/fe/build/images/69483a6795b18c6d44143f9a6399142c-valentine_dating_desktop.webp",
+        imgAlt: "img-5"
+    },
 ];
 
 const eventGenres = [
