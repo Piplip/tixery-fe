@@ -1,5 +1,5 @@
 import {Avatar, Checkbox, Stack, Tooltip, Typography} from "@mui/material";
-import {getUserData} from "../../common/Utilities.js";
+import {getUserData, transformNumber} from "../../common/Utilities.js";
 import {Link, useLoaderData, useNavigate} from "react-router-dom";
 import '../../styles/organizer-home-styles.css'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
@@ -150,7 +150,7 @@ function OrganizerHome(){
                                     <p>Total events</p>
                                 </Stack>
                                 <Stack>
-                                    <Typography variant={'h6'}>{profiles[selectProfile][5]}</Typography>
+                                    <Typography variant={'h6'}>{transformNumber(profiles[selectProfile][5])}</Typography>
                                     <p>Total followers</p>
                                 </Stack>
                             </Stack>
