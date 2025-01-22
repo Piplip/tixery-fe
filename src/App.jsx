@@ -133,6 +133,7 @@ function App() {
         {
             path: '/o',
             element: <OrganizerViewTemplate />,
+            hydrateFallbackElement: <LoadingFallback />,
             children: [
                 {
                     path: ':name', element: <OrganizerView />,
