@@ -299,6 +299,7 @@ function OrganizerCreateTicket(){
 
     function transformData(data){
         return {
+            ticketID: data.ticketID,
             ticketType: openDetail.type,
             ticketName: data.ticketName,
             quantity: data.quantity,
