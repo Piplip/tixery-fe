@@ -1,6 +1,6 @@
 import "../../styles/event-view-styles.css"
 import TopNav from "./TopNav.jsx";
-import {Avatar, Stack, Tooltip, Typography} from "@mui/material";
+import {Avatar, Skeleton, Stack, Tooltip, Typography} from "@mui/material";
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import EventIcon from '@mui/icons-material/Event';
@@ -54,9 +54,8 @@ function EventView(){
                 console.log(error)
             }
         }
+        else setHeroImage("https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F936315053%2F558993483103%2F1%2Foriginal.20250115-135317?crop=focalpoint&fit=crop&auto=format%2Ccompress&q=75&sharp=10&fp-x=0.5&fp-y=0.5&s=3a03308f50db1e157ca93403975dcc59")
     }, []);
-
-    console.log(profile)
 
     return (
         <>
@@ -68,21 +67,30 @@ function EventView(){
             }
             <div className={'event-view'}>
                 <div className={'event-view__hero'}>
-                    <div
-                        className={'event-view__hero-background'}
-                        style={{backgroundImage: `url(${heroImage})`}}>
-                        <Stack
-                            className={'event-view__hero-stack'}
-                            style={{width: '100%', backdropFilter: 'blur(30px)'}}
-                            direction={'row'}
-                            justifyContent={'center'}>
-                            <img
-                                className={'event-view__hero-image'}
-                                alt={'img'}
-                                src={heroImage}
-                            />
-                        </Stack>
-                    </div>
+                    {heroImage ?
+                        <div
+                            className={'event-view__hero-background'}
+                            style={{backgroundImage: `url(${heroImage})`}}>
+                            <Stack
+                                className={'event-view__hero-stack'}
+                                style={{width: '100%', backdropFilter: 'blur(30px)'}}
+                                direction={'row'}
+                                justifyContent={'center'}>
+                                <img
+                                    className={'event-view__hero-image'}
+                                    alt={'img'}
+                                    src={heroImage}
+                                />
+                            </Stack>
+                        </div>
+                        :
+                        <Skeleton
+                            animation="wave"
+                            width={'80%'}
+                            variant={'rectangular'}
+                            height={'100%'}
+                        />
+                    }
                 </div>
                 <div className={'event-view__content'}>
                     <TicketPanel tickets={loaderData.tickets} eventEndTime={loaderData.end_time} image={heroImage}
