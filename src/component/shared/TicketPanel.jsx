@@ -128,7 +128,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
                                 direction={'row'}
                                 justifyContent={'space-between'}>
                                 <div className={'event-view__registration-price'}>
-                                    {ticket.ticket_type === 'paid' ? `$${ticket.price}` : ticket.ticket_type}
+                                    {ticket.ticket_type === 'paid' ? `${ticket.currency.symbol !== "null" ? ticket.currency.symbol : ''}${ticket.price}` : ticket.ticket_type}
                                     <Tooltip title="Show more details">
                                         <InfoOutlinedIcon
                                             onClick={() => toggleTicketInfo(index)}
@@ -163,8 +163,6 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
             </>
         );
     };
-
-    // TODO: Handle display the currency of the price
 
     return (
         <Stack className={'event-view__registration'} rowGap={2}>
@@ -239,7 +237,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
                                             )}
                                             <Stack paddingBlock={1}>
                                                 <Typography variant={'h6'} sx={{textTransform: 'capitalize'}}>
-                                                    {ticket.ticket_type === 'paid' ? `$${ticket.price}` : ticket.ticket_type}</Typography>
+                                                    {ticket.ticket_type === 'paid' ? `${ticket.currency.symbol !== "null" ? ticket.currency.symbol : ''}${ticket.price}` : ticket.ticket_type}</Typography>
                                                 <Typography variant={'body2'}>Sales end at {dayjs(ticket.sale_end_time).format("HH:mm DD MMM YYYY")}</Typography>
                                             </Stack>
                                         </Stack>
@@ -261,7 +259,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
                                             return (
                                                 <Stack key={index} direction={'row'} justifyContent={'space-between'}>
                                                     <Typography variant={'body2'}>{ticket.name} x{quantity}</Typography>
-                                                    <Typography variant={'body2'}>{Math.round(quantity * prices[index] * 100) / 100}</Typography>
+                                                    <Typography variant={'body2'}>{ticket.currency.symbol !== "null" ? ticket.currency.symbol : ''}{Math.round(quantity * prices[index] * 100) / 100}</Typography>
                                                 </Stack>
                                             )
                                         }
@@ -269,7 +267,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
                                 </Stack>
                                 <Stack direction={'row'} justifyContent={'space-between'} borderTop={'1px solid'} paddingTop={.5}>
                                     <Typography variant={'h6'} fontWeight={'bold'}>Total</Typography>
-                                    <Typography variant={'h6'} fontWeight={'bold'}>{Math.round((totalPrice + totalDonationPrice) * 100) / 100}</Typography>
+                                    <Typography variant={'h6'} fontWeight={'bold'}>${Math.round((totalPrice + totalDonationPrice) * 100) / 100}</Typography>
                                 </Stack>
                             </Stack>
                         </Stack>
