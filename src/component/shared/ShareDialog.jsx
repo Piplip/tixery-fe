@@ -6,13 +6,20 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import FacebookRoundedIcon from '@mui/icons-material/FacebookRounded';
 import XIcon from '@mui/icons-material/X';
 import InstagramIcon from '@mui/icons-material/Instagram';
+import PropTypes from "prop-types";
 
-function ShareDialog(){
+const prefix = "http://localhost:5173/events/"
+
+ShareDialog.propTypes = {
+    eventID: PropTypes.string
+}
+
+function ShareDialog({eventID}){
     const [open, setOpen] = useState(false);
     const [copyTooltip, setCopyTooltip] = useState('Copy to clipboard');
 
     const handleCopy = () => {
-        const eventURL = window.location.href;
+        const eventURL = eventID ? prefix + eventID : window.location.href;
 
         navigator.clipboard.writeText(eventURL)
             .then(() => {
@@ -48,7 +55,7 @@ function ShareDialog(){
                         <Stack direction={'row'} columnGap={5} alignItems={'center'} style={{border: '1px solid', padding: '.5rem 1rem'}}>
                             <Stack>
                                 <Typography variant={'body2'} fontWeight={'bold'}>Event URL</Typography>
-                                <p>{window.location.href}</p>
+                                <p>{eventID ? prefix + eventID : window.location.href}</p>
                             </Stack>
                             <Tooltip title={copyTooltip}>
                                 <ContentCopyIcon onClick={handleCopy} style={{cursor: 'pointer'}} />
