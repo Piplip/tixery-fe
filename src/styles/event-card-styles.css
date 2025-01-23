@@ -1,22 +1,23 @@
 .event-card{
-    min-width: 20rem;
-    width: clamp(20rem, 100%, 22rem);
+    width: clamp(18rem, 100%, 22rem);
     transition: box-shadow .2s ease-in;
     border-radius: 1rem;
     cursor: pointer;
     background-color: white;
+    height: 100%;
+    position: relative;
 }
 .event-card:hover{
     box-shadow: 0 0 1rem 0 rgba(0, 0, 0, 0.1);
 }
 .event-card__image{
     width: 100%;
-    height: 11rem;
+    height: 10rem;
     object-fit: cover;
     border-radius: 1rem 1rem 0 0;
 }
 .event-card__title{
-    font-size: 1.35rem;
+    font-size: 1.25rem;
     font-family: "Raleway", sans-serif;
     font-weight: bold;
     color: #2c313d;
@@ -53,4 +54,15 @@
         width: 2.5rem;
         height: 2.5rem;
     }
+}
+.event-card__action-horizontal{
+    position: absolute;
+    right: .75rem;
+    top: 70%;
+    bottom: 1rem;
+    z-index: 2;
+    visibility: hidden;
+}
+.event-card:hover .event-card__action-horizontal{
+    visibility: visible;
 }

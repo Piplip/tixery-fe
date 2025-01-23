@@ -35,9 +35,10 @@ const carouselImages = [
 const IMAGE_MAX_SIZE_MB = 5;
 const VIDEO_MAX_SIZE_MB = 10;
 
+initializeApp(firebaseConfig);
+const storage = getStorage()
+
 function MediaUploader () {
-    initializeApp(firebaseConfig);
-    const storage = getStorage()
     const {data, setData} = useContext(EventContext)
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [uploadedImages, setUploadedImages] = useState([]);
@@ -196,6 +197,8 @@ function MediaUploader () {
             console.error('Error deleting file:', error)
         })
     }
+
+    // TODO: Fixing the isUploadActive state not properly set when there are images or videos
 
     return (
         <div className={`media-uploader ${data.images !== undefined || data.videos !== undefined || uploadedImages || uploadedVideos? 'complete-section' : ''}`}>

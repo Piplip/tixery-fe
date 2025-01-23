@@ -26,9 +26,9 @@ function MoreRelatedByOrganizer({id, name, customURL, profileID}) {
         relateEvents.length !== 0 &&
             <Stack rowGap={2}>
                 <Typography variant="h5" fontWeight={'bold'}>More {name} events</Typography>
-                <Stack direction={'row'} gap={3} sx={{flexWrap: 'wrap'}}>
+                <Stack direction={'row'} rowGap={5} sx={{flexWrap: 'wrap'}}>
                     {relateEvents.map((event, index) => {
-                        return <EventCard key={index} event={event} organizer={name} id={profileID} customURL={customURL}/>
+                        return <EventCard key={index} event={event} organizer={name} id={profileID} customURL={customURL} horizontal={true}/>
                     })}
                 </Stack>
             </Stack>

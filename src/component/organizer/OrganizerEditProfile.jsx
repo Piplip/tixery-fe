@@ -5,7 +5,9 @@ function OrganizerEditProfile(){
     const loaderData = useLoaderData()
 
     return (
-        <OrganizerProfileForm profileData={loaderData}/>
+        <div>
+            <OrganizerProfileForm profileData={loaderData}/>
+        </div>
     )
 }
 

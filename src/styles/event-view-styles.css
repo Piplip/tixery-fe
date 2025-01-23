@@ -47,6 +47,7 @@
     font-size: 1rem;
     color: #2c313d;
     font-family: "Microsoft Tai Le", sans-serif;
+    word-wrap: break-word;
 }
 .event-view__organizer{
     background-color: #f8f8f8;
@@ -228,4 +229,9 @@
 }
 .order-summary{
     font-family: "Nunito", sans-serif;
+}
+.billed-item:not(:last-child){
+    border-bottom: 1px solid #d7d7d7;
+    padding-bottom: .25rem;
+    margin-bottom: .25rem;
 }

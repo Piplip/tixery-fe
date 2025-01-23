@@ -13,7 +13,7 @@ import LanguageIcon from '@mui/icons-material/Language';
 import FlagIcon from '@mui/icons-material/Flag';
 import {Link, useLoaderData} from "react-router-dom";
 import dayjs from "dayjs";
-import {useEffect, useState} from "react";
+import {lazy, useEffect, useState} from "react";
 import accountAxios from "../../config/axiosConfig.js";
 import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
@@ -24,6 +24,8 @@ import ShareDialog from "./ShareDialog.jsx";
 import {Accordion, AccordionDetails, AccordionSummary} from "@mui/joy";
 import TicketPanel from "./TicketPanel.jsx";
 
+const OtherEvents = lazy(() => import('./OtherEvents.jsx'));
+
 initializeApp(firebaseConfig);
 const storage = getStorage()
 
@@ -32,12 +34,13 @@ function EventView(){
     const [profile, setProfile] = useState({})
     const [heroImage, setHeroImage] = useState()
     const [viewDetail, setViewDetail] = useState(false)
-
+    console.log(loaderData)
     useEffect(() => {
         if (loaderData.profile_id && !profile.loaded) {
-            accountAxios
-                .get(`/organizer/profile/get?pid=${loaderData.profile_id}`)
+            accountAxios.get(`/organizer/profile/get?pid=${loaderData.profile_id}`)
                 .then(async (response) => {
+                    console.log(response.data)
+                    setProfile({ ...response.data, loaded: true });
                     response.data.profile_image_url = await fetchImage(storage, response.data.profile_image_url);
                     setProfile({ ...response.data, loaded: true });
                 })
@@ -329,6 +332,9 @@ function EventView(){
                         <MoreRelatedByOrganizer id={loaderData.event_id} name={profile.profile_name} customURL={profile.custom_url} profileID={profile.profile_id}/>
                     </Stack>
                 </div>
+            </div>
+            <div style={{paddingInline: '10%', backgroundColor: '#ececec', paddingBlock: '1.5rem'}}>
+                <OtherEvents />
             </div>
         </>
     )

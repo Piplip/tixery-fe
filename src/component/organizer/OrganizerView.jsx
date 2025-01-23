@@ -26,8 +26,8 @@ function OrganizerView() {
     const hasFetchedProfileEvents = useRef(false);
 
     const totalUpcoming = profileEvents?.reduce((acc, event) => {
-        return dayjs(event.start_time).isAfter(dayjs()) ? acc + 1 : 0
-    })
+        return dayjs(event.start_time).isAfter(dayjs()) ? acc + 1 : acc;
+    }, 0)
 
     const loadImage = useCallback(async (url) => {
         if (!url) return null;
@@ -36,14 +36,15 @@ function OrganizerView() {
             const storageRef = ref(storage, url);
             return await getDownloadURL(storageRef);
         } catch (error) {
-            console.error('Error loading image:', error);
             return null;
         }
     }, [storage]);
 
     useEffect(() => {
         if (data['profile_image_url']) {
-            loadImage(data['profile_image_url']).then((url) => setProfileImage(url));
+            loadImage(data['profile_image_url']).then((url) => {
+                setProfileImage(url === null ? "https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F936315053%2F558993483103%2F1%2Foriginal.20250115-135317?crop=focalpoint&fit=crop&auto=format%2Ccompress&q=75&sharp=10&fp-x=0.5&fp-y=0.5&s=3a03308f50db1e157ca93403975dcc59" : url)
+            });
         } else {
             setProfileImage("#");
         }
@@ -131,10 +132,10 @@ function OrganizerView() {
                     <p className={'organizer-view-main__title'}>Events</p>
                     <Stack className={'event-category-wrapper'} direction={'row'} columnGap={1}>
                         <p className={activeTab === 0 ? 'active' : ''} onClick={() => setActiveTab(0)}>Upcoming ({totalUpcoming})</p>
-                        <p className={activeTab === 1 ? 'active' : ''} onClick={() => setActiveTab(1)}>Past ({profileEvents.length - totalUpcoming})</p>
+                        <p className={activeTab === 1 ? 'active' : ''} onClick={() => setActiveTab(1)}>Past ({profileEvents?.length - totalUpcoming})</p>
                     </Stack>
                     <div>
-                        {profileEvents.length > 0 ?
+                        {profileEvents?.length > 0 &&
                             <Grid container spacing={5} columns={{xs: 16}} style={{marginTop: '1rem'}}>
                                 {
                                     profileEvents.map((event, index) => {
@@ -154,8 +155,6 @@ function OrganizerView() {
                                     })
                                 }
                             </Grid>
-                            :
-                            <p>Sorry, there are no upcoming events</p>
                         }
                     </div>
                 </Stack>

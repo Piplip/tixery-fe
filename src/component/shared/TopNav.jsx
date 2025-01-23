@@ -1,16 +1,12 @@
 import Logo from "../../assets/logo.svg"
-import SearchIcon from '@mui/icons-material/Search';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
-import {Stack, Typography} from "@mui/material";
+import {Stack} from "@mui/material";
 import "../../styles/top-nav-styles.css"
-import {Link, useLocation} from "react-router-dom";
+import {Link} from "react-router-dom";
 import {hasRole, checkLoggedIn, getUserData} from "../../common/Utilities.js";
 import LoggedInUserNav from "./LoggedInUserNav.jsx";
 import * as PropsType from "prop-types";
-import {useEffect, useRef, useState} from "react";
-import TurnSharpRightIcon from '@mui/icons-material/TurnSharpRight';
-import LiveTvIcon from '@mui/icons-material/LiveTv';
-import ScheduleIcon from '@mui/icons-material/Schedule';
+import {useEffect, useState} from "react";
+import TopNavSearchBar from "./TopNavSearchBar.jsx";
 
 TopNav.propTypes = {
     isLoggedIn: PropsType.bool,
@@ -19,16 +15,9 @@ TopNav.propTypes = {
 
 function TopNav(props){
     const isLoggedIn = checkLoggedIn();
-    const location = useLocation()
     const homeLocation = getUserData('role') === 'HOST' ? '/organizer' : '/'
     const [isVisible, setIsVisible] = useState(true);
     const [lastScrollPos, setLastScrollPos] = useState(0);
-    const [showLocationOption, setShowLocationOption] = useState(false);
-    const [showRecentSearches, setShowRecentSearches] = useState(false);
-
-    const recentSearchesRef = useRef(null);
-    const locationOptionRef = useRef(null);
-    const searchBarRef = useRef(null);
 
     const navLinks = [
         {
@@ -48,7 +37,7 @@ function TopNav(props){
             shouldRender: (isLoggedIn) => isLoggedIn && hasRole(['host'])
         },
         {
-            title: 'Create Events', link: '/organizer',
+            title: 'Create Events', link: isLoggedIn ? '/organizer' : 'organizer/overview',
             shouldRender: (isLoggedIn) => !isLoggedIn
         },
         {
@@ -87,34 +76,6 @@ function TopNav(props){
         return () => window.removeEventListener('scroll', handleScroll);
     }, [props.enableScrollEffect, lastScrollPos]);
 
-    useEffect(() => {
-        const handleOutsideClick = (event) => {
-            if (
-                !recentSearchesRef.current?.contains(event.target) &&
-                !locationOptionRef.current?.contains(event.target) &&
-                !searchBarRef.current?.contains(event.target)
-            ) {
-                setShowRecentSearches(false);
-                setShowLocationOption(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleOutsideClick);
-        return () => {
-            document.removeEventListener('mousedown', handleOutsideClick);
-        };
-    }, []);
-
-    const handleSearchClick = () => {
-        setShowRecentSearches(true);
-        setShowLocationOption(false);
-    };
-
-    const handleLocationClick = () => {
-        setShowLocationOption(true);
-        setShowRecentSearches(false);
-    };
-
     return (
         <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}
                className={`top-nav-container ${isVisible ? 'visible' : 'hidden'}`}
@@ -122,50 +83,7 @@ function TopNav(props){
             <Link to={homeLocation}>
                 <img src={Logo} alt="logo" width={'100px'}/>
             </Link>
-            {!location.pathname.includes('organizer') &&
-                <Stack direction={'row'} className={'top-nav-input-container'} alignItems={'center'}>
-                    <div style={{position: 'relative'}} ref={recentSearchesRef}>
-                        <SearchIcon />
-                        <input className={'top-nav-input-container__input'} type="text" placeholder="Search events"
-                               onClick={handleSearchClick}
-                        />
-                        {showRecentSearches &&
-                            <Stack className={'drop-down-suggestion'}>
-                                <Stack flexDirection={'row'} justifyContent={'space-between'}>
-                                    <Typography variant={'h6'}>Recent searches</Typography>
-                                    <div style={{color: 'blue'}}>Clear</div>
-                                </Stack>
-                                <Stack>
-                                    <Stack direction={'row'} columnGap={1} alignItems={'center'} style={{width: '100%'}}>
-                                        <ScheduleIcon /> <Typography variant={'caption'}>Foo</Typography>
-                                    </Stack>
-                                </Stack>
-                            </Stack>
-                        }
-                    </div>
-                    <div style={{position: 'relative'}} ref={locationOptionRef}>
-                        <LocationOnIcon />
-                        <input className={'top-nav-input-container__input'} type="text" placeholder="Choose a location"
-                               onClick={handleLocationClick}
-                        />
-                        {showLocationOption &&
-                            <Stack className={'drop-down-suggestion'}>
-                                <Stack flexDirection={'row'}>
-                                    <TurnSharpRightIcon />
-                                    <span>Use my current location</span>
-                                </Stack>
-                                <Stack flexDirection={'row'}>
-                                    <LiveTvIcon />
-                                    <span>Browse online events</span>
-                                </Stack>
-                            </Stack>
-                        }
-                    </div>
-                    <div className={'top-nav__search-btn'}>
-                        <SearchIcon />
-                    </div>
-                </Stack>
-            }
+            <TopNavSearchBar />
             <Stack direction={'row'} className={'top-nav-container__nav-links-container'} columnGap={'1rem'}>
                 {navLinks.map((item, index) => {
                     if (!item.shouldRender(isLoggedIn)) return null;

@@ -29,6 +29,10 @@
     p{
         font-size: 1.5rem;
         font-weight: 600;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 }
 .create-events-stepper__wrapper{

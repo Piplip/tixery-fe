@@ -4,6 +4,7 @@ import {useEffect, useState} from "react";
 import {clearCookie, getCookie} from "../../common/Utilities.js";
 import {checkLoggedIn} from "../../common/Utilities.js";
 import BrowseEvents from "./BrowseEvents.jsx";
+import RootFooter from "../shared/RootFooter.jsx";
 
 function AttendeeHome(){
     const [isLoggedIn, setIsLoggedIn] = useState(checkLoggedIn())
@@ -25,6 +26,7 @@ function AttendeeHome(){
             <TopNav isLoggedIn={isLoggedIn}/>
             <AttendeeHero />
             <BrowseEvents />
+            <RootFooter />
         </div>
     )
 }

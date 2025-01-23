@@ -193,7 +193,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
                                     return (
                                         <Stack key={index} style={{border: '2px solid blue', borderRadius: 5, padding: '.75rem'}}>
                                             <Stack direction={'row'} justifyContent={'space-between'} paddingBottom={2}>
-                                                <Typography variant={'h6'}>{ticket.name}</Typography>
+                                                <Typography variant={'h6'} style={{maxWidth: '70%'}}>{ticket.name}</Typography>
                                                 {renderQuantityControl(quantity, index)}
                                             </Stack>
                                             <Divider />
@@ -249,7 +249,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
                             </Stack>
                         </Stack>
                         <Stack rowGap={2} className={'order-summary'}>
-                            <img src={image} alt={eventName} style={{width: '25rem'}} />
+                            <img src={image} alt={eventName} style={{height: '15rem'}} />
                             <Stack paddingInline={2}>
                                 <b>Order summary</b>
                                 <Stack paddingBlock={1} rowGap={1}>
@@ -257,15 +257,15 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
                                         const quantity = quantities[index];
                                         if(quantity > 0){
                                             return (
-                                                <Stack key={index} direction={'row'} justifyContent={'space-between'}>
-                                                    <Typography variant={'body2'}>{ticket.name} x{quantity}</Typography>
+                                                <Stack key={index} direction={'row'} justifyContent={'space-between'} className={'billed-item'}>
+                                                    <Typography style={{maxWidth: '70%'}} variant={'body2'}>{ticket.name} x{quantity}</Typography>
                                                     <Typography variant={'body2'}>{ticket.currency.symbol !== "null" ? ticket.currency.symbol : ''}{Math.round(quantity * prices[index] * 100) / 100}</Typography>
                                                 </Stack>
                                             )
                                         }
                                     })}
                                 </Stack>
-                                <Stack direction={'row'} justifyContent={'space-between'} borderTop={'1px solid'} paddingTop={.5}>
+                                <Stack direction={'row'} justifyContent={'space-between'} borderTop={'2px solid'} paddingTop={.5}>
                                     <Typography variant={'h6'} fontWeight={'bold'}>Total</Typography>
                                     <Typography variant={'h6'} fontWeight={'bold'}>${Math.round((totalPrice + totalDonationPrice) * 100) / 100}</Typography>
                                 </Stack>
