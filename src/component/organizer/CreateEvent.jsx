@@ -95,6 +95,8 @@ function CreateEvent() {
                 language: loaderData.language,
                 locationType: loaderData.location ? loaderData.location.locationType : "venue",
                 location: loaderData?.location?.location,
+                lat: loaderData?.location?.lat,
+                lon: loaderData?.location?.lon,
                 reserveSeating: loaderData.locatiion ? loaderData.location.reserveSeating : false,
                 faqs: loaderData.faq,
                 tickets: loaderData.tickets.map((ticket) => ({
@@ -200,7 +202,7 @@ function CreateEvent() {
                 if (eventData.location === "" || eventData.location === undefined) {
                     return "Event location is required.";
                 }
-                if (eventData.eventStartTime.isBefore(eventData.eventEndTime)) {
+                if (eventData.eventStartTime.isAfter(eventData.eventEndTime)) {
                     return "Start time cannot be later than end time.";
                 }
                 break;
@@ -265,6 +267,9 @@ function CreateEvent() {
                     locationType: eventData.locationType,
                     location: eventData.location,
                     reserveSeating: eventData.reserveSeating,
+                    latitude: eventData.lat,
+                    longitude: eventData.lon,
+                    locationName: eventData.locationName,
                     faqs: eventData.faqs,
                     additionalInfo: eventData.additionalInfo
                 }
@@ -330,7 +335,6 @@ function CreateEvent() {
     };
 
     console.log(eventData)
-
     // TODO: handle displaying step checking properly
 
     return (

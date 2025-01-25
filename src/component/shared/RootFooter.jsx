@@ -10,16 +10,16 @@ function RootFooter(){
                 <Grid container columns={{xs: 16}}>
                     <Grid size={4} className="footer__column">
                         <Typography variant="h6" className="footer__title">
-                            Use Eventbrite
+                            Use Tixery
                         </Typography>
                         <ul className="footer__list">
                             {[
                                 "Create Events",
                                 "Pricing",
                                 "Event Marketing Platform",
-                                "Eventbrite Mobile Ticket App",
-                                "Eventbrite Check-In App",
-                                "Eventbrite App Marketplace",
+                                "Tixery Mobile Ticket App",
+                                "Tixery Check-In App",
+                                "Tixery App Marketplace",
                                 "Event Registration Software",
                                 "Community Guidelines",
                                 "FAQs",
@@ -112,7 +112,7 @@ function RootFooter(){
 
                 <div className="footer__bottom">
                     <Typography variant="body2" className="footer__copyright">
-                        © 2025 Eventbrite
+                        © 2025 Tixery
                     </Typography>
                     <div className="footer__links">
                         {[

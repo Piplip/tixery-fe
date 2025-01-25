@@ -157,6 +157,7 @@
     column-gap: .5rem;
     padding: .5rem 1rem;
     margin-top: 1rem;
+    border-radius: .5rem;
 }
 .event-view__report:hover{
     background-color: #f8f8f8;
@@ -182,7 +183,7 @@
     background-color: #f8f8f8;
     padding: .5rem 1.25rem;
     border-radius: 1rem;
-    font-size: .9rem;
+    font-size: .8rem;
     font-family: Arial, sans-serif;
     cursor: pointer;
     color: #4f4242;

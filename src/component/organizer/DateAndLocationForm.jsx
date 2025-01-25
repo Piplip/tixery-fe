@@ -1,4 +1,4 @@
-import {useContext, useState} from "react";
+import {useCallback, useContext, useEffect, useState} from "react";
 import {
     Button,
     Checkbox,
@@ -32,6 +32,9 @@ import Switch from '@mui/material/Switch';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import {EventContext} from "../../context.js";
 import {useLocation} from "react-router-dom";
+import {nominatimAxios} from "../../config/axiosConfig.js";
+import debounce from 'lodash.debounce';
+import Map from "../shared/Map.jsx";
 
 const checkboxStyle = {
     sx: {
@@ -90,10 +93,15 @@ const languages = [
 ];
 
 function DateAndLocationForm(){
+    const location = useLocation()
+    const {data, setData} = useContext(EventContext)
+
     const [activeTab, setActiveTab] = useState("venue");
     const [open, setOpen] = useState(false);
-    const {data, setData} = useContext(EventContext)
-    const location = useLocation()
+    const [showSuggestion, setShowSuggestion] = useState(false);
+    const [suggestedLocation, setSuggestedLocation] = useState([]);
+    const [showMap, setShowMap] = useState(!(data.lat && data.lon));
+
     const validationSchema = Yup.object().shape({
         timezone: Yup.string().required('Timezone is required'),
         language: Yup.string().required('Language is required'),
@@ -105,7 +113,6 @@ function DateAndLocationForm(){
                 return value > this.parent.eventStartTime;
             }),
     });
-
     const initialValues = {
         displayEndTime: data.displayEndTime,
         timezone: data.timezone,
@@ -115,7 +122,6 @@ function DateAndLocationForm(){
         eventStartTime: data.eventStartTime !== undefined ? location.pathname.includes("edit") ? data.eventStartTime : dayjs(data.eventStartTime, 'HH:mm') : null,
         eventEndTime: data.eventEndTime ? location.pathname.includes("edit") ? data.eventEndTime : dayjs(data.eventEndTime, 'HH:mm') : null,
     };
-
     const formik = useFormik({
         initialValues: initialValues,
         validationSchema: validationSchema,
@@ -130,6 +136,43 @@ function DateAndLocationForm(){
         return formik.values.eventDate !== null && formik.values.eventStartTime !== null && formik.values.eventEndTime !== null
             && formik.values.timezone !== undefined && formik.values.location !== '' && formik.errors.eventDate === undefined
             && formik.errors.eventStartTime === undefined && formik.errors.eventEndTime === undefined
+    }
+
+    const debouncedApiCall = useCallback(
+        debounce((query) => {
+            if(query !== ''){
+                nominatimAxios
+                    .get(`/search?q=${query}&format=json&limit=3&layer=poi,address`)
+                    .then((r) => {
+                        console.log(r.data)
+                        setSuggestedLocation(r.data);
+                        setShowSuggestion(true);
+                    })
+                    .catch((err) => console.log(err));
+            }
+        }, 500),
+        []
+    );
+
+    useEffect(() => {
+        return () => debouncedApiCall.cancel();
+    }, [debouncedApiCall]);
+
+    function handleLocationChange(e) {
+        // setShowMap(false)
+        const value = e.target.value;
+        setData((prev) => ({ ...prev, location: value }));
+        formik.handleChange(e);
+        debouncedApiCall(value);
+    }
+
+    function handleSelectLocation(location){
+        setShowSuggestion(false)
+        setData(prev =>
+            ({...prev, location: location.display_name, lat: location.lat, lon: location.lon, locationName: location.name})
+        )
+        formik.setFieldValue('location', location.name)
+        setShowMap(true)
     }
 
     return (
@@ -237,16 +280,25 @@ function DateAndLocationForm(){
                 </Tabs>
                 {activeTab === "venue" && (
                     <Stack>
-                        <TextField label="Location *" fullWidth placeholder="Enter a location" margin="normal"
-                                   name='location' onBlur={formik.handleBlur}
-                            value={formik.values.location}
-                                   onChange={(e) => {
-                                       setData(prev => ({...prev, location: e.target.value}))
-                                       formik.handleChange(e)
-                                    }}
-                                   error={formik.touched.location && !!formik.errors.location}
-                                   helperText={formik.touched.location && formik.errors.location}
-                        />
+                        <Stack style={{position: 'relative'}}>
+                            <TextField label="Location *" fullWidth placeholder="Enter a location" margin="normal"
+                                       name='location' onBlur={formik.handleBlur} autoComplete={"one-time-code"}
+                                       value={formik.values.location}
+                                       onChange={handleLocationChange}
+                                       error={formik.touched.location && !!formik.errors.location}
+                                       helperText={formik.touched.location && formik.errors.location}
+                            />
+                            {suggestedLocation.length > 0 && showSuggestion &&
+                                <Stack className={'location-venue__suggested-location'} rowGap={1}>
+                                    {suggestedLocation.map((location, index) => (
+                                        <p key={index}
+                                            onClick={() => handleSelectLocation(location)}
+                                        >{location.display_name}</p>
+                                    ))}
+                                </Stack>
+                            }
+                        </Stack>
+                        {showMap && data.lat && data.lon && <Map latitude={data.lat} longitude={data.lon} locationName={data.location}/>}
                         <div className={'location-venue__reserve-seating'}>
                             <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
                                 <p style={{fontWeight: 'bold'}}>Reserved seating</p>

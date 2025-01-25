@@ -9,6 +9,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import TimelapseIcon from '@mui/icons-material/Timelapse';
 import FacebookRoundedIcon from '@mui/icons-material/FacebookRounded';
 import XIcon from '@mui/icons-material/X';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import LanguageIcon from '@mui/icons-material/Language';
 import FlagIcon from '@mui/icons-material/Flag';
 import {Link, useLoaderData} from "react-router-dom";
@@ -23,6 +24,8 @@ import MoreRelatedByOrganizer from "./MoreRelatedByOrganizer.jsx";
 import ShareDialog from "./ShareDialog.jsx";
 import {Accordion, AccordionDetails, AccordionSummary} from "@mui/joy";
 import TicketPanel from "./TicketPanel.jsx";
+import Map from "./Map.jsx";
+import RootFooter from "./RootFooter.jsx";
 
 const OtherEvents = lazy(() => import('./OtherEvents.jsx'));
 
@@ -34,12 +37,12 @@ function EventView(){
     const [profile, setProfile] = useState({})
     const [heroImage, setHeroImage] = useState()
     const [viewDetail, setViewDetail] = useState(false)
-    console.log(loaderData)
+    const [showMapDetail, setShowMapDetail] = useState(false)
+
     useEffect(() => {
         if (loaderData.profile_id && !profile.loaded) {
             accountAxios.get(`/organizer/profile/get?pid=${loaderData.profile_id}`)
                 .then(async (response) => {
-                    console.log(response.data)
                     setProfile({ ...response.data, loaded: true });
                     response.data.profile_image_url = await fetchImage(storage, response.data.profile_image_url);
                     setProfile({ ...response.data, loaded: true });
@@ -169,14 +172,17 @@ function EventView(){
                                         <LocationOnIcon className={'event-view__location-icon'} />
                                         <Stack rowGap={.5}>
                                             <p className={'event-view__location-name'}>
-                                                NASA Goddard Visitor Center
+                                                {loaderData.location.name}
                                             </p>
                                             <p className={'event-view__location-address'}>
-                                                {loaderData.location.location}
+                                                {loaderData.location.location.replace(new RegExp(loaderData.location.name + ', ', 'g'), '')}
                                             </p>
-                                            <div className={'event-view__location-map'}>
-                                                Show map<KeyboardArrowDownIcon />
+                                            <div className={'event-view__location-map'} onClick={() => setShowMapDetail(prev => !prev)}>
+                                                Show map {showMapDetail ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
                                             </div>
+                                            {showMapDetail && <Map latitude={loaderData.location.lat} longitude={loaderData.location.lon}
+                                                locationName={loaderData.location.name}
+                                            />}
                                         </Stack>
                                     </Stack>
                                 </Stack>
@@ -333,9 +339,10 @@ function EventView(){
                     </Stack>
                 </div>
             </div>
-            <div style={{paddingInline: '10%', backgroundColor: '#ececec', paddingBlock: '1.5rem'}}>
+            <div style={{paddingInline: '10%', backgroundColor: '#ececec', paddingBlock: '1rem 2rem'}}>
                 <OtherEvents />
             </div>
+            <RootFooter />
         </>
     )
 }

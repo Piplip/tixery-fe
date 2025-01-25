@@ -98,3 +98,22 @@
     margin-block: .5rem 1rem;
     font-family: "Microsoft Tai Le", sans-serif;
 }
+.location-venue__suggested-location{
+    z-index: 100000000;
+    background-color: white;
+    position: absolute;
+    border: 1px solid;
+    padding-block: .5rem;
+    top: 100%;
+    width: 110%;
+    transform: translateX(-5%);
+}
+.location-venue__suggested-location > p{
+    padding: .5rem 1rem;
+    font-family: "Microsoft Tai Le", sans-serif;
+    font-size: .9rem;
+}
+.location-venue__suggested-location > p:hover{
+    cursor: pointer;
+    background-color: #f9f9f9;
+}
