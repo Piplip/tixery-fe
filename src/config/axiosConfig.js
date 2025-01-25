@@ -96,4 +96,20 @@ eventAxiosWithToken.interceptors.request.use(
     }
 );
 
+export const nominatimAxios = axios.create({
+    baseURL: 'https://nominatim.openstreetmap.org',
+    timeout: 10000,
+    headers: {
+        'Content-Type': 'application/json',
+    }
+})
+
+export const locationIQAxios = axios.create({
+    baseURL: 'https://us1.locationiq.com/v1',
+    timeout: 10000,
+    headers: {
+        'Content-Type': 'application/json',
+    }
+})
+
 export default accountAxios;
