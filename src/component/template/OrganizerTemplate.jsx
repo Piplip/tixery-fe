@@ -1,5 +1,5 @@
 import {Outlet} from "react-router-dom";
-import OrganizerNavBar from "./OrganizerNavBar.jsx";
+import OrganizerNavBar from "../organizer/OrganizerNavBar.jsx";
 import '../../styles/organizer-template-styles.css'
 import TopNav from "../shared/TopNav.jsx";
 import {useEffect, useState} from "react";

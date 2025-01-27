@@ -4,20 +4,20 @@ import LoginSignUp from "./component/shared/LoginSignUp.jsx";
 import VerifyAccountSuccess from "./component/shared/VerifyAccountSuccess.jsx";
 import VerifyAccountFailed from "./component/shared/VerifyAccountFailed.jsx";
 import SelectRole from "./component/shared/SelectRole.jsx";
-import UserCollectDataTemplate from "./component/shared/UserCollectDataTemplate.jsx";
+import UserCollectDataTemplate from "./component/template/UserCollectDataTemplate.jsx";
 import AttendeeCollectnfo from "./component/attendee/AttendeeCollectnfo.jsx";
 import {LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import OrganizerCollectInfo from "./component/organizer/OrganizerCollectInfo.jsx";
 import OrganizerOverview from "./component/organizer/OrganizerOverview.jsx";
-import OrganizerTemplate from "./component/organizer/OrganizerTemplate.jsx";
+import OrganizerTemplate from "./component/template/OrganizerTemplate.jsx";
 import OrganizerHome from "./component/organizer/OrganizerHome.jsx";
 import OrganizerSettings from "./component/organizer/OrganizerSettings.jsx";
 import OrganizerSettingProfile from "./component/organizer/OrganizerSettingProfile.jsx";
-import OrganizerViewTemplate from "./component/organizer/OrganizerViewTemplate.jsx";
+import OrganizerViewTemplate from "./component/template/OrganizerViewTemplate.jsx";
 import OrganizerView from "./component/organizer/OrganizerView.jsx";
-import {accountAxiosWithToken, eventAxiosWithToken} from "./config/axiosConfig.js";
-import {getUserData} from "./common/Utilities.js";
+import {accountAxiosWithToken, eventAxios, eventAxiosWithToken} from "./config/axiosConfig.js";
+import {checkLoggedIn, getUserData} from "./common/Utilities.js";
 import {lazy} from "react";
 import LoadingFallback from "./component/shared/LoadingFallback.jsx";
 import OrganizerNewProfile from "./component/organizer/OrganizerNewProfile.jsx";
@@ -25,6 +25,8 @@ import OrganizerEditProfile from "./component/organizer/OrganizerEditProfile.jsx
 import CreateEvent from "./component/organizer/CreateEvent.jsx";
 import OrganizerEvent from "./component/organizer/OrganizerEvent.jsx";
 import EventView from "./component/shared/EventView.jsx";
+import EventSearch from "./component/shared/EventSearch.jsx";
+import RootTemplate from "./component/template/RootTemplate.jsx";
 
 function App() {
     const OrganizerBuildEventPage = lazy(() => import('./component/organizer/OrganizerBuildEventPage'))
@@ -33,11 +35,42 @@ function App() {
     const OrganizerPublishEvent = lazy(() => import('./component/organizer/OrganizerPublishEvent'))
 
     const routers = createBrowserRouter([
-        {path: '/', element: <AttendeeHome />},
         {path: '/login', element: <LoginSignUp />},
         {path: '/sign-up', element: <LoginSignUp />},
         {path: '/accounts/verify/success', element: <VerifyAccountSuccess />},
         {path: '/accounts/verify/failed', element: <VerifyAccountFailed />},
+        {
+            path: '/',
+            element: <RootTemplate />,
+            hydrateFallbackElement: <LoadingFallback />,
+            children: [
+                {index: true, element: <AttendeeHome />},
+                {
+                    path: 'events/search', element: <EventSearch />,
+                    loader: async () => {
+                        const response = await eventAxios.get(`/search?eids=${sessionStorage.getItem('search-ids')}`)
+                        return response.data
+                    }
+                },
+                {
+                    path: 'events/:id', element: <EventView />,
+                    hydrateFallbackElement: <LoadingFallback />,
+                    loader: async ({ params }) => {
+                        const searchParams = new URLSearchParams({
+                            eid: params.id
+                        })
+                        if(checkLoggedIn()){
+                            searchParams.append('pid', getUserData('profileID'))
+                        }
+                        const response = await eventAxiosWithToken.get(
+                            `/get/specific?${searchParams}`
+                        );
+
+                        return response.data;
+                    }
+                },
+            ]
+        },
         {
             path: '/u/interests',
             element: <UserCollectDataTemplate />,
@@ -148,19 +181,6 @@ function App() {
                     },
                 }
             ]
-        },
-        {
-            path: '/events/:id', element: <EventView />,
-            hydrateFallbackElement: <LoadingFallback />,
-            loader: async ({ params }) => {
-                const eventId = params.id;
-
-                const response = await eventAxiosWithToken.get(
-                    `/get/specific?eid=${eventId}`
-                );
-
-                return response.data;
-            }
         },
     ])
 
