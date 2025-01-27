@@ -1,5 +1,4 @@
 import "../../styles/event-view-styles.css"
-import TopNav from "./TopNav.jsx";
 import {Avatar, Skeleton, Stack, Tooltip, Typography} from "@mui/material";
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
@@ -14,7 +13,7 @@ import LanguageIcon from '@mui/icons-material/Language';
 import FlagIcon from '@mui/icons-material/Flag';
 import {Link, useLoaderData} from "react-router-dom";
 import dayjs from "dayjs";
-import {lazy, useEffect, useState} from "react";
+import {lazy, useEffect, useRef, useState} from "react";
 import accountAxios from "../../config/axiosConfig.js";
 import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
@@ -25,7 +24,6 @@ import ShareDialog from "./ShareDialog.jsx";
 import {Accordion, AccordionDetails, AccordionSummary} from "@mui/joy";
 import TicketPanel from "./TicketPanel.jsx";
 import Map from "./Map.jsx";
-import RootFooter from "./RootFooter.jsx";
 
 const OtherEvents = lazy(() => import('./OtherEvents.jsx'));
 
@@ -39,17 +37,20 @@ function EventView(){
     const [viewDetail, setViewDetail] = useState(false)
     const [showMapDetail, setShowMapDetail] = useState(false)
 
+    const isProfileLoaded = useRef(false)
+
     useEffect(() => {
-        if (loaderData.profile_id && !profile.loaded) {
+        if (loaderData.profile_id && !isProfileLoaded.current) {
+            isProfileLoaded.current = true;
             accountAxios.get(`/organizer/profile/get?pid=${loaderData.profile_id}`)
                 .then(async (response) => {
-                    setProfile({ ...response.data, loaded: true });
-                    response.data.profile_image_url = await fetchImage(storage, response.data.profile_image_url);
-                    setProfile({ ...response.data, loaded: true });
+                    const profileData = { ...response.data };
+                    profileData.profile_image_url = await fetchImage(storage, response.data.profile_image_url);
+                    setProfile(profileData);
                 })
                 .catch((error) => console.error("Error loading profile:", error));
         }
-    }, [loaderData.profile_id, profile.loaded]);
+    }, [loaderData.profile_id]);
 
     useEffect(() => {
         if (loaderData.images && loaderData.images.length > 0) {
@@ -65,7 +66,6 @@ function EventView(){
 
     return (
         <>
-            <TopNav enableScrollEffect={true}/>
             {dayjs(loaderData.end_time).isBefore(dayjs()) &&
                 <div className={'ended-notify'}>
                     This event has ended
@@ -335,14 +335,15 @@ function EventView(){
                                 </button>
                             </Stack>
                         }
-                        <MoreRelatedByOrganizer id={loaderData.event_id} name={profile.profile_name} customURL={profile.custom_url} profileID={profile.profile_id}/>
+                        {loaderData.event_id && profile.profile_id &&
+                            <MoreRelatedByOrganizer id={loaderData.event_id} name={profile.profile_name} customURL={profile.custom_url} profileID={profile.profile_id}/>
+                        }
                     </Stack>
                 </div>
             </div>
-            <div style={{paddingInline: '10%', backgroundColor: '#ececec', paddingBlock: '1rem 2rem'}}>
+            <div style={{paddingInline: '10%', backgroundColor: '#ececec', paddingBlock: '1rem 2rem', marginBlock: '2rem'}}>
                 <OtherEvents />
             </div>
-            <RootFooter />
         </>
     )
 }

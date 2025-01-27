@@ -5,17 +5,22 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import TurnSharpRightIcon from "@mui/icons-material/TurnSharpRight";
 import LiveTvIcon from "@mui/icons-material/LiveTv";
 import {useCallback, useEffect, useRef, useState} from "react";
-import {useLocation} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import debounce from "lodash.debounce";
-import {eventAxios, locationIQAxios} from "../../config/axiosConfig.js";
+import {eventAxios, locationIQAxios, rootAxios} from "../../config/axiosConfig.js";
+import cookie from 'react-cookies'
+import {checkLoggedIn, getUserData, getUserLocation} from "../../common/Utilities.js";
 
 function TopNavSearchBar(){
     const location = useLocation()
+    const navigate = useNavigate()
 
     const [showLocationOption, setShowLocationOption] = useState(false);
     const [showRecentSearches, setShowRecentSearches] = useState(false);
-    const [searchValue, setSearchValue] = useState('');
-    const [locationValue, setLocationValue] = useState('');
+    const [searchValue, setSearchValue] = useState(location.search.split('=')[1] || '');
+    const [locationValue, setLocationValue] = useState({
+        value: '',
+    });
     const [showSnackbar, setShowSnackbar] = useState(false);
     const [suggestion, setSuggestion] = useState([]);
 
@@ -41,6 +46,10 @@ function TopNavSearchBar(){
         };
     }, []);
 
+    useEffect(() => {
+        getUserLocation()
+    }, []);
+
     const handleSearchInpClick = () => {
         setShowRecentSearches(true);
         setShowLocationOption(false);
@@ -54,31 +63,53 @@ function TopNavSearchBar(){
     const debounceSuggestion = useCallback(
         debounce((query) => {
             if(query !== ''){
-                eventAxios
-                    .get(`/search/suggestions?q=${query}`)
+                const searchParams = new URLSearchParams({
+                    q: query
+                })
+                if(checkLoggedIn()){
+                    searchParams.append('uid', getUserData("profileID"))
+                }
+                if(locationValue.value === 'Online'){
+                    searchParams.append('online', 1)
+                    searchParams.append('lat', cookie.load('user-location').lat)
+                    searchParams.append('lon', cookie.load('user-location').lon)
+                }
+                else if(!!locationValue.lat && !!locationValue.lon){
+                    searchParams.append('type', 2)
+                    searchParams.append('lat', locationValue.lat)
+                    searchParams.append('lon', locationValue.lon)
+                }
+                else{
+                    searchParams.append('type', 3)
+                    searchParams.append('lat', cookie.load('user-location').lat)
+                    searchParams.append('lon', cookie.load('user-location').lon)
+                }
+                eventAxios.get(`/search/suggestions?` + searchParams)
                     .then((r) => {
                         console.log(r.data)
                         const data = r.data;
                         let arr = [];
+                        let searchIDs = ''
                         for(let i = 0; i < data.length; i++) {
                             const item = data[i]
+                            arr.push(item.name);
                             if (item?.location?.location.toLowerCase().includes(query.toLowerCase())) {
                                 arr.push(item.location.name);
                             }
                             if (item?.category?.toLowerCase().includes(query.toLowerCase())) {
                                 arr.push(item.category);
                             }
-                            if (item?.name?.toLowerCase().includes(query.toLowerCase())) {
-                                arr.push(item.name);
-                            }
                             item?.tags?.forEach((tag) => {
                                 if (tag.toLowerCase().includes(query.toLowerCase())) {
                                     arr.push(tag);
                                 }
                             });
+                            searchIDs += item.event_id + ','
                         }
+                        arr = [...new Set(arr)];
                         setSuggestion(arr);
                         setShowRecentSearches(true);
+                        sessionStorage.setItem("search-ids", searchIDs);
                     })
                     .catch((err) => console.log(err));
             }
@@ -91,7 +122,7 @@ function TopNavSearchBar(){
     }, [debounceSuggestion]);
 
     function handleLocationClick(){
-        setLocationValue("Finding your location...")
+        setLocationValue({value: "Finding your location..."})
         if(navigator.geolocation){
             navigator.geolocation.getCurrentPosition(success, error)
         }
@@ -99,9 +130,14 @@ function TopNavSearchBar(){
     }
 
     function success(position) {
-        console.log(position)
         locationIQAxios
-            .get(`https://us1.locationiq.com/v1/reverse?key=pk.5429f7b7973cc17a2b1d22ddcb17f2a4&lat=${position.coords.latitude}&lon=-${position.coords.longitude}&format=json&`)
+            .get(`https://us1.locationiq.com/v1/reverse?key=pk.5429f7b7973cc17a2b1d22ddcb17f2a4&lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`)
+            .then(r => {
+                console.log(r.data)
+                cookie.save('user-location', {lat: r.data.lat, lon: r.data.lon}, {path: '/', maxAge: 60 * 60 * 24 * 7})
+                setLocationValue({value: r.data.display_name, lat: r.data.lat, lon: r.data.lon})
+            })
+            .catch(err => console.log(err))
     }
 
     function error() {
@@ -109,6 +145,9 @@ function TopNavSearchBar(){
     }
 
     function handleSearchChange(e){
+        if(e.target.value === ''){
+            setLocationValue({value: ''})
+        }
         setSuggestion([])
         setSearchValue(e.target.value)
         debounceSuggestion(e.target.value)
@@ -137,7 +176,12 @@ function TopNavSearchBar(){
                             (suggestion.length > 0 ?
                                 <Stack className={'drop-down-suggestion'}>
                                     {suggestion.map((s, index) => (
-                                        <Stack key={index} flexDirection={'row'}>
+                                        <Stack key={index} flexDirection={'row'}
+                                            onClick={() => {
+                                                navigate(`events/search?q=${searchValue}`)
+                                                setShowRecentSearches(false)
+                                            }}
+                                        >
                                             <span>{s}</span>
                                         </Stack>
                                     ))}
@@ -168,7 +212,7 @@ function TopNavSearchBar(){
                     <div style={{position: 'relative'}} ref={locationOptionRef}>
                         <LocationOnIcon />
                         <input className={'top-nav-input-container__input'} type="text" placeholder="Choose a location"
-                               value={locationValue} onChange={(e) => setLocationValue(e.target.value)}
+                               value={locationValue?.value} onChange={(e) => setLocationValue({value: e.target.value})}
                                onClick={handleLocationInpClick}
                         />
                         {showLocationOption &&
@@ -178,7 +222,7 @@ function TopNavSearchBar(){
                                     <span>Use my current location</span>
                                 </Stack>
                                 <Stack flexDirection={'row'} onClick={() => {
-                                    setLocationValue('Online')
+                                    setLocationValue({value: 'Online'})
                                     setShowLocationOption(false)
                                 }}>
                                     <LiveTvIcon />

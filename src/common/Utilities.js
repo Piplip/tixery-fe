@@ -1,5 +1,7 @@
 import {jwtDecode} from "jwt-decode";
 import {getDownloadURL, ref} from "firebase/storage";
+import {rootAxios} from "../config/axiosConfig.js";
+import cookie from "react-cookies";
 
 export function hasRole(roles){
     const token = localStorage.getItem('tk');
@@ -8,7 +10,7 @@ export function hasRole(roles){
 }
 
 export function checkLoggedIn(){
-    return localStorage.getItem('tk') !== null;
+    return !!localStorage.getItem('tk')
 }
 
 export function getUserData(key){
@@ -59,10 +61,7 @@ export async function fetchImage(storage, imagePath) {
     try {
         const imageRef = ref(storage, imagePath);
         return await getDownloadURL(imageRef);
-    } catch (error) {
-        console.error("Error loading image from Firebase:", error);
-        throw error;
-    }
+    } catch (error) { /* empty */ }
 }
 
 export function transformNumber(number){
@@ -73,4 +72,8 @@ export function transformNumber(number){
         return (number / 1000).toFixed(1) + 'K';
     }
     return number;
+}
+export async function getUserLocation(){
+    const data = await rootAxios.get('https://ipinfo.io/json');
+    cookie.save('user-location', {lat: data.data.loc.split(',')[0], lon: data.data.loc.split(',')[1], city: data.data.city}, {path: '/', maxAge: 60 * 60 * 24 * 7})
 }

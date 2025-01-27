@@ -35,6 +35,7 @@ import {useLocation} from "react-router-dom";
 import {nominatimAxios} from "../../config/axiosConfig.js";
 import debounce from 'lodash.debounce';
 import Map from "../shared/Map.jsx";
+import {useMap} from "react-leaflet";
 
 const checkboxStyle = {
     sx: {

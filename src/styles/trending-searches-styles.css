@@ -1,0 +1,50 @@
+.trending-searches{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 1rem;
+    font-size: 1.1rem;
+    color: #444444;
+}
+.trending-searches__item{
+    padding-inline: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid #c5c5c5;
+    font-family: "Nunito", sans-serif;
+    min-width: 12.5rem;
+}
+
+.trending-searches__item:hover{
+    border-color: #ff1b1b;
+    color: #000000;
+}
+
+@keyframes fireWaving {
+    0% {
+        clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+    }
+    50% {
+        clip-path: polygon(0% 10%, 100% 0%, 100% 90%, 0% 100%);
+    }
+    100% {
+        clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+    }
+}
+
+.trending-searches__item-hot {
+    background: linear-gradient(45deg, red, #ffb11f, #ffff0f);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: fireWaving 2s infinite;
+    font-weight: bold;
+}
+.trending-searches__item-hot:nth-child(1) {
+    font-size: 2rem;
+}
+.trending-searches__item-hot:nth-child(2) {
+    font-size: 1.5rem;
+}
+.trending-searches__item-hot:nth-child(3) {
+    font-size: 1.25rem;
+}

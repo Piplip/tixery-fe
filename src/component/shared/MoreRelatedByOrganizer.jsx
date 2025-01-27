@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import {Stack, Typography} from "@mui/material";
 import EventCard from "./EventCard.jsx";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {eventAxios} from "../../config/axiosConfig.js";
 
 MoreRelatedByOrganizer.propTypes = {
@@ -13,14 +13,19 @@ MoreRelatedByOrganizer.propTypes = {
 
 function MoreRelatedByOrganizer({id, name, customURL, profileID}) {
     const [relateEvents, setRelatedEvents] = useState([]);
-
+    const isCalled = useRef(false);
+    
     useEffect(() => {
-        eventAxios.get(`/get/related?eid=${id}`)
-            .then(r => {
-                setRelatedEvents(r.data)
-            })
-            .catch(err => console.log(err))
-    }, []);
+        if(isCalled.current) return;
+        isCalled.current = true;
+        if(relateEvents.length === 0){
+            eventAxios.get(`/get/related?eid=${id}`)
+                .then(r => {
+                    setRelatedEvents(r.data)
+                })
+                .catch(err => console.log(err))
+        }
+    }, [id, relateEvents]);
 
     return (
         relateEvents.length !== 0 &&

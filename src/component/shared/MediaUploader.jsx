@@ -43,12 +43,18 @@ function MediaUploader () {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [uploadedImages, setUploadedImages] = useState([]);
     const [uploadedVideos, setUploadedVideos] = useState([]);
-    const [isUploadActive, setIsUploadActive] = useState((data?.images?.length > 0) || (data?.videos?.length > 0));
+    const [isUploadActive, setIsUploadActive] = useState(null)
     const [currentPreview, setCurrentPreview] = useState({type: '', src: null});
     const [isDragOver, setIsDragOver] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [showError, setShowError] = useState(false);
     const location = useLocation()
+
+    useEffect(() => {
+        if(!isUploadActive) {
+            setIsUploadActive((data?.images?.length > 0) || (data?.videos?.length > 0))
+        }
+    }, [data.images, data.videos]);
 
     useEffect(() => {
         if (isUploadActive === false) {
@@ -197,8 +203,6 @@ function MediaUploader () {
             console.error('Error deleting file:', error)
         })
     }
-
-    // TODO: Fixing the isUploadActive state not properly set when there are images or videos
 
     return (
         <div className={`media-uploader ${data.images !== undefined || data.videos !== undefined || uploadedImages || uploadedVideos? 'complete-section' : ''}`}>

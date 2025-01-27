@@ -1,5 +1,9 @@
 import axios from "axios";
 
+export const rootAxios = axios.create({
+
+})
+
 const accountAxios = axios.create({
     baseURL: 'http://localhost:4001/accounts',
     timeout: 60000,

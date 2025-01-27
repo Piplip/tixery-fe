@@ -1,24 +1,28 @@
 import {MapContainer, Marker, Popup, TileLayer} from "react-leaflet";
 import 'leaflet/dist/leaflet.css';
 import PropTypes from "prop-types";
-import {useEffect} from "react";
+import {useEffect, useMemo} from "react";
+import ChangeMapView from "./ChangeMapView.jsx";
 
 Map.propTypes = {
-    latitude: PropTypes.number,
-    longitude: PropTypes.number,
+    latitude: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    longitude: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     locationName: PropTypes.string
 }
 
 function Map({latitude, longitude, locationName}) {
-    const location = (latitude && longitude) ? [latitude, longitude] : [51.505, -0.09];
+    const location = useMemo(() => {
+        return (latitude && longitude) ? [latitude, longitude] : [51.505, -0.09];
+    }, [latitude, longitude]);
 
     useEffect(() => {
         if (latitude && longitude) {
             location[0] = latitude;
             location[1] = longitude;
+
         }
-    }, [latitude, location, longitude]);
-    
+    }, [latitude, longitude]);
+
     return (
         <MapContainer center={location} zoom={16} scrollWheelZoom={true} style={{height: '30rem', width: 'clamp(40rem, 100%, 50rem)'}}>
             <TileLayer
@@ -30,6 +34,7 @@ function Map({latitude, longitude, locationName}) {
                     {locationName}
                 </Popup>
             </Marker>
+            <ChangeMapView lat={location[0]} lon={location[1]} />
         </MapContainer>
     )
 }

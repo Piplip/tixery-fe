@@ -249,7 +249,9 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
                             </Stack>
                         </Stack>
                         <Stack rowGap={2} className={'order-summary'}>
-                            <img src={image} alt={eventName} style={{height: '15rem'}} />
+                            <Stack style={{width: '20rem', height: '10rem', backgroundColor: '#e5e5e5'}} justifyContent={'center'} alignItems={'center'}>
+                                <img src={image} alt={eventName} height={'100%'}/>
+                            </Stack>
                             <Stack paddingInline={2}>
                                 <b>Order summary</b>
                                 <Stack paddingBlock={1} rowGap={1}>

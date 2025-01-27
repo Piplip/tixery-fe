@@ -1,7 +1,7 @@
 import {IconButton, Stack, Typography} from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {eventAxios} from "../../config/axiosConfig.js";
 import EventCard from "./EventCard.jsx";
 import Grid from "@mui/material/Grid2";
@@ -10,15 +10,16 @@ function OtherEvents(){
     const [events, setEvents] = useState(null)
     const [currentPage, setCurrentPage] = useState(0);
     const eventsPerPage = 4;
+    const isCalled = useRef(false)
 
     useEffect(() => {
-        if(events === null) {
-            eventAxios.get(`/get/suggested?limit=12`)
-                .then(r => {
-                    setEvents(r.data)
-                })
-                .catch(err => console.log(err))
-        }
+        if(isCalled.current) return
+        isCalled.current = true
+        eventAxios.get(`/get/suggested?limit=12`)
+            .then(r => {
+                setEvents(r.data)
+            })
+            .catch(err => console.log(err))
     }, []);
 
     const handleNext = () => {

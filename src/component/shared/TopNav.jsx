@@ -2,7 +2,7 @@ import Logo from "../../assets/logo.svg"
 import {Stack} from "@mui/material";
 import "../../styles/top-nav-styles.css"
 import {Link} from "react-router-dom";
-import {hasRole, checkLoggedIn, getUserData} from "../../common/Utilities.js";
+import {hasRole, getUserData} from "../../common/Utilities.js";
 import LoggedInUserNav from "./LoggedInUserNav.jsx";
 import * as PropsType from "prop-types";
 import {useEffect, useState} from "react";
@@ -13,8 +13,7 @@ TopNav.propTypes = {
     enableScrollEffect: PropsType.bool
 }
 
-function TopNav(props){
-    const isLoggedIn = checkLoggedIn();
+function TopNav({isLoggedIn, enableScrollEffect}){
     const homeLocation = getUserData('role') === 'HOST' ? '/organizer' : '/'
     const [isVisible, setIsVisible] = useState(true);
     const [lastScrollPos, setLastScrollPos] = useState(0);
@@ -59,7 +58,7 @@ function TopNav(props){
     ];
 
     useEffect(() => {
-        if (!props.enableScrollEffect) return;
+        if (!enableScrollEffect) return;
 
         const handleScroll = () => {
             const currentScrollPos = window.scrollY;
@@ -74,7 +73,7 @@ function TopNav(props){
 
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, [props.enableScrollEffect, lastScrollPos]);
+    }, [enableScrollEffect, lastScrollPos]);
 
     return (
         <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}
@@ -95,7 +94,7 @@ function TopNav(props){
                         </Stack>
                     );
                 })}
-                {(isLoggedIn || props.isLoggedIn) && <LoggedInUserNav />}
+                {isLoggedIn && <LoggedInUserNav />}
             </Stack>
         </Stack>
     )
