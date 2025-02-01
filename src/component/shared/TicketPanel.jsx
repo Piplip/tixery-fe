@@ -260,7 +260,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
                                         if(quantity > 0){
                                             return (
                                                 <Stack key={index} direction={'row'} justifyContent={'space-between'} className={'billed-item'}>
-                                                    <Typography style={{maxWidth: '70%'}} variant={'body2'}>{ticket.name} x{quantity}</Typography>
+                                                    <Typography style={{maxWidth: '70%', wordWrap: 'break-word'}} variant={'body2'}>{ticket.name} x{quantity}</Typography>
                                                     <Typography variant={'body2'}>{ticket.currency.symbol !== "null" ? ticket.currency.symbol : ''}{Math.round(quantity * prices[index] * 100) / 100}</Typography>
                                                 </Stack>
                                             )

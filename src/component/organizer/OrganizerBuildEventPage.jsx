@@ -21,7 +21,7 @@ const validationSchema = Yup.object().shape({
 });
 
 function OrganizerBuildEventPage(){
-    const {data, setData} = useContext(EventContext);
+    const {data, setData, setHasUnsavedChanges} = useContext(EventContext);
     const [collapsed, setCollapsed] = useState({});
     const sectionRefs = useRef({});
 
@@ -108,7 +108,10 @@ function OrganizerBuildEventPage(){
                                         error={formik.touched.eventTitle && Boolean(formik.errors.eventTitle)}
                                         helperText={formik.touched.eventTitle && formik.errors.eventTitle}
                                         value={formik.values.eventTitle}
-                                        onChange={formik.handleChange}
+                                        onChange={(e) => {
+                                            formik.handleChange(e)
+                                            setHasUnsavedChanges(true)
+                                        }}
                                         onBlur={formik.handleBlur}
                                         slotProps={{
                                             input: {
@@ -135,7 +138,12 @@ function OrganizerBuildEventPage(){
                                         See examples
                                     </a>
                                 </p>
-                                <TextAreaWithLimit name={'summary'} handleChange={formik.handleChange} value={formik.values.summary}
+                                <TextAreaWithLimit name={'summary'}
+                                                   onChange={(e) => {
+                                                       formik.handleChange(e)
+                                                       setHasUnsavedChanges(true)
+                                                   }}
+                                                   value={formik.values.summary}
                                                    maxChars={500}  error={formik.touched.summary && Boolean(formik.errors.summary)}
                                                    helperText={formik.touched.summary && formik.errors.summary}
                                                    onBlur={formik.handleBlur}

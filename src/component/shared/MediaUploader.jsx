@@ -39,7 +39,7 @@ initializeApp(firebaseConfig);
 const storage = getStorage()
 
 function MediaUploader () {
-    const {data, setData} = useContext(EventContext)
+    const {data, setData, setHasUnsavedChanges} = useContext(EventContext)
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [uploadedImages, setUploadedImages] = useState([]);
     const [uploadedVideos, setUploadedVideos] = useState([]);
@@ -113,6 +113,7 @@ function MediaUploader () {
     };
 
     const handleImageUpload = (event) => {
+        setHasUnsavedChanges(true)
         const files = Array.from(event.target.files);
         const errors = validateFile(files[0], true);
         if(errors){
@@ -133,6 +134,7 @@ function MediaUploader () {
     };
 
     const handleDrop = (event) => {
+        setHasUnsavedChanges(true)
         event.preventDefault();
         const files = Array.from(event.dataTransfer.files);
         const errors = validateFile(files[0], true);
@@ -179,6 +181,7 @@ function MediaUploader () {
     }
 
     const handleVideoUpload = (event) => {
+        setHasUnsavedChanges(true)
         const files = Array.from(event.target.files);
         const errors = validateFile(files[0], false);
         if(errors){
@@ -194,6 +197,7 @@ function MediaUploader () {
     }
 
     function deleteFile(file){
+        setHasUnsavedChanges(true)
         const deleteRef = ref(storage, file)
         deleteObject(deleteRef)
             .then(() => {
@@ -205,7 +209,8 @@ function MediaUploader () {
     }
 
     return (
-        <div className={`media-uploader ${data.images !== undefined || data.videos !== undefined || uploadedImages || uploadedVideos? 'complete-section' : ''}`}>
+        <div className={`media-uploader ${data?.images?.length > 0 || data?.videos?.length > 0 || uploadedImages?.length > 0 || uploadedVideos?.length > 0 
+            ? 'complete-section' : ''}`}>
             <Snackbar open={showError} autoHideDuration={6000} onClose={handleCloseSnackbar}
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }} sx={{marginTop: '3rem'}}
             >

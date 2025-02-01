@@ -39,6 +39,8 @@ function EventView(){
 
     const isProfileLoaded = useRef(false)
 
+    window.scrollTo(0,0)
+
     useEffect(() => {
         if (loaderData.profile_id && !isProfileLoaded.current) {
             isProfileLoaded.current = true;
@@ -63,6 +65,8 @@ function EventView(){
         }
         else setHeroImage("https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F936315053%2F558993483103%2F1%2Foriginal.20250115-135317?crop=focalpoint&fit=crop&auto=format%2Ccompress&q=75&sharp=10&fp-x=0.5&fp-y=0.5&s=3a03308f50db1e157ca93403975dcc59")
     }, []);
+
+    // TODO: Implement enable/disable show past events
 
     return (
         <>

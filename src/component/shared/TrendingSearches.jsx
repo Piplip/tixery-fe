@@ -1,13 +1,16 @@
 import {Stack, Typography} from "@mui/material";
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import "../../styles/trending-searches-styles.css"
 import cookie from "react-cookies";
 import {useEffect, useState} from "react";
 import {eventAxios} from "../../config/axiosConfig.js";
+import {checkLoggedIn, getUserData} from "../../common/Utilities.js";
 
 function TrendingSearches(){
+    const navigate = useNavigate()
+
     const [searchTrends, setSearchTrends] = useState([]);
 
     useEffect(() => {
@@ -18,6 +21,29 @@ function TrendingSearches(){
             })
             .catch(err => console.log(err))
     }, []);
+
+    function handleLinkClick(link) {
+        const searchParams = new URLSearchParams({
+            q: link
+        })
+        if(checkLoggedIn()){
+            searchParams.append('uid', getUserData("profileID"))
+        }
+        searchParams.append('type', 3)
+        searchParams.append('lat', cookie.load('user-location').lat)
+        searchParams.append('lon', cookie.load('user-location').lon)
+        eventAxios.get(`/search/suggestions?` + searchParams)
+            .then((r) => {
+                const data = r.data;
+                let searchIDs = ''
+                for(let i = 0; i < data.length; i++) {
+                    searchIDs += data[i].event_id + ','
+                }
+                sessionStorage.setItem("search-ids", searchIDs);
+                navigate(`/events/search?q=${link}`)
+            })
+            .catch((err) => console.log(err));
+    }
 
     return (
         <Stack style={{paddingBlock: '1rem', width: '100%'}} rowGap={2}>
@@ -39,9 +65,9 @@ function TrendingSearches(){
                             className += ' trending-searches__item-hot';
                         }
                         return (
-                            <Link to={'#'} key={index} className={className}>
+                            <div key={index} className={className} onClick={() => handleLinkClick(item.search_term)}>
                                 {index+1}. {item.search_term}
-                            </Link>
+                            </div>
                         );
                     })}
                 </div>

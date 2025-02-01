@@ -30,6 +30,8 @@
 }
 .tickets-section__ticket-title{
     font-size: 1.15rem;
+    max-width: 20rem;
+    text-overflow-ellipsis: ellipsis;
 }
 .tickets-section__ticket-dates{
     font-size: .8rem;

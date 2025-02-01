@@ -55,7 +55,7 @@ const ticketVisibility = [
 
 function OrganizerCreateTicket(){
     const [open, setOpen] = useState(false)
-    const {data, setData} = useContext(EventContext)
+    const {data, setData, setHasUnsavedChanges} = useContext(EventContext)
     const {validate, setAlert, setCurrentStep} = useOutletContext()
     const [openDetail, setOpenDetail] = useState({
         type: null, open: false
@@ -283,6 +283,7 @@ function OrganizerCreateTicket(){
                         const updatedTickets = [...data.tickets];
                         updatedTickets[editTicket] = newData;
                         setData({...data, tickets: updatedTickets});
+                        setHasUnsavedChanges(true)
                     })
                     .catch(err => console.log(err))
             } else {
@@ -290,6 +291,7 @@ function OrganizerCreateTicket(){
                     .then(r => {
                         newData = {...newData, ticketID: r.data.data};
                         setData(prev => ({...prev, tickets: prev.tickets ? prev.tickets.concat(newData) : [newData]}));
+                        setHasUnsavedChanges(true)
                     })
                     .catch(err => console.log(err));
             }

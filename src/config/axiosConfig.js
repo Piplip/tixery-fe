@@ -1,4 +1,5 @@
 import axios from "axios";
+import {getCookie} from "../common/Utilities.js";
 
 export const rootAxios = axios.create({
 
@@ -36,7 +37,13 @@ accountAxiosWithToken.interceptors.request.use(
 );
 
 accountAxiosWithToken.interceptors.response.use(
-    response => response,
+    response => {
+        if(response.status === 202) {
+            localStorage.setItem('tk', getCookie('AUTH_TOKEN'));
+            window.location.reload()
+        }
+        return response;
+    },
     error => {
         console.log(error)
         if (error.response && error.response.status === 401) {
@@ -71,7 +78,13 @@ export const eventAxiosWithToken = axios.create({
 })
 
 eventAxiosWithToken.interceptors.response.use(
-    response => response,
+    response => {
+        if(response.status === 202) {
+            localStorage.setItem('tk', getCookie('AUTH_TOKEN'));
+            window.location.reload()
+        }
+        return response;
+    },
     error => {
         console.log(error)
         if (error.response && error.response.status === 401) {

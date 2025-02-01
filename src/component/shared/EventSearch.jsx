@@ -10,6 +10,7 @@ import Radio from '@mui/material/Radio';
 import dayjs from "dayjs";
 import TrendingSearches from "./TrendingSearches.jsx";
 import Grid from "@mui/material/Grid2";
+import PopularEvents from "./PopularEvents.jsx";
 
 const categories = [
     'Music', 'Food & Drink', 'Business', 'Community', 'Arts', 'Film & Media', 'Health', 'Sports & Fitness', 'Science & Tech', 'Travel & Outdoor', 'Charity & Causes', 'Spirituality', 'Family & Education', 'Seasonal & Holiday', 'Government', 'Fashion', 'Home & Lifestyle', 'Auto, Boat & Air', 'Hobbies', 'School Activities', 'Other'
@@ -102,7 +103,7 @@ function EventSearch() {
         return categoryMatch && dateMatch && priceMatch && languageMatch && followedOrganizersMatch && onlineEventsMatch;
     });
 
-    console.log(data)
+    window.scrollTo(0, 0);
 
     return (
         <Stack className={'event-search'} direction={'row'}>
@@ -182,33 +183,34 @@ function EventSearch() {
                     </Stack>
                 </Stack>
             </Stack>
-            <Stack className={'event-search__result'} rowGap={5}>
-                <p>Search result ({filteredData?.length})</p>
+            <Stack className={'event-search__result'} rowGap={2}>
+                <p className={'event-search-result__tittle'}>Search result ({filteredData?.length})</p>
                 {(filters.categories.length > 0 || filters.date || filters.price || filters.language) && (
-                    <Stack direction={'row'} spacing={1} mb={2} alignItems={'center'}>
-                        <Typography variant={'body1'}>Filters applied</Typography>
-                        {filters.categories.map((category, index) => (
-                            <Chip key={index} label={category} onDelete={() => handleFilterChange('categories', category)} />
-                        ))}
-                        {filters.date && <Chip label={filters.date} onDelete={() => clearFilter('date')} />}
-                        {filters.price && <Chip label={filters.price} onDelete={() => clearFilter('price')} />}
-                        {filters.language && <Chip label={filters.language} onDelete={() => clearFilter('language')} />}
-                        <button className={'clear-all-filter'} onClick={clearAllFilters}>Clear all</button>
+                    <Stack direction={'row'}>
+                        <Stack direction={'row'} spacing={1} mb={2} alignItems={'center'}>
+                            <Typography variant={'body1'}>Filters applied</Typography>
+                            {filters.categories.map((category, index) => (
+                                <Chip key={index} label={category} onDelete={() => handleFilterChange('categories', category)} />
+                            ))}
+                            {filters.date && <Chip label={filters.date} onDelete={() => clearFilter('date')} />}
+                            {filters.price && <Chip label={filters.price} onDelete={() => clearFilter('price')} />}
+                            {filters.language && <Chip label={filters.language} onDelete={() => clearFilter('language')} />}
+                            <button className={'clear-all-filter'} onClick={clearAllFilters}>Clear all</button>
+                        </Stack>
                     </Stack>
                 )}
                 {filteredData.length === 0 && <div className={'event-search__no-event'}>
                     Nothing matched your search
                 </div>}
-                <Grid container columns={{xs: 12}} spacing={4}>
+                <Grid container columns={{xs: 12}} spacing={4} rowGap={3}>
                     {filteredData.map((event, index) => (
                         <Grid key={index} item size={4}>
                             <EventCard  event={event} />
                         </Grid>
                     ))}
                 </Grid>
-                <div style={{paddingInline: '5rem'}}>
-                    <TrendingSearches />
-                </div>
+                <TrendingSearches />
+                <PopularEvents />
             </Stack>
         </Stack>
     )

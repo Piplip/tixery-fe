@@ -1,14 +1,19 @@
-import {useRef, useContext} from 'react';
+import {useRef, useContext, useEffect, useState} from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import "../../styles/event-additional-info-styles.css"
 import {Stack} from "@mui/material";
 import {EventContext} from "../../context.js";
 
 function EventAdditionalInfo(){
-    const {data, setData} = useContext(EventContext);
+    const {data, setData, setHasUnsavedChanges} = useContext(EventContext);
     const editorRef = useRef(null);
+    const [initialRender, setInitialRender] = useState(true)
 
     const handleEditorChange = (content, editor) => {
+        if(!initialRender){
+            setInitialRender(false)
+        }
+        setHasUnsavedChanges(true)
         setData({...data, additionalInfo: content});
     }
 

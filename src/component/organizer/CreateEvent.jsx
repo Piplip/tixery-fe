@@ -72,10 +72,11 @@ function CreateEvent() {
     const navigate = useNavigate()
     const [eventData, setEventData] = useState({})
     const [currentStep, setCurrentStep] = useState(0);
-    const maxStep =  useRef(location.pathname.includes('edit') ? 2 : 0)
+    const maxStep =  useRef(0)
     const [alert, setAlert] = useState("")
     const [isLoading, setIsLoading] = useState(false)
     const [showSuccessDialog, setShowSuccessDialog] = useState(false)
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const isLive = eventData.publishType === "now";
     const isEdit = location.pathname.includes("edit");
 
@@ -155,10 +156,22 @@ function CreateEvent() {
         }
 
         setEventData(newEventData);
+
+        let initialMaxStep = 0;
+        if (newEventData.eventTitle && newEventData.summary && newEventData.eventType && newEventData.eventDate && newEventData.eventStartTime && newEventData.location) {
+            initialMaxStep = 1;
+        }
+        if (newEventData.tickets && newEventData.tickets.length > 0 && newEventData.capacity > 0) {
+            initialMaxStep = 2;
+        }
+        if ((newEventData.publishType === 'now' || (newEventData.publishType === 'schedule' && newEventData.publishDate && newEventData.publishTime)) && newEventData.type) {
+            initialMaxStep = 3;
+        }
+        maxStep.current = initialMaxStep;
     }, []);
 
     useEffect(() => {
-        window.scrollTo()
+        window.scrollTo(0,0)
     }, []);
 
     function handleClose(){
@@ -297,6 +310,7 @@ function CreateEvent() {
                 console.log(r.data)
                 if(r.data.status === 'OK'){
                     setIsLoading(false)
+                    setHasUnsavedChanges(false)
                     if(currentStep < steps.length - 1){
                         setCurrentStep(currentStep + 1)
                         maxStep.current = Math.max(maxStep.current, currentStep + 1)
@@ -319,7 +333,7 @@ function CreateEvent() {
         const now = dayjs();
         if (publishDateTime.isBefore(now)) return 100;
 
-        const startTime = now.subtract(1, 'day'); // Assuming a 24-hour window
+        const startTime = now.subtract(1, 'day');
         const totalDuration = publishDateTime.diff(startTime);
         const elapsedDuration = now.diff(startTime);
         return (elapsedDuration / totalDuration) * 100;
@@ -333,9 +347,6 @@ function CreateEvent() {
             preserveAspectRatio: 'xMidYMid slice'
         }
     };
-
-    console.log(eventData)
-    // TODO: handle displaying step checking properly
 
     return (
         <div className={'create-events-wrapper'}>
@@ -440,7 +451,7 @@ function CreateEvent() {
                                      ${maxStep.current < index ? 'create-events__disabled-step' : ''}`}
                                      onClick={() => handleSetStep(index)}
                                 >
-                                    <CustomCheckbox checked={currentStep === index} completed={maxStep.current >= index}/>
+                                    <CustomCheckbox checked={currentStep === index} completed={maxStep.current > index}/>
                                     <div>
                                         <p>{step.title}</p>
                                         {currentStep === index &&
@@ -454,14 +465,14 @@ function CreateEvent() {
                 </div>
             </div>
             <div className={'create-events__main'}>
-                <EventContext.Provider value={{data: eventData, setData: setEventData}}>
+                <EventContext.Provider value={{data: eventData, setData: setEventData, setHasUnsavedChanges}}>
                     <Outlet context={{validate: validateStep, setAlert: setAlert, setCurrentStep: setCurrentStep}}/>
                 </EventContext.Provider>
             </div>
             <button className={'create-events-main__continue-btn'}
                 onClick={handleContinue}
             >
-                {currentStep < steps.length - 1 ? 'Continue' : 'Finish'}
+                {hasUnsavedChanges ? 'Save Changes' : (currentStep < steps.length - 1 ? 'Continue' : 'Finish')}
             </button>
         </div>
     )

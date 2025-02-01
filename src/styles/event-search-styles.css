@@ -60,15 +60,17 @@
     width: 70%;
     min-height: 25rem;
     height: 100%;
-    max-height: 35rem;
+    max-height: 30rem;
     display: grid;
     place-items: center;
     text-align: center;
     font-weight: bold;
 }
-.event-search__result > p{
+.event-search-result__tittle{
     font-family: "Nunito", sans-serif;
-    font-size: 1.5rem;
+    font-size: 2rem;
     color: #2c313d;
     font-weight: bold;
+    text-align: center;
+    margin-bottom: .5rem;
 }

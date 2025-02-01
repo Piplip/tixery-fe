@@ -23,7 +23,7 @@ import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import CustomMenu from "../shared/CustomMenu.jsx";
 
 function OrganizerTicketAdmission(){
-    const {data, setData} = useContext(EventContext)
+    const {data, setData, setHasUnsavedChanges} = useContext(EventContext)
     const {handleTypeSelect, setOpenDetail, setEditTicket} = useOutletContext();
     const [open, setOpen] = useState(false);
     const [openCapacity, setOpenCapacity] = useState(false);
@@ -39,7 +39,7 @@ function OrganizerTicketAdmission(){
     function handleDelete(index){
         eventAxiosWithToken.post(`/tickets/remove?tid=${data.tickets[index].ticketID}`)
             .then(r => {
-                console.log(r.data)
+                setHasUnsavedChanges(true)
                 const newTickets = data.tickets.filter((ticket, i) => i !== index)
                 setData({...data, tickets: newTickets})
             })

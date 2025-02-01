@@ -7,7 +7,7 @@ import LiveTvIcon from "@mui/icons-material/LiveTv";
 import {useCallback, useEffect, useRef, useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import debounce from "lodash.debounce";
-import {eventAxios, locationIQAxios, rootAxios} from "../../config/axiosConfig.js";
+import {eventAxios, locationIQAxios} from "../../config/axiosConfig.js";
 import cookie from 'react-cookies'
 import {checkLoggedIn, getUserData, getUserLocation} from "../../common/Utilities.js";
 
@@ -49,6 +49,10 @@ function TopNavSearchBar(){
     useEffect(() => {
         getUserLocation()
     }, []);
+
+    useEffect(() => {
+        setSearchValue(location.search.split('=')[1] || '');
+    }, [location]);
 
     const handleSearchInpClick = () => {
         setShowRecentSearches(true);

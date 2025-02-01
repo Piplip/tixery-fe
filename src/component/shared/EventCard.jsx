@@ -30,6 +30,14 @@ const storage = getStorage()
 
 function EventCard ({ event, organizer, id, customURL, horizontal }) {
     const [imageUrl, setImageUrl] = useState(null)
+    const [open, setOpen] = useState(false);
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+    const handleClose = () => {
+        setOpen(false);
+    };
 
     useEffect(() => {
         if(event?.images?.length > 0) {
@@ -49,6 +57,10 @@ function EventCard ({ event, organizer, id, customURL, horizontal }) {
                 <ShareDialog eventID={event.event_id}/>
             </Stack>
         )
+    }
+
+    function handleLikeEvent(){
+
     }
 
     return (
@@ -72,6 +84,39 @@ function EventCard ({ event, organizer, id, customURL, horizontal }) {
                 </Link>
             </Stack>
             {horizontal && <EventAction />}
+            <Dialog onClose={handleClose} open={open}>
+                <DialogTitle sx={{ m: 0, p: 2 }}>
+                    Sign in to like this event
+                </DialogTitle>
+                <IconButton
+                    onClick={handleClose}
+                    sx={(theme) => ({
+                        position: 'absolute',
+                        right: 8,
+                        top: 8,
+                    })}
+                >
+                    <CloseIcon />
+                </IconButton>
+                <DialogContent dividers>
+                    <Stack className="event-card" >
+                        <Stack style={{position: 'relative'}}>
+                            <img className="event-card__image" style={horizontal ? {width: '15rem', height: '10rem', borderRadius: '1rem 0 0 1rem'} : {}}
+                                 src={imageUrl || "https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F936315053%2F558993483103%2F1%2Foriginal.20250115-135317?crop=focalpoint&fit=crop&auto=format%2Ccompress&q=75&sharp=10&fp-x=0.5&fp-y=0.5&s=3a03308f50db1e157ca93403975dcc59"}
+                                 alt={"foo"}/>
+                            {!horizontal && <EventAction />}
+                        </Stack>
+                        <Stack rowGap={.5} padding={'0 1rem 1rem 1rem'} marginTop={1}>
+                            <p className="event-card__title">{event.name}</p>
+                        </Stack>
+                    </Stack>
+                </DialogContent>
+                <DialogActions>
+                    <Button autoFocus onClick={handleClose}>
+                        Save changes
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Stack>
     )
 }

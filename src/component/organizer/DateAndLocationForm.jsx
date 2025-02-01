@@ -95,7 +95,7 @@ const languages = [
 
 function DateAndLocationForm(){
     const location = useLocation()
-    const {data, setData} = useContext(EventContext)
+    const {data, setData, setHasUnsavedChanges} = useContext(EventContext)
 
     const [activeTab, setActiveTab] = useState("venue");
     const [open, setOpen] = useState(false);
@@ -130,7 +130,7 @@ function DateAndLocationForm(){
         onSubmit: (values) => {
             setOpen(false)
             setData(prev => ({...prev, timezone: values.timezone, language: values.language}));
-        }
+        },
     });
 
     function isValidData(){
@@ -160,7 +160,7 @@ function DateAndLocationForm(){
     }, [debouncedApiCall]);
 
     function handleLocationChange(e) {
-        // setShowMap(false)
+        setHasUnsavedChanges(true)
         const value = e.target.value;
         setData((prev) => ({ ...prev, location: value }));
         formik.handleChange(e);
@@ -182,7 +182,10 @@ function DateAndLocationForm(){
             <Stack rowGap={1}>
                 <h3>Type of event</h3>
                 <Stack direction={'row'} marginBottom={'1rem'} columnGap={1}>
-                    <Button onClick={() => setData(prev => ({...prev, eventType: 'single'}))} sx={{border: '1px solid #bebebe'}}
+                    <Button onClick={() => {
+                        setData(prev => ({...prev, eventType: 'single'}))
+                        setHasUnsavedChanges(true)
+                    }} sx={{border: '1px solid #bebebe'}}
                             className={`event-type__button ${
                                 data.eventType === "single" || data.eventType === undefined ? "active" : ""
                             }`}
@@ -194,7 +197,10 @@ function DateAndLocationForm(){
                         </Stack>
                         <CustomCheckbox checked={data.eventType === 'single' || data.eventType === undefined}/>
                     </Button>
-                    <Button onClick={() => setData(prev => ({...prev, eventType: 'recurring'}))} sx={{border: '1px solid #bebebe'}}
+                    <Button onClick={() => {
+                        setData(prev => ({...prev, eventType: 'recurring'}))
+                        setHasUnsavedChanges(true)
+                    }} sx={{border: '1px solid #bebebe'}}
                             className={`event-type__button ${
                                 data.eventType === "recurring" ? "active" : ""
                             }`}
@@ -211,8 +217,9 @@ function DateAndLocationForm(){
             <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <div className="date-time-section">
                     <DatePicker format={'DD/MM/YYYY'} disablePast label="Event Date *"
-                        value={formik.values.eventDate} name={'eventDate'}
+                        value={dayjs(formik.values.eventDate, 'DD/MM/YYYY')} name={'eventDate'}
                         onChange={(newValue) => {
+                            setHasUnsavedChanges(true)
                             setData(prev => ({...prev, eventDate: newValue.format('DD/MM/YYYY')}))
                             formik.setFieldValue('eventDate', newValue)
                         }}
@@ -227,6 +234,7 @@ function DateAndLocationForm(){
                     <TimePicker label="Start time *" ampm={false} name={'eventStartTime'}
                         value={formik.values.eventStartTime}
                         onChange={(newValue) => {
+                            setHasUnsavedChanges(true)
                             setData(prev => ({...prev, eventStartTime: newValue}))
                             formik.setFieldValue('eventStartTime', newValue)
                         }}
@@ -242,6 +250,7 @@ function DateAndLocationForm(){
                         label="End time *" ampm={false} name={'eventEndTime'}
                         value={formik.values.eventEndTime}
                         onChange={(newValue) => {
+                            setHasUnsavedChanges(true)
                             setData(prev => ({...prev, eventEndTime: newValue}))
                             formik.setFieldValue('eventEndTime', newValue)
                         }}
@@ -270,6 +279,7 @@ function DateAndLocationForm(){
                 <Tabs
                     value={activeTab}
                     onChange={(e, newValue) => {
+                        setHasUnsavedChanges(true)
                         setActiveTab(newValue)
                         setData(prev => ({...prev, locationType: newValue}))
                     }}
@@ -304,7 +314,10 @@ function DateAndLocationForm(){
                             <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
                                 <p style={{fontWeight: 'bold'}}>Reserved seating</p>
                                 <Switch checked={data.reserveSeating || false}
-                                        onChange={() => setData(prev => ({...prev, reserveSeating: !prev.reserveSeating}))}/>
+                                        onChange={() => {
+                                            setHasUnsavedChanges(true)
+                                            setData(prev => ({...prev, reserveSeating: !prev.reserveSeating}))
+                                        }}/>
                             </Stack>
                             <p>Use your venue map to set price tiers for each section and choose whether attendees can
                                 pick their seat.</p>
@@ -342,7 +355,10 @@ function DateAndLocationForm(){
                                         <Checkbox
                                             name="displayEndTime"
                                             checked={formik.values.displayEndTime}
-                                            onChange={formik.handleChange}
+                                            onChange={e => {
+                                                setHasUnsavedChanges(true)
+                                                formik.handleChange(e)
+                                            }}
                                         />
                                     }
                                     label={
@@ -364,7 +380,10 @@ function DateAndLocationForm(){
                                     label="Timezone"
                                     name="timezone"
                                     value={formik.values.timezone}
-                                    onChange={formik.handleChange}
+                                    onChange={e => {
+                                        setHasUnsavedChanges(true)
+                                        formik.handleChange(e)
+                                    }}
                                     error={formik.touched.timezone && !!formik.errors.timezone}
                                 >
                                     {timezones.map((timezone, index) => (
@@ -386,7 +405,10 @@ function DateAndLocationForm(){
                                     name="language"
                                     label="Language"
                                     value={formik.values.language}
-                                    onChange={formik.handleChange}
+                                    onChange={e => {
+                                        setHasUnsavedChanges(true)
+                                        formik.handleChange(e)
+                                    }}
                                     error={formik.touched.language && !!formik.errors.language}
                                 >
                                     {languages.map((lang) => (

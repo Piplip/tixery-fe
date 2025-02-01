@@ -32,9 +32,10 @@ import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {getDownloadURL, getStorage, ref} from "firebase/storage";
 import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded';
 
+initializeApp(firebaseConfig);
+const storage = getStorage()
+
 function OrganizerEvent() {
-    initializeApp(firebaseConfig);
-    const storage = getStorage()
     const [open, setOpen] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [events, setEvents] = useState(useLoaderData().data)
@@ -147,6 +148,7 @@ function OrganizerEvent() {
     }
 
     // TODO: Implement calendar view later
+    // TODO: Implement CSV download
 
     return (
         <div className="event-list">

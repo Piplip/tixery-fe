@@ -7,7 +7,7 @@ import {Stack} from "@mui/material";
 import {EventContext} from "../../context.js";
 
 function OrganizerFAQ(){
-    const {data, setData} = useContext(EventContext)
+    const {data, setData, setHasUnsavedChanges} = useContext(EventContext)
     const [faqList, setFaqList] = useState(data.faqs || []);
     const [editIndex, setEditIndex] = useState(null);
     const [expandedIndex, setExpandedIndex] = useState([]);
@@ -25,6 +25,7 @@ function OrganizerFAQ(){
             answer: Yup.string().required("Answer is required"),
         }),
         onSubmit: (values, { resetForm }) => {
+            setHasUnsavedChanges(true)
             if (editIndex !== null) {
                 const updatedFaqs = [...faqList];
                 updatedFaqs[editIndex] = values;
@@ -67,6 +68,7 @@ function OrganizerFAQ(){
 
     const handleDelete = (index) => {
         setFaqList(faqList.filter((_, i) => i !== index));
+        setHasUnsavedChanges(true)
     };
 
     const toggleExpand = (index) => {
@@ -94,6 +96,7 @@ function OrganizerFAQ(){
     };
 
     const handleBulkDelete = () => {
+        setHasUnsavedChanges(true)
         setFaqList(faqList.filter((_, index) => !selectedFaqs.includes(index)));
         setSelectedFaqs([]);
     };

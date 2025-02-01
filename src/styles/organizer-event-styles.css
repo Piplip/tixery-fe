@@ -61,7 +61,7 @@
     background-color: #e5e5e5;
 }
 .event-list__list > div:not(:first-child):hover{
-    background-color: rgba(246, 246, 246, 0.22);
+    background-color: rgba(246, 249, 255, 0.29);
     box-shadow: 0 1px 5px 1px rgba(0, 0, 0, 0.2);
 }
 .event-list__list > div img{
