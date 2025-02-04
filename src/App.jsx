@@ -27,6 +27,8 @@ import OrganizerEvent from "./component/organizer/OrganizerEvent.jsx";
 import EventView from "./component/shared/EventView.jsx";
 import EventSearch from "./component/shared/EventSearch.jsx";
 import RootTemplate from "./component/template/RootTemplate.jsx";
+import OnlineEventCreatePanel from "./component/organizer/OnlineEventCreatePanel.jsx";
+import AttendeeFavorite from "./component/attendee/AttendeeFavorite.jsx";
 
 function App() {
     const OrganizerBuildEventPage = lazy(() => import('./component/organizer/OrganizerBuildEventPage'))
@@ -49,6 +51,14 @@ function App() {
                     path: 'events/search', element: <EventSearch />,
                     loader: async () => {
                         const response = await eventAxios.get(`/search?eids=${sessionStorage.getItem('search-ids')}`)
+                        return response.data
+                    }
+                },
+                {
+                    path: 'favorites', element: <AttendeeFavorite />,
+                    loader: async () => {
+                        const response = await eventAxiosWithToken.post(`/event/favorite/get`
+                            , sessionStorage.getItem('liked-event'))
                         return response.data
                     }
                 },
@@ -127,6 +137,7 @@ function App() {
                     element: <CreateEvent />,
                     children: [
                         {index: true, element: <OrganizerBuildEventPage />},
+                        {path: 'online', element: <OnlineEventCreatePanel />},
                         {
                             path: 'tickets', element: <OrganizerCreateTicket />,
                             children: [
@@ -141,10 +152,8 @@ function App() {
                     element: <CreateEvent />,
                     loader: ({params}) => eventAxiosWithToken.get('/get/specific?eid=' + params.id),
                     children: [
-                        {
-                            index: true,
-                            element: <OrganizerBuildEventPage />
-                        },
+                        {index: true, element: <OrganizerBuildEventPage />},
+                        {path: 'online', element: <OnlineEventCreatePanel />},
                         {
                             path: 'tickets',
                             element: <OrganizerCreateTicket />,
@@ -155,10 +164,7 @@ function App() {
                                 }
                             ]
                         },
-                        {
-                            path: 'publish',
-                            element: <OrganizerPublishEvent />
-                        }
+                        {path: 'publish', element: <OrganizerPublishEvent />}
                     ]
                 }
             ]

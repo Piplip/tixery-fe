@@ -11,10 +11,10 @@ DragAndDropZone.propTypes = {
     image: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 }
 
-function DragAndDropZone({onFileSelect, image}) {
-    initializeApp(firebaseConfig);
-    const storage = getStorage()
+initializeApp(firebaseConfig);
+const storage = getStorage()
 
+function DragAndDropZone({onFileSelect, image}) {
     const fileInputRef = useRef();
     const [isDragging, setIsDragging] = useState(false);
     const [previewImage, setPreviewImage] = useState(null);
@@ -29,7 +29,7 @@ function DragAndDropZone({onFileSelect, image}) {
             console.error('Error loading image:', error);
             return null;
         }
-    }, [storage]);
+    }, [image, storage]);
 
     useEffect(() => {
         loadImage(image).then((url) => setPreviewImage(url));

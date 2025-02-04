@@ -35,7 +35,6 @@ import {useLocation} from "react-router-dom";
 import {nominatimAxios} from "../../config/axiosConfig.js";
 import debounce from 'lodash.debounce';
 import Map from "../shared/Map.jsx";
-import {useMap} from "react-leaflet";
 
 const checkboxStyle = {
     sx: {
@@ -61,21 +60,21 @@ CustomCheckbox.propTypes = {
 }
 
 const timezones = [
-    {value: '+7', label: 'GMT+7'},
-    {value: '+8', label: 'GMT+8'},
-    {value: '+9', label: 'GMT+9'},
-    {value: '+10', label: 'GMT+10'},
+    {value: '7', label: 'GMT+7'},
+    {value: '8', label: 'GMT+8'},
+    {value: '9', label: 'GMT+9'},
+    {value: '10', label: 'GMT+10'},
     {value: '-5', label: 'GMT-5'},
     {value: '-6', label: 'GMT-6'},
     {value: '-7', label: 'GMT-7'},
     {value: '-8', label: 'GMT-8'},
-    {value: '+0', label: 'GMT'},
-    {value: '+1', label: 'GMT+1'},
-    {value: '+2', label: 'GMT+2'},
-    {value: '+3', label: 'GMT+3'},
-    {value: '+4', label: 'GMT+4'},
-    {value: '+5', label: 'GMT+5'},
-    {value: '+6', label: 'GMT+6'},
+    {value: '0', label: 'GMT'},
+    {value: '1', label: 'GMT+1'},
+    {value: '2', label: 'GMT+2'},
+    {value: '3', label: 'GMT+3'},
+    {value: '4', label: 'GMT+4'},
+    {value: '5', label: 'GMT+5'},
+    {value: '6', label: 'GMT+6'},
     {value: '-1', label: 'GMT-1'},
     {value: '-2', label: 'GMT-2'},
     {value: '-3', label: 'GMT-3'},
@@ -97,7 +96,6 @@ function DateAndLocationForm(){
     const location = useLocation()
     const {data, setData, setHasUnsavedChanges} = useContext(EventContext)
 
-    const [activeTab, setActiveTab] = useState("venue");
     const [open, setOpen] = useState(false);
     const [showSuggestion, setShowSuggestion] = useState(false);
     const [suggestedLocation, setSuggestedLocation] = useState([]);
@@ -135,7 +133,8 @@ function DateAndLocationForm(){
 
     function isValidData(){
         return formik.values.eventDate !== null && formik.values.eventStartTime !== null && formik.values.eventEndTime !== null
-            && formik.values.timezone !== undefined && formik.values.location !== '' && formik.errors.eventDate === undefined
+            && formik.values.timezone !== undefined && (data.eventType === 'venue' && formik.values.location !== '' || (data.eventType !== null && data.eventType !== 'venue'))
+            && formik.errors.eventDate === undefined
             && formik.errors.eventStartTime === undefined && formik.errors.eventEndTime === undefined
     }
 
@@ -269,7 +268,7 @@ function DateAndLocationForm(){
                 onClick={() => setOpen(true)}
             >More options</p>
             <p className="date-time-info">
-                {formik.values.timezone && `GMT${formik.values.timezone}, `}
+                {formik.values.timezone && `GMT${formik.values.timezone >= 0 ? `+${formik.values.timezone}` : formik.values.timezone}, `}
                 {formik.values.displayEndTime ? 'Display start and end time, ' : 'Display start time only, '}
                 {languages.find(lang => lang.value === formik.values.language)?.label || 'Language not selected'}
             </p>
@@ -277,19 +276,17 @@ function DateAndLocationForm(){
             <div className="location-section">
                 <h3>Location</h3>
                 <Tabs
-                    value={activeTab}
+                    value={data.locationType || "venue"}
                     onChange={(e, newValue) => {
                         setHasUnsavedChanges(true)
-                        setActiveTab(newValue)
                         setData(prev => ({...prev, locationType: newValue}))
                     }}
-                    aria-label="Location Tabs"
                 >
                     <Tab label="Venue" value="venue"/>
                     <Tab label="Online event" value="online"/>
                     <Tab label="To be announced" value="tba"/>
                 </Tabs>
-                {activeTab === "venue" && (
+                {data.locationType === "venue" && (
                     <Stack>
                         <Stack style={{position: 'relative'}}>
                             <TextField label="Location *" fullWidth placeholder="Enter a location" margin="normal"
@@ -334,7 +331,7 @@ function DateAndLocationForm(){
                         }
                     </Stack>
                 )}
-                {activeTab === "online" && (
+                {data.locationType === "online" && (
                     <p className="online-event-info">
                         Online events have unique event pages where you can add links to
                         livestreams and more.

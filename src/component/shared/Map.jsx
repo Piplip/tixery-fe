@@ -34,7 +34,7 @@ function Map({latitude, longitude, locationName}) {
                     {locationName}
                 </Popup>
             </Marker>
-            <ChangeMapView lat={location[0]} lon={location[1]} />
+            <ChangeMapView lat={Number(location[0])} lon={Number(location[1])} />
         </MapContainer>
     )
 }

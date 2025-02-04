@@ -1,0 +1,7 @@
+.attendee-favorite{
+    padding: 7.5rem 15%;
+    font-family: "Roboto", sans-serif;
+    background: radial-gradient(#000000 2px, transparent 2px), radial-gradient(#000000 2px, rgba(243, 243, 243, 0.64) 2px);
+    background-size: 80px 80px;
+    background-position: 0 0,40px 40px;
+}

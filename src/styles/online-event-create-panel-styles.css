@@ -1,0 +1,39 @@
+.online-event-create-panel{
+    width: 60rem;
+    font-family: "Raleway", sans-serif;
+    position: relative;
+    padding-bottom: 4rem;
+}
+.online-event__bottom-panel{
+    position: fixed;
+    bottom: 0;
+    width: 60rem;
+    background-color: #fff;
+    z-index: 100;
+    padding: .75rem 1rem;
+    border-top: 1px solid #000000;
+    animation: slideUp 0.5s ease;
+}
+@keyframes slideUp {
+    0% {
+        transform: translateY(100%);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+.online-edit-element{
+    row-gap: 1rem;
+    border: 1px solid #dedede;
+    padding: 1rem;
+    position: relative;
+}
+.online-element__title{
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+.element-action{
+    position: absolute;
+    right: -3rem;
+    top: 0;
+}

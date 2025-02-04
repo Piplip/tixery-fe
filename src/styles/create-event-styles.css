@@ -18,7 +18,7 @@
     margin-block: 1rem;
     display: flex;
     flex-direction: column;
-    row-gap: 2rem;
+    row-gap: 1rem;
 }
 .create-events__summary{
     row-gap: 1.5rem;
@@ -85,7 +85,7 @@
     padding-block: 1rem;
     width: 100%;
 }
-.create-events__main > div:not(.organizer-create-ticket, .event-publish){
+.create-events__main > div:not(.organizer-create-ticket, .event-publish, .online-event-create-panel){
     width: 60%;
     min-width: clamp(20rem, 70%, 40rem);
     border: 2px solid #bbbbbb;

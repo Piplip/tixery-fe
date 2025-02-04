@@ -7,11 +7,6 @@
     padding-top: 1rem;
     padding-inline: 5rem;
 }
-.event-search__filter{
-    padding: 1rem 2rem;
-    border-right: 2px solid #000000;
-    font-family: "Raleway", sans-serif;
-}
 .event-search-filter__view-more{
     background-color: transparent;
     color: #c90f0f;
@@ -21,6 +16,13 @@
     cursor: pointer;
     padding:.5rem;
     width: fit-content;
+}
+.event-search__filter{
+    padding: 1rem 2rem;
+    border-right: 2px solid #000000;
+    font-family: "Raleway", sans-serif;
+    width: 25%;
+    min-width: 25%;
 }
 .event-search-filter__view-more:hover{
     background-color: #f8f8f8;

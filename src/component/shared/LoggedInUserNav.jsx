@@ -16,7 +16,7 @@ function LoggedInUserNav(){
         { name: 'Browse Events', link: '/events', roles: ['attendee'] },
         { name: 'Manage my events', link: '/organizer/events', roles: ['host'] },
         { name: 'Tickets', link: '/tickets', roles: ['attendee'] },
-        { name: 'Likes', link: '/likes' , roles: ['attendee']},
+        { name: 'Likes', link: '/favorites' , roles: ['attendee']},
         { name: 'Followings', link: '/followings', roles: ['attendee'] },
         { name: 'Interests', link: '/interests', roles: ['attendee'] },
         { name: 'Account Settings', link: '/account-settings', public: true},

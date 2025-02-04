@@ -7,9 +7,10 @@ import LiveTvIcon from "@mui/icons-material/LiveTv";
 import {useCallback, useEffect, useRef, useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import debounce from "lodash.debounce";
-import {eventAxios, locationIQAxios} from "../../config/axiosConfig.js";
+import {eventAxios, eventAxiosWithToken, locationIQAxios} from "../../config/axiosConfig.js";
 import cookie from 'react-cookies'
 import {checkLoggedIn, getUserData, getUserLocation} from "../../common/Utilities.js";
+import ClearIcon from '@mui/icons-material/Clear';
 
 function TopNavSearchBar(){
     const location = useLocation()
@@ -21,12 +22,14 @@ function TopNavSearchBar(){
     const [locationValue, setLocationValue] = useState({
         value: '',
     });
+    const [searchHistory, setSearchHistory] = useState([]);
     const [showSnackbar, setShowSnackbar] = useState(false);
     const [suggestion, setSuggestion] = useState([]);
 
     const recentSearchesRef = useRef(null);
     const locationOptionRef = useRef(null);
     const searchBarRef = useRef(null);
+    const hasDeleted = useRef(false)
 
     useEffect(() => {
         const handleOutsideClick = (event) => {
@@ -55,9 +58,20 @@ function TopNavSearchBar(){
     }, [location]);
 
     const handleSearchInpClick = () => {
-        setShowRecentSearches(true);
-        setShowLocationOption(false);
+        if(checkLoggedIn() && searchHistory.length === 0 || hasDeleted.current){
+            getSearchHistory().then(r => {
+                setSearchHistory(r.data)
+                hasDeleted.current = false
+            })
+                .catch(err => console.log(err))
+        }
+        setShowRecentSearches(true)
+        setShowLocationOption(false)
     };
+
+    async function getSearchHistory(){
+        return eventAxiosWithToken.get(`/search/history?uid=${getUserData("profileID")}`)
+    }
 
     const handleLocationInpClick = () => {
         setShowLocationOption(true);
@@ -90,7 +104,6 @@ function TopNavSearchBar(){
                 }
                 eventAxios.get(`/search/suggestions?` + searchParams)
                     .then((r) => {
-                        console.log(r.data)
                         const data = r.data;
                         let arr = [];
                         let searchIDs = ''
@@ -157,6 +170,15 @@ function TopNavSearchBar(){
         debounceSuggestion(e.target.value)
     }
 
+    function handleDeleteSearchHistory(id, index){
+        const searches = [...searchHistory]
+        searches.splice(index, 1)
+        setSearchHistory(searches)
+        hasDeleted.current = true
+        eventAxiosWithToken.post(`/search/history/delete?search-id=${id}`)
+            .catch(err => console.log(err))
+    }
+
     return (
         <>
             <Snackbar
@@ -180,7 +202,7 @@ function TopNavSearchBar(){
                             (suggestion.length > 0 ?
                                 <Stack className={'drop-down-suggestion'}>
                                     {suggestion.map((s, index) => (
-                                        <Stack key={index} flexDirection={'row'}
+                                        <Stack key={index} flexDirection={'row'} className={'search-result-item'}
                                             onClick={() => {
                                                 navigate(`events/search?q=${searchValue}`)
                                                 setShowRecentSearches(false)
@@ -199,14 +221,32 @@ function TopNavSearchBar(){
                                     </Stack>
                                         :
                                     <Stack className={'drop-down-suggestion'}>
-                                        <Stack flexDirection={'row'} justifyContent={'space-between'}>
+                                        <Stack flexDirection={'row'} className={'recent-search__header'}>
                                             <Typography variant={'h6'}>Recent searches</Typography>
-                                            <div style={{color: 'blue'}}>Clear</div>
                                         </Stack>
-                                        <Stack>
-                                            <Stack direction={'row'} columnGap={1} alignItems={'center'} style={{width: '100%'}}>
-                                                <ScheduleIcon /> <Typography variant={'caption'}>Foo</Typography>
-                                            </Stack>
+                                        <Stack rowGap={1.25} className={'search-history-wrapper'}>
+                                            {searchHistory.map((s, index) => {
+                                                return (
+                                                    <Stack key={index} direction={'row'} justifyContent={'space-between'} alignItems={'center'}
+                                                           style={{width: '100%'}} className={'search-history-item'}>
+                                                        <Stack direction={'row'} columnGap={1.5} alignItems={'center'}
+                                                            onClick={() => {
+                                                                setSearchValue(s.search_term)
+                                                                debounceSuggestion(s.search_term)
+                                                                const searches = [...searchHistory]
+                                                                searches.splice(index, 1)
+                                                                searches.unshift(s)
+                                                                setSearchHistory(searches)
+                                                            }}
+                                                        >
+                                                            <ScheduleIcon fontSize={'small'}/> <Typography fontSize={'medium'} variant={'caption'}>{s.search_term}</Typography>
+                                                        </Stack>
+                                                        <ClearIcon fontSize={'small'}
+                                                            onClick={() => handleDeleteSearchHistory(s.search_id, index)}
+                                                        />
+                                                    </Stack>
+                                                )
+                                            })}
                                         </Stack>
                                     </Stack>
                                 )

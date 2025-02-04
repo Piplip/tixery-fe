@@ -2,12 +2,14 @@ import "../../styles/organizer-event-styles.css"
 import {
     Alert,
     Avatar,
+    Checkbox,
     Dialog,
     FormControlLabel,
     IconButton,
     InputAdornment,
     LinearProgress,
-    OutlinedInput, Snackbar,
+    OutlinedInput,
+    Snackbar,
     Stack,
     Typography
 } from "@mui/material";
@@ -31,6 +33,7 @@ import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {getDownloadURL, getStorage, ref} from "firebase/storage";
 import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded';
+import PropTypes from "prop-types";
 
 initializeApp(firebaseConfig);
 const storage = getStorage()
@@ -43,12 +46,42 @@ function OrganizerEvent() {
     const [profiles, setProfiles] = useState(null)
     const [alert, setAlert] = useState("")
     const [currentSelectedEvent, setCurrentSelectedEvent] = useState(null)
+    const [showPastEvents, setShowPastEvents] = useState(false)
     const [filters, setFilters] = useState({
         status: "all",
         keyword: "",
         profile: "all",
     });
+    const [pastEvents, setPastEvents] = useState([])
     const navigate = useNavigate()
+    const hasGetPast = useRef(false)
+
+    useEffect(() => {
+        if(!hasGetPast.current && showPastEvents){
+            eventAxiosWithToken.get(`/get?uid=${getUserData("userID")}&past=true`)
+                .then(r => {
+                    Promise.all(r.data.map(async (event) => {
+                        try {
+                            if (event.images && event.images[0]) {
+                                const imgRef = ref(storage, event.images[0]);
+                                const url = await getDownloadURL(imgRef);
+                                return {...event, images: [url, ...event.images.slice(1)]};
+                            } else {
+                                return event;
+                            }
+                        } catch (err) {
+                            console.log(err);
+                            return event;
+                        }
+                    })).then(updatedEvents => {
+                        setPastEvents(updatedEvents)
+                        hasGetPast.current = true
+                        refEvents.current = [...refEvents.current, ...updatedEvents]
+                    });
+                })
+                .catch(err => console.log(err))
+        }
+    }, [showPastEvents]);
 
     useEffect(() => {
         if(profiles === null) {{
@@ -111,7 +144,8 @@ function OrganizerEvent() {
                 );
             }
 
-            setEvents(filteredEvents);
+            setEvents(filteredEvents.filter(event => !dayjs(event.start_time).isBefore(dayjs())));
+            setPastEvents(filteredEvents.filter(event => dayjs(event.start_time).isBefore(dayjs())));
         }
     }, [filters]);
 
@@ -148,7 +182,64 @@ function OrganizerEvent() {
     }
 
     // TODO: Implement calendar view later
-    // TODO: Implement CSV download
+
+    const RenderEvents = ({data, type}) => {
+        return (
+            data.length !== 0 ?
+                data.map((item, index) => {
+                    return (
+                        <div key={index} className={'event-list__item'}>
+                            <Stack direction={'row'} columnGap={2} alignItems={'center'}>
+                                <Stack sx={{textAlign: 'center'}}>
+                                    <p style={{fontSize: '.9rem', color: 'darkblue'}}>{item?.start_time && dayjs(item.start_time).format("MMM").toUpperCase()}</p>
+                                    <p style={{fontSize: '1.5rem'}}>{item?.start_time && dayjs(item.start_time).format("DD").toUpperCase()}</p>
+                                </Stack>
+                                <img
+                                    src={item?.images && item.images[0] || "https://www.svgrepo.com/show/508699/landscape-placeholder.svg"}
+                                    alt={''}/>
+                                <Stack justifyContent={'space-between'}>
+                                    <p style={{color: 'black'}}>{item?.name}</p>
+                                    <Stack marginTop={.5}>
+                                        <Typography variant={'body2'} color={'gray'} style={{textTransform: 'capitalize'}}>
+                                            {item?.location && item.location.locationType} event</Typography>
+                                        <Typography variant={'body2'} color={'gray'}>
+                                            {item?.start_date && dayjs(item.start_date).format('dddd, MMMM D, YYYY [at] HH:mm [GMT]Z')}
+                                        </Typography>
+                                    </Stack>
+                                </Stack>
+                            </Stack>
+                            <Stack rowGap={.5}>
+                                <p>0 / {item?.ticketCount}</p>
+                                <LinearProgress sx={{height: '.3rem', borderRadius: '.25rem'}}
+                                                variant={"determinate"}
+                                                value={50}
+                                />
+                            </Stack>
+                            <p>$0.00</p>
+                            <p style={{textTransform: 'uppercase'}}>{item?.status}</p>
+                            <CustomMenu
+                                options={type === 'past' ? ['View', 'Delete'] : ['Promote on Tixery', 'View', 'Edit', 'Delete']}
+                                handlers={
+                                    type === 'past' ?
+                                        [() => navigate(`../../events/${item.event_id}`), () => handlePreDelete(item.event_id)]
+                                        :
+                                        [null, () => navigate(`../../events/${item.event_id}`),
+                                            () => {navigate(`edit/${item.event_id}`)}, () => handlePreDelete(item.event_id)]
+                                }
+                            />
+                        </div>
+                    )})
+                :
+                <div className={'no-event'}>
+                    <p>No events found</p>
+                </div>
+        )
+    }
+
+    RenderEvents.propTypes = {
+        data: PropTypes.array.isRequired,
+        type: PropTypes.string
+    }
 
     return (
         <div className="event-list">
@@ -224,13 +315,14 @@ function OrganizerEvent() {
                                 )
                             })}
                         </Select>
+                        <FormControlLabel control={<Checkbox checked={showPastEvents} onChange={() => setShowPastEvents(prev => !prev)}/>}
+                                          label="Past events" labelPlacement={'start'}/>
                     </div>
                 </Stack>
                 <button className="event-list__create-button" onClick={() => setOpen(true)}>
                     Create Event
                 </button>
             </div>
-
             <Stack className={'event-list__list'}>
                 <div>
                     <p>Event</p>
@@ -238,55 +330,19 @@ function OrganizerEvent() {
                     <p>Gross</p>
                     <p>Status</p>
                 </div>
-                {events.length !== 0 ?
-                    events.map((item, index) => {
-                        return (
-                            <div key={index}>
-                                <Stack direction={'row'} columnGap={2} alignItems={'center'}>
-                                    <Stack sx={{textAlign: 'center'}}>
-                                        <p style={{fontSize: '.9rem', color: 'darkblue'}}>{item?.start_time && dayjs(item.start_time).format("MMM").toUpperCase()}</p>
-                                        <p style={{fontSize: '1.5rem'}}>{item?.start_time && dayjs(item.start_time).format("DD").toUpperCase()}</p>
-                                    </Stack>
-                                    <img
-                                        src={item?.images && item.images[0] || "https://www.svgrepo.com/show/508699/landscape-placeholder.svg"}
-                                        alt={''}/>
-                                    <Stack justifyContent={'space-between'}>
-                                        <p style={{color: 'black'}}>{item?.name}</p>
-                                        <Stack marginTop={.5}>
-                                            <Typography variant={'body2'} color={'gray'} style={{textTransform: 'capitalize'}}>
-                                                {item?.location && item.location.locationType} event</Typography>
-                                            <Typography variant={'body2'} color={'gray'}>
-                                                {item?.start_date && dayjs(item.start_date).format('dddd, MMMM D, YYYY [at] HH:mm [GMT]Z')}
-                                            </Typography>
-                                        </Stack>
-                                    </Stack>
-                                </Stack>
-                                <Stack rowGap={.5}>
-                                    <p>0 / {item?.ticketCount}</p>
-                                    <LinearProgress sx={{height: '.3rem', borderRadius: '.25rem'}}
-                                                    variant={"determinate"}
-                                                    value={50}
-                                    />
-                                </Stack>
-                                <p>$0.00</p>
-                                <p style={{textTransform: 'uppercase'}}>{item?.status}</p>
-                                <CustomMenu
-                                    options={['Promote on Tixery', 'View', 'Edit', 'Delete']}
-                                    handlers={[null,
-                                        () => navigate(`../../events/${item.event_id}`),
-                                        () => {navigate(`edit/${item.event_id}`)},
-                                        () => handlePreDelete(item.event_id)
-                                    ]}
-                                />
-                            </div>
-                        )})
-                    :
-                    <div className={'no-event'}>
-                        <p>No events found</p>
-                    </div>
-                }
+                <RenderEvents data={events}/>
             </Stack>
-            {events.length !== 0 &&
+            {showPastEvents &&
+                <>
+                    <div className={'horizontal-text-line'} style={{marginBottom: 2}}>
+                        <p>Past events</p>
+                    </div>
+                    <Stack className={'event-list__list'}>
+                        <RenderEvents data={pastEvents} type={'past'}/>
+                    </Stack>
+                </>
+            }
+            {(events.length > 0 || pastEvents.length > 0) &&
                 <div className="event-list__footer">
                     <a href="#" className="event-list__export-link">
                         CSV Export
@@ -294,11 +350,10 @@ function OrganizerEvent() {
                 </div>
             }
             <Dialog onClose={() => setOpen(false)} open={open} maxWidth={"md"}>
-                <DialogTitle sx={{marginTop: 2, fontSize: '1.75rem', padding: '.5rem 1rem 0', textAlign: 'center'}}>
+                <DialogTitle sx={{marginTop: 2, fontSize: '1.75rem', padding: '.25rem 1.5rem 0', textAlign: 'center'}}>
                     CREATE NEW EVENT
                 </DialogTitle>
                 <IconButton
-                    aria-label="close"
                     onClick={() => setOpen(false)}
                     sx={{
                         position: 'absolute',
@@ -309,7 +364,7 @@ function OrganizerEvent() {
                 >
                     <CloseIcon/>
                 </IconButton>
-                <DialogContent sx={{p: 2}}>
+                <DialogContent sx={{padding: '1.5rem'}}>
                     <CreateEventMenu />
                 </DialogContent>
             </Dialog>

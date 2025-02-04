@@ -66,3 +66,8 @@
 .event-card:hover .event-card__action-horizontal{
     visibility: visible;
 }
+.event-card__action > .liked-event{
+    color: #e91e63;
+    background-color: #fce4ec;
+    border-color: #f8bbcd;
+}

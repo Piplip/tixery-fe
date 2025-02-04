@@ -37,7 +37,10 @@ function ShareDialog({eventID}){
             <Tooltip
                 className={'event-view__action event-view__action--share'}
                 title={'Share event'}>
-                <ShareIcon onClick={() => setOpen(true)}/>
+                <ShareIcon onClick={(e) => {
+                    setOpen(true)
+                    e.stopPropagation()
+                }}/>
             </Tooltip>
             <Modal open={open}
                    onClose={() => setOpen(false)}

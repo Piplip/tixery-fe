@@ -57,6 +57,11 @@ const steps = [
         to: ''
     },
     {
+        title: 'Online Page',
+        description: 'Create your online event page and start selling tickets',
+        to: 'online'
+    },
+    {
         title: 'Add Tickets',
         description: 'Create tickets and start selling', to: 'tickets'
     },
@@ -65,6 +70,15 @@ const steps = [
         description: 'Choose when to publish your event', to: 'publish'
     }
 ]
+
+const defaultOptions = {
+    loop: false,
+    autoplay: true,
+    animationData: SuccessAnimation,
+    rendererSettings: {
+        preserveAspectRatio: 'xMidYMid slice'
+    }
+};
 
 function CreateEvent() {
     const loader = useLoaderData()
@@ -94,11 +108,6 @@ function CreateEvent() {
                 displayEndTime: loaderData.show_end_time,
                 timezone: loaderData.timezone || 7,
                 language: loaderData.language,
-                locationType: loaderData.location ? loaderData.location.locationType : "venue",
-                location: loaderData?.location?.location,
-                lat: loaderData?.location?.lat,
-                lon: loaderData?.location?.lon,
-                reserveSeating: loaderData.locatiion ? loaderData.location.reserveSeating : false,
                 faqs: loaderData.faq,
                 tickets: loaderData.tickets.map((ticket) => ({
                     ticketID: ticket.ticket_type_id,
@@ -134,6 +143,20 @@ function CreateEvent() {
                 tags: loaderData.tags !== "" && loaderData.tags !== null ? loaderData.tags.join(',') : '',
                 additionalInfo: loaderData.full_description
             }
+            if(loaderData.location.locationType === 'online'){
+                newEventData = {...newEventData, locationData: loaderData.location.data,
+                    locationType: 'online', access: location.access, enabled: location.enabled
+                }
+            }
+            else{
+                newEventData = {...newEventData,
+                    location: loaderData?.location?.location,
+                    lat: loaderData?.location?.lat,
+                    lon: loaderData?.location?.lon,
+                    reserveSeating: loaderData.location ? loaderData.location.reserveSeating : false,
+                    locationType: 'venue',
+                }
+            }
         }
         else {
             newEventData = {
@@ -161,11 +184,14 @@ function CreateEvent() {
         if (newEventData.eventTitle && newEventData.summary && newEventData.eventType && newEventData.eventDate && newEventData.eventStartTime && newEventData.location) {
             initialMaxStep = 1;
         }
+        if(newEventData.locationType === 'online' && newEventData.locationData){
+            initialMaxStep = 2
+        }
         if (newEventData.tickets && newEventData.tickets.length > 0 && newEventData.capacity > 0) {
-            initialMaxStep = 2;
+            initialMaxStep = 3;
         }
         if ((newEventData.publishType === 'now' || (newEventData.publishType === 'schedule' && newEventData.publishDate && newEventData.publishTime)) && newEventData.type) {
-            initialMaxStep = 3;
+            initialMaxStep = 4;
         }
         maxStep.current = initialMaxStep;
     }, []);
@@ -184,7 +210,7 @@ function CreateEvent() {
             setAlert(msg);
             return;
         }
-        if(currentStep !== 1) handleSave()
+        if(currentStep !== 2 && currentStep !== 1) handleSave()
         else {
             if(eventData.tickets !== undefined){
                 setCurrentStep(currentStep + 1)
@@ -212,7 +238,7 @@ function CreateEvent() {
                 if (!eventData.eventStartTime) {
                     return "Event start time is required.";
                 }
-                if (eventData.location === "" || eventData.location === undefined) {
+                if (eventData.locationType === 'venue' && eventData.location === undefined) {
                     return "Event location is required.";
                 }
                 if (eventData.eventStartTime.isAfter(eventData.eventEndTime)) {
@@ -220,7 +246,7 @@ function CreateEvent() {
                 }
                 break;
             }
-            case 1: {
+            case 2: {
                 if((!eventData.tickets || eventData.tickets.length === 0)){
                     return "Tickets are required to continue."
                 }
@@ -229,7 +255,7 @@ function CreateEvent() {
                 }
                 break;
             }
-            case 2: {
+            case 3: {
                 if (eventData.publishType === 'schedule' && (!eventData.publishDate || !eventData.publishTime)) {
                     return "Publish date and time are required for scheduled publish type.";
                 }
@@ -288,13 +314,13 @@ function CreateEvent() {
                 }
                 break;
             }
-            case 1: {
+            case 2: {
                 payload = {
                     tickets: eventData.tickets, timezone: eventData.timezone
                 }
                 break;
             }
-            case 2: {
+            case 3: {
                 payload = {
                     type: eventData.type, category: eventData.category, subCategory: eventData.subCategory,
                     tags: eventData?.tags ? eventData.tags.split(',') : null, eventVisibility: eventData.eventVisibility,
@@ -307,21 +333,23 @@ function CreateEvent() {
         }
         eventAxiosWithToken.post(`/create?step=${currentStep}&eid=${location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3]}`, payload)
             .then(r => {
-                console.log(r.data)
                 if(r.data.status === 'OK'){
                     setIsLoading(false)
                     setHasUnsavedChanges(false)
                     if(currentStep < steps.length - 1){
-                        setCurrentStep(currentStep + 1)
-                        maxStep.current = Math.max(maxStep.current, currentStep + 1)
-                        navigate(steps[currentStep + 1].to)
+                        const stepIncrement = eventData.locationType === 'venue' && currentStep === 0 ? 2 : 1;
+                        const nextStep = currentStep + stepIncrement;
+
+                        setCurrentStep(nextStep);
+                        maxStep.current = Math.max(maxStep.current, nextStep);
+                        navigate(steps[nextStep].to);
                     }
                     else{
                         setShowSuccessDialog(true)
                     }
                 }
             })
-            .catch(err => console.log(err.response.data))
+            .catch(err => console.log(err))
     }
 
     const formatPublishDate = (date, time) => {
@@ -337,15 +365,6 @@ function CreateEvent() {
         const totalDuration = publishDateTime.diff(startTime);
         const elapsedDuration = now.diff(startTime);
         return (elapsedDuration / totalDuration) * 100;
-    };
-
-    const defaultOptions = {
-        loop: false,
-        autoplay: true,
-        animationData: SuccessAnimation,
-        rendererSettings: {
-            preserveAspectRatio: 'xMidYMid slice'
-        }
     };
 
     return (
@@ -443,23 +462,25 @@ function CreateEvent() {
                         </Stack>
                     </Stack>
                     <Stack className={'create-events-stepper__wrapper'}>
-                        <p>Steps</p>
                         <Stack className={'create-events-stepper__steps'} rowGap={1}>
-                            {steps.map((step, index) => (
-                                <div key={index}
-                                     className={`create-events-stepper__step ${currentStep === index ? 'create-events__active-step' : ''}
+                            {steps.map((step, index) => {
+                                if(index === 1 && eventData.locationType !== 'online') return
+                                return (
+                                    <div key={index}
+                                         className={`create-events-stepper__step ${currentStep === index ? 'create-events__active-step' : ''}
                                      ${maxStep.current < index ? 'create-events__disabled-step' : ''}`}
-                                     onClick={() => handleSetStep(index)}
-                                >
-                                    <CustomCheckbox checked={currentStep === index} completed={maxStep.current > index}/>
-                                    <div>
-                                        <p>{step.title}</p>
-                                        {currentStep === index &&
-                                            <p>{step.description}</p>
-                                        }
+                                         onClick={() => handleSetStep(index)}
+                                    >
+                                        <CustomCheckbox checked={currentStep === index} completed={maxStep.current > index}/>
+                                        <div>
+                                            <p>{step.title}</p>
+                                            {currentStep === index &&
+                                                <p>{step.description}</p>
+                                            }
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                )
+                            })}
                         </Stack>
                     </Stack>
                 </div>
@@ -472,7 +493,7 @@ function CreateEvent() {
             <button className={'create-events-main__continue-btn'}
                 onClick={handleContinue}
             >
-                {hasUnsavedChanges ? 'Save Changes' : (currentStep < steps.length - 1 ? 'Continue' : 'Finish')}
+                {hasUnsavedChanges && location.pathname.includes("edit") ? 'Save Changes' : (currentStep < steps.length - 1 ? 'Continue' : 'Finish')}
             </button>
         </div>
     )

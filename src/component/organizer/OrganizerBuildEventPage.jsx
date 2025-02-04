@@ -139,7 +139,7 @@ function OrganizerBuildEventPage(){
                                     </a>
                                 </p>
                                 <TextAreaWithLimit name={'summary'}
-                                                   onChange={(e) => {
+                                                   handleChange={(e) => {
                                                        formik.handleChange(e)
                                                        setHasUnsavedChanges(true)
                                                    }}

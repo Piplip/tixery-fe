@@ -70,3 +70,12 @@ input{
     border-radius: .5rem;
     font-size: .8rem;
 }
+.horizontal-text-line{
+    font-family: "Nunito", sans-serif;
+    background-color: #da1111;
+    color: white;
+    padding-block: .3rem;
+    border-radius: .5rem;
+    font-size: .9rem;
+    text-align: center;
+}
