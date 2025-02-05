@@ -221,33 +221,41 @@ function TopNavSearchBar(){
                                     </Stack>
                                         :
                                     <Stack className={'drop-down-suggestion'}>
-                                        <Stack flexDirection={'row'} className={'recent-search__header'}>
-                                            <Typography variant={'h6'}>Recent searches</Typography>
-                                        </Stack>
-                                        <Stack rowGap={1.25} className={'search-history-wrapper'}>
-                                            {searchHistory.map((s, index) => {
-                                                return (
-                                                    <Stack key={index} direction={'row'} justifyContent={'space-between'} alignItems={'center'}
-                                                           style={{width: '100%'}} className={'search-history-item'}>
-                                                        <Stack direction={'row'} columnGap={1.5} alignItems={'center'}
-                                                            onClick={() => {
-                                                                setSearchValue(s.search_term)
-                                                                debounceSuggestion(s.search_term)
-                                                                const searches = [...searchHistory]
-                                                                searches.splice(index, 1)
-                                                                searches.unshift(s)
-                                                                setSearchHistory(searches)
-                                                            }}
-                                                        >
-                                                            <ScheduleIcon fontSize={'small'}/> <Typography fontSize={'medium'} variant={'caption'}>{s.search_term}</Typography>
-                                                        </Stack>
-                                                        <ClearIcon fontSize={'small'}
-                                                            onClick={() => handleDeleteSearchHistory(s.search_id, index)}
-                                                        />
-                                                    </Stack>
-                                                )
-                                            })}
-                                        </Stack>
+                                        {searchHistory.length > 0 ?
+                                            <>
+                                                <Stack flexDirection={'row'} className={'recent-search__header'}>
+                                                    <Typography variant={'h6'}>Recent searches</Typography>
+                                                </Stack>
+                                                <Stack rowGap={1.25} className={'search-history-wrapper'}>
+                                                    {searchHistory.map((s, index) => {
+                                                        return (
+                                                            <Stack key={index} direction={'row'} justifyContent={'space-between'} alignItems={'center'}
+                                                                   style={{width: '100%'}} className={'search-history-item'}
+                                                                   onClick={() => {
+                                                                       setSearchValue(s.search_term)
+                                                                       debounceSuggestion(s.search_term)
+                                                                       const searches = [...searchHistory]
+                                                                       searches.splice(index, 1)
+                                                                       searches.unshift(s)
+                                                                       setSearchHistory(searches)
+                                                                   }}
+                                                            >
+                                                                <Stack direction={'row'} columnGap={1.5} alignItems={'center'}>
+                                                                    <ScheduleIcon fontSize={'small'}/> <Typography fontSize={'medium'} variant={'caption'}>{s.search_term}</Typography>
+                                                                </Stack>
+                                                                <ClearIcon fontSize={'small'}
+                                                                           onClick={() => handleDeleteSearchHistory(s.search_id, index)}
+                                                                />
+                                                            </Stack>
+                                                        )
+                                                    })}
+                                                </Stack>
+                                            </>
+                                            :
+                                            <Typography>
+                                                No recent searches
+                                            </Typography>
+                                        }
                                     </Stack>
                                 )
                             )

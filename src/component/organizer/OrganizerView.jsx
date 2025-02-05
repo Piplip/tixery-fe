@@ -14,6 +14,7 @@ import {eventAxios} from "../../config/axiosConfig.js";
 import dayjs from "dayjs";
 import EventCard from "../shared/EventCard.jsx";
 import Grid from '@mui/material/Grid2';
+import FollowOrganizer from "../shared/FollowOrganizer.jsx";
 
 initializeApp(firebaseConfig);
 const storage = getStorage()
@@ -23,6 +24,7 @@ function OrganizerView() {
     const [profileImage, setProfileImage] = useState(null);
     const [profileEvents, setProfileEvents] = useState(null);
     const [activeTab, setActiveTab] = useState(0);
+
     const hasFetchedProfileEvents = useRef(false);
 
     const totalUpcoming = profileEvents?.reduce((acc, event) => {
@@ -83,7 +85,7 @@ function OrganizerView() {
                                 </p>
                             </Stack>
                             <Stack direction={'row'} columnGap={1}>
-                                <button>Follow</button>
+                                <FollowOrganizer profileImage={profileImage} organizerID={data.profile_id} organizerName={data['profile_name']}/>
                                 <button>Contact</button>
                             </Stack>
                             <Stack direction={'row'} textAlign={'center'}>

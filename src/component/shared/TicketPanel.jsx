@@ -106,7 +106,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
         if (tickets.length === 0) {
             return (
                 <div>
-                    <Typography variant={'h6'} textAlign={'center'}>No tickets available</Typography>
+                    <Typography variant={'h6'} textAlign={'center'}>No tickets available now</Typography>
                 </div>
             );
         }

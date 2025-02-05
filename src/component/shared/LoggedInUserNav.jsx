@@ -8,20 +8,20 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
 
+initializeApp(firebaseConfig);
+const storage = getStorage()
+
 function LoggedInUserNav(){
-    initializeApp(firebaseConfig);
-    const storage = getStorage()
     const [ppImage, setPpImage] = useState(null)
     const attendeeOptions = [
         { name: 'Browse Events', link: '/events', roles: ['attendee'] },
         { name: 'Manage my events', link: '/organizer/events', roles: ['host'] },
         { name: 'Tickets', link: '/tickets', roles: ['attendee'] },
         { name: 'Likes', link: '/favorites' , roles: ['attendee']},
-        { name: 'Followings', link: '/followings', roles: ['attendee'] },
+        { name: 'Followings', link: `/u/${getUserData('profileID')}`, roles: ['attendee'] },
         { name: 'Interests', link: '/interests', roles: ['attendee'] },
         { name: 'Account Settings', link: '/account-settings', public: true},
         { name: 'Profile', link: '/organizer/u', roles: ['host']},
-        { name: 'Profile', link: '/profile', roles: ['attendee']},
     ];
     const [fullName] = useState(getUserData('fullName'))
 

@@ -1,6 +1,5 @@
 import "../../styles/event-view-styles.css"
-import {Avatar, Skeleton, Stack, Tooltip, Typography} from "@mui/material";
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import {Avatar, Skeleton, Stack, Typography} from "@mui/material";
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import EventIcon from '@mui/icons-material/Event';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
@@ -24,6 +23,8 @@ import ShareDialog from "./ShareDialog.jsx";
 import {Accordion, AccordionDetails, AccordionSummary} from "@mui/joy";
 import TicketPanel from "./TicketPanel.jsx";
 import Map from "./Map.jsx";
+import LikeEvent from "./LikeEvent.jsx";
+import FollowOrganizer from "./FollowOrganizer.jsx";
 
 const OtherEvents = lazy(() => import('./OtherEvents.jsx'));
 
@@ -36,10 +37,7 @@ function EventView(){
     const [heroImage, setHeroImage] = useState()
     const [viewDetail, setViewDetail] = useState(false)
     const [showMapDetail, setShowMapDetail] = useState(false)
-
     const isProfileLoaded = useRef(false)
-
-    window.scrollTo(0,0)
 
     useEffect(() => {
         if (loaderData.profile_id && !isProfileLoaded.current) {
@@ -115,11 +113,7 @@ function EventView(){
                                     className={'event-view__actions'}
                                     direction={'row'}
                                     columnGap={2}>
-                                    <Tooltip
-                                        className={'event-view__action event-view__action--like'}
-                                        title={'Like event'}>
-                                        <FavoriteBorderIcon />
-                                    </Tooltip>
+                                    <LikeEvent event={loaderData} imageUrl={heroImage} />
                                     <ShareDialog  link={"foo"}/>
                                 </Stack>
                             </Stack>
@@ -151,9 +145,7 @@ function EventView(){
                                             </div>
                                         </Stack>
                                     </Stack>
-                                    <button className={'event-view__follow-button'}>
-                                        Follow
-                                    </button>
+                                    <FollowOrganizer profileImage={profile.profile_image_url} organizerID={loaderData.profile_id} organizerName={profile.profile_name}/>
                                 </Stack>
                             </Stack>
                         </div>
@@ -243,15 +235,15 @@ function EventView(){
                                         <p className={'event-view__faqs-heading'}>FAQs</p>
                                         <Stack rowGap={1}>
                                             {loaderData.faq.map((faq, index) => (
-                                                <Accordion key={index}>
+                                                <Accordion key={index} sx={{borderBottom: '1px solid', paddingBottom: 1}}>
                                                     <AccordionSummary>
-                                                        <Typography className={'event-view__faq-question'}>
-                                                            <b>Q:</b> {faq.question}
+                                                        <Typography className={'event-view__faq-question'} fontSize={'.95rem'}>
+                                                            {faq.question}
                                                         </Typography>
                                                     </AccordionSummary>
-                                                    <AccordionDetails>
-                                                        <Typography className={'event-view__faq-answer'}>
-                                                            <b>A:</b> {faq.answer}
+                                                    <AccordionDetails sx={{paddingTop: 1}}>
+                                                        <Typography className={'event-view__faq-answer'} fontSize={'.95rem'}>
+                                                            {faq.answer}
                                                         </Typography>
                                                     </AccordionDetails>
                                                 </Accordion>
@@ -300,9 +292,7 @@ function EventView(){
                                                 <button className={'event-view__contact-button'}>
                                                     Contact
                                                 </button>
-                                                <button className={'event-view__follow-button'}>
-                                                    Follow
-                                                </button>
+                                                <FollowOrganizer profileImage={profile.profile_image_url} organizerID={loaderData.profile_id} organizerName={profile.profile_name}/>
                                             </Stack>
                                         </Stack>
                                         <p className={'event-view__organizer-description'}>

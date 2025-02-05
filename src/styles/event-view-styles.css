@@ -88,13 +88,17 @@
     font-family: "Microsoft Tai Le", sans-serif;
     width: fit-content;
 }
-.event-view__follow-button, .event-view__contact-button{
+.event-view__organizer-buttons > button{
     padding: .5rem 1rem;
     border: none;
     border-radius: .25rem;
     cursor: pointer;
 }
-.event-view__follow-button{
+.event-view__organizer > button{
+    padding: .5rem 1rem;
+    border: none;
+    border-radius: .25rem;
+    cursor: pointer;
     background-color: #3b82f6;
     color: white;
 }
@@ -239,4 +243,12 @@
     border-bottom: 1px solid #d7d7d7;
     padding-bottom: .25rem;
     margin-bottom: .25rem;
+}
+.event-view__faq-question{
+    padding: .5rem 1rem;
+}
+.event-view__faq-answer {
+    background-color: rgba(239, 239, 239, 0.38);
+    padding: .5rem 1rem;
+    border-radius: .5rem;
 }

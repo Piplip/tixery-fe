@@ -28,7 +28,9 @@ import EventView from "./component/shared/EventView.jsx";
 import EventSearch from "./component/shared/EventSearch.jsx";
 import RootTemplate from "./component/template/RootTemplate.jsx";
 import OnlineEventCreatePanel from "./component/organizer/OnlineEventCreatePanel.jsx";
-import AttendeeFavorite from "./component/attendee/AttendeeFavorite.jsx";
+import AttendeeFavoriteEvents from "./component/attendee/AttendeeFavoriteEvents.jsx";
+import AttendeeProfile from "./component/attendee/AttendeeProfile.jsx";
+import AttendeeFollowedEvents from "./component/attendee/AttendeeFollowedEvents.jsx";
 
 function App() {
     const OrganizerBuildEventPage = lazy(() => import('./component/organizer/OrganizerBuildEventPage'))
@@ -54,14 +56,7 @@ function App() {
                         return response.data
                     }
                 },
-                {
-                    path: 'favorites', element: <AttendeeFavorite />,
-                    loader: async () => {
-                        const response = await eventAxiosWithToken.post(`/event/favorite/get`
-                            , sessionStorage.getItem('liked-event'))
-                        return response.data
-                    }
-                },
+                {path: 'favorites', element: <AttendeeFavoriteEvents />,},
                 {
                     path: 'events/:id', element: <EventView />,
                     hydrateFallbackElement: <LoadingFallback />,
@@ -78,6 +73,14 @@ function App() {
 
                         return response.data;
                     }
+                },
+                {
+                    path: 'u/:id',
+                    element: <AttendeeProfile />
+                },
+                {
+                    path: 'u/:id/following',
+                    element: <AttendeeFollowedEvents />
                 },
             ]
         },

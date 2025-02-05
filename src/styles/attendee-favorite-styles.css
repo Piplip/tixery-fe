@@ -1,7 +1,23 @@
-.attendee-favorite{
-    padding: 7.5rem 15%;
+.attendee-favorite-f, .attendee-favorite{
     font-family: "Roboto", sans-serif;
+}
+.attendee-favorite-f{
+    display: flex;
+    flex-direction: column;
+    row-gap: 2rem;
+    padding: 7.5rem 15%;
     background: radial-gradient(#000000 2px, transparent 2px), radial-gradient(#000000 2px, rgba(243, 243, 243, 0.64) 2px);
     background-size: 80px 80px;
     background-position: 0 0,40px 40px;
+}
+.attendee-favorite-sub{
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2rem 1.5rem;
+    > * {
+        width: 50%;
+    }
+}
+.attendee-favorite-sub-f{
+    align-items: center;
 }
