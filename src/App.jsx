@@ -31,6 +31,13 @@ import OnlineEventCreatePanel from "./component/organizer/OnlineEventCreatePanel
 import AttendeeFavoriteEvents from "./component/attendee/AttendeeFavoriteEvents.jsx";
 import AttendeeProfile from "./component/attendee/AttendeeProfile.jsx";
 import AttendeeFollowedEvents from "./component/attendee/AttendeeFollowedEvents.jsx";
+import AttendeeAccountManagement from "./component/attendee/AttendeeAccountManagement.jsx";
+import AttendeeContactInfo from "./component/attendee/AttendeeContactInfo.jsx";
+import AttendeeNotificationSetting from "./component/attendee/AttendeeNotificationSetting.jsx";
+import AttendeePassword from "./component/attendee/AttendeePassword.jsx";
+import AttendeePersonalInfo from "./component/attendee/AttendeePersonalInfo.jsx";
+import AttendeeCreditCard from "./component/attendee/AttendeeCreditCard.jsx";
+import AttendeeSetPassword from "./component/attendee/AttendeeSetPassword.jsx";
 
 function App() {
     const OrganizerBuildEventPage = lazy(() => import('./component/organizer/OrganizerBuildEventPage'))
@@ -73,6 +80,18 @@ function App() {
 
                         return response.data;
                     }
+                },
+                {
+                    path: 'account',
+                    element: <AttendeeAccountManagement />,
+                    children: [
+                        {index: true, element: <AttendeeContactInfo />},
+                        {path: 'password', element: <AttendeePassword />},
+                        {path: 'password/set', element: <AttendeeSetPassword />},
+                        {path: 'credit-card', element: <AttendeeCreditCard />},
+                        {path: 'email-preferences', element: <AttendeeNotificationSetting />},
+                        {path: 'personal-info', element: <AttendeePersonalInfo />},
+                    ]
                 },
                 {
                     path: 'u/:id',

@@ -16,7 +16,7 @@ function AttendeeFollowing(){
     const [followedOrganizer, setFollowedOrganizer] = useState([]);
 
     useEffect(() => {
-        if(followedOrganizer.length === 0 && sessionStorage.getItem('followed-organizer').length > 0){
+        if(followedOrganizer?.length === 0 && sessionStorage.getItem('followed-organizer')?.length > 0){
             accountAxiosWithToken.post('/follow/detail', sessionStorage.getItem('followed-organizer'))
                 .then(async response => {
                     const newData = await Promise.all(response.data.map(async organizer => {
@@ -35,7 +35,7 @@ function AttendeeFollowing(){
     }, []);
 
     return (
-        followedOrganizer.length > 0 &&
+        followedOrganizer?.length > 0 &&
         <Stack className="attendee-profile__section">
             <Stack className={'attendee-profile__section-header'} direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
                 <p className="attendee-profile__section-title">Following</p>
@@ -46,7 +46,7 @@ function AttendeeFollowing(){
                     <ChevronRightIcon className="attendee-profile__section-icon" />
                 </Stack>
             </Stack>
-            <Grid container spacing={3} columns={{xs: 12}} sx={{paddingInline: 10}}>
+            <Grid container spacing={3} columns={{xs: 12}} sx={{paddingInline: 2}}>
                 {followedOrganizer.map((organizer, index) => (
                     <Grid key={index} size={6} className={'attendee-profile__following'}>
                         <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>

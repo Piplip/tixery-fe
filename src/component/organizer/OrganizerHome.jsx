@@ -31,9 +31,10 @@ const CustomCheckbox = () => {
     )
 }
 
+initializeApp(firebaseConfig);
+const storage = getStorage()
+
 function OrganizerHome(){
-    initializeApp(firebaseConfig);
-    const storage = getStorage()
     const navigate = useNavigate();
     const [profiles, setProfiles] = useState(useLoaderData().data.records)
     const [selectProfile, setSelectProfile] = useState(profiles.findIndex(profile => profile[0] == getUserData('profileID')))

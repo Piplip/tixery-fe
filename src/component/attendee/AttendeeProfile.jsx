@@ -26,8 +26,6 @@ function AttendeeProfile(){
         }
     }, []);
 
-    // TODO: Implement the edit profile feature for attendee
-
     return (
         <Stack className="attendee-profile">
             <Stack direction={'row'} className="attendee-profile__header">
@@ -35,9 +33,11 @@ function AttendeeProfile(){
                 <Stack className="attendee-profile__info">
                     <Stack direction={'row'} className="attendee-profile__name">
                         <p>yua nisha</p>
-                        <IconButton>
-                            <EditOutlinedIcon className="attendee-profile__edit-icon" />
-                        </IconButton>
+                        <Link to={'/account'}>
+                            <IconButton>
+                                <EditOutlinedIcon className="attendee-profile__edit-icon" />
+                            </IconButton>
+                        </Link>
                     </Stack>
                     <p className="attendee-profile__stats">
                         <Link to={'#'}>0 orders</Link> • <Link to={'/favorites'}>{stats.total_saved} likes</Link> • <Link to={'#'}>{stats.total_followed} following</Link>
@@ -63,7 +63,9 @@ function AttendeeProfile(){
                 </Stack>
                 <Stack className="attendee-profile__section">
                     <Stack direction={'row'} alignItems={'center'} columnGap={.5} className="attendee-profile__section-header">
-                        <p className="attendee-profile__section-title">Likes</p>
+                        <Link to={'/favoriteS'}>
+                            <p className="attendee-profile__section-title">Likes</p>
+                        </Link>
                         <ChevronRightIcon className="attendee-profile__section-icon" />
                     </Stack>
                     <AttendeeFavoriteEvents isSubComponent={true}/>

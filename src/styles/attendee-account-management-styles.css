@@ -1,0 +1,33 @@
+.attendee-account-management{
+    padding: 6rem 10%;
+}
+.profile-card{
+    padding: 1rem 2.5rem;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+.profile-card:hover{
+    cursor: pointer;
+    border-color: #3b82f6;
+    background-color: #f3f4f6;
+}
+.active-link{
+    color: #618bd7;
+    border-bottom: 2px solid #618bd7;
+}
+.profile-setting-link:hover{
+    color: #3b82f6;
+}
+.email-preferences, .attendee-contact-info{
+    background-color: rgba(232, 235, 248, 0.25);
+    padding: 1.5rem 2rem;
+}
+.email-preferences__subtitle{
+    color: #595959;
+}
+.email-preferences__category{
+    color: #2b3136;
+}
+.email-preferences__options > .MuiFormControlLabel-root{
+    color: #2a2a2a;
+}

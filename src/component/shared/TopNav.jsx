@@ -28,7 +28,7 @@ function TopNav({isLoggedIn, enableScrollEffect}){
             shouldRender: (isLoggedIn) => isLoggedIn && hasRole(['attendee'])
         },
         {
-            title: 'Tickets', link: '/tickets',
+            title: 'Tickets', link: `/u/${getUserData('profileID')}`,
             shouldRender: (isLoggedIn) => isLoggedIn && hasRole(['attendee'])
         },
         {

@@ -14,11 +14,13 @@ function AttendeeFavoriteEvents({isSubComponent = false}){
     const [favoriteEvents, setFavoriteEvents] = useState([]);
 
     useEffect(() => {
-        eventAxiosWithToken.post(`/event/favorite/get`, sessionStorage.getItem('liked-event'))
-            .then(r => {
-                setFavoriteEvents(r.data)
-            })
-            .catch(err => console.log(err))
+        if(sessionStorage.getItem('liked-event')?.length > 0){
+            eventAxiosWithToken.post(`/event/favorite/get`, sessionStorage.getItem('liked-event'))
+                .then(r => {
+                    setFavoriteEvents(r.data)
+                })
+                .catch(err => console.log(err))
+        }
     }, []);
 
     return(
@@ -28,7 +30,7 @@ function AttendeeFavoriteEvents({isSubComponent = false}){
                 {favoriteEvents?.length > 0 ?
                     favoriteEvents.map((event, index) => {
                         return(
-                            <EventCard key={index} event={event} horizontal={!isSubComponent} showAction={isSubComponent} renderAddress={true}/>
+                            <EventCard key={index} event={event} horizontal={!isSubComponent} renderAddress={true}/>
                         )
                     })
                     :

@@ -7,7 +7,7 @@ import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
 
 DragAndDropZone.propTypes = {
-    onFileSelect: PropTypes.func.isRequired,
+    onFileSelect: PropTypes.func,
     image: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 }
 

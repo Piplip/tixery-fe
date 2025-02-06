@@ -38,12 +38,12 @@ function ShareDialog({eventID}){
                 className={'event-view__action event-view__action--share'}
                 title={'Share event'}>
                 <ShareIcon onClick={(e) => {
-                    setOpen(true)
                     e.stopPropagation()
+                    setOpen(true)
                 }}/>
             </Tooltip>
-            <Modal open={open}
-                   onClose={() => setOpen(false)}
+            <Modal open={open} onClick={e => e.stopPropagation()}
+                   onClose={() => {setOpen(false)}}
             >
                 <ModalDialog>
                     <ModalClose />
