@@ -38,6 +38,7 @@ import AttendeePassword from "./component/attendee/AttendeePassword.jsx";
 import AttendeePersonalInfo from "./component/attendee/AttendeePersonalInfo.jsx";
 import AttendeeCreditCard from "./component/attendee/AttendeeCreditCard.jsx";
 import AttendeeSetPassword from "./component/attendee/AttendeeSetPassword.jsx";
+import PaymentResponse from "./component/shared/PaymentResponse.jsx";
 
 function App() {
     const OrganizerBuildEventPage = lazy(() => import('./component/organizer/OrganizerBuildEventPage'))
@@ -56,6 +57,7 @@ function App() {
             hydrateFallbackElement: <LoadingFallback />,
             children: [
                 {index: true, element: <AttendeeHome />},
+                {path: '/payment/:type', element: <PaymentResponse />},
                 {
                     path: 'events/search', element: <EventSearch />,
                     loader: async () => {

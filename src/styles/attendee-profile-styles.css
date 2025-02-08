@@ -122,3 +122,7 @@
 .attendee-profile__following button:hover{
     background-color: rgba(219, 222, 236, 0.45);
 }
+.attendee-profile__following-name:hover{
+    cursor: pointer;
+    color: #3b82f6;
+}

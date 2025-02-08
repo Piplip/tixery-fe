@@ -18,6 +18,7 @@ function AttendeeSetPassword(){
                 .required('Password is required'),
         }),
         onSubmit: (values) => {
+            setIsLoading(true)
             accountAxiosWithToken.post(`/oauth2/set-password?u=${getUserData('sub')}`, values.password)
                 .then(() => {
                     setSuccess(true)

@@ -54,7 +54,7 @@ function TopNavSearchBar(){
     }, []);
 
     useEffect(() => {
-        setSearchValue(location.search.split('=')[1] || '');
+        setSearchValue(new URLSearchParams(location.search).get('q') || '');
     }, [location]);
 
     const handleSearchInpClick = () => {

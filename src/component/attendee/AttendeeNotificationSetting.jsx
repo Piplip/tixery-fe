@@ -7,17 +7,17 @@ import {useOutletContext} from "react-router-dom";
 
 const labels = {
     attending: {
-        featureAnnouncement: "Updates about new Eventbrite features and announcements",
-        additionalInfo: "Requests for additional information on an event after you have attended",
-        organizerAnnounces: "When an organizer you follow announces a new event",
-        eventOnSales: "Reminders about event onsales",
-        likedEvents: "Reminders about events I’ve liked",
+        feature_announcement: "Updates about new Eventbrite features and announcements",
+        additional_info: "Requests for additional information on an event after you have attended",
+        organizer_announces: "When an organizer you follow announces a new event",
+        event_on_sales: "Reminders about event onsales",
+        liked_events: "Reminders about events I’ve liked",
     },
     organizing: {
-        featureAnnouncement: "Updates about new Eventbrite features and announcements",
-        eventSalesRecap: "Event Sales Recap",
-        importantReminders: "Important reminders for my next event",
-        orderConfirmations: "Order confirmations from my attendees",
+        feature_announcement: "Updates about new Eventbrite features and announcements",
+        event_sales_recap: "Event Sales Recap",
+        important_reminders: "Important reminders for my next event",
+        order_confirmations: "Order confirmations from my attendees",
     },
 };
 
@@ -42,11 +42,11 @@ function AttendeeNotificationSetting(){
                 .then(r => {
                     console.log(r.data)
                     setPreferences(prev => ({...prev, attending: {
-                            featureAnnouncement: r.data.feature_and_announcement === 'true',
-                            additionalInfo: r.data.post_event === "true",
-                            organizerAnnounces: r.data.follow_organizer === 'true',
-                            eventOnSales: r.data.onsale_event === 'true',
-                            likedEvents: r.data.liked_event === 'true',
+                            feature_announcement: r.data.feature_announcement,
+                            additional_info: r.data.additional_info,
+                            organizer_announces: r.data.organizer_announces,
+                            event_on_sales: r.data.event_on_sales,
+                            liked_events: r.data.liked_events,
                         }
                     }))
                 })

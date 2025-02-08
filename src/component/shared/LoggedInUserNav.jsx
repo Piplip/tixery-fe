@@ -20,7 +20,7 @@ function LoggedInUserNav(){
         { name: 'Likes', link: '/favorites' , roles: ['attendee']},
         { name: 'Followings', link: `/u/${getUserData('profileID')}`, roles: ['attendee'] },
         { name: 'Interests', link: '/interests', roles: ['attendee'] },
-        { name: 'Account Settings', link: '/account-settings', public: true},
+        { name: 'Account Settings', link: '/account', public: true},
         { name: 'Profile', link: '/organizer/u', roles: ['host']},
     ];
     const [fullName] = useState(getUserData('fullName'))

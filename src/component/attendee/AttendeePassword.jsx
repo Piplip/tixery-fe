@@ -148,7 +148,7 @@ function AttendeePassword(){
                                 <Button type="submit" variant="contained"
                                         sx={ButtonStyle}
                                 >
-                                    Save
+                                    {isLoading ? <CircularProgress color={'danger'} size={'sm'}/> : 'Update'}
                                 </Button>
                             </Stack>
                         </form>
