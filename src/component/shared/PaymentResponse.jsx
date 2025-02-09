@@ -17,7 +17,7 @@ function PaymentResponse(){
     useEffect(() => {
         if(!processed.current){
             processed.current = true
-            const url = `/payment/${initialType === 'success' ? 'stripe/success' : 'stripe/failure'}?order-id=${new URLSearchParams(location.search).get('orderID')}`
+            const url = `/payment/${initialType === 'success' ? 'stripe/success' : 'stripe/failure'}?order-id=${new URLSearchParams(location.search).get('orderID')}&pid=${getUserData('profileID')}`
             eventAxiosWithToken.post(url)
                 .then(r => {
                     console.log(r.data)

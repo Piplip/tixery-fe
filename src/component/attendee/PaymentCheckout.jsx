@@ -46,7 +46,7 @@ function PaymentCheckout({total, currency, eventName, eventID, tickets, quantiti
 
     function handleStripePayment(){
         setIsLoading(true)
-        accountAxiosWithToken.post(`/notification/preferences/update?pid=${getUserData('profileID')}`, preferences)
+        accountAxiosWithToken.post(`/notification/preferences/update?pid=${getUserData('profileID')}&role=${getUserData('role')}`, preferences)
             .catch(error => console.log(error))
         eventAxiosWithToken.post('/payment/stripe/checkout', {
             amount: total*100,
@@ -58,15 +58,19 @@ function PaymentCheckout({total, currency, eventName, eventID, tickets, quantiti
             profileID: getUserData('profileID'),
             eventID: eventID,
             username: getUserData('fullName'),
-            tickets: tickets.filter((ticket, index) => quantities[index] === 0)
-                .map((ticket, index) => ({ticketTypeID: ticket.ticket_type_id, quantity: quantities[index], price: ticket.price * quantities[index]}))
+            tickets: tickets.filter((ticket, originalIndex) => quantities[originalIndex] !== 0)
+                .map((ticket) => ({
+                    ticketTypeID: ticket.ticket_type_id,
+                    quantity: quantities[tickets.indexOf(ticket)],
+                    price: ticket.price * quantities[tickets.indexOf(ticket)]
+                }))
         }).then(response => {
             if(response.data.status === 'success'){
                 window.location.href = response.data.sessionURL
             }
             else{
                 setIsLoading(false)
-                alert('Payment failed. Please try again.')
+                alert(response.data.message)
             }
         }).catch(error => {
             console.log(error)

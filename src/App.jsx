@@ -76,10 +76,7 @@ function App() {
                         if(checkLoggedIn()){
                             searchParams.append('pid', getUserData('profileID'))
                         }
-                        const response = await eventAxiosWithToken.get(
-                            `/get/specific?${searchParams}`
-                        );
-
+                        const response = await eventAxiosWithToken.get(`/get/specific?${searchParams}`);
                         return response.data;
                     }
                 },

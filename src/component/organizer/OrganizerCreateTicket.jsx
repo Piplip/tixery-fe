@@ -129,6 +129,14 @@ function OrganizerCreateTicket(){
             .required("Ticket name is required.")
             .max(50, "Ticket name type cannot exceed 50 characters."),
         quantity: Yup.number()
+            .moreThan(1, "Quantity must be greater than 1.")
+            .test(
+                'is-valid-quantity',
+                'Quantity must be lower than the event capacity.',
+                function (value) {
+                    return value <= data.capacity;
+                }
+            )
             .typeError("Quantity must be a number.")
             .required("Quantity is required."),
         price: Yup.mixed().nullable()

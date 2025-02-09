@@ -14,7 +14,7 @@ const storage = getStorage()
 
 function AttendeeFollowing(){
     const [followedOrganizer, setFollowedOrganizer] = useState([]);
-    console.log(followedOrganizer)
+
     useEffect(() => {
         if(followedOrganizer?.length === 0 && sessionStorage.getItem('followed-organizer')?.length > 0){
             accountAxiosWithToken.post('/follow/detail', sessionStorage.getItem('followed-organizer'))
