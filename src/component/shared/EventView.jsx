@@ -328,7 +328,8 @@ function EventView(){
                             </Stack>
                         }
                         {loaderData.event_id && profile.profile_id &&
-                            <MoreRelatedByOrganizer id={loaderData.event_id} name={profile.profile_name} customURL={profile.custom_url} profileID={profile.profile_id}/>
+                            <MoreRelatedByOrganizer id={loaderData.event_id} name={profile.profile_name} customURL={profile.custom_url}
+                                                    profileID={profile.profile_id}/>
                         }
                     </Stack>
                 </div>

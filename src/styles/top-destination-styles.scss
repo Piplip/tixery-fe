@@ -1,0 +1,131 @@
+.top-destinations {
+    width: 100%;
+    padding: 3rem 7rem;
+    margin: 2rem auto 0;
+    position: relative;
+    background-color: #efefef;
+
+    &__title {
+        font-size: 1.6rem;
+        font-weight: bold;
+        margin-bottom: 2rem;
+        text-align: center;
+        font-family: "Raleway", sans-serif;
+    }
+
+    &__carousel {
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+
+        &:after{
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 20rem;
+            height: 120%;
+            background: linear-gradient(to right, rgba(255, 255, 255, 0), #f0f0f0);
+            z-index: 1;
+        }
+    }
+
+    &__arrow {
+        z-index: 2;
+        background-color: #fff;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        margin: 0 8px;
+        &:hover {
+            background-color: #f0f0f0;
+        }
+    }
+
+    &__cards-container {
+        display: flex;
+        transition: transform 0.3s ease;
+        width: 100%;
+    }
+    .top-destinations__card {
+        flex: 0 0 25%;
+        box-sizing: border-box;
+        padding: 8px;
+        position: relative;
+        user-select: none;
+        cursor: pointer;
+
+        &::after {
+            content: "";
+            position: absolute;
+            bottom: 0.5rem;
+            left: 0.5rem;
+            width: 95%;
+            height: 1rem;
+            background-color: #ff0000;
+            z-index: 1;
+
+            transition: bottom 0.3s ease, height 0.3s ease;
+        }
+
+        &:hover::after {
+            height: 3rem;
+        }
+    }
+
+
+    &__card-image {
+        width: 20rem;
+        height: 12.5rem;
+        object-fit: cover;
+        border-radius: 2rem 2rem 0 0;
+        display: block;
+        filter: brightness(0.8);
+        transition: filter 0.3s ease;
+        &:hover {
+            filter: brightness(1);
+        }
+    }
+
+    &__card-overlay {
+        position: absolute;
+        bottom: 1.5rem;
+        left: 1rem;
+        color: #fff;
+        padding: .5rem 1rem;
+        border-radius: 4px;
+        z-index: 4;
+    }
+
+    &__card-title {
+        font-weight: bold;
+        font-size: 2.5rem;
+        font-family: "Raleway", sans-serif;
+        z-index: 4;
+    }
+}
+
+.top-city{
+    flex-wrap: wrap;
+
+    &__item{
+        border-radius: 1rem;
+        padding: .5rem .75rem;
+        width: fit-content;
+        background-color: white;
+        display: flex;
+        align-items: center;
+        column-gap: .5rem;
+        font-family: "Roboto Slab", sans-serif;
+        font-size: .9rem;
+        font-weight: 500;
+        color: #282d3d;
+        transition: background-color .2s ease;
+        .MuiSvgIcon-root{
+            font-size: 1rem;
+        }
+        &:hover{
+            cursor: pointer;
+            background-color: #f0f0f0;
+        }
+    }
+}

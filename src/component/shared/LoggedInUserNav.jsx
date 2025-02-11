@@ -16,7 +16,7 @@ function LoggedInUserNav(){
     const attendeeOptions = [
         { name: 'Browse Events', link: '/events', roles: ['attendee'] },
         { name: 'Manage my events', link: '/organizer/events', roles: ['host'] },
-        { name: 'Tickets', link: '/tickets', roles: ['attendee'] },
+        { name: 'Tickets', link: `/u/${getUserData('profileID')}`, roles: ['attendee'] },
         { name: 'Likes', link: '/favorites' , roles: ['attendee']},
         { name: 'Followings', link: `/u/${getUserData('profileID')}`, roles: ['attendee'] },
         { name: 'Interests', link: '/interests', roles: ['attendee'] },

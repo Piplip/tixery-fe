@@ -27,6 +27,7 @@ input{
 .help-link, .link{
     color: #0040e5;
     display: inline-flex;
+    width: fit-content;
 }
 .go-back-link{
     font-family: Rockwell, sans-serif;

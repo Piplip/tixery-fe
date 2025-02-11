@@ -66,15 +66,12 @@ function AttendeeProfile(){
                         </Link>
                     </Stack>
                     <p className="attendee-profile__stats">
-                        <Link to={'#'}>0 orders</Link> • <Link to={'/favorites'}>{stats.total_saved} likes</Link> • <Link to={'#'}>{stats.total_followed} following</Link>
+                        <Link to={'/favorites'}>{stats.total_saved} likes</Link> • <Link to={'#'}>{stats.total_followed} following</Link>
                     </p>
                 </Stack>
             </Stack>
             <Stack className="attendee-profile__content">
                 <Stack className="attendee-profile__section">
-                    <Stack direction={'row'} alignItems={'center'} columnGap={.5} className="attendee-profile__section-header">
-                        <p className="attendee-profile__section-title">Orders</p>
-                    </Stack>
                     <AttendeeOrders />
                 </Stack>
                 <Stack className="attendee-profile__section">

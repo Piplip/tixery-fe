@@ -4,7 +4,7 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {Link, useNavigate} from "react-router-dom";
 import "../../styles/trending-searches-styles.css"
 import cookie from "react-cookies";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {eventAxios} from "../../config/axiosConfig.js";
 import {checkLoggedIn, getUserData} from "../../common/Utilities.js";
 
@@ -12,15 +12,18 @@ function TrendingSearches(){
     const navigate = useNavigate()
 
     const [searchTrends, setSearchTrends] = useState([]);
+    const hasFetch = useRef(false)
 
     useEffect(() => {
-        eventAxios.get(`/search/trends?lat=${cookie.load('user-location').lat}&lon=${cookie.load('user-location').lon}`)
-            .then(r => {
-                console.log(r.data)
-                setSearchTrends(r.data)
-            })
-            .catch(err => console.log(err))
-    }, []);
+        if(!hasFetch.current){
+            hasFetch.current = true
+            eventAxios.get(`/search/trends?lat=${cookie.load('user-location').lat}&lon=${cookie.load('user-location').lon}`)
+                .then(r => {
+                    setSearchTrends(r.data)
+                })
+                .catch(err => console.log(err))
+        }
+    }, [hasFetch]);
 
     function handleLinkClick(link) {
         const searchParams = new URLSearchParams({

@@ -9,6 +9,7 @@ import {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
 import ShareDialog from "./ShareDialog.jsx";
 import LikeEvent from "./LikeEvent.jsx";
+import {formatCurrency} from "../../common/Utilities.js";
 
 EventCard.propTypes = {
     event: PropTypes.shape({
@@ -20,6 +21,9 @@ EventCard.propTypes = {
         customURL: PropTypes.string,
         location: PropTypes.shape({
             location: PropTypes.string
+        }),
+        currency: PropTypes.shape({
+            currency: PropTypes.string
         })
     }),
     organizer: PropTypes.string,
@@ -58,8 +62,8 @@ function EventCard ({ event, organizer, id, customURL, horizontal, showAction = 
     }
 
     return (
-        <>
-            <Stack className="event-card" onClick={() => window.location.href = `/events/${event.event_id}`}
+        <Link to={`/events/${event.event_id}`} target={'_blank'}>
+            <Stack className="event-card"
                    flexDirection={horizontal ? 'row' : 'column'} style={horizontal ? {width: 'clamp(38rem, 100%, 50rem)'} : {width: 'clamp(18rem, 100%, 22rem)'}}
             >
                 <Stack style={{position: 'relative'}}>
@@ -71,8 +75,12 @@ function EventCard ({ event, organizer, id, customURL, horizontal, showAction = 
                 <Stack rowGap={.5} padding={'0 1rem 1rem 1rem'} marginTop={1}>
                     <p className="event-card__title">{event.name}</p>
                     <p className="event-card__date">{dayjs(event.start_time).format("ddd, DD MMM")} • {dayjs(event.start_time).format("HH:mm [GMT]Z")}</p>
-                    <p className="event-card__price">{event.price === 'Free' ? 'Free ' : `From $${event.price}`}</p>
-                    {renderAddress && <p className={'event-card__address'}>{event.location.location}</p>}
+                    {event.price && <p className="event-card__price">
+                        {event.price === 'Free' ? 'Free ' : `From ${formatCurrency(event.price, event.currency.currency)}`}
+                    </p>}
+                    {renderAddress && <p className={'event-card__address'}
+                        style={!horizontal ? {textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap'} : {}}
+                    >{event.location.location}</p>}
                     <Link to={`/o/${customURL || id}`} className="event-card__organizer" target={'_blank'}
                           onClick={(e) => e.stopPropagation()}
                     >
@@ -81,7 +89,7 @@ function EventCard ({ event, organizer, id, customURL, horizontal, showAction = 
                 </Stack>
                 {horizontal && <EventAction />}
             </Stack>
-        </>
+        </Link>
     )
 }
 

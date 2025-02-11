@@ -1,5 +1,4 @@
-.order-detail-content{
-    padding: 2rem 5rem;
+.order-detail-content-wrapper{
     font-family: 'Nunito', sans-serif;
     column-gap: 2rem;
 }
@@ -21,4 +20,13 @@
     z-index: 3;
     background-color: white;
     filter: none;
+}
+.order-detail-title{
+    font-size: 1.2rem;
+}
+.order-detail-content{
+    font-family: 'Roboto Slab', sans-serif;
+    font-weight: 500;
+    font-size: 1rem;
+    color: #abb6be;
 }

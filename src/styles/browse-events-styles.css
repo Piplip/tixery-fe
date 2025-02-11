@@ -1,14 +1,15 @@
 .browse-events{
-    padding-inline: 7.5%;
+    padding: 0 7.5% 1.5rem;
     display: flex;
     flex-direction: column;
-    row-gap: 2rem;
+    row-gap: 1rem;
 }
 .browse-events__header{
     align-items: center;
     column-gap: 1.5rem;
     font-size: 2rem;
     font-family: "Bookman Old Style", sans-serif;
+    margin-bottom: 1rem;
 }
 .browse-events__header-input{
     font-size: 3rem;
@@ -30,4 +31,21 @@
     color: red;
     border-bottom: 2px solid red;
     padding-bottom: .5rem;
+}
+.relative-suggestion-panel{
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 125%;
+    background-color: white;
+    font-size: 1.25rem;
+    padding-block: 1rem;
+}
+.relative-suggestion-panel > p{
+    cursor: pointer;
+    padding: .25rem 1rem;
+}
+.relative-suggestion-panel > p:hover{
+    color: #1d5177;
+    background-color: #f5f5f5;
 }

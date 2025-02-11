@@ -54,6 +54,7 @@ function TopNavSearchBar(){
     }, []);
 
     useEffect(() => {
+        setSuggestion([])
         setSearchValue(new URLSearchParams(location.search).get('q') || '');
     }, [location]);
 
@@ -167,6 +168,9 @@ function TopNavSearchBar(){
         }
         setSuggestion([])
         setSearchValue(e.target.value)
+        const searchParams = new URLSearchParams(location.search)
+        searchParams.set('q', e.target.value)
+        navigate(location.pathname + '?' + searchParams.toString())
         debounceSuggestion(e.target.value)
     }
 
@@ -204,7 +208,7 @@ function TopNavSearchBar(){
                                     {suggestion.map((s, index) => (
                                         <Stack key={index} flexDirection={'row'} className={'search-result-item'}
                                             onClick={() => {
-                                                navigate(`events/search?q=${searchValue}`)
+                                                navigate(`events/search?q=${searchValue}&ref=search`)
                                                 setShowRecentSearches(false)
                                             }}
                                         >

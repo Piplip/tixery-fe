@@ -3,6 +3,7 @@ import BrowseEvents from "./BrowseEvents.jsx";
 import {useEffect, useRef} from "react";
 import {checkLoggedIn, getUserData} from "../../common/Utilities.js";
 import {accountAxiosWithToken, eventAxiosWithToken} from "../../config/axiosConfig.js";
+import TopDestination from "../shared/TopDestination.jsx";
 
 function AttendeeHome(){
     // TODO: handle the case where user haven't set up roles
@@ -34,6 +35,7 @@ function AttendeeHome(){
         <div>
             <AttendeeHero />
             <BrowseEvents />
+            <TopDestination />
         </div>
     )
 }

@@ -58,13 +58,7 @@ function App() {
             children: [
                 {index: true, element: <AttendeeHome />},
                 {path: '/payment/:type', element: <PaymentResponse />},
-                {
-                    path: 'events/search', element: <EventSearch />,
-                    loader: async () => {
-                        const response = await eventAxios.get(`/search?eids=${sessionStorage.getItem('search-ids')}`)
-                        return response.data
-                    }
-                },
+                {path: 'events/search', element: <EventSearch />,},
                 {path: 'favorites', element: <AttendeeFavoriteEvents />,},
                 {
                     path: 'events/:id', element: <EventView />,

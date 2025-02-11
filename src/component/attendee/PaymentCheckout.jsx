@@ -18,6 +18,7 @@ import {useState} from "react";
 import {accountAxiosWithToken, eventAxiosWithToken} from "../../config/axiosConfig.js";
 import PropTypes from "prop-types";
 import {Link} from "react-router-dom";
+import dayjs from "dayjs";
 
 PaymentCheckout.propTypes = {
     total: PropTypes.number,
@@ -53,7 +54,7 @@ function PaymentCheckout({total, currency, eventName, eventID, tickets, quantiti
             email: getUserData('sub'),
             currency: currency,
             quantity: 1,
-            name: `Tickets for ${eventName} - Tixery Event - ${new Date().toLocaleDateString()}`,
+            name: `Tickets for ${eventName} - Tixery Event - ${dayjs().format("{DD/MM/YYYY")}`,
             userID: getUserData('userID'),
             profileID: getUserData('profileID'),
             eventID: eventID,
@@ -70,10 +71,11 @@ function PaymentCheckout({total, currency, eventName, eventID, tickets, quantiti
             }
             else{
                 setIsLoading(false)
-                alert(response.data.message)
+                alert(response.statusText)
             }
         }).catch(error => {
-            console.log(error)
+            setIsLoading(false)
+            alert(error.response.statusText + '. Please try again in a few minutes.')
         })
     }
 

@@ -65,10 +65,13 @@ function OrderCard({order}){
                         }}
                     />
                 </Stack>
-                <Stack rowGap={1}>
+                <Stack rowGap={.5}>
                     <Typography fontWeight={'bold'} fontSize={'1.75rem'}>{order?.name}</Typography>
                     <Typography variant={'body2'}>{dayjs(order?.start_time).format("ddd, MMM DD, YYYY HH:mm Z")}</Typography>
                     <Typography variant={'body2'}>Order #{order?.order_id} placed on {dayjs(order?.created_at).format("DD/MM/YYYY HH:mm")}</Typography>
+                    {order?.location?.location === 'Online' &&
+                        <Typography variant={'body2'} className={'link'}>Go to online event page</Typography>
+                    }
                 </Stack>
             </Stack>
             <OrderCardDetail open={open} handleClose={handleClose} eventImg={img} order={order} ticketInfo={orderDetail}/>
