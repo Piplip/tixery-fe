@@ -76,7 +76,7 @@ const validationSchema = Yup.object().shape({
 });
 
 function OnlineEventCreatePanel(){
-    const {data} = useContext(EventContext)
+    const {data, setData} = useContext(EventContext)
     const [openDrawer, setOpenDrawer] = useState({
         type: '', open: false
     })
@@ -98,6 +98,7 @@ function OnlineEventCreatePanel(){
         validationSchema: validationSchema,
         onSubmit: (values) => {
             handleSave(values.elements)
+            setData(prev => ({...prev, locationData: values.elements, enabled: pageSettings.enabled, access: pageSettings.access}))
         }
     });
 

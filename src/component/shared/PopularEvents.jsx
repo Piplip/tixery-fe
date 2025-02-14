@@ -11,7 +11,6 @@ function PopularEvents(){
         if(events.length === 0){
             eventAxios.get(`/event/trends?lat=${cookie.load('user-location').lat}&lon=${cookie.load('user-location').lon}`)
                 .then(r => {
-                    console.log(r.data)
                     setEvents(r.data)
                 })
                 .catch(err => console.log(err))

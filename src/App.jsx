@@ -16,9 +16,8 @@ import OrganizerSettings from "./component/organizer/OrganizerSettings.jsx";
 import OrganizerSettingProfile from "./component/organizer/OrganizerSettingProfile.jsx";
 import OrganizerViewTemplate from "./component/template/OrganizerViewTemplate.jsx";
 import OrganizerView from "./component/organizer/OrganizerView.jsx";
-import {accountAxiosWithToken, eventAxios, eventAxiosWithToken} from "./config/axiosConfig.js";
+import {accountAxiosWithToken, eventAxiosWithToken} from "./config/axiosConfig.js";
 import {checkLoggedIn, getUserData} from "./common/Utilities.js";
-import {lazy} from "react";
 import LoadingFallback from "./component/shared/LoadingFallback.jsx";
 import OrganizerNewProfile from "./component/organizer/OrganizerNewProfile.jsx";
 import OrganizerEditProfile from "./component/organizer/OrganizerEditProfile.jsx";
@@ -39,13 +38,13 @@ import AttendeePersonalInfo from "./component/attendee/AttendeePersonalInfo.jsx"
 import AttendeeCreditCard from "./component/attendee/AttendeeCreditCard.jsx";
 import AttendeeSetPassword from "./component/attendee/AttendeeSetPassword.jsx";
 import PaymentResponse from "./component/shared/PaymentResponse.jsx";
+import OrganizerBuildEventPage from "./component/organizer/OrganizerBuildEventPage.jsx";
+import OrganizerCreateTicket from "./component/organizer/OrganizerCreateTicket.jsx";
+import OrganizerTicketAdmission from "./component/organizer/OrganizerTicketAdmission.jsx";
+import OrganizerPublishEvent from "./component/organizer/OrganizerPublishEvent.jsx";
+import RecurringEventSchedule from "./component/organizer/RecurringEventSchedule.jsx";
 
 function App() {
-    const OrganizerBuildEventPage = lazy(() => import('./component/organizer/OrganizerBuildEventPage'))
-    const OrganizerCreateTicket = lazy(() => import('./component/organizer/OrganizerCreateTicket'))
-    const OrganizerTicketAdmission = lazy(() => import('./component/organizer/OrganizerTicketAdmission'))
-    const OrganizerPublishEvent = lazy(() => import('./component/organizer/OrganizerPublishEvent'))
-
     const routers = createBrowserRouter([
         {path: '/login', element: <LoginSignUp />},
         {path: '/sign-up', element: <LoginSignUp />},
@@ -145,7 +144,7 @@ function App() {
                 },
                 {
                     path: 'events', element: <OrganizerEvent />,
-                    loader: () => eventAxiosWithToken.get('/get?uid=' + getUserData("userID"))
+                    loader: () => eventAxiosWithToken.get(`/get?uid=${getUserData("userID")}&tz=${(Math.round(new Date().getTimezoneOffset()) / -60)}`)
                 },
                 {
                     path: 'events/:id',
@@ -153,6 +152,7 @@ function App() {
                     children: [
                         {index: true, element: <OrganizerBuildEventPage />},
                         {path: 'online', element: <OnlineEventCreatePanel />},
+                        {path: 'recurring', element: <RecurringEventSchedule />},
                         {
                             path: 'tickets', element: <OrganizerCreateTicket />,
                             children: [
@@ -165,10 +165,11 @@ function App() {
                 {
                     path: 'events/edit/:id',
                     element: <CreateEvent />,
-                    loader: ({params}) => eventAxiosWithToken.get('/get/specific?eid=' + params.id),
+                    loader: ({params}) => eventAxiosWithToken.get(`/get/specific?eid=${params.id}&is_organizer=true`),
                     children: [
                         {index: true, element: <OrganizerBuildEventPage />},
                         {path: 'online', element: <OnlineEventCreatePanel />},
+                        {path: 'recurring', element: <RecurringEventSchedule />},
                         {
                             path: 'tickets',
                             element: <OrganizerCreateTicket />,

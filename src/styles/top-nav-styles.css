@@ -33,7 +33,6 @@
     border-right: 1px solid;
 }
 .top-nav-input-container__input{
-    min-width: 15rem;
     margin-left: 5px;
 }
 .top-nav-container__nav-links-container > div{
@@ -51,11 +50,14 @@
     padding: 5px;
     margin: 3px 4px;
 }
+.top-nav-input-container{
+    width: 50%;
+}
 .top-nav-input-container:hover{
     box-shadow: 2px 3px 10px 0 #989898;
 }
 .drop-down-suggestion{
-    width: 120%;
+    width: 100%;
     background-color: white;
     position: absolute;
     top: 100%;

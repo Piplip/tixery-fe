@@ -1,5 +1,5 @@
 import {Box, Checkbox, FormControlLabel, Stack, TextField, Typography} from "@mui/material";
-import {Link, NavLink, useLocation} from "react-router-dom";
+import {Link, NavLink} from "react-router-dom";
 import ImageIcon from '@mui/icons-material/Image';
 import "../../styles/organizer-publish-event-styles.css"
 import BookOnlineIcon from '@mui/icons-material/BookOnline';
@@ -115,7 +115,7 @@ function OrganizerPublishEvent(){
                                 </p>
                                 <Stack direction={'row'} justifyContent={'space-between'}>
                                     <div className="event-publish__info">
-                                        <span><BookOnlineIcon/> {data.tickets && data.tickets[0]?.price}</span>
+                                        <span><BookOnlineIcon/> {data.tickets && data.tickets[0]?.price || 'Free'}</span>
                                         <span><PersonIcon/>{data.capacity}</span>
                                     </div>
                                     <Link to="/preview" className="event-publish__preview">

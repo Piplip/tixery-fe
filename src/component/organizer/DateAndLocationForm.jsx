@@ -15,7 +15,7 @@ import {
     Stack,
     Tab,
     Tabs,
-    TextField
+    TextField, Typography
 } from "@mui/material";
 import {DatePicker, LocalizationProvider, TimePicker} from "@mui/x-date-pickers";
 import "../../styles/date-and-location-form-styles.css"
@@ -132,10 +132,12 @@ function DateAndLocationForm(){
     });
 
     function isValidData(){
-        return formik.values.eventDate !== null && formik.values.eventStartTime !== null && formik.values.eventEndTime !== null
-            && formik.values.timezone !== undefined && (data.eventType === 'venue' && formik.values.location !== '' || (data.eventType !== null && data.eventType !== 'venue'))
-            && formik.errors.eventDate === undefined
-            && formik.errors.eventStartTime === undefined && formik.errors.eventEndTime === undefined
+        return ((data.eventType === 'single' && formik.values.eventDate !== null && formik.values.eventStartTime !== null && formik.values.eventEndTime !== null
+                    && formik.errors.eventDate === undefined
+                    && formik.errors.eventStartTime === undefined && formik.errors.eventEndTime === undefined
+                )
+                || data.eventType === 'recurring')
+            && formik.values.timezone !== undefined && ((data.locationType === 'venue' && formik.values.location) || data.locationType === 'online')
     }
 
     const debouncedApiCall = useCallback(
@@ -213,65 +215,73 @@ function DateAndLocationForm(){
                     </Button>
                 </Stack>
             </Stack>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <div className="date-time-section">
-                    <DatePicker format={'DD/MM/YYYY'} disablePast label="Event Date *"
-                        value={dayjs(formik.values.eventDate, 'DD/MM/YYYY')} name={'eventDate'}
-                        onChange={(newValue) => {
-                            setHasUnsavedChanges(true)
-                            setData(prev => ({...prev, eventDate: newValue.format('DD/MM/YYYY')}))
-                            formik.setFieldValue('eventDate', newValue)
-                        }}
-                        slotProps={{
-                            textField: {
-                                onBlur: formik.handleBlur,
-                                error: formik.touched.eventDate && Boolean(formik.errors.eventDate),
-                                helperText: formik.touched.eventDate && formik.errors.eventDate,
-                            },
-                        }}
-                    />
-                    <TimePicker label="Start time *" ampm={false} name={'eventStartTime'}
-                        value={formik.values.eventStartTime}
-                        onChange={(newValue) => {
-                            setHasUnsavedChanges(true)
-                            setData(prev => ({...prev, eventStartTime: newValue}))
-                            formik.setFieldValue('eventStartTime', newValue)
-                        }}
-                        slotProps={{
-                            textField: {
-                                onBlur: formik.handleBlur,
-                                error: formik.touched.eventStartTime && Boolean(formik.errors.eventStartTime),
-                                helperText: formik.touched.eventStartTime && formik.errors.eventStartTime,
-                            },
-                        }}
-                    />
-                    <TimePicker
-                        label="End time *" ampm={false} name={'eventEndTime'}
-                        value={formik.values.eventEndTime}
-                        onChange={(newValue) => {
-                            setHasUnsavedChanges(true)
-                            setData(prev => ({...prev, eventEndTime: newValue}))
-                            formik.setFieldValue('eventEndTime', newValue)
-                        }}
-                        slotProps={{
-                            textField: {
-                                onBlur: formik.handleBlur,
-                                error: formik.touched.eventEndTime && Boolean(formik.errors.eventEndTime),
-                                helperText: formik.touched.eventEndTime && formik.errors.eventEndTime,
-                            },
-                        }}
-                    />
-                </div>
-            </LocalizationProvider>
+            {data.eventType === 'single' ?
+                <>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <div className="date-time-section">
+                            <DatePicker format={'DD/MM/YYYY'} disablePast label="Event Date *"
+                                        value={dayjs(formik.values.eventDate, 'DD/MM/YYYY')} name={'eventDate'}
+                                        onChange={(newValue) => {
+                                            setHasUnsavedChanges(true)
+                                            setData(prev => ({...prev, eventDate: newValue.format('DD/MM/YYYY')}))
+                                            formik.setFieldValue('eventDate', newValue)
+                                        }}
+                                        slotProps={{
+                                            textField: {
+                                                onBlur: formik.handleBlur,
+                                                error: formik.touched.eventDate && Boolean(formik.errors.eventDate),
+                                                helperText: formik.touched.eventDate && formik.errors.eventDate,
+                                            },
+                                        }}
+                            />
+                            <TimePicker label="Start time *" ampm={false} name={'eventStartTime'}
+                                        value={formik.values.eventStartTime}
+                                        onChange={(newValue) => {
+                                            setHasUnsavedChanges(true)
+                                            setData(prev => ({...prev, eventStartTime: newValue}))
+                                            formik.setFieldValue('eventStartTime', newValue)
+                                        }}
+                                        slotProps={{
+                                            textField: {
+                                                onBlur: formik.handleBlur,
+                                                error: formik.touched.eventStartTime && Boolean(formik.errors.eventStartTime),
+                                                helperText: formik.touched.eventStartTime && formik.errors.eventStartTime,
+                                            },
+                                        }}
+                            />
+                            <TimePicker
+                                label="End time *" ampm={false} name={'eventEndTime'}
+                                value={formik.values.eventEndTime}
+                                onChange={(newValue) => {
+                                    setHasUnsavedChanges(true)
+                                    setData(prev => ({...prev, eventEndTime: newValue}))
+                                    formik.setFieldValue('eventEndTime', newValue)
+                                }}
+                                slotProps={{
+                                    textField: {
+                                        onBlur: formik.handleBlur,
+                                        error: formik.touched.eventEndTime && Boolean(formik.errors.eventEndTime),
+                                        helperText: formik.touched.eventEndTime && formik.errors.eventEndTime,
+                                    },
+                                }}
+                            />
+                        </div>
+                    </LocalizationProvider>
 
-            <p className={'date-and-location__more-options'}
-                onClick={() => setOpen(true)}
-            >More options</p>
-            <p className="date-time-info">
-                {formik.values.timezone && `GMT${formik.values.timezone >= 0 ? `+${formik.values.timezone}` : formik.values.timezone}, `}
-                {formik.values.displayEndTime ? 'Display start and end time, ' : 'Display start time only, '}
-                {languages.find(lang => lang.value === formik.values.language)?.label || 'Language not selected'}
-            </p>
+                    <p className={'date-and-location__more-options'}
+                       onClick={() => setOpen(true)}
+                    >More options</p>
+                    <p className="date-time-info">
+                        {formik.values.timezone && `GMT${formik.values.timezone >= 0 ? `+${formik.values.timezone}` : formik.values.timezone}, `}
+                        {formik.values.displayEndTime ? 'Display start and end time, ' : 'Display start time only, '}
+                        {languages.find(lang => lang.value === formik.values.language)?.label || 'Language not selected'}
+                    </p>
+                </>
+                :
+                <Typography fontSize={16} sx={{color: 'gray'}}>
+                    You’ll be able to add dates and times in the next step.
+                </Typography>
+            }
 
             <div className="location-section">
                 <h3>Location</h3>

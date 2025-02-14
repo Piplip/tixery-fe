@@ -20,10 +20,6 @@ function TopNav({isLoggedIn, enableScrollEffect}){
 
     const navLinks = [
         {
-            title: 'Find Events', link: '/events',
-            shouldRender: (isLoggedIn) => !isLoggedIn || hasRole(['attendee'])
-        },
-        {
             title: 'Likes', link: '/favorites',
             shouldRender: (isLoggedIn) => isLoggedIn && hasRole(['attendee'])
         },

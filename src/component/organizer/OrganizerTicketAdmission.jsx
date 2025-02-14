@@ -1,11 +1,13 @@
 import {
     Button,
-    Dialog, DialogActions,
+    Dialog,
+    DialogActions,
     DialogContent,
     DialogTitle,
     MenuItem,
-    Stack, TextField,
-    Tooltip
+    Stack,
+    TextField,
+    Tooltip, Typography
 } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import DragHandleIcon from '@mui/icons-material/DragHandle';
@@ -65,6 +67,9 @@ function OrganizerTicketAdmission(){
             >
                 <DialogTitle>CHANGE EVENT CAPACITY</DialogTitle>
                 <DialogContent>
+                    <Typography variant={'body2'}>
+                        Event capacity is the total number of tickets available for sale at your event. When you set an event capacity, your event will sell out as soon as you sell that number of total tickets. You can adjust your event capacity to prevent overselling.
+                    </Typography>
                     <TextField autoFocus required margin="dense" name="capacity" variant="outlined"
                                label="Event capacity" fullWidth placeholder={'Maximum allow: 10000000000'}
                                onInput={(e) => {
@@ -144,10 +149,12 @@ function OrganizerTicketAdmission(){
                     <div className="tickets-section__ticket-capacity">
                         <Stack direction={'row'} columnGap={.5} alignItems={'center'}>
                             Event capacity
-                            <InfoOutlinedIcon className="tickets-section__info-icon"/>
+                            <Tooltip title={'Event capacity is the total number of tickets available for sale at your event. When you set an event capacity, your event will sell out as soon as you sell that number of total tickets. You can adjust your event capacity to prevent overselling.'}>
+                                <InfoOutlinedIcon className="tickets-section__info-icon"/>
+                            </Tooltip>
                         </Stack>
                         <p className="tickets-section__capacity-count">
-                            0 / {data.capacity || '100'}
+                            0 / {data.capacity}
                         </p>
                         <Button className="tickets-section__edit-capacity"
                             onClick={() => setOpenCapacity(true)}

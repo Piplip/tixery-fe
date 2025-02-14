@@ -26,7 +26,7 @@ function AttendeeFavoriteEvents({isSubComponent = false}){
     return(
         <div className={isSubComponent ? 'attendee-favorite' : 'attendee-favorite-f'}>
             {!isSubComponent && <Typography variant={'h3'} fontWeight={'bold'}>Like Events</Typography>}
-            <Stack rowGap={3} className={isSubComponent ? 'attendee-favorite-sub' : 'attendee-favorite-sub-f'} direction={isSubComponent ? 'row' : 'column'}>
+            <Stack rowGap={3} className={isSubComponent ? 'attendee-favorite-sub' : 'attendee-favorite-sub-f'} flexDirection={isSubComponent ? 'row' : 'column'}>
                 {favoriteEvents?.length > 0 ?
                     favoriteEvents.map((event, index) => {
                         return(

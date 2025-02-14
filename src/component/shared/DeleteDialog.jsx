@@ -15,12 +15,7 @@ DeleteDialog.propTypes = {
 
 function DeleteDialog({ open, onClose, handleDelete }) {
     return (
-        <Dialog
-            open={open}
-            onClose={onClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-        >
+        <Dialog open={open} onClose={onClose}>
             <DialogTitle id="alert-dialog-title">
                 DELETE PROFILE ?
             </DialogTitle>

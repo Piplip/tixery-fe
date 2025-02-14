@@ -1,15 +1,15 @@
 import {Stack, Typography} from "@mui/material";
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import {Link, useNavigate} from "react-router-dom";
+import {Link, useLocation, useNavigate} from "react-router-dom";
 import "../../styles/trending-searches-styles.css"
 import cookie from "react-cookies";
 import {useEffect, useRef, useState} from "react";
 import {eventAxios} from "../../config/axiosConfig.js";
-import {checkLoggedIn, getUserData} from "../../common/Utilities.js";
 
 function TrendingSearches(){
     const navigate = useNavigate()
+    const location = useLocation()
 
     const [searchTrends, setSearchTrends] = useState([]);
     const hasFetch = useRef(false)
@@ -26,26 +26,9 @@ function TrendingSearches(){
     }, [hasFetch]);
 
     function handleLinkClick(link) {
-        const searchParams = new URLSearchParams({
-            q: link
-        })
-        if(checkLoggedIn()){
-            searchParams.append('uid', getUserData("profileID"))
-        }
-        searchParams.append('type', 3)
-        searchParams.append('lat', cookie.load('user-location').lat)
-        searchParams.append('lon', cookie.load('user-location').lon)
-        eventAxios.get(`/search/suggestions?` + searchParams)
-            .then((r) => {
-                const data = r.data;
-                let searchIDs = ''
-                for(let i = 0; i < data.length; i++) {
-                    searchIDs += data[i].event_id + ','
-                }
-                sessionStorage.setItem("search-ids", searchIDs);
-                navigate(`/events/search?q=${link}`)
-            })
-            .catch((err) => console.log(err));
+        const searchParams = new URLSearchParams(location.search)
+        searchParams.set('q', link)
+        navigate(`/events/search?${searchParams.toString()}`)
     }
 
     return (

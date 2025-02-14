@@ -11,6 +11,13 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CreateEventMenu from "./CreateEventMenu.jsx";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
+import {accountAxiosWithToken} from "../../config/axiosConfig.js";
 
 const checkboxStyle = {
     sx: {
@@ -39,6 +46,9 @@ function OrganizerHome(){
     const [profiles, setProfiles] = useState(useLoaderData().data.records)
     const [selectProfile, setSelectProfile] = useState(profiles.findIndex(profile => profile[0] == getUserData('profileID')))
     const [clicked, setClicked] = useState(false)
+    const [open, setOpen] = useState(false);
+
+    const onClose = () => setOpen(false);
 
     const loadImage = useCallback(async (url) => {
         if (!url) return null;
@@ -77,12 +87,41 @@ function OrganizerHome(){
         navigator.clipboard.writeText(url);
     }
 
+    function handleSwitchProfile(){
+        accountAxiosWithToken.get(`/profile/switch?u=${getUserData('sub')}&pid=${profiles[selectProfile][0]}`)
+            .then(r => {
+                localStorage.setItem('tk', r.data.data)
+                window.location.reload()
+            })
+            .catch(err => console.log(err))
+    }
+
     return (
         <div className={'organizer-home-container'}>
+            <Dialog open={open} onClose={onClose}>
+                <Stack sx={{p: 1, width: '30rem'}}>
+                    <DialogTitle>
+                        SWITCH PROFILE ?
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            Are you sure you want to switch to this profile?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={onClose}>
+                            No, I&#39;ll stay
+                        </Button>
+                        <Button onClick={handleSwitchProfile} variant="contained" color="primary">
+                            Yes, switch to {profiles[selectProfile][1]}
+                        </Button>
+                    </DialogActions>
+                </Stack>
+            </Dialog>
             <Stack direction={'row'} columnGap={'4rem'}>
                 <Stack rowGap={3}>
                     <Typography variant={'h2'} fontWeight={'bold'}>
-                        Hi there, {getUserData('fullName')}
+                        Hi there, {getUserData('profileName')}
                     </Typography>
                     <CreateEventMenu />
                     <Stack rowGap={1} className={'checklist-wrapper'}>
@@ -173,6 +212,7 @@ function OrganizerHome(){
                                     <Stack key={index} className={'organizer-setup-profile-cta__profile-select__item'} direction={'row'}
                                         onClick={() => {
                                             setSelectProfile(index)
+                                            setOpen(true)
                                             setClicked(false)
                                         }}
                                     >

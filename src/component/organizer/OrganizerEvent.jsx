@@ -1,4 +1,4 @@
-import "../../styles/organizer-event-styles.css"
+import "../../styles/organizer-event-styles.css";
 import {
     Alert,
     Avatar,
@@ -34,31 +34,81 @@ import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {getDownloadURL, getStorage, ref} from "firebase/storage";
 import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded';
 import PropTypes from "prop-types";
+import { Calendar, momentLocalizer } from 'react-big-calendar';
+import moment from 'moment';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 initializeApp(firebaseConfig);
-const storage = getStorage()
+const storage = getStorage();
+const localizer = momentLocalizer(moment);
+
+const eventStyleGetter = (event) => {
+    const backgroundColor = {
+        draft: '#e0e0e0',
+        scheduled: '#2196f3',
+        published: '#4caf50',
+        past: '#f44336'
+    }[event.resource.status];
+
+    return {
+        style: {
+            backgroundColor,
+            color: 'white',
+            borderRadius: '4px',
+            border: 'none',
+            padding: '.25rem .5rem',
+            fontSize: '0.9rem',
+            margin: 5,
+            textOverflow: 'ellipsis',
+        }
+    };
+};
+
+const CustomEventWrapper = ({ event }) => {
+    return (
+        <div title={event.title}>
+            <strong>{event.title}</strong>
+            <div>
+                {moment(event.start).format('h:mm a')} - {moment(event.end).format('h:mm a')}
+            </div>
+            <div style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}>
+                {event.resource.status}
+            </div>
+        </div>
+    );
+};
+
+CustomEventWrapper.propTypes = {
+    event: PropTypes.shape({
+        title: PropTypes.string.isRequired,
+        start: PropTypes.instanceOf(Date).isRequired,
+        end: PropTypes.instanceOf(Date).isRequired,
+        resource: PropTypes.object.isRequired
+    })
+}
 
 function OrganizerEvent() {
     const [open, setOpen] = useState(false);
     const [openModal, setOpenModal] = useState(false);
-    const [events, setEvents] = useState(useLoaderData().data)
-    const refEvents = useRef()
-    const [profiles, setProfiles] = useState(null)
-    const [alert, setAlert] = useState("")
-    const [currentSelectedEvent, setCurrentSelectedEvent] = useState(null)
-    const [showPastEvents, setShowPastEvents] = useState(false)
+    const [events, setEvents] = useState(useLoaderData().data);
+    const refEvents = useRef();
+    const [profiles, setProfiles] = useState(null);
+    const [alert, setAlert] = useState("");
+    const [currentSelectedEvent, setCurrentSelectedEvent] = useState(null);
+    const [showPastEvents, setShowPastEvents] = useState(false);
     const [filters, setFilters] = useState({
         status: "all",
         keyword: "",
         profile: "all",
     });
-    const [pastEvents, setPastEvents] = useState([])
-    const navigate = useNavigate()
-    const hasGetPast = useRef(false)
+    const [pastEvents, setPastEvents] = useState([]);
+    const [view, setView] = useState('list');
+    const navigate = useNavigate();
+    const hasGetPast = useRef(false);
 
     useEffect(() => {
         if(!hasGetPast.current && showPastEvents){
-            eventAxiosWithToken.get(`/get?uid=${getUserData("userID")}&past=true`)
+            eventAxiosWithToken.get(`/get?uid=${getUserData("userID")}&past=true&tz=${(Math.round(new Date().getTimezoneOffset()) / -60)}`)
                 .then(r => {
                     Promise.all(r.data.map(async (event) => {
                         try {
@@ -169,19 +219,29 @@ function OrganizerEvent() {
         setOpenModal(true)
     }
 
-    function handleDelete(){
+    function handleDelete() {
         eventAxiosWithToken.post(`delete?eid=${currentSelectedEvent}`)
             .then(r => {
-                setAlert(r.data.message)
-                const newEvents = [...events]
-                const index = newEvents.findIndex(event => event.event_id === currentSelectedEvent)
-                newEvents.splice(index, 1)
-                setEvents(newEvents)
-                setOpenModal(false)
-            })
-    }
+                setAlert(r.data.message);
+                const newEvents = [...events];
+                const newPastEvents = [...pastEvents];
+                const index = newEvents.findIndex(event => event.event_id === currentSelectedEvent);
+                const pastIndex = newPastEvents.findIndex(event => event.event_id === currentSelectedEvent);
 
-    // TODO: Implement calendar view later
+                if (index !== -1) {
+                    newEvents.splice(index, 1);
+                    setEvents(newEvents);
+                }
+
+                if (pastIndex !== -1) {
+                    newPastEvents.splice(pastIndex, 1);
+                    setPastEvents(newPastEvents);
+                }
+
+                setOpenModal(false);
+            })
+            .catch(err => console.log(err));
+    }
 
     const RenderEvents = ({data, type}) => {
         return (
@@ -194,7 +254,7 @@ function OrganizerEvent() {
                                     <p style={{fontSize: '.9rem', color: 'darkblue'}}>{item?.start_time && dayjs(item.start_time).format("MMM").toUpperCase()}</p>
                                     <p style={{fontSize: '1.5rem'}}>{item?.start_time && dayjs(item.start_time).format("DD").toUpperCase()}</p>
                                 </Stack>
-                                <img
+                                <img style={{objectFit: 'cover'}}
                                     src={item?.images && item.images[0] || "https://www.svgrepo.com/show/508699/landscape-placeholder.svg"}
                                     alt={''}/>
                                 <Stack justifyContent={'space-between'}>
@@ -209,10 +269,11 @@ function OrganizerEvent() {
                                 </Stack>
                             </Stack>
                             <Stack rowGap={.5}>
-                                <p>0 / {item?.ticketCount}</p>
+                                <p>{Number(item?.ticketCount) - Number(item?.remainingTicket)} / {item?.ticketCount}</p>
                                 <LinearProgress sx={{height: '.3rem', borderRadius: '.25rem'}}
                                                 variant={"determinate"}
-                                                value={50}
+                                                valueBuffer={item?.ticketCount - item?.remainingTicket}
+                                                value={item?.ticketCount}
                                 />
                             </Stack>
                             <p>$0.00</p>
@@ -240,6 +301,38 @@ function OrganizerEvent() {
         data: PropTypes.array.isRequired,
         type: PropTypes.string
     }
+
+    const calendarEvents = [
+        ...events.map(event => ({
+            title: event.name,
+            start: new Date(dayjs(event.start_time).toDate()),
+            end: new Date(dayjs(event.end_time).toDate()),
+            allDay: false,
+            resource: event,
+        })),
+        ...(showPastEvents ? pastEvents.map(event => {
+            try {
+                const start = dayjs(event.start_time);
+                const end = dayjs(event.end_time);
+
+                if (!start.isValid() || !end.isValid()) {
+                    console.error("Invalid date:", event.start_time, event.end_time, event);
+                    return null;
+                }
+
+                return {
+                    title: event.name,
+                    start: start.toDate(),
+                    end: end.toDate(),
+                    allDay: false,
+                    resource: event,
+                };
+            } catch (error) {
+                console.error("Error processing event:", event, error);
+                return null;
+            }
+        }).filter(event => event !== null) : [])
+    ];
 
     return (
         <div className="event-list">
@@ -289,10 +382,11 @@ function OrganizerEvent() {
                     />
                     <RadioGroup
                         style={{display: 'flex', flexDirection: 'row', columnGap: '1rem'}}
-                        defaultValue="female"
+                        value={view}
+                        onChange={(e) => setView(e.target.value)}
                     >
-                        <FormControlLabel value="female" control={<Radio sx={{marginRight: 1}}/>} label="List view" />
-                        <FormControlLabel value="male" control={<Radio sx={{marginRight: 1}}/>} label="Calendar view" />
+                        <FormControlLabel value="list" control={<Radio sx={{marginRight: 1}}/>} label="List view" />
+                        <FormControlLabel value="calendar" control={<Radio sx={{marginRight: 1}}/>} label="Calendar view" />
                     </RadioGroup>
                     <div className="event-list__filters">
                         <Select defaultValue="all" onChange={(_, val) => handleTypeChange(val, "status")}>
@@ -323,25 +417,46 @@ function OrganizerEvent() {
                     Create Event
                 </button>
             </div>
-            <Stack className={'event-list__list'}>
-                <div>
-                    <p>Event</p>
-                    <p>Sold</p>
-                    <p>Gross</p>
-                    <p>Status</p>
-                </div>
-                <RenderEvents data={events}/>
-            </Stack>
-            {showPastEvents &&
+            {view === 'list' ? (
                 <>
-                    <div className={'horizontal-text-line'} style={{marginBottom: 2}}>
-                        <p>Past events</p>
-                    </div>
                     <Stack className={'event-list__list'}>
-                        <RenderEvents data={pastEvents} type={'past'}/>
+                        <div>
+                            <p>Event</p>
+                            <p>Sold</p>
+                            <p>Gross</p>
+                            <p>Status</p>
+                        </div>
+                        <RenderEvents data={events}/>
                     </Stack>
+                    {showPastEvents &&
+                        <>
+                            <div className={'horizontal-text-line'} style={{marginBottom: 2}}>
+                                <p>Past events</p>
+                            </div>
+                            <Stack className={'event-list__list'}>
+                                <RenderEvents data={pastEvents} type={'past'}/>
+                            </Stack>
+                        </>
+                    }
                 </>
-            }
+            ) : (
+                <Calendar
+                    localizer={localizer}
+                    events={calendarEvents}
+                    startAccessor="start"
+                    endAccessor="end"
+                    style={{ height: 500, margin: '20px 0' }}
+                    onSelectEvent={event => navigate(`../../events/${event.resource.event_id}`)}
+                    eventPropGetter={eventStyleGetter}
+                    components={{
+                        event: CustomEventWrapper
+                    }}
+                    timeslots={2}
+                    step={60}
+                    defaultView="week"
+                    views={['month', 'week', 'day']}
+                />
+            )}
             {(events.length > 0 || pastEvents.length > 0) &&
                 <div className="event-list__footer">
                     <a href="#" className="event-list__export-link">
@@ -372,4 +487,4 @@ function OrganizerEvent() {
     )
 }
 
-export default OrganizerEvent
+export default OrganizerEvent;

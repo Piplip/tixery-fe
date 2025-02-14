@@ -11,13 +11,15 @@
     background-position: 0 0,40px 40px;
 }
 .attendee-favorite-sub{
-    justify-content: center;
     flex-wrap: wrap;
-    gap: 2rem 1.5rem;
     > * {
         width: 50%;
     }
 }
 .attendee-favorite-sub-f{
+    align-self: center;
     align-items: center;
+    > * {
+        width: 100%;
+    }
 }

@@ -50,6 +50,15 @@ CustomCheckbox.propTypes = {
     completed: PropTypes.bool
 }
 
+const defaultOptions = {
+    loop: false,
+    autoplay: true,
+    animationData: SuccessAnimation,
+    rendererSettings: {
+        preserveAspectRatio: 'xMidYMid slice'
+    }
+};
+
 const steps = [
     {
         title: 'Build Event Page',
@@ -62,6 +71,11 @@ const steps = [
         to: 'online'
     },
     {
+        title: 'Recurring Schedule',
+        description: 'Choose when to publish your event',
+        to: 'recurring'
+    },
+    {
         title: 'Add Tickets',
         description: 'Create tickets and start selling', to: 'tickets'
     },
@@ -70,15 +84,6 @@ const steps = [
         description: 'Choose when to publish your event', to: 'publish'
     }
 ]
-
-const defaultOptions = {
-    loop: false,
-    autoplay: true,
-    animationData: SuccessAnimation,
-    rendererSettings: {
-        preserveAspectRatio: 'xMidYMid slice'
-    }
-};
 
 function CreateEvent() {
     const loader = useLoaderData()
@@ -91,11 +96,13 @@ function CreateEvent() {
     const [isLoading, setIsLoading] = useState(false)
     const [showSuccessDialog, setShowSuccessDialog] = useState(false)
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
     const isLive = eventData.publishType === "now";
     const isEdit = location.pathname.includes("edit");
 
     useEffect(() => {
         let loaderData = loader ? loader.data : undefined
+        console.log(loaderData)
         let newEventData
         if(loaderData !== undefined){
             newEventData = {
@@ -143,7 +150,54 @@ function CreateEvent() {
                 tags: loaderData.tags !== "" && loaderData.tags !== null ? loaderData.tags.join(',') : '',
                 additionalInfo: loaderData.full_description
             }
-            if(loaderData.location.locationType === 'online'){
+            if (loaderData.is_recurring === true) {
+                const events = {};
+                const occurrenceTickets = {};
+
+                loaderData.occurrences?.forEach(occurrence => {
+                    const dateKey = dayjs(occurrence.start_date).format("YYYY-MM-DD");
+                    const slot = {
+                        occurrenceID: occurrence.occurrence_id,
+                        startTime: dayjs(`${occurrence.start_date}T${occurrence.start_time}`),
+                        endTime: dayjs(`${occurrence.start_date}T${occurrence.end_time}`)
+                    };
+
+                    if (!events[dateKey]) {
+                        events[dateKey] = [];
+                    }
+                    events[dateKey].push(slot);
+                });
+
+                loaderData.occurrences?.forEach(occurrence => {
+                    const dateKey = dayjs(occurrence.start_date).format("YYYY-MM-DD");
+                    const slotKey = occurrence.occurrence_id;
+
+                    if (!occurrenceTickets[dateKey]) {
+                        occurrenceTickets[dateKey] = [];
+                    }
+
+                    const ticketsForOccurrence = loaderData.ticketOccurrences
+                        .filter(ticketOccurrence => ticketOccurrence.occurrence_id === occurrence.occurrence_id)
+                        .map(ticketOccurrence => {
+                            const ticket = loaderData.tickets.find(t => t.ticket_type_id === ticketOccurrence.ticket_type_id);
+                            return {
+                                ticketID: ticket.ticket_type_id,
+                                enabled: ticket.status === "visible",
+                                price: ticket.price,
+                                quantity: ticket.quantity
+                            };
+                        });
+
+                    occurrenceTickets[dateKey].push({ [slotKey]: ticketsForOccurrence });
+                });
+
+                newEventData = {
+                    ...newEventData,
+                    events: events,
+                    occurrenceTickets: occurrenceTickets
+                };
+            }
+            if(loaderData.location?.locationType === 'online'){
                 newEventData = {...newEventData, locationData: loaderData.location.data,
                     locationType: 'online', access: location.access, enabled: location.enabled
                 }
@@ -173,7 +227,6 @@ function CreateEvent() {
                 type: '',
                 category: '',
                 subCategory: '',
-                capacity: 100,
                 reserveSeating: false
             }
         }
@@ -184,14 +237,17 @@ function CreateEvent() {
         if (newEventData.eventTitle && newEventData.summary && newEventData.eventType && newEventData.eventDate && newEventData.eventStartTime && newEventData.location) {
             initialMaxStep = 1;
         }
-        if(newEventData.locationType === 'online' && newEventData.locationData){
-            initialMaxStep = 2
+        if (newEventData.locationType === 'online' && newEventData.locationData) {
+            initialMaxStep = 2;
         }
-        if (newEventData.tickets && newEventData.tickets.length > 0 && newEventData.capacity > 0) {
+        if (newEventData.eventType === 'recurring') {
             initialMaxStep = 3;
         }
-        if ((newEventData.publishType === 'now' || (newEventData.publishType === 'schedule' && newEventData.publishDate && newEventData.publishTime)) && newEventData.type) {
+        if (newEventData.tickets && newEventData.tickets.length > 0 && newEventData.capacity > 0) {
             initialMaxStep = 4;
+        }
+        if ((newEventData.publishType === 'now' || (newEventData.publishType === 'schedule' && newEventData.publishDate && newEventData.publishTime)) && newEventData.type) {
+            initialMaxStep = 5;
         }
         maxStep.current = initialMaxStep;
     }, []);
@@ -210,13 +266,18 @@ function CreateEvent() {
             setAlert(msg);
             return;
         }
-        if(currentStep !== 2 && currentStep !== 1) handleSave()
+        if(currentStep !== 2 && currentStep !== 1 && currentStep !== 3) handleSave()
         else {
-            if(eventData.tickets !== undefined){
-                setCurrentStep(currentStep + 1)
-                maxStep.current = Math.max(maxStep.current, currentStep + 1)
-                navigate(steps[currentStep + 1].to)
+            let increment = 1;
+            if (eventData.locationType === 'online' && currentStep === 1) {
+                if (eventData.eventType === 'single') {
+                    increment = 2;
+                }
             }
+            const nextStep = currentStep + increment;
+            setCurrentStep(nextStep);
+            maxStep.current = Math.max(maxStep.current, nextStep);
+            navigate(steps[nextStep].to);
         }
     }
 
@@ -232,21 +293,23 @@ function CreateEvent() {
                 if (!eventData.eventType) {
                     return "Event type is required.";
                 }
-                if (!eventData.eventDate) {
-                    return "Event date is required.";
-                }
-                if (!eventData.eventStartTime) {
-                    return "Event start time is required.";
+                if(eventData.eventType === 'single'){
+                    if (!eventData.eventDate) {
+                        return "Event date is required.";
+                    }
+                    if (!eventData.eventStartTime) {
+                        return "Event start time is required.";
+                    }
+                    if (eventData.eventStartTime.isAfter(eventData.eventEndTime)) {
+                        return "Start time cannot be later than end time.";
+                    }
                 }
                 if (eventData.locationType === 'venue' && eventData.location === undefined) {
                     return "Event location is required.";
                 }
-                if (eventData.eventStartTime.isAfter(eventData.eventEndTime)) {
-                    return "Start time cannot be later than end time.";
-                }
                 break;
             }
-            case 2: {
+            case 3: {
                 if((!eventData.tickets || eventData.tickets.length === 0)){
                     return "Tickets are required to continue."
                 }
@@ -255,7 +318,7 @@ function CreateEvent() {
                 }
                 break;
             }
-            case 3: {
+            case 4: {
                 if (eventData.publishType === 'schedule' && (!eventData.publishDate || !eventData.publishTime)) {
                     return "Publish date and time are required for scheduled publish type.";
                 }
@@ -314,13 +377,13 @@ function CreateEvent() {
                 }
                 break;
             }
-            case 2: {
+            case 3: {
                 payload = {
                     tickets: eventData.tickets, timezone: eventData.timezone
                 }
                 break;
             }
-            case 3: {
+            case 4: {
                 payload = {
                     type: eventData.type, category: eventData.category, subCategory: eventData.subCategory,
                     tags: eventData?.tags ? eventData.tags.split(',') : null, eventVisibility: eventData.eventVisibility,
@@ -337,7 +400,9 @@ function CreateEvent() {
                     setIsLoading(false)
                     setHasUnsavedChanges(false)
                     if(currentStep < steps.length - 1){
-                        const stepIncrement = eventData.locationType === 'venue' && currentStep === 0 ? 2 : 1;
+                        const stepIncrement = eventData.locationType === 'venue'
+                            ? eventData.eventType !== 'recurring' ? 3 : 2
+                            : 1
                         const nextStep = currentStep + stepIncrement;
 
                         setCurrentStep(nextStep);
@@ -465,6 +530,7 @@ function CreateEvent() {
                         <Stack className={'create-events-stepper__steps'} rowGap={1}>
                             {steps.map((step, index) => {
                                 if(index === 1 && eventData.locationType !== 'online') return
+                                if(index === 2 && eventData.eventType !== 'recurring') return
                                 return (
                                     <div key={index}
                                          className={`create-events-stepper__step ${currentStep === index ? 'create-events__active-step' : ''}

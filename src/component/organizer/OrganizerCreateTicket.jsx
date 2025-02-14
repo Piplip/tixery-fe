@@ -1,5 +1,5 @@
 import "../../styles/organizer-create-tickets-styles.css"
-import {Checkbox, MenuItem, Stack, TextField, Typography} from "@mui/material";
+import {Alert, Checkbox, MenuItem, Snackbar, Stack, TextField, Typography} from "@mui/material";
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FreeIcon from "../../assets/free-icon.png"
@@ -63,6 +63,8 @@ function OrganizerCreateTicket(){
     const navigate = useNavigate()
     const location = useLocation()
     const [editTicket, setEditTicket] = useState(null)
+    const [showSnackbar, setShowSnackbar] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState("");
 
     useEffect(() => {
         const msg = validate(0)
@@ -130,13 +132,6 @@ function OrganizerCreateTicket(){
             .max(50, "Ticket name type cannot exceed 50 characters."),
         quantity: Yup.number()
             .moreThan(1, "Quantity must be greater than 1.")
-            .test(
-                'is-valid-quantity',
-                'Quantity must be lower than the event capacity.',
-                function (value) {
-                    return value <= data.capacity;
-                }
-            )
             .typeError("Quantity must be a number.")
             .required("Quantity is required."),
         price: Yup.mixed().nullable()
@@ -167,7 +162,7 @@ function OrganizerCreateTicket(){
                 'is-before-event-start',
                 'Ticket sales start date should be before the event start date',
                 function (value) {
-                    if (!value) return true;
+                    if (data.eventType === 'recurring' || !value) return true;
 
                     const ticketSalesDate = dayjs(value);
                     const eventStartDate = dayjs(data.eventDate, "DD/MM/YYYY");
@@ -193,7 +188,7 @@ function OrganizerCreateTicket(){
                 'is-before-event-start',
                 'Ticket sales start date should be before the event start date',
                 function (value) {
-                    if (!value) return true;
+                    if (data.eventType === 'recurring' || !value) return true;
 
                     const ticketSalesDate = dayjs(value);
                     const eventStartDate = dayjs(data.eventDate, "DD/MM/YYYY");
@@ -265,7 +260,7 @@ function OrganizerCreateTicket(){
         startTime: null,
         endTime: null,
         minPerOrder: 1,
-        maxPerOrder: '',
+        maxPerOrder: 1,
         visibility: 0,
         description: '',
         visibleStartDate: null,
@@ -284,6 +279,7 @@ function OrganizerCreateTicket(){
         enableReinitialize: true,
         onSubmit: (values) => {
             setOpenDetail({type: null, open: false})
+            setData(prev => ({...prev, capacity: (prev.capacity ? Number(prev.capacity) : 0) + Number(values.quantity)}))
             let newData = transformData(values)
             if (editTicket !== null) {
                 eventAxiosWithToken.put(`/tickets/update?tid=${values.ticketID}&timezone=${data.timezone}`, newData)
@@ -295,11 +291,23 @@ function OrganizerCreateTicket(){
                     })
                     .catch(err => console.log(err))
             } else {
-                eventAxiosWithToken.post(`/tickets/add?eid=${location.pathname.split('/')[3]}&timezone=${data.timezone}`, newData)
+                const params = new URLSearchParams({
+                    eid: location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3],
+                    timezone: data.timezone
+                })
+                if(data.eventType === 'recurring'){
+                    params.append("is_recurring", "true")
+                    newData = {...newData, occurrence: JSON.parse(sessionStorage.getItem('occurrence-ids'))}
+                }
+                eventAxiosWithToken.post(`/tickets/add?${params}`, newData)
                     .then(r => {
                         newData = {...newData, ticketID: r.data.data};
                         setData(prev => ({...prev, tickets: prev.tickets ? prev.tickets.concat(newData) : [newData]}));
                         setHasUnsavedChanges(true)
+                        if(data.eventType === 'recurring'){
+                            setShowSnackbar(true)
+                            setSnackbarMessage('Your ticket was created and will appear on all time slots.')
+                        }
                     })
                     .catch(err => console.log(err));
             }
@@ -347,6 +355,17 @@ function OrganizerCreateTicket(){
 
     return (
         <Stack className={'organizer-create-ticket'} rowGap={2}>
+            <Snackbar
+                open={showSnackbar}
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                sx={{ marginTop: 6 }}
+                onClose={() => setShowSnackbar(false)}
+                autoHideDuration={5000}
+            >
+                <Alert severity="success">
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
             <p className={'organizer-create-ticket__title'}>Create tickets</p>
             <p>Choose a ticket type or build a section with multiple ticket types.</p>
             {data.tickets && data.tickets.length !== 0 ?
@@ -495,9 +514,6 @@ function OrganizerCreateTicket(){
                         </Stack>
                         <Stack direction={'row'} alignItems={'center'} columnGap={.5}>
                             <Typography variant={'caption'}>Event time zone is {new Date().toString().match(/\(([A-Za-z\s].*)\)/)[1]}</Typography>
-                            {/*<Tooltip title={'Test'} placement={'bottom'}>*/}
-                            {/*    <InfoOutlinedIcon sx={{fontSize: '.9rem'}}/>*/}
-                            {/*</Tooltip>*/}
                         </Stack>
                         <AccordionGroup transition={{
                             initial: "0.3s ease-out",

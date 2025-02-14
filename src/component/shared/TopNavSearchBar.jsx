@@ -107,7 +107,6 @@ function TopNavSearchBar(){
                     .then((r) => {
                         const data = r.data;
                         let arr = [];
-                        let searchIDs = ''
                         for(let i = 0; i < data.length; i++) {
                             const item = data[i]
                             arr.push(item.name);
@@ -122,12 +121,10 @@ function TopNavSearchBar(){
                                     arr.push(tag);
                                 }
                             });
-                            searchIDs += item.event_id + ','
                         }
                         arr = [...new Set(arr)];
                         setSuggestion(arr);
                         setShowRecentSearches(true);
-                        sessionStorage.setItem("search-ids", searchIDs);
                     })
                     .catch((err) => console.log(err));
             }
@@ -196,7 +193,7 @@ function TopNavSearchBar(){
             </Snackbar>
             {!location.pathname.includes('organizer') &&
                 <Stack direction={'row'} className={'top-nav-input-container'} alignItems={'center'}>
-                    <div style={{position: 'relative'}} ref={recentSearchesRef}>
+                    <div style={{position: 'relative', width: '50%'}} ref={recentSearchesRef}>
                         <SearchIcon />
                         <input className={'top-nav-input-container__input'} type="text" placeholder="Search events"
                                value={searchValue} onChange={handleSearchChange}
@@ -208,7 +205,7 @@ function TopNavSearchBar(){
                                     {suggestion.map((s, index) => (
                                         <Stack key={index} flexDirection={'row'} className={'search-result-item'}
                                             onClick={() => {
-                                                navigate(`events/search?q=${searchValue}&ref=search`)
+                                                navigate(`events/search?q=${searchValue}&online=${locationValue.value === 'Online'}`)
                                                 setShowRecentSearches(false)
                                             }}
                                         >
@@ -265,7 +262,7 @@ function TopNavSearchBar(){
                             )
                         }
                     </div>
-                    <div style={{position: 'relative'}} ref={locationOptionRef}>
+                    <div style={{position: 'relative', width: '50%'}} ref={locationOptionRef}>
                         <LocationOnIcon />
                         <input className={'top-nav-input-container__input'} type="text" placeholder="Choose a location"
                                value={locationValue?.value} onChange={(e) => setLocationValue({value: e.target.value})}

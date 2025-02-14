@@ -85,7 +85,7 @@
     padding-block: 1rem;
     width: 100%;
 }
-.create-events__main > div:not(.organizer-create-ticket, .event-publish, .online-event-create-panel){
+.create-events__main > div:not(.organizer-create-ticket, .event-publish, .online-event-create-panel, .event-date-picker){
     width: 60%;
     min-width: clamp(20rem, 70%, 40rem);
     border: 2px solid #bbbbbb;
@@ -192,6 +192,7 @@
 }
 .create-events__disabled-step{
     color: #c4c4c4;
+    user-select: none;
 }
 .create-events__disabled-step:hover{
     cursor: not-allowed;

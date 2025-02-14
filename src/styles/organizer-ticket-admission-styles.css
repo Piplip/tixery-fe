@@ -18,10 +18,12 @@
     padding-block: 1rem;
 }
 .tickets-section__ticket-capacity{
+    max-width: 50rem;
     display: flex;
     align-items: center;
+    column-gap: 2rem;
     justify-content: space-between;
-    padding-block: .25rem .5rem;
+    padding-block: .5rem;
     border-bottom: 1px solid rgb(222, 222, 222);
 }
 .tickets-section__capacity-count{

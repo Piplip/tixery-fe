@@ -1,7 +1,7 @@
 import {useLocation, useNavigate} from "react-router-dom";
 import "../../styles/event-search-styles.css"
 import EventCard from "./EventCard.jsx";
-import {Checkbox, FormControlLabel, Stack, Typography} from "@mui/material";
+import {Box, Checkbox, FormControlLabel, Skeleton, Stack, Typography} from "@mui/material";
 import {Accordion, AccordionDetails, AccordionGroup, AccordionSummary} from "@mui/joy";
 import RadioGroup from '@mui/material/RadioGroup';
 import Chip from '@mui/material/Chip';
@@ -23,15 +23,8 @@ const dates = [
 ];
 
 function EventSearch() {
-    const [events, setEvents] = useState([]);
     const location = useLocation()
     const navigate = useNavigate()
-
-    const [viewMore, setViewMore] = useState({
-        categories: false,
-        date: false,
-        language: false
-    });
 
     const [filters, setFilters] = useState({
         categories: [],
@@ -40,20 +33,35 @@ function EventSearch() {
         followed: false,
         online: false
     });
+    const [isLoading, setIsLoading] = useState(false);
+    const [events, setEvents] = useState([]);
+    const [viewMore, setViewMore] = useState({
+        categories: false,
+        date: false,
+        language: false
+    });
 
     useEffect(() => {
+        setIsLoading(true)
+        let isCancelled = false;
         const params = new URLSearchParams(location.search);
-        const payload = params.get('ref') === 'search' ?
-            {eids: sessionStorage.getItem('search-ids')}
-            :
-            Object.fromEntries(params.entries());
+        const payload = Object.fromEntries(params.entries());
         eventAxios.post(`/search?${new URLSearchParams(payload)}`,
             filters.followed ? sessionStorage.getItem('followed-organizer') : null)
             .then(r => {
-                setEvents(r.data)
+                if (!isCancelled) {
+                    setTimeout(() => {
+                        setIsLoading(false)
+                        setEvents(r.data);
+                    }, 500)
+                }
             })
-            .catch(err => console.log(err))
-    }, [filters, location.search]);
+            .catch(err => console.log(err));
+
+        return () => {
+            isCancelled = true;
+        };
+    }, [location.search]);
 
     const handleCheckboxChange = (type) => {
         setFilters(prev => ({...prev, [type]: !prev[type]}));
@@ -74,7 +82,6 @@ function EventSearch() {
             );
 
             const searchParams = new URLSearchParams(location.search);
-            searchParams.delete("ref")
             Object.entries(validFilters).forEach(([key, val]) => {
                 if (key === 'categories') {
                     searchParams.delete(key);
@@ -216,16 +223,37 @@ function EventSearch() {
                         </Stack>
                     </Stack>
                 )}
-                {events.length === 0 && <div className={'event-search__no-event'}>
-                    Nothing matched your search
-                </div>}
-                <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }} sx={{width: '100%'}}>
-                    {events.map((event, index) => (
-                        <Grid key={index} size={{ xs: 2, sm: 4, md: 4 }}>
-                            <EventCard event={event} showAction={true} renderAddress={true} organizer={event.profileName} id={event.profile_id}/>
+                {isLoading ?
+                    <>
+                        <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }} sx={{width: '100%'}}>
+                            {Array.from({length: 3}).map((_, index) => (
+                                <Grid key={index} size={{ xs: 2, sm: 4, md: 4 }}>
+                                    <Box sx={{width: 300, borderRadius: "10px", boxShadow: 2, padding: 2, backgroundColor: "#fff",}}>
+                                        <Skeleton variant="rectangular" width="100%" height={150} />
+                                        <Skeleton width="80%" height={30} sx={{ mt: 2 }} />
+                                        <Skeleton width="60%" height={20} sx={{ mt: 1 }} />
+                                        <Skeleton width="40%" height={20} sx={{ mt: 1 }} />
+                                        <Skeleton width="90%" height={20} sx={{ mt: 1 }} />
+                                        <Skeleton width="50%" height={20} sx={{ mt: 1 }} />
+                                    </Box>
+                                </Grid>
+                            ))}
                         </Grid>
-                    ))}
-                </Grid>
+                    </>
+                    :
+                    <>
+                        {events.length === 0 && <div className={'event-search__no-event'}>
+                            Nothing matched your search
+                        </div>}
+                        <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }} sx={{width: '100%'}}>
+                            {events.map((event, index) => (
+                                <Grid key={index} size={{ xs: 2, sm: 4, md: 4 }}>
+                                    <EventCard event={event} showAction={true} renderAddress={true} organizer={event.profileName} id={event.profile_id}/>
+                                </Grid>
+                            ))}
+                        </Grid>
+                    </>
+                }
                 <Stack marginBlock={5} rowGap={5} sx={{width: '100%'}}>
                     <TrendingSearches />
                     <PopularEvents />

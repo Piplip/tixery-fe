@@ -1,0 +1,141 @@
+.event-date-picker__details{
+    text-align: center;
+}
+.event-date-picker{
+    row-gap: 1rem;
+    font-family: "Nunito", sans-serif;
+    height: fit-content;
+    padding: 1.25rem;
+}
+.event-date-picker__details{
+    padding: 1rem 1rem;
+    flex-grow: 1;
+    align-items: center;
+    row-gap: .25rem;
+    background-color: #f5f5f5;
+    justify-content: center;
+}
+.event-date-picker__button{
+    background-color: #004b86;
+    color: white;
+    padding: .5rem 2rem;
+    border-radius: .25rem;
+    font-size: .9rem;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    row-gap: .5rem;
+}
+.event-date-picker__button:hover{
+    cursor: pointer;
+    background-color: #003b6f;
+}
+.time-slot-container {
+    width: 100%;
+    font-family: Arial, sans-serif;
+}
+
+.date-card {
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+    transition: all 0.05s;
+}
+.date-card:hover {
+    border-color: #007bff;
+    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.1);
+}
+
+.date-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    cursor: pointer;
+    font-weight: bold;
+    padding: .75rem 1rem;
+}
+
+.day-name {
+    color: red;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.month-name {
+    color: #333;
+    font-size: 14px;
+}
+
+.day-number {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.time-slot-count {
+    font-size: 14px;
+    color: gray;
+}
+
+.toggle-icon {
+    font-size: 14px;
+}
+
+.time-list {
+    display: flex;
+    column-gap: .25rem;
+    font-size: 12px;
+    color: #555;
+    > .time-list__item {
+
+        background-color: #f9f9f9;
+        padding: .25rem .5rem;
+        border-radius: .5rem;
+        border: 1px solid #ddd;
+    }
+}
+.time-slots {
+    background: #f9f9f9;
+    padding: 10px;
+}
+
+.time-slots table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.time-slots th,
+.time-slots td {
+    border-bottom: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.time-slots th {
+    background: #eee;
+    font-weight: bold;
+    font-size: .75rem;
+    color: gray;
+    text-transform: uppercase;
+}
+.edit-action,
+.delete-action {
+    >.MuiSvgIcon-root {
+        font-size: 1rem;
+    }
+    display: flex;
+    align-items: center;
+    column-gap: .25rem;
+    font-size: 14px;
+    color: #007bff;
+    cursor: pointer;
+}
+.edit-action:hover, .delete-action:hover{
+    filter: brightness(90%);
+}
+.delete-action {
+    color: #e11f1f;
+}
+
