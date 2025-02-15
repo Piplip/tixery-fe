@@ -194,12 +194,12 @@ function CreateEvent() {
                 newEventData = {
                     ...newEventData,
                     events: events,
-                    occurrenceTickets: occurrenceTickets
+                    occurrenceTickets: occurrenceTickets,
                 };
             }
             if(loaderData.location?.locationType === 'online'){
                 newEventData = {...newEventData, locationData: loaderData.location.data,
-                    locationType: 'online', access: location.access, enabled: location.enabled
+                    locationType: 'online', access: loaderData?.location?.access, enabled: loaderData?.location?.enabled
                 }
             }
             else{

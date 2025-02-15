@@ -33,7 +33,7 @@ import DragAndDropZone from "../shared/DragAndDropZone.jsx";
 import "../../styles/online-event-create-panel-styles.css"
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import {generateFileName} from "../../common/Utilities.js";
@@ -80,6 +80,7 @@ function OnlineEventCreatePanel(){
     const [openDrawer, setOpenDrawer] = useState({
         type: '', open: false
     })
+    const [isChanges, setIsChanges] = useState(true);
     const [editEl, setEditEl] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
     const [openSnackbar, setOpenSnackbar] = useState(false)
@@ -89,6 +90,14 @@ function OnlineEventCreatePanel(){
         access: data?.access || 'holder',
         enabled: data?.enabled || true
     })
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        setPageSettings({
+            access: data?.access,
+            enabled: data?.enabled
+        })
+    }, [data.location]);
 
     const formik = useFormik({
         initialValues: {
@@ -111,6 +120,15 @@ function OnlineEventCreatePanel(){
             }
         }
     }, [formik.values.elements, lastElementCount]);
+
+    useEffect(() => {
+        const initialValues = {
+            elements: data.locationData ? data.locationData : []
+        };
+
+        const hasChanges = JSON.stringify(initialValues) !== JSON.stringify(formik.values);
+        setIsChanges(!hasChanges);
+    }, [formik.values, data.locationData]);
 
     useEffect(() => {
         const newData = [...data.locationData || []]
@@ -241,6 +259,13 @@ function OnlineEventCreatePanel(){
         if(proceed) {
             formik.setFieldValue('elements', [])
         }
+    }
+
+    function handlePreview(){
+        if(isChanges){
+            formik.handleSubmit()
+        }
+        navigate(`/online/${location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3]}/preview`)
     }
 
     return (
@@ -505,7 +530,7 @@ function OnlineEventCreatePanel(){
                                 </Stack>
                                 <Stack>
                                     <Typography variant={'body1'}>Who can access this page ?</Typography>
-                                    <RadioGroup value={pageSettings.access} onChange={(e) => setPageSettings(prev => ({...prev, ticketAccess: e.target.value}))}>
+                                    <RadioGroup value={pageSettings.access} onChange={(e) => setPageSettings(prev => ({...prev, access: e.target.value}))}>
                                         <FormControlLabel value="holder" control={<Radio />} label="Ticket holders only" />
                                         <FormControlLabel value="any" control={<Radio />} label="Anyone with the link" />
                                     </RadioGroup>
@@ -521,12 +546,14 @@ function OnlineEventCreatePanel(){
                 </Drawer>
                 {formik.values.elements.length > 0 &&
                     <Stack direction={'row'} justifyContent={'space-between'} className={`online-event__bottom-panel`}>
-                        <Typography variant={'body2'} style={{display: 'flex', alignItems: 'center', columnGap: 2}} className={'link'}>
+                        <Typography variant={'body2'} style={{display: 'flex', alignItems: 'center', columnGap: 2}} className={'link'}
+                            onClick={handlePreview}
+                        >
                             Preview attendee event page <LaunchIcon />
                         </Typography>
                         <Stack direction={'row'} columnGap={2}>
                             <Button color={'error'} onClick={discard} type={'button'}>Discard</Button>
-                            <Button variant={'contained'} type={'submit'}>
+                            <Button variant={'contained'} type={'submit'} disabled={isChanges}>
                                 {isLoading ? <CircularProgress color={'warning'} size={'sm'} variant={'soft'}/> : 'Save'}
                             </Button>
                         </Stack>

@@ -78,6 +78,13 @@ function RecurringEventSchedule() {
     const [snackbarMessage, setSnackbarMessage] = useState("");
     const [editingTickets, setEditingTickets] = useState([]);
     const [selectedTicketSlotKey, setSelectedTicketSlotKey] = useState(null);
+    console.log(data)
+    useEffect(() => {
+        setData(prev => ({...prev,
+            eventDate: events[Object.keys(events)[0]]?.startDate,
+            eventStartTime: events[Object.keys(events)[0]]?.startTime,
+        }))
+    }, [events]);
 
     useEffect(() => {
         // Ensure data.tickets is defined before mapping
@@ -118,25 +125,21 @@ function RecurringEventSchedule() {
     useEffect(() => {
         setData(prev => ({...prev, events: events, occurrenceTickets: occurrenceTickets}));
     }, [events, occurrenceTickets]);
-    console.log("occurrenceTickets", occurrenceTickets);
-    console.log("events", events);
-    // Helper: initialize editingSlots for the current selectedDate (if none exists, create a default slot)
+
     const initEditingSlots = (date) => {
         const dateKey = date.format("YYYY-MM-DD");
         if (events[dateKey]) {
             setEditingSlots(events[dateKey]);
         } else {
-            // default: one timeslot from 9:00 to 10:00 on the selected date
             setEditingSlots([
                 {
-                    startTime: date.clone().set("hour", 9).set("minute", 0),
-                    endTime: date.clone().set("hour", 10).set("minute", 0)
+                    startTime: date.clone().set("hour", date.hour() + 1).set("minute", 0),
+                    endTime: date.clone().set("hour", date.hour() + 2).set("minute", 0)
                 }
             ]);
         }
     };
 
-    // Called when a date is selected from the calendar
     function handleChangeDate(date) {
         const d = dayjs(date);
         setSelectedDate(d);
@@ -170,13 +173,11 @@ function RecurringEventSchedule() {
         setOpenEditTicketDrawer(false);
     };
 
-    // Handler for the "Add a date" button outside the drawer
     const handleAddDate = () => {
         initEditingSlots(selectedDate);
         setOpenDrawer(true);
     };
 
-    // Handlers for repeat options
     const handleRepeatOptionChange = (e) => setRepeatOption(e.target.value);
     const handleRepeatCadenceChange = (e) => setRepeatCadence(e.target.value);
     const handleRepeatIntervalChange = (e) => setRepeatInterval(Number(e.target.value));
@@ -185,7 +186,6 @@ function RecurringEventSchedule() {
         if (newValue) setTimeType(newValue);
     };
 
-    // Handlers for editing timeslots in the drawer
     const handleAddTimeSlot = () => {
         setEditingSlots([
             ...editingSlots,
@@ -197,6 +197,7 @@ function RecurringEventSchedule() {
         const newSlots = editingSlots.filter((_, i) => i !== index);
         setEditingSlots(newSlots);
     };
+
     const handleTimeChange = (index, field, value) => {
         const newSlots = editingSlots.map((slot, i) =>
             i === index ? {...slot, [field]: value} : slot
@@ -279,6 +280,7 @@ function RecurringEventSchedule() {
                 };
             });
         });
+        payload.sort((a, b) => dayjs(a.startDate).diff(dayjs(b.startDate)));
 
         const handleResponse = (response) => {
             const occurrenceIds = response.data.data;
@@ -298,13 +300,11 @@ function RecurringEventSchedule() {
             sessionStorage.setItem('occurrence-ids', JSON.stringify(occurrenceIds));
         };
 
-        eventAxiosWithToken.post(`/update/recurrence?eid=${location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3]}&timezone=${data.timezone}`, payload)
+        eventAxiosWithToken.post(`/update/recurrence?eid=${location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3]}&tz=${data.timezone}`, payload)
             .then(handleResponse)
             .catch(err => console.error(err));
     }
 
-    // When the user clicks "Save", generate events for all valid dates based on the repeat settings,
-    // and combine the timeslot info from the drawer (editingSlots) onto each date.
     const handleSave = () => {
         const validDates = generateDates(selectedDate, endDate, repeatOption, repeatCadence);
         const newEvents = {...events};
@@ -361,9 +361,6 @@ function RecurringEventSchedule() {
         setOpenDrawer(false);
     };
 
-    // ------------------ Edit Times Drawer ------------------
-
-    // “Edit times” button from preview: open the edit drawer with sorted times
     const handleOpenEditDrawer = (dateKey) => {
         setEditDateKey(dateKey);
         // Sort timeslots ascending by start time
@@ -375,7 +372,6 @@ function RecurringEventSchedule() {
         setOpenEditDrawer(true);
     };
 
-    // If user clicks “Delete date”
     const handleDeleteDate = (dateKey) => {
         let newEvents = {...events};
 
@@ -387,7 +383,6 @@ function RecurringEventSchedule() {
             .catch(err => console.error(err));
     };
 
-    // In the edit drawer, handle changing a timeslot
     const handleEditTimeChange = (index, field, value) => {
         setEditSlots((prev) =>
             prev.map((slot, i) =>
@@ -396,7 +391,6 @@ function RecurringEventSchedule() {
         );
     };
 
-    // Add or remove timeslots from the edit drawer
     const handleAddEditTimeSlot = () => {
         setEditSlots((prev) => [
             ...prev,
@@ -411,7 +405,6 @@ function RecurringEventSchedule() {
         setEditSlots((prev) => prev.filter((_, i) => i !== index));
     };
 
-    // Merge timeslots for a single date into events, ensuring no duplicates
     const mergeDateSlots = (dateKey, newSlots, baseEvents) => {
         let added = 0;
         if (!baseEvents[dateKey]) {
@@ -450,7 +443,6 @@ function RecurringEventSchedule() {
         return uniqueSlots;
     };
 
-    // Save the changes from the edit drawer
     const handleSaveEditTimes = () => {
         let newEvents = { ...events };
         let totalCreated = 0;
@@ -502,7 +494,6 @@ function RecurringEventSchedule() {
         setOpenEditDrawer(false);
     };
 
-    // Render repeat options fields based on the selected repeatOption
     const RenderRepeatOption = () => {
         switch (repeatOption) {
             case "Weekly":
@@ -604,7 +595,6 @@ function RecurringEventSchedule() {
         setOpenDateCard(openDateCard === dateKey ? null : dateKey);
     };
 
-    // handleTimeSlotClick - UPDATED TO USE OCCURRENCE IDS AND MANAGE TICKETS
     const handleTimeSlotClick = (dateKey, slot) => {
         if (!data?.tickets || !slot || !dateKey || !events[dateKey]) return;
 
@@ -620,7 +610,6 @@ function RecurringEventSchedule() {
         setOpenEditTicketDrawer(true);
     };
 
-    // Render the preview UI – list of dates (from global events) with their timeslots
     const RenderTimeSlotPreview = () => {
         return (
             <div className="time-slot-container">
@@ -727,14 +716,14 @@ function RecurringEventSchedule() {
                                                     <td>
                                                         {(() => {
                                                             const enabledTickets = slotTickets.filter(t => t.enabled);
-                                                            if (enabledTickets.length === 0) return 'Free';
+                                                            if (enabledTickets.length === 0) return '---';
 
                                                             const prices = enabledTickets.map(t => {
                                                                 const price = parseFloat(t.price);
                                                                 return isNaN(price) ? 0 : price;
                                                             });
                                                             const minPrice = Math.min(...prices);
-                                                            return minPrice > 0 ? `$${minPrice.toFixed(2)}` : 'Free';
+                                                            return minPrice > 0 ? `$${minPrice.toFixed(2)}` : '0.0';
                                                         })()}
                                                     </td>
                                                 </tr>
@@ -1059,7 +1048,7 @@ function RecurringEventSchedule() {
                             <CloseIcon/>
                         </IconButton>
                     </Stack>
-                    <Stack rowGap={3} paddingInline={3} flexGrow={1}>
+                    <Stack rowGap={3} paddingInline={3} flexGrow={1} sx={{height: '70%', overflowY: 'auto'}}>
                         <hr/>
                         <Typography fontWeight="bold" fontSize={22}>
                             {dayjs(editDateKey).format("dddd, MMMM D, YYYY")}
@@ -1124,16 +1113,18 @@ function RecurringEventSchedule() {
                     paddingBlock="5rem 1rem"
                     height={'100%'}
                 >
-                    <Stack direction="row" justifyContent="space-between" alignItems="center" paddingInline={3}>
-                        <Typography fontSize={17} fontWeight="bold">
-                            Tickets
-                        </Typography>
-                        <IconButton onClick={() => setOpenEditTicketDrawer(false)}>
-                            <CloseIcon/>
-                        </IconButton>
-                    </Stack>
-                    <Stack rowGap={3} paddingInline={3} flexGrow={1} sx={{maxHeight: '60%'}}>
+                    <Stack>
+                        <Stack direction="row" justifyContent="space-between" alignItems="center" paddingInline={3}>
+                            <Typography fontSize={17} fontWeight="bold">
+                                Tickets
+                            </Typography>
+                            <IconButton onClick={() => setOpenEditTicketDrawer(false)}>
+                                <CloseIcon/>
+                            </IconButton>
+                        </Stack>
                         <hr/>
+                    </Stack>
+                    <Stack rowGap={3} paddingInline={3} flexGrow={1} sx={{height: '70%', overflowY: 'auto'}}>
                         <Typography fontWeight="bold" fontSize={22}>
                             {dayjs(editDateKey).format("dddd, MMMM D, YYYY")}
                         </Typography>
@@ -1193,9 +1184,13 @@ function RecurringEventSchedule() {
                                                 {item?.ticketName}
                                             </Typography>
                                             <Stack direction={'row'} columnGap={1.5}>
-                                                <TextField
+                                                <TextField disabled
                                                     label={'Price'}
-                                                    value={editedTicket.price}
+                                                    value={
+                                                        editedTicket.ticketType === 'paid' ? editedTicket.price
+                                                        :
+                                                        editedTicket.ticketType === 'free' ? 'Free' : 'Donation'
+                                                    }
                                                     onChange={(e) => {
                                                         const newPrice = e.target.value;
                                                         setEditingTickets((prev) =>
@@ -1206,7 +1201,7 @@ function RecurringEventSchedule() {
                                                     }}
                                                 />
                                                 <TextField
-                                                    label={'Quantity'}
+                                                    label={'Quantity'} disabled
                                                     value={editedTicket.quantity}
                                                     onChange={(e) => {
                                                         const newQuantity = e.target.value;
@@ -1232,24 +1227,26 @@ function RecurringEventSchedule() {
                             </Stack>
                         </Stack>
                     </Stack>
-                    <Stack paddingInline={3} rowGap={1} sx={{ overflowY: 'auto' }}>
+                    <Stack>
                         <hr />
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={applyToMultipleDates}
-                                    onChange={(e) => setApplyToMultipleDates(e.target.checked)}
-                                />
-                            }
-                            label="Apply changes to multiple dates"
-                        />
-                        <Stack direction={'row'} marginTop="auto" columnGap={1}>
-                            <Button variant="outlined" fullWidth onClick={() => setOpenEditTicketDrawer(false)}>
-                                Cancel
-                            </Button>
-                            <Button variant="contained" color="error" fullWidth onClick={handleSaveTickets}>
-                                Save
-                            </Button>
+                        <Stack paddingInline={3} rowGap={1} sx={{ overflowY: 'auto' }}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={applyToMultipleDates}
+                                        onChange={(e) => setApplyToMultipleDates(e.target.checked)}
+                                    />
+                                }
+                                label="Apply changes to multiple dates"
+                            />
+                            <Stack direction={'row'} marginTop="auto" columnGap={1}>
+                                <Button variant="outlined" fullWidth onClick={() => setOpenEditTicketDrawer(false)}>
+                                    Cancel
+                                </Button>
+                                <Button variant="contained" color="error" fullWidth onClick={handleSaveTickets}>
+                                    Save
+                                </Button>
+                            </Stack>
                         </Stack>
                     </Stack>
                 </Stack>

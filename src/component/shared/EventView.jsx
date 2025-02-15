@@ -1,5 +1,5 @@
 import "../../styles/event-view-styles.css"
-import {Avatar, Skeleton, Stack, Typography} from "@mui/material";
+import {Avatar, Box, Skeleton, Stack, Typography} from "@mui/material";
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import EventIcon from '@mui/icons-material/Event';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
@@ -20,7 +20,7 @@ import {getStorage} from "firebase/storage";
 import {fetchImage, transformNumber} from "../../common/Utilities.js";
 import MoreRelatedByOrganizer from "./MoreRelatedByOrganizer.jsx";
 import ShareDialog from "./ShareDialog.jsx";
-import {Accordion, AccordionDetails, AccordionSummary} from "@mui/joy";
+import {Accordion, AccordionDetails, AccordionSummary, Card, CardContent} from "@mui/joy";
 import TicketPanel from "./TicketPanel.jsx";
 import Map from "./Map.jsx";
 import LikeEvent from "./LikeEvent.jsx";
@@ -63,6 +63,59 @@ function EventView(){
         }
         else setHeroImage("https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F936315053%2F558993483103%2F1%2Foriginal.20250115-135317?crop=focalpoint&fit=crop&auto=format%2Ccompress&q=75&sharp=10&fp-x=0.5&fp-y=0.5&s=3a03308f50db1e157ca93403975dcc59")
     }, []);
+
+    const renderOccurrences = () => {
+        return (
+            <Stack spacing={2}>
+                {loaderData.occurrences.map((occurrence, index) => {
+                    const tickets = loaderData.tickets.filter(ticket =>
+                        loaderData.ticketOccurrences.some(
+                            to =>
+                                to.occurrence_id === occurrence.occurrence_id &&
+                                to.ticket_type_id === ticket.ticket_type_id
+                        )
+                    );
+
+                    return (
+                        <Card key={index} variant="outlined">
+                            <CardContent>
+                                <Stack spacing={1}>
+                                    <Stack direction="row" spacing={2} alignItems="center">
+                                        <EventIcon sx={{ fontSize: 32 }} />
+                                        <Typography fontSize={18} fontFamily={'Roboto Slab'} fontWeight={450}>
+                                            {dayjs(occurrence.start_date).format("dddd, DD MMMM YYYY")} ·{" "}
+                                            {dayjs(occurrence.start_time, "HH:mm:ss").format("HH:mm")} -{" "}
+                                            {dayjs(occurrence.end_time, "HH:mm:ss").format("HH:mm")}
+                                        </Typography>
+                                    </Stack>
+                                    <Box ml={5}>
+                                        <Typography variant="subtitle1" color="textSecondary">
+                                            Available tickets
+                                        </Typography>
+                                        <ul style={{ marginLeft: "1.5rem" }}>
+                                            {tickets.length > 0 ? (
+                                                tickets.map((ticket, idx) => (
+                                                    <li key={idx}>
+                                                        <Typography variant="body2">{ticket.name}</Typography>
+                                                    </li>
+                                                ))
+                                            ) : (
+                                                <li>
+                                                    <Typography variant="body2">
+                                                        No tickets available
+                                                    </Typography>
+                                                </li>
+                                            )}
+                                        </ul>
+                                    </Box>
+                                </Stack>
+                            </CardContent>
+                        </Card>
+                    );
+                })}
+            </Stack>
+        );
+    };
 
     return (
         <>
@@ -153,27 +206,44 @@ function EventView(){
                             <>
                                 <Stack className={'event-view__details'} rowGap={1}>
                                     <p className={'event-view__details-heading'}>Date and Time</p>
-                                    <div className={'event-view__details-date'}>
-                                        <EventIcon /> {dayjs(loaderData.start_time).format("dddd, DD MMMM")} · {dayjs(loaderData.start_time).format("HH:mm")} - {dayjs(loaderData.end_time).format("HH:mm")}
-                                        {` GMT${loaderData.timezone}`}
-                                    </div>
+                                    {loaderData.is_recurring ?
+                                        renderOccurrences()
+                                        :
+                                        <div className={'event-view__details-date'}>
+                                            <EventIcon sx={{fontSize: 32}}/> {dayjs(loaderData.start_time).format("dddd, DD MMMM")} · {dayjs(loaderData.start_time).format("HH:mm")} - {dayjs(loaderData.end_time).format("HH:mm")}
+                                            {` GMT+${loaderData.timezone}`}
+                                        </div>
+                                    }
                                 </Stack>
                                 <Stack className={'event-view__location'} rowGap={1}>
                                     <p className={'event-view__location-heading'}>Location</p>
                                     <Stack columnGap={1}
                                            className={'event-view__location-content'}
                                            direction={'row'}>
-                                        <LocationOnIcon className={'event-view__location-icon'} />
+                                        <LocationOnIcon sx={{fontSize: 32}} className={'event-view__location-icon'} />
                                         <Stack rowGap={.5}>
                                             <p className={'event-view__location-name'}>
                                                 {loaderData.location.name}
                                             </p>
-                                            <p className={'event-view__location-address'}>
-                                                {loaderData.location.location.replace(new RegExp(loaderData.location.name + ', ', 'g'), '')}
-                                            </p>
-                                            <div className={'event-view__location-map'} onClick={() => setShowMapDetail(prev => !prev)}>
-                                                Show map {showMapDetail ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-                                            </div>
+                                            <Stack className={'event-view__location-address'} rowGap={1}>
+                                                {loaderData?.location?.locationType === 'online' ?
+                                                    <>
+                                                        <p>Online event</p>
+                                                        {loaderData?.location.access !== 'holder' &&
+                                                            <Link to={`/online/${loaderData.event_id}`} className={'link'} target={'_blank'}>
+                                                                View details
+                                                            </Link>
+                                                        }
+                                                    </>
+                                                    :
+                                                    <>
+                                                        {loaderData.location.location.replace(new RegExp(loaderData.location.name + ', ', 'g'), '')}
+                                                        <div className={'event-view__location-map'} onClick={() => setShowMapDetail(prev => !prev)}>
+                                                            Show map {showMapDetail ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                                                        </div>
+                                                    </>
+                                                }
+                                            </Stack>
                                             {showMapDetail && <Map latitude={loaderData.location.lat} longitude={loaderData.location.lon}
                                                 locationName={loaderData.location.name}
                                             />}
@@ -197,7 +267,7 @@ function EventView(){
                                     <Stack alignItems={'center'} columnGap={1}
                                            className={'event-view__about-duration'}
                                            direction={'row'}>
-                                        <TimelapseIcon /> <p>Event lasts <b>{dayjs(loaderData.end_time).subtract(dayjs(loaderData.start_time)).hour()} hours</b></p>
+                                        <TimelapseIcon /> <p>Event lasts <b>{dayjs(loaderData.end_time).diff(loaderData.start_time, 'hour', true)} hours</b></p>
                                     </Stack>
                                     <div className={'render-html'} dangerouslySetInnerHTML={{__html: loaderData.full_description}}></div>
                                 </Stack>

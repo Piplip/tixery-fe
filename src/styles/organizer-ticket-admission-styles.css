@@ -34,6 +34,10 @@
     font-size: 1.15rem;
     max-width: 20rem;
     text-overflow-ellipsis: ellipsis;
+    > p {
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
 }
 .tickets-section__ticket-dates{
     font-size: .8rem;

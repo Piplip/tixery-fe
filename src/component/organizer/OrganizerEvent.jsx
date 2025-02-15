@@ -269,12 +269,18 @@ function OrganizerEvent() {
                                 </Stack>
                             </Stack>
                             <Stack rowGap={.5}>
-                                <p>{Number(item?.ticketCount) - Number(item?.remainingTicket)} / {item?.ticketCount}</p>
-                                <LinearProgress sx={{height: '.3rem', borderRadius: '.25rem'}}
-                                                variant={"determinate"}
-                                                valueBuffer={item?.ticketCount - item?.remainingTicket}
-                                                value={item?.ticketCount}
-                                />
+                                {item?.ticketCount ?
+                                    <>
+                                        <p>{Number(item?.ticketCount) - Number(item?.remainingTicket)} / {Number(item?.ticketCount)}</p>
+                                        <LinearProgress
+                                            sx={{ height: '.3rem', borderRadius: '.25rem' }}
+                                            variant="determinate"
+                                            value={(Number(item?.ticketCount) - Number(item?.remainingTicket)) / Number(item?.ticketCount) * 100}
+                                        />
+                                    </>
+                                    :
+                                    'No tickets available'
+                                }
                             </Stack>
                             <p>$0.00</p>
                             <p style={{textTransform: 'uppercase'}}>{item?.status}</p>

@@ -1,0 +1,136 @@
+.online-event {
+    padding: 2rem 10%;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    position: relative;
+}
+.online-event__preview-banner {
+    position: sticky;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    top: 0;
+    padding: 1.5rem 1rem;
+    font-size: 1.5rem;
+    text-align: center;
+    font-weight: bold;
+    border-bottom-left-radius: 8px;
+    z-index: 10;
+    width: 100%;
+    backdrop-filter: blur(10px);
+}
+
+.online-event__hero {
+    display: flex;
+    gap: 2rem;
+    max-height: 60vh;
+}
+
+.online-event__hero-image {
+    height: 100%;
+    width: 65%;
+    object-fit: cover;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.online-event__hero-text {
+    font-family: "Roboto Slab", sans-serif;
+    padding-top: .75rem;
+    max-width: 35%;
+    display: flex;
+    flex-direction: column;
+    row-gap: .5rem;
+}
+
+.online-event__hero-text h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.online-event__hero-text p {
+    font-size: 1.2rem;
+    color: #1d212f;
+    font-weight: 400;
+}
+
+/* Content Section */
+.online-event__content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Text */
+.online-event__content-text {
+    background: #f9f9f9;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+/* Images */
+.online-event__content-image {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.online-event__content-image:hover {
+    transform: scale(1.03);
+}
+
+/* Videos */
+.online-event__content-video {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    > * {
+        width: 100%;
+        height: 30rem;
+    }
+}
+
+.online-event__content-link {
+    display: inline-block;
+    font-size: 1rem;
+    color: orangered;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.online-event__content-link:hover {
+    color: #d84315;
+}
+
+.online-event__live {
+    flex-grow: 1;
+    background: #fff5f5;
+    padding: 1.5rem;
+    border-left: 5px solid orangered;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.online-event__live-link {
+    border-top: 1px solid #131313;
+    padding-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    color: #2c1812;
+    font-weight: bold;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.online-event__live-link:hover {
+    color: #d84315;
+}

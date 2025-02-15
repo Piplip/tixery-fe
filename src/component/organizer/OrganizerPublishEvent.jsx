@@ -43,17 +43,17 @@ CustomCheckbox.propTypes = {
     checked: PropTypes.bool,
 }
 
-const eventData = {
-    sports: {
+const EventTypeList = {
+    Business: {
         categories: {
-            football: ["Premier League", "La Liga", "Serie A"],
-            basketball: ["NBA", "EuroLeague"],
+            Conferences: ["Tech Conference", "Marketing Conference"],
+            Networking: ["Startup Networking", "Professional Meetups"],
         },
     },
-    music: {
+    Music: {
         categories: {
-            rock: ["Classic Rock", "Alternative Rock"],
-            pop: ["K-Pop", "Synth Pop"],
+            Concerts: ["Rock Concert", "Pop Concert", "Classical Concert"],
+            Festivals: ["Summer Festival", "Winter Festival"],
         },
     },
 };
@@ -65,13 +65,13 @@ function OrganizerPublishEvent(){
     const [eventImg, setEventImg] = useState(null)
 
     const availableCategories =
-        data.type && eventData[data.type]?.categories
-            ? Object.keys(eventData[data.type].categories)
+        data.type && EventTypeList[data.type]?.categories
+            ? Object.keys(EventTypeList[data.type].categories)
             : [];
 
     const availableSubCategories =
-        data.category && eventData[data.type]?.categories[data.category]
-            ? eventData[data.type].categories[data.category]
+        data.category && EventTypeList[data.type]?.categories[data.category]
+            ? EventTypeList[data.type].categories[data.category]
             : [];
 
     useEffect(() => {
@@ -157,7 +157,7 @@ function OrganizerPublishEvent(){
                                     onChange={(_, val) => setData(prev => ({...prev, type: val}))}
                                 >
                                     <Option value={''}>Select a type</Option>
-                                    {Object.keys(eventData).map((type) => (
+                                    {Object.keys(EventTypeList).map((type) => (
                                         <Option key={type} value={type}>
                                             {capitalizeFirstLetter(type)}
                                         </Option>

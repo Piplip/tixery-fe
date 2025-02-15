@@ -43,6 +43,7 @@ import OrganizerCreateTicket from "./component/organizer/OrganizerCreateTicket.j
 import OrganizerTicketAdmission from "./component/organizer/OrganizerTicketAdmission.jsx";
 import OrganizerPublishEvent from "./component/organizer/OrganizerPublishEvent.jsx";
 import RecurringEventSchedule from "./component/organizer/RecurringEventSchedule.jsx";
+import OnlineEventPage from "./component/attendee/OnlineEventPage.jsx";
 
 function App() {
     const routers = createBrowserRouter([
@@ -64,7 +65,8 @@ function App() {
                     hydrateFallbackElement: <LoadingFallback />,
                     loader: async ({ params }) => {
                         const searchParams = new URLSearchParams({
-                            eid: params.id
+                            eid: params.id,
+                            is_organizer: false
                         })
                         if(checkLoggedIn()){
                             searchParams.append('pid', getUserData('profileID'))
@@ -74,12 +76,21 @@ function App() {
                     }
                 },
                 {
+                    path: 'online/:id',
+                    hydrateFallbackElement: <LoadingFallback />,
+                    element: <OnlineEventPage preview={false}/>,
+                    loader: async ({ params }) => {
+                        const response = await eventAxiosWithToken.get(`/get/online?eid=${params.id}`);
+                        return response.data;
+                    }
+                },
+                {
                     path: 'account',
                     element: <AttendeeAccountManagement />,
                     children: [
                         {index: true, element: <AttendeeContactInfo />},
-                        {path: 'password', element: <AttendeePassword />},
                         {path: 'password/set', element: <AttendeeSetPassword />},
+                        {path: 'password', element: <AttendeePassword />},
                         {path: 'credit-card', element: <AttendeeCreditCard />},
                         {path: 'email-preferences', element: <AttendeeNotificationSetting />},
                         {path: 'personal-info', element: <AttendeePersonalInfo />},
@@ -94,6 +105,15 @@ function App() {
                     element: <AttendeeFollowedEvents />
                 },
             ]
+        },
+        {
+            path: 'online/:id/preview',
+            hydrateFallbackElement: <LoadingFallback />,
+            element: <OnlineEventPage preview={true}/>,
+            loader: async ({ params }) => {
+                const response = await eventAxiosWithToken.get(`/get/online?eid=${params.id}`);
+                return response.data;
+            }
         },
         {
             path: '/u/interests',

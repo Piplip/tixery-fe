@@ -39,8 +39,12 @@ function OrganizerTicketAdmission(){
     }
 
     function handleDelete(index){
-        eventAxiosWithToken.post(`/tickets/remove?tid=${data.tickets[index].ticketID}`)
-            .then(r => {
+        const params = new URLSearchParams({
+            tid: data.tickets[index].ticketID,
+            ...(data.eventType === 'recurring' && {is_recurring: true})
+        })
+        eventAxiosWithToken.post(`/tickets/remove?${params.toString()}`)
+            .then(() => {
                 setHasUnsavedChanges(true)
                 const newTickets = data.tickets.filter((ticket, i) => i !== index)
                 setData({...data, tickets: newTickets})
@@ -115,7 +119,9 @@ function OrganizerTicketAdmission(){
                                 <DragHandleIcon className="tickets-section__ticket-drag-handle"/>
                                 <Stack className="tickets-section__ticket-details" rowGap={1}>
                                     <Stack className="tickets-section__ticket-title" direction={'row'} columnGap={1} alignItems={'center'}>
-                                        {ticket.ticketName}
+                                        <p>
+                                            {ticket.ticketName}
+                                        </p>
                                         {dayjs(ticket.startTime + " " + ticket.startDate, 'HH:mm DD/MM/YYYY').isBefore(dayjs()) ?
                                             <Tooltip title="On Sale" placement={'top'}>
                                                 <CircleIcon sx={{color: '#77d927'}}/>
