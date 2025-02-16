@@ -11,6 +11,8 @@ import TrendingSearches from "./TrendingSearches.jsx";
 import Grid from "@mui/material/Grid2";
 import PopularEvents from "./PopularEvents.jsx";
 import {eventAxios} from "../../config/axiosConfig.js";
+import {Categories} from "../../common/Data.js";
+import EventFetching from "./EventFetching.jsx";
 
 const categories = [
     'Music', 'Food & Drink', 'Business', 'Community', 'Arts', 'Film & Media', 'Health', 'Sports & Fitness', 'Science & Tech', 'Travel & Outdoor',
@@ -27,7 +29,8 @@ function EventSearch() {
     const navigate = useNavigate()
 
     const [filters, setFilters] = useState({
-        categories: [],
+        category: '',
+        "sub_category": '',
         date: '',
         price: '',
         followed: false,
@@ -65,30 +68,22 @@ function EventSearch() {
 
     const handleCheckboxChange = (type) => {
         setFilters(prev => ({...prev, [type]: !prev[type]}));
+        const searchParams = new URLSearchParams(location.search);
+        searchParams.set(type, !filters[type]);
+        navigate({ search: searchParams.toString().toLowerCase() });
     };
 
     const handleFilterChange = (type, value) => {
         setFilters(prev => {
-            let newFilters;
-            if (type === 'categories') {
-                const newCategories = prev.categories.includes(value) ? prev.categories.filter(cat => cat !== value) : [...prev.categories, value];
-                newFilters = {...prev, categories: newCategories};
-            } else {
-                newFilters = {...prev, [type]: value};
-            }
+            let newFilters = {...prev, [type]: value}
 
             const validFilters = Object.fromEntries(
-                Object.entries(newFilters).filter(([key, val]) => (key === 'categories' ? val.length > 0 : val !== null && val !== '' && val !== undefined))
+                Object.entries(newFilters).filter(([key, val]) => (key === 'category' || key === 'sub_category' ? val.length > 0 : val !== null && val !== '' && val !== undefined))
             );
 
             const searchParams = new URLSearchParams(location.search);
             Object.entries(validFilters).forEach(([key, val]) => {
-                if (key === 'categories') {
-                    searchParams.delete(key);
-                    val.forEach(category => searchParams.append(key, category));
-                } else {
-                    searchParams.set(key, val);
-                }
+                searchParams.set(key, val);
             });
 
             navigate({ search: searchParams.toString().toLowerCase() });
@@ -99,29 +94,22 @@ function EventSearch() {
     const clearFilter = (type) => {
         setFilters(prev => {
             const newFilters = {...prev};
-            if (type === 'categories') {
-                newFilters.categories = [];
-            } else {
-                delete newFilters[type];
+            if(type === 'followed' || type === 'online') newFilters[type] = false;
+            else if(type === 'category'){
+                newFilters[type] = '';
+                newFilters["sub_category"] = '';
             }
+            else newFilters[type] = '';
 
             const validFilters = Object.fromEntries(
-                Object.entries(newFilters).filter(([key, val]) => (key === 'categories' ? val.length > 0 : key !== 'online' && key !== 'followed' && val !== null && val !== '' && val !== undefined))
+                Object.entries(newFilters).filter(([key, val]) => (key === 'categories' || key === 'subCategories' ? val.length > 0 : key !== 'online' && key !== 'followed' && val !== null && val !== '' && val !== undefined))
             );
 
             const searchParams = new URLSearchParams(location.search);
-            if (type === 'categories') {
-                searchParams.delete(type);
-            } else {
-                searchParams.delete(type);
-            }
+            searchParams.delete(type);
 
             Object.entries(validFilters).forEach(([key, val]) => {
-                if (key === 'categories') {
-                    val.forEach(category => searchParams.append(key, category));
-                } else {
-                    searchParams.set(key, val);
-                }
+                searchParams.set(key, val);
             });
 
             navigate({ search: searchParams.toString().toLowerCase() });
@@ -131,7 +119,8 @@ function EventSearch() {
 
     const clearAllFilters = () => {
         setFilters({
-            categories: [],
+            categories: '',
+            subCategories: '',
             date: '',
             price: '',
             followed: false,
@@ -140,6 +129,7 @@ function EventSearch() {
 
         const searchParams = new URLSearchParams(location.search);
         searchParams.delete('categories');
+        searchParams.delete('subCategories');
         searchParams.delete('date');
         searchParams.delete('price');
         searchParams.delete('followed');
@@ -154,18 +144,32 @@ function EventSearch() {
                 <p>FILTERS</p>
                 <AccordionGroup sx={{ maxWidth: 375, maxHeight: 'fit-content' }}>
                     <Accordion defaultExpanded={true}>
-                        <AccordionSummary>Category</AccordionSummary>
+                        <AccordionSummary>
+                            {filters.category === '' ? 'Category' : filters.category + ' categories'}
+                        </AccordionSummary>
                         <AccordionDetails>
                             <Stack className={"event-search__options"}>
-                                {categories.map((category, index) => {
-                                    if(index < 4)
-                                        return <FormControlLabel key={index} control={<Checkbox checked={filters.categories.includes(category)} onChange={() => handleFilterChange('categories', category)} />} label={category} />
-                                    else
-                                        return viewMore.categories && (<FormControlLabel key={index} control={<Checkbox checked={filters.categories.includes(category)} onChange={() => handleFilterChange('categories', category)} />} label={category} />)
-                                })}
-                                <button className={'event-search-filter__view-more'}
-                                        onClick={() => setViewMore(prev => ({...prev, categories: !viewMore.categories}))}
-                                >View {viewMore.categories ? 'less' : 'more'}</button>
+                                {filters.category === '' ? (
+                                    Object.keys(Categories).slice(0, viewMore.categories ? undefined : 4).map((category, index) => (
+                                        <FormControlLabel
+                                            key={index}
+                                            control={<Checkbox checked={filters.categories === category} onChange={() => handleFilterChange('category', category)} />}
+                                            label={category}
+                                        />
+                                    ))
+                                ) : (
+                                    Categories[filters.category].slice(0, viewMore.categories ? undefined : 4).map((subCategory, index) => (
+                                        <FormControlLabel
+                                            key={index}
+                                            control={<Checkbox checked={filters["sub_category"] === subCategory}
+                                                               onChange={() => handleFilterChange('sub_category', subCategory)} />}
+                                            label={subCategory}
+                                        />
+                                    ))
+                                )}
+                                <button className={'event-search-filter__view-more'} onClick={() => setViewMore(prev => ({...prev, categories: !viewMore.categories}))}>
+                                    View {viewMore.categories ? 'less' : 'more'}
+                                </button>
                             </Stack>
                         </AccordionDetails>
                     </Accordion>
@@ -199,24 +203,23 @@ function EventSearch() {
                 </AccordionGroup>
                 <Stack>
                     <Stack direction={'row'} alignItems={'center'}>
-                        <Checkbox checked={filters.followedOrganizers} onChange={() => handleCheckboxChange('followed')} />
+                        <Checkbox checked={filters.followed} onChange={() => handleCheckboxChange('followed')} />
                         <p>Only show events from organizers I follow</p>
                     </Stack>
                     <Stack direction={'row'} alignItems={'center'}>
-                        <Checkbox checked={filters.onlineEvents} onChange={() => handleCheckboxChange('online')} />
+                        <Checkbox checked={filters.online} onChange={() => handleCheckboxChange('online')} />
                         <p>Search for online events</p>
                     </Stack>
                 </Stack>
             </Stack>
             <Stack className={'event-search__result'} rowGap={2}>
                 <p className={'event-search-result__tittle'}>Search result ({events?.length})</p>
-                {(filters.categories.length > 0 || filters.date || filters.price || filters.language) && (
+                {(filters.category.length > 0 || filters.date || filters.price || filters.language) && (
                     <Stack direction={'row'}>
                         <Stack direction={'row'} spacing={1} mb={2} alignItems={'center'} style={{textTransform: 'capitalize'}}>
                             <Typography style={{textTransform: 'none'}} variant={'body1'}>Filters applied</Typography>
-                            {filters.categories.map((category, index) => (
-                                <Chip key={index} label={category} onDelete={() => handleFilterChange('categories', category)} />
-                            ))}
+                            {filters.category !== '' && <Chip label={filters.category} onDelete={() => clearFilter("category")} />}
+                            {filters["sub_category"] !== '' && <Chip label={filters["sub_category"]} onDelete={() => clearFilter("sub_category")} />}
                             {filters.date && <Chip label={filters.date} onDelete={() => clearFilter('date')} />}
                             {filters.price && <Chip label={filters.price} onDelete={() => clearFilter('price')} />}
                             <button className={'clear-all-filter'} onClick={clearAllFilters}>Clear all</button>
@@ -224,22 +227,7 @@ function EventSearch() {
                     </Stack>
                 )}
                 {isLoading ?
-                    <>
-                        <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }} sx={{width: '100%'}}>
-                            {Array.from({length: 3}).map((_, index) => (
-                                <Grid key={index} size={{ xs: 2, sm: 4, md: 4 }}>
-                                    <Box sx={{width: 300, borderRadius: "10px", boxShadow: 2, padding: 2, backgroundColor: "#fff",}}>
-                                        <Skeleton variant="rectangular" width="100%" height={150} />
-                                        <Skeleton width="80%" height={30} sx={{ mt: 2 }} />
-                                        <Skeleton width="60%" height={20} sx={{ mt: 1 }} />
-                                        <Skeleton width="40%" height={20} sx={{ mt: 1 }} />
-                                        <Skeleton width="90%" height={20} sx={{ mt: 1 }} />
-                                        <Skeleton width="50%" height={20} sx={{ mt: 1 }} />
-                                    </Box>
-                                </Grid>
-                            ))}
-                        </Grid>
-                    </>
+                    <EventFetching rows={2} cols={3} />
                     :
                     <>
                         {events.length === 0 && <div className={'event-search__no-event'}>

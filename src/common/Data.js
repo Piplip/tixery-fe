@@ -422,3 +422,83 @@ export const countries = [
     { code: 'ZM', label: 'Zambia', phone: '260' },
     { code: 'ZW', label: 'Zimbabwe', phone: '263' },
 ];
+
+export const Categories = {
+    "Music": [
+        "Classical", "Country", "Electronic", "Folk", "Hip Hop", "Indie", "Jazz", "Pop", "R&B", "Rock", "World", "Gospel",
+        "Blues", "Metal", "Punk", "Reggae", "Ska", "Latin", "Ambient", "Soundtrack", "Experimental",
+        "Vocal", "Instrumental", "Opera", "Choral", "Easy Listening", "Comedy", "Podcast", "Other"
+    ],
+    "Business & Professional": [
+        "Startups", "Small Business", "Entrepreneurship", "Business Development", "Marketing", "Sales", "Finance", "Human Resources", "Operations",
+        "Technology", "Legal", "Real Estate", "E-commerce", "Retail", "Food & Beverage", "Healthcare", "Education", "Consulting", "Manufacturing", "Other"
+    ],
+    "Food & Drink": [
+        "Beer", "Wine", "Food", "Spirits", "Other"
+    ],
+    "Community & Culture": [
+        "State", "County", "City/Town", "LGBT", "Medieval", "Renaissance", "Heritage", "Nationality", "Language", "Historic", "Other"
+    ],
+    "Performing & Visual Arts": [
+        "Theatre", "Musical", "Ballet", "Dance", "Opera", "Orchestra",
+        "Craft", "Fine Art", "Literary Arts", "Comedy", "Sculpture", "Painting", "Design", "Jewelry", "Other"
+    ],
+    "Film, Media & Entertainment": [
+        "TV", "Film", "Anime", "Gaming", "Comics", "Adult", "Comedy", "Other"
+    ],
+    "Sports & Fitness": [
+        "Running", "Walking", "Cycling", "Mountain Biking", "Obstacles", "Basketball", "Football", "Baseball", "Soccer", "Golf", "Volleyball",
+        "Tennis", "Swimming & Water Sports", "Hockey", "Motorsports", "Fighting & Martial Arts", "Snow Sports", "Rugby", "Yoga", "Exercise", "Other"
+    ],
+    "Health & Wellness": [
+        "Personal health", "Mental health", "Medical", "Spa", "Yoga", "Other"
+    ],
+    "Science & Technology": [
+        "Medicine", "Science", "Biotech", "High Tech", "Mobile", "Social Media", "Robotics", "Other"
+    ],
+    "Travel & Outdoor": [
+        "Hiking", "Rafting", "Kayaking", "Canoeing", "Climbing", "Travel", "Other"
+    ],
+    "Charity & Causes": [
+        "Animal Welfare", "Environment", "Healthcare", "Human Rights", "International Aid", "Poverty", "Disaster Relief", "Education", "Other"
+    ],
+    "Religion & Spirituality": [
+        "Christianity", "Judaism", "Islam", "Mormonism", "Buddhism", "Sikhism", "Eastern Religion",
+        "Mysticism and Occult", "New Age", "Atheism", "Agnosticism", "Unaffiliated", "Hinduism", "Folk Religions", "Shintoism", "Other"
+    ],
+    "Family & Education": [
+        "Education", "Alumni", "Parenting", "Baby", "Children & Youth", "Parents Association", "Reunion", "Senior Citizen", "Other"
+    ],
+    "Seasonal & Holiday": [
+        "St Patricks Day", "Easter", "Independence Day", "Halloween/Haunt", "Thanksgiving", "Christmas", "Channukah", "Fall events", "New Years Eve", "Other"
+    ],
+    "Government & Politics": [
+        "Republican Party", "Democratic Party", "Other Party", "Non-partisan", "Federal Government", "State Government",
+        "County/Municipal Government", "Military", "International Affairs", "National Security", "Other"
+    ],
+    "Fashion & Beauty": [
+        "Fashion", "Accessories", "Bridal", "Beauty", "Other"
+    ],
+    "Home & Lifestyle": [
+        "Dating", "Pets & Animals", "Home & Garden", "Other"
+    ],
+    "Auto, Boat & Air": [
+        "Auto", "Motorcycle/ATV", "Boat", "Air", "Other"
+    ],
+    "Hobbies & Special Interest": [
+        "Anime/Comics",
+        "Gaming",
+        "DIY",
+        "Photography",
+        "Knitting",
+        "Books",
+        "Adult",
+        "Drawing & Painting",
+        "Other"
+    ],
+    "Other": [],
+    "School Activities": [
+        "Dinner", "Fund Raiser", "Raffle", "After School Care", "Parking", "Public Speaker", "Other"
+    ]
+}
+

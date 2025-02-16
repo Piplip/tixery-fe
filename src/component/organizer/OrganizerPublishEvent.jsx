@@ -14,11 +14,12 @@ import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import {EventContext} from "../../context.js";
 import dayjs from "dayjs";
-import {capitalizeFirstLetter, getUserData} from "../../common/Utilities.js";
+import {capitalizeFirstLetter, formatCurrency, getUserData} from "../../common/Utilities.js";
 import {DatePicker, TimePicker} from "@mui/x-date-pickers";
 import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {getDownloadURL, getStorage, ref} from "firebase/storage";
+import {Categories} from "../../common/Data.js";
 
 const checkboxStyle = {
     sx: {
@@ -43,20 +44,28 @@ CustomCheckbox.propTypes = {
     checked: PropTypes.bool,
 }
 
-const EventTypeList = {
-    Business: {
-        categories: {
-            Conferences: ["Tech Conference", "Marketing Conference"],
-            Networking: ["Startup Networking", "Professional Meetups"],
-        },
-    },
-    Music: {
-        categories: {
-            Concerts: ["Rock Concert", "Pop Concert", "Classical Concert"],
-            Festivals: ["Summer Festival", "Winter Festival"],
-        },
-    },
-};
+const EventType = [
+    "Conference",
+    "Seminar or Talk",
+    "Tradeshow, Consumer Show, or Expo",
+    "Convention",
+    "Festival or Fair",
+    "Concert or Performance",
+    "Screening",
+    "Dinner or Gala",
+    "Class, Training, or Workshop",
+    "Meeting or Networking Event",
+    "Party or Social Gathering",
+    "Rally",
+    "Tournament",
+    "Game or Competition",
+    "Race or Endurance Event",
+    "Tour",
+    "Attraction",
+    "Camp, Trip, or Retreat",
+    "Appearance or Signing",
+    "Other"
+]
 
 function OrganizerPublishEvent(){
     initializeApp(firebaseConfig);
@@ -64,16 +73,12 @@ function OrganizerPublishEvent(){
     const {data, setData} = useContext(EventContext)
     const [eventImg, setEventImg] = useState(null)
 
-    const availableCategories =
-        data.type && EventTypeList[data.type]?.categories
-            ? Object.keys(EventTypeList[data.type].categories)
-            : [];
+    const availableCategories = Object.keys(Categories);
 
     const availableSubCategories =
-        data.category && EventTypeList[data.type]?.categories[data.category]
-            ? EventTypeList[data.type].categories[data.category]
+        data.category && Categories[data.category]
+            ? Categories[data.category]
             : [];
-
     useEffect(() => {
         if(data.images && data.images[0] && eventImg === null){
             const imageRef = ref(storage, data.images[0])
@@ -115,8 +120,15 @@ function OrganizerPublishEvent(){
                                 </p>
                                 <Stack direction={'row'} justifyContent={'space-between'}>
                                     <div className="event-publish__info">
-                                        <span><BookOnlineIcon/> {data.tickets && data.tickets[0]?.price || 'Free'}</span>
-                                        <span><PersonIcon/>{data.capacity}</span>
+                                        <span><BookOnlineIcon/>
+                                            {data?.tickets ?
+                                                data.tickets[0]?.price > 0 ? formatCurrency(data.tickets[0]?.price, data.tickets[0]?.currency)
+                                                    : data.tickets[0]?.ticketType === 'free' ? 'Free' : 'Donation'
+                                                :
+                                                '---'
+                                            }
+                                        </span>
+                                        <span><PersonIcon/>{data?.capacity || '---'}</span>
                                     </div>
                                     <Link to="/preview" className="event-publish__preview">
                                         Preview <OpenInNewIcon/>
@@ -157,7 +169,7 @@ function OrganizerPublishEvent(){
                                     onChange={(_, val) => setData(prev => ({...prev, type: val}))}
                                 >
                                     <Option value={''}>Select a type</Option>
-                                    {Object.keys(EventTypeList).map((type) => (
+                                    {EventType.map((type) => (
                                         <Option key={type} value={type}>
                                             {capitalizeFirstLetter(type)}
                                         </Option>
@@ -179,13 +191,15 @@ function OrganizerPublishEvent(){
                                             </Option>
                                         ))}
                                     </Select>
-                                    <Select sx={{width: '100%'}}
+                                    <Select
+                                        sx={{width: '100%'}}
                                         color="neutral"
                                         placeholder="Sub category"
                                         size="md"
-                                        variant="soft"  disabled={!data.category}
+                                        variant="soft"
+                                        disabled={!data.category || data.category === 'Other'}
                                         value={data.subCategory}
-                                            onChange={(_, val) => setData(prev => ({...prev, subCategory: val}))}
+                                        onChange={(_, val) => setData(prev => ({...prev, subCategory: val}))}
                                     >
                                         <Option value={''}>Select sub category</Option>
                                         {availableSubCategories.map((subCategory) => (

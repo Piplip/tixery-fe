@@ -7,25 +7,24 @@ import {nominatimAxios} from "../../config/axiosConfig.js";
 import {getCookie} from "../../common/Utilities.js";
 
 const genres = [
-    {type: null, label: 'All', value: 'all'},
-    {type: null, label: 'For You', value: 'foryou'},
+    {type: "self", label: 'For You', value: 'self'},
     {type: 'online', label: 'Online', value: 'online'},
     {type: 'time', label: 'Today', value: 'today'},
     {type: 'time', label: 'This Weekend', value: 'weekend'},
     {type: 'time', label: 'This Week', value: 'week'},
     {type: 'time', label: 'This Month', value: 'month'},
     {type: 'cost', label: 'Free', value: 0},
-    {type: 'category', label: 'Music', value: 'music'},
-    {type: 'category', label: 'Food & Drink', value: 'food & drink'},
-    {type: 'category', label: 'Health', value: 'health'},
-    {type: 'category', label: 'Science & Tech', value: 'science & tech'},
-    {type: 'category', label: 'Spirituality', value: 'spirituality'},
+    {type: 'category', label: 'Music', value: 'Music'},
+    {type: 'category', label: 'Food & Drink', value: 'food & Drink'},
+    {type: 'category', label: 'Health & Wellness', value: 'Health & Wellness'},
+    {type: 'category', label: 'Religion & Spirituality', value: 'Religion & Spirituality'},
+    {type: 'category', label: 'Community & Culture', value: 'Community & Culture'},
 ]
 
 function BrowseEvents(){
     const [active, setActive] = useState({
-        type: null,
-        value: 'all'
+        type: "self",
+        value: 'self'
     });
     const [suggestedLocation, setSuggestedLocation] = useState([]);
     const [showSuggestion, setShowSuggestion] = useState(false);

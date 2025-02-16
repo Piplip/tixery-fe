@@ -142,7 +142,8 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                                                     fgColor="#21214d"
                                                 />
                                             }
-                                            <p style={{color: '#2a2a38', fontFamily: 'Raleway', fontSize: 16, wordWrap: 'break-word'}}>{item?.name} x{item?.quantity}</p>
+                                            <p style={{color: '#2a2a38', fontFamily: 'Raleway', fontSize: 16, wordWrap: 'break-word', textAlign: 'center'}}>
+                                                {item?.name} x{item?.quantity}</p>
                                             {item?.price &&
                                                 <div style={{alignSelf: 'center', fontSize: '2.5rem', fontWeight: 'bold', background: 'linear-gradient(90deg, #4CAF50, #81C784)',
                                                     WebkitBackgroundClip: 'text', color: 'transparent', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
@@ -176,7 +177,7 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                             )
                         })}
                     </div>
-                    <Stack flexGrow={1} rowGap={2} fontFamily={'Roboto Slab'} sx={{transform: 'translateX(-80%)'}}>
+                    <Stack flexGrow={1} rowGap={2} fontFamily={'Roboto Slab'} sx={ticketInfo?.length >= 2 ? {transform: 'translateX(-80%)'} : {}}>
                         <Typography fontWeight={'bold'} fontSize={30}>{order.name}</Typography>
                         <hr />
                         <Typography variant={'h5'}>

@@ -116,7 +116,7 @@ function CreateEvent() {
                 timezone: loaderData.timezone || 7,
                 language: loaderData.language,
                 faqs: loaderData.faq,
-                tickets: loaderData.tickets.map((ticket) => ({
+                tickets: loaderData?.tickets?.map((ticket) => ({
                     ticketID: ticket.ticket_type_id,
                     type: ticket.ticket_type,
                     ticketName: ticket.name,
@@ -147,7 +147,7 @@ function CreateEvent() {
                 category: loaderData.category,
                 subCategory: loaderData.sub_category,
                 capacity: loaderData.capacity || 100,
-                tags: loaderData.tags !== "" && loaderData.tags !== null ? loaderData.tags.join(',') : '',
+                tags: loaderData.tags ? loaderData.tags.join(',') : '',
                 additionalInfo: loaderData.full_description
             }
             if (loaderData.is_recurring === true) {
