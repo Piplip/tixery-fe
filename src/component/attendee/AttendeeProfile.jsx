@@ -8,7 +8,7 @@ import {useEffect, useRef, useState} from "react";
 import {accountAxiosWithToken} from "../../config/axiosConfig.js";
 import {checkLoggedIn, getUserData} from "../../common/Utilities.js";
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {getDownloadURL, getStorage, ref} from "firebase/storage";
 import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
@@ -19,17 +19,30 @@ const storage = getStorage()
 
 function AttendeeProfile(){
     const [stats, setStats] = useState({});
+    const [interest, setInterest] = useState([]);
     const isCallApi = useRef(false)
     const [ppImage, setPpImage] = useState('')
+    const navigate = useNavigate()
 
     useEffect(() => {
-        if(!isCallApi.current){
-            isCallApi.current = true
-            accountAxiosWithToken.get(`/attendee/stats?pid=${getUserData('profileID')}`)
-                .then(r => {
-                    setStats(r.data)
+        if (!isCallApi.current) {
+            isCallApi.current = true;
+            const profileID = getUserData('profileID');
+            const endpoints = [
+                `/attendee/stats?pid=${profileID}`,
+                `/attendee/interest?udid=${getUserData('userDataID')}`
+            ];
+
+            Promise.all(endpoints.map(endpoint => accountAxiosWithToken.get(endpoint)))
+                .then(([statsResponse, interestResponse]) => {
+                    setStats(statsResponse.data);
+                    if (interestResponse.data) {
+                        setInterest(interestResponse.data.split(','));
+                    }
                 })
-                .catch(err => console.log(err))
+                .catch(err => {
+                    console.log(err);
+                });
         }
     }, []);
 
@@ -51,6 +64,15 @@ function AttendeeProfile(){
                 })
         }
     }, []);
+
+    const groupedInterests = interest.reduce((acc, item) => {
+        const [category, subCategory] = item.split('-');
+        if (!acc[category]) {
+            acc[category] = [];
+        }
+        acc[category].push(subCategory);
+        return acc;
+    }, {});
 
     return (
         <Stack className="attendee-profile">
@@ -75,9 +97,22 @@ function AttendeeProfile(){
                     <AttendeeOrders />
                 </Stack>
                 <Stack className="attendee-profile__section">
-                    <Stack direction={'row'} alignItems={'center'} columnGap={.5} className="attendee-profile__section-header">
+                    <Stack direction={'row'} alignItems={'center'} columnGap={.5} className="attendee-profile__section-header"
+                        onClick={() => navigate('/interests')}>
                         <p className="attendee-profile__section-title">Interests</p>
                         <ChevronRightIcon className="attendee-profile__section-icon" />
+                    </Stack>
+                    <Stack>
+                        {Object.keys(groupedInterests).map((category, index) => (
+                            <Stack key={index} className="attendee-profile__interest-category">
+                                <p className="attendee-profile__interest-category-title">{category}</p>
+                                <Stack className="attendee-profile__interest-subcategories" direction={'row'}>
+                                    {groupedInterests[category].map((subCategory, subIndex) => (
+                                        <p key={subIndex} className="attendee-profile__interest">{subCategory}</p>
+                                    ))}
+                                </Stack>
+                            </Stack>
+                        ))}
                     </Stack>
                 </Stack>
                 <Stack className="attendee-profile__section">

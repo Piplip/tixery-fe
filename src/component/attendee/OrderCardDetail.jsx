@@ -177,7 +177,7 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                             )
                         })}
                     </div>
-                    <Stack flexGrow={1} rowGap={2} fontFamily={'Roboto Slab'} sx={ticketInfo?.length >= 2 ? {transform: 'translateX(-80%)'} : {}}>
+                    <Stack flexGrow={1} rowGap={2} fontFamily={'Roboto Slab'} sx={{transform: `translateX(-${90 * (ticketInfo?.length - 1)}%)`}}>
                         <Typography fontWeight={'bold'} fontSize={30}>{order.name}</Typography>
                         <hr />
                         <Typography variant={'h5'}>
@@ -191,6 +191,8 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                         <p className={'order-detail-content'}>eTicket</p>
                         <p className={'order-detail-title'}>Ticket Name</p>
                         <p className={'order-detail-content'}>{ticketInfo[selectedTicket]?.name}</p>
+                        <p className={'order-detail-title'}>Quantity</p>
+                        <p className={'order-detail-content'}>{ticketInfo[selectedTicket]?.quantity}</p>
                         <p className={'order-detail-title'}>Total Cost</p>
                         <p className={'order-detail-content'}>
                             {ticketInfo[selectedTicket]?.currency && formatCurrency(ticketInfo[selectedTicket]?.price, ticketInfo[selectedTicket]?.currency)}

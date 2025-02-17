@@ -28,7 +28,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import {useLoaderData, useNavigate} from "react-router-dom";
 import dayjs from "dayjs";
 import {accountAxiosWithToken, eventAxiosWithToken} from "../../config/axiosConfig.js";
-import {getUserData} from "../../common/Utilities.js";
+import {formatCurrency, getUserData} from "../../common/Utilities.js";
 import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {getDownloadURL, getStorage, ref} from "firebase/storage";
@@ -261,7 +261,8 @@ function OrganizerEvent() {
                                     <p style={{color: 'black'}}>{item?.name}</p>
                                     <Stack marginTop={.5}>
                                         <Typography variant={'body2'} color={'gray'} style={{textTransform: 'capitalize'}}>
-                                            {item?.location && item.location.locationType} event</Typography>
+                                            {item?.is_recurring ? 'Recurring'
+                                                : item?.location && item.location.locationType} event</Typography>
                                         <Typography variant={'body2'} color={'gray'}>
                                             {item?.start_date && dayjs(item.start_date).format('dddd, MMMM D, YYYY [at] HH:mm [GMT]Z')}
                                         </Typography>
@@ -282,15 +283,19 @@ function OrganizerEvent() {
                                     'No tickets available'
                                 }
                             </Stack>
-                            <p>$0.00</p>
+                            <p>
+                                {item?.currency && item?.gross ? formatCurrency(item.gross / 100, item.currency) : "---"}
+                            </p>
                             <p style={{textTransform: 'uppercase'}}>{item?.status}</p>
                             <CustomMenu
-                                options={type === 'past' ? ['View', 'Delete'] : ['Promote on Tixery', 'View', 'Edit', 'Delete']}
+                                options={type === 'past' ? ['View', 'Delete']
+                                    : ['Promote on Tixery', 'View', ...(item?.location.locationType === 'online' ? ['View Online Page'] : []), 'Edit', 'Delete']}
                                 handlers={
                                     type === 'past' ?
-                                        [() => navigate(`../../events/${item.event_id}`), () => handlePreDelete(item.event_id)]
+                                        [() => window.open(`../../events/${item.event_id}`, '_blank'), () => handlePreDelete(item.event_id)]
                                         :
-                                        [null, () => navigate(`../../events/${item.event_id}`),
+                                        [null, () => window.open(`../../events/${item.event_id}`, '_blank'),
+                                            ...(item?.location.locationType === 'online' ? [() => window.open(`/online/${item.event_id}`, '_blank')] : []),
                                             () => {navigate(`edit/${item.event_id}`)}, () => handlePreDelete(item.event_id)]
                                 }
                             />
@@ -451,7 +456,7 @@ function OrganizerEvent() {
                     events={calendarEvents}
                     startAccessor="start"
                     endAccessor="end"
-                    style={{ height: 500, margin: '20px 0' }}
+                    style={{ height: 700, margin: '20px 0' }}
                     onSelectEvent={event => navigate(`../../events/${event.resource.event_id}`)}
                     eventPropGetter={eventStyleGetter}
                     components={{

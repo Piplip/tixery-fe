@@ -92,13 +92,6 @@ function OnlineEventCreatePanel(){
     })
     const navigate = useNavigate()
 
-    useEffect(() => {
-        setPageSettings({
-            access: data?.access,
-            enabled: data?.enabled
-        })
-    }, [data.location]);
-
     const formik = useFormik({
         initialValues: {
             elements: data.locationData ? data.locationData : []
@@ -524,7 +517,7 @@ function OnlineEventCreatePanel(){
                                         We&#39;ll redirect your attendees to this page with automatic reminder emails and access instructions.
                                     </Typography>
                                     <Stack direction={'row'} alignItems={'center'}>
-                                        <Switch checked={pageSettings.enabled} onChange={() => setPageSettings(prev => ({...prev, enable: !prev.enabled}))}/>
+                                        <Switch checked={pageSettings.enabled} onChange={() => setPageSettings(prev => ({...prev, enabled: !prev.enabled}))}/>
                                         <Typography variant={'body2'}>Attendee Event Page {pageSettings.enabled ? 'enabled' : 'disabled'}</Typography>
                                     </Stack>
                                 </Stack>

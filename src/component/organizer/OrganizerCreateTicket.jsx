@@ -278,40 +278,43 @@ function OrganizerCreateTicket(){
         validationSchema,
         enableReinitialize: true,
         onSubmit: (values) => {
-            setOpenDetail({type: null, open: false})
-            setData(prev => ({...prev, capacity: (prev.capacity ? Number(prev.capacity) : 0) + Number(values.quantity)}))
-            let newData = transformData(values)
+            setOpenDetail({ type: null, open: false });
+            let newCapacity = data.capacity;
+            let newData = transformData(values);
+
             if (editTicket !== null) {
+                newCapacity = Number(newCapacity + values.quantity - data.tickets[editTicket].quantity);
                 eventAxiosWithToken.put(`/tickets/update?tid=${values.ticketID}&timezone=${data.timezone}`, newData)
                     .then(() => {
                         const updatedTickets = [...data.tickets];
                         updatedTickets[editTicket] = newData;
-                        setData({...data, tickets: updatedTickets});
-                        setHasUnsavedChanges(true)
+                        setData({ ...data, tickets: updatedTickets, capacity: newCapacity });
+                        setHasUnsavedChanges(true);
                     })
-                    .catch(err => console.log(err))
+                    .catch(err => console.log(err));
             } else {
+                newCapacity = Number(newCapacity + values.quantity)
                 const params = new URLSearchParams({
                     eid: location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3],
                     timezone: data.timezone
-                })
-                if(data.eventType === 'recurring'){
-                    params.append("is_recurring", "true")
-                    newData = {...newData, occurrence: JSON.parse(sessionStorage.getItem('occurrence-ids'))}
+                });
+                if (data.eventType === 'recurring') {
+                    params.append("is_recurring", "true");
+                    newData = { ...newData, occurrence: JSON.parse(sessionStorage.getItem('occurrence-ids')) };
                 }
                 eventAxiosWithToken.post(`/tickets/add?${params}`, newData)
                     .then(r => {
-                        newData = {...newData, ticketID: r.data.data};
-                        setData(prev => ({...prev, tickets: prev.tickets ? prev.tickets.concat(newData) : [newData]}));
-                        setHasUnsavedChanges(true)
-                        if(data.eventType === 'recurring'){
-                            setShowSnackbar(true)
-                            setSnackbarMessage('Your ticket was created and will appear on all time slots.')
+                        newData = { ...newData, ticketID: r.data.data };
+                        setData(prev => ({ ...prev, tickets: prev.tickets ? prev.tickets.concat(newData) : [newData], capacity: newCapacity }));
+                        setHasUnsavedChanges(true);
+                        if (data.eventType === 'recurring') {
+                            setShowSnackbar(true);
+                            setSnackbarMessage('Your ticket was created and will appear on all time slots.');
                         }
                     })
                     .catch(err => console.log(err));
             }
-            formik.resetForm()
+            formik.resetForm();
         },
     });
 

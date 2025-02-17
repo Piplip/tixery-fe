@@ -49,7 +49,7 @@
 }
 .event-list__list > div:not(.no-event){
     display: grid;
-    grid-template-columns: 8fr 3fr 2fr 2fr 1fr;
+    grid-template-columns: 8fr 3fr 2.5fr 2fr 1fr;
     padding: .75rem 1rem;
     column-gap: 2rem;
     align-items: center;

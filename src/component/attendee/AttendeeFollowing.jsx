@@ -50,7 +50,7 @@ function AttendeeFollowing(){
                 {followedOrganizer.map((organizer, index) => (
                     <Grid key={index} size={6} className={'attendee-profile__following'}>
                         <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
-                            <Link to={`/o/${organizer?.custom_url || organizer.profile_id}`} target={'_blank'}>
+                            <Link to={`/o/${organizer?.custom_url || organizer.profile_id}`}>
                                 <Stack direction={'row'} alignItems={'center'} columnGap={2}>
                                     <Avatar src={organizer.profile_image_url} alt={organizer.profile_name}/>
                                     <p className={'attendee-profile__following-name'}>{organizer.profile_name}</p>

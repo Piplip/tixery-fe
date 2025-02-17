@@ -224,6 +224,7 @@ function CreateEvent() {
                 daysForRefund: 7,
                 automatedRefund: false,
                 publishType: 'now',
+                capacity: 0,
                 type: '',
                 category: '',
                 subCategory: '',
@@ -266,7 +267,7 @@ function CreateEvent() {
             setAlert(msg);
             return;
         }
-        if(currentStep !== 2 && currentStep !== 1 && currentStep !== 3) handleSave()
+        if(currentStep !== 2 && currentStep !== 1) handleSave()
         else {
             let increment = 1;
             if (eventData.locationType === 'online' && currentStep === 1) {
@@ -379,7 +380,9 @@ function CreateEvent() {
             }
             case 3: {
                 payload = {
-                    tickets: eventData.tickets, timezone: eventData.timezone
+                    // tickets: eventData.tickets,
+                    timezone: eventData.timezone,
+                    capacity: eventData.capacity
                 }
                 break;
             }
@@ -400,7 +403,7 @@ function CreateEvent() {
                     setIsLoading(false)
                     setHasUnsavedChanges(false)
                     if(currentStep < steps.length - 1){
-                        const stepIncrement = eventData.locationType === 'venue'
+                        const stepIncrement = eventData.locationType === 'venue' && currentStep <= 2
                             ? eventData.eventType !== 'recurring' ? 3 : 2
                             : 1
                         const nextStep = currentStep + stepIncrement;

@@ -217,7 +217,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
                                         return (
                                             <Stack key={index} style={{border: '2px solid blue', borderRadius: 5, padding: '.75rem'}}>
                                                 <Stack direction={'row'} justifyContent={'space-between'} paddingBottom={2}>
-                                                    <Typography variant={'h6'} style={{maxWidth: '70%'}}>{ticket.name}</Typography>
+                                                    <Typography variant={'h6'} style={{maxWidth: '70%', wordWrap: 'break-word'}}>{ticket.name}</Typography>
                                                     {renderQuantityControl(quantity, index)}
                                                 </Stack>
                                                 <Divider />

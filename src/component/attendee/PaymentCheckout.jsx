@@ -54,7 +54,7 @@ function PaymentCheckout({total, currency, eventName, eventID, tickets, quantiti
             email: getUserData('sub'),
             currency: currency,
             quantity: 1,
-            name: `Tickets for ${eventName} - Tixery Event - ${dayjs().format("{DD/MM/YYYY")}`,
+            name: `Tickets for ${eventName} - Tixery Event - ${dayjs().format("HH:mm DD/MM/YYYY")}`,
             userID: getUserData('userID'),
             profileID: getUserData('profileID'),
             eventID: eventID,

@@ -1,0 +1,44 @@
+.attendee-interest{
+    overflow: hidden;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 5rem;
+}
+.attendee-interest__header{
+    padding: 5rem 2rem 1rem;
+    width: 100%;
+    height: 100dvh;
+}
+.attendee-interest__categories{
+    height: 100dvh;
+    overflow-y: auto;
+    background-color: #f5f5f5;
+    padding: 5rem 5rem 1rem;
+}
+.attendee-interest__category{
+    background-color: white;
+    padding: 1rem 2rem;
+}
+.attendee-interest__subcategories{
+    font-family: "Roboto Slab", sans-serif;
+    gap: 1rem;
+}
+
+.attendee-interest__subcategory{
+    background-color: #f5f5f5;
+    padding: .5rem 1rem;
+    border-radius: 1rem;
+    font-size: .9rem;
+    transition: all .1s;
+}
+.attendee-interest__subcategory:hover{
+    cursor: pointer;
+    background-color: #ececec;
+}
+.attendee-interest__subcategory__selected {
+    background-color: #ff2929;
+    color: white;
+}
+.attendee-interest__subcategory__selected:hover{
+    cursor: pointer;
+    background-color: #ff2929;
+}

@@ -1,9 +1,12 @@
 .online-event {
-    padding: 2rem 10%;
+    padding: 5rem 10% 2rem;
     display: flex;
     flex-direction: column;
     gap: 3rem;
     position: relative;
+}
+.online-event--preview{
+    padding: 2rem 10%;
 }
 .online-event__preview-banner {
     position: sticky;

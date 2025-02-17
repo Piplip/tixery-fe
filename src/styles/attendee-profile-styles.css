@@ -126,3 +126,29 @@
     cursor: pointer;
     color: #3b82f6;
 }
+.attendee-profile__interest-category {
+    font-family: "Roboto Slab", sans-serif;
+    font-weight: 350;
+    margin-bottom: 1rem;
+}
+
+.attendee-profile__interest-category-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #2c323b;
+    margin-bottom: 0.5rem;
+}
+
+.attendee-profile__interest-subcategories {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.attendee-profile__interest {
+    width: fit-content;
+    background-color: #f0f0f0;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: .9rem;
+    color: #333;
+}

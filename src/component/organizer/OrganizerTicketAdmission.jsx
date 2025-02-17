@@ -46,8 +46,9 @@ function OrganizerTicketAdmission(){
         eventAxiosWithToken.post(`/tickets/remove?${params.toString()}`)
             .then(() => {
                 setHasUnsavedChanges(true)
+                const deleteCapacity = data.tickets[index].quantity || 0
                 const newTickets = data.tickets.filter((ticket, i) => i !== index)
-                setData({...data, tickets: newTickets})
+                setData(prev => ({...prev, tickets: newTickets, capacity: prev.capacity - deleteCapacity}))
             })
             .catch(err => console.log(err))
     }
@@ -74,13 +75,14 @@ function OrganizerTicketAdmission(){
                     <Typography variant={'body2'}>
                         Event capacity is the total number of tickets available for sale at your event. When you set an event capacity, your event will sell out as soon as you sell that number of total tickets. You can adjust your event capacity to prevent overselling.
                     </Typography>
-                    <TextField autoFocus required margin="dense" name="capacity" variant="outlined"
+                    <TextField autoFocus required margin="dense" name="capacity" variant="outlined" value={data.capacity}
                                label="Event capacity" fullWidth placeholder={'Maximum allow: 10000000000'}
-                               onInput={(e) => {
-                                   e.target.value = e.target.value.replace(/[^0-9]/g, '');
-                                   if (parseInt(e.target.value, 10) > 10000000000) {
-                                       e.target.value = 10000000000;
-                                   }
+                               onChange={(e) => {
+                                      e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                                      if (parseInt(e.target.value, 10) > 10000000000) {
+                                            e.target.value = 10000000000;
+                                      }
+                                        setData({...data, capacity: e.target.value})
                                }}
                     />
                 </DialogContent>

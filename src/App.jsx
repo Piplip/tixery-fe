@@ -44,6 +44,8 @@ import OrganizerTicketAdmission from "./component/organizer/OrganizerTicketAdmis
 import OrganizerPublishEvent from "./component/organizer/OrganizerPublishEvent.jsx";
 import RecurringEventSchedule from "./component/organizer/RecurringEventSchedule.jsx";
 import OnlineEventPage from "./component/attendee/OnlineEventPage.jsx";
+import AttendeeInterest from "./component/attendee/AttendeeInterest.jsx";
+import OrderManagement from "./component/organizer/OrderManagement.jsx";
 
 function App() {
     const routers = createBrowserRouter([
@@ -74,6 +76,10 @@ function App() {
                         const response = await eventAxiosWithToken.get(`/get/specific?${searchParams}`);
                         return response.data;
                     }
+                },
+                {
+                    path: 'interests',
+                    element: <AttendeeInterest />
                 },
                 {
                     path: 'online/:id',
@@ -150,6 +156,7 @@ function App() {
                     ]
                 },
                 {path: 'profile/info', element: <OrganizerNewProfile />},
+                {path: 'order-management', element: <OrderManagement />},
                 {
                     path: 'profile/info/:id', element: <OrganizerEditProfile />,
                     loader: async ({ params }) => {

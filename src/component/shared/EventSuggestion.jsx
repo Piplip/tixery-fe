@@ -79,7 +79,7 @@ function EventSuggestion({type, value, lat, lon}){
 
     return (
         <Stack rowGap={4.5}>
-            <Typography fontSize={27.5} fontFamily={'Raleway'} fontWeight={'bold'}>{renderTitle()}</Typography>
+            {events.length !== 0 && <Typography fontSize={27.5} fontFamily={'Raleway'} fontWeight={'bold'}>{renderTitle()}</Typography>}
             {isLoading ?
                 <EventFetching rows={2} cols={4}/>
                 :

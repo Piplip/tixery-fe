@@ -13,7 +13,7 @@ function OrganizerNavBar(){
     const navItems = [
         { label: 'Home', icon: <HomeIcon />, to: '' },
         { label: 'Events', icon: <EventIcon />, to: 'events' },
-        { label: 'Orders', icon: <FilterFramesIcon />, to: 'orders' },
+        { label: 'Orders', icon: <FilterFramesIcon />, to: 'order-management' },
         { label: 'Marketing', icon: <VolumeDownIcon />, to: 'marketing' },
         { label: 'Reporting', icon: <SignalCellularAltIcon />, to: 'reporting' },
         { label: 'Finance', icon: <AccountBalanceIcon />, to: 'finance' },

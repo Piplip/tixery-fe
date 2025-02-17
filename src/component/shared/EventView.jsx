@@ -187,7 +187,7 @@ function EventView(){
                                             alt={'avatar'} />
                                         <Stack>
                                             <p className={'event-view__organizer-name'}>
-                                                By <Link to={`/o/${profile.custom_url || profile.profile_id}`} target={'_blank'}>
+                                                By <Link to={`/o/${profile.custom_url || profile.profile_id}`}>
                                                 <b>{profile.profile_name}</b>
                                             </Link> · {transformNumber(profile.total_followers)} followers
                                             </p>
@@ -335,7 +335,7 @@ function EventView(){
                                                         className={'event-view__organizer-avatar'}
                                                         alt={'avatar'} />
                                                 <Stack rowGap={.25}>
-                                                    <Link to={`/o/${profile.custom_url || profile.profile_id}`} target={'_blank'}>
+                                                    <Link to={`/o/${profile.custom_url || profile.profile_id}`}>
                                                         <p className={'event-view__organizer-name'}>
                                                             <b>{profile.profile_name}</b>
                                                         </p>
