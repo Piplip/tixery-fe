@@ -25,6 +25,7 @@ import {formatCurrency, getUserData} from "../../common/Utilities.js";
 import {debounce} from "lodash";
 import {Table} from "@mui/joy";
 import dayjs from "dayjs";
+import OrderCardDetail from "./OrderCardDetail.jsx";
 
 function OrderManagement(){
     const [searchParams, setSearchParams] = useSearchParams();
@@ -32,10 +33,15 @@ function OrderManagement(){
     const [by, setBy] = useState(searchParams.get("buyer") || "Buyer");
     const [dateRange, setDateRange] = useState(searchParams.get("date") || "3");
     const [orders, setOrders] = useState([]);
+    const [openOrderDetail, setOpenOrderDetail] = useState(false);
+    const [orderDetail, setOrderDetail] = useState({
+        info: {},
+        order: {}
+    });
 
     const handleFilterChange = useCallback((query, by, range) => {
         const params = new URLSearchParams({
-            pid: getUserData("profileID"),
+            pid: getUserData("userID"),
         });
 
         if (query) params.set('q', query);
@@ -57,12 +63,17 @@ function OrderManagement(){
 
     useEffect(() => {
         debouncedHandleFilterChange(search, by, dateRange);
-    }, [search, by, dateRange, debouncedHandleFilterChange]);
+    }, [search, by, dateRange]);
 
-    function getOrderAttendeeInfo(id){
+    function getOrderAttendeeInfo(id, index){
         accountAxiosWithToken.get(`/order/attendee/info?pid=${id}`)
             .then(res => {
                 console.log(res.data);
+                setOrderDetail({
+                    info: res.data,
+                    order: orders[index]
+                })
+                setOpenOrderDetail(true)
             })
             .catch(err => {
                 console.log(err);
@@ -71,6 +82,7 @@ function OrderManagement(){
 
     return (
         <Stack sx={{ padding: '5rem 2rem' }} rowGap={2}>
+            {openOrderDetail && <OrderCardDetail open={openOrderDetail} handleClose={() => setOpenOrderDetail(false)} data={orderDetail} />}
             <Typography fontSize={50} fontFamily={'Raleway'} fontWeight={700} gutterBottom>
                 Order Management
             </Typography>
@@ -132,8 +144,8 @@ function OrderManagement(){
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                orders.map(order => (
-                                    <TableRow key={order.order_id}>
+                                orders.map((order, index) => (
+                                    <TableRow key={index}>
                                         <TableCell>{order.order_id}</TableCell>
                                         <TableCell sx={{textTransform: 'uppercase'}}>{order.status}</TableCell>
                                         <TableCell>{formatCurrency(order.amount / 100, order.currency)}</TableCell>
@@ -149,7 +161,7 @@ function OrderManagement(){
                                         <TableCell>{dayjs(order.start_time).format("HH:mm DD/MM/YYYY")}</TableCell>
                                         <TableCell>
                                             <Button variant={'contained'} size={'small'}
-                                                onClick={() => getOrderAttendeeInfo(order.profile_id)}
+                                                onClick={() => getOrderAttendeeInfo(order.profile_id, index)}
                                             >
                                                 View Order
                                             </Button>

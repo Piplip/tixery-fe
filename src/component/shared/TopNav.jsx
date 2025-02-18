@@ -28,7 +28,7 @@ function TopNav({isLoggedIn, enableScrollEffect}){
             shouldRender: (isLoggedIn) => isLoggedIn && hasRole(['attendee'])
         },
         {
-            title: 'Create Events', link: '/organizer/create-event',
+            title: 'Create Events', link: '/organizer',
             shouldRender: (isLoggedIn) => isLoggedIn && hasRole(['host'])
         },
         {

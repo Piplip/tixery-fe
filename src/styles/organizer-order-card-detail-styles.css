@@ -1,0 +1,100 @@
+.order-details {
+    background-color: #ffffff;
+}
+
+.order-details__card {
+    margin-bottom: 16px;
+    border-radius: 6px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.order-details__header {
+    background: linear-gradient(to right, #f0f0f0, #fdfdfd);
+    border-left: 5px solid #3f51b5;
+}
+
+.order-details__header-content {
+    padding: 16px;
+}
+
+.order-details__event {
+    background-color: #f9f9f9;
+}
+
+.order-details__event-content {
+    padding: 16px;
+}
+
+.order-details__tickets {
+    background-color: #fff;
+}
+
+.order-details__tickets-content {
+    padding: 16px;
+}
+
+
+.order-details__ticket-item {
+    background-color: #fafafa;
+}
+
+
+.order-details__table-container {
+    margin-top: 8px;
+}
+
+.order-details__ticket-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.order-details__table-header {
+    font-weight: 600;
+    background-color: #f1f1f1;
+}
+
+.order-details__ticket-name {
+    width: 350px;
+    max-width: 350px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.order-details__table-row {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+
+.order-details__customer {
+    background-color: #fafafa;
+}
+
+.order-details__customer-content {
+    padding: 16px;
+}
+
+
+.order-details__payment-delivery {
+    background-color: #fff;
+}
+
+.order-details__payment-delivery-content {
+    padding: 16px;
+}
+
+.order-details__ticket-details {
+    background-color: #f9f9f9;
+}
+
+.order-details__ticket-details-content {
+    padding: 16px;
+}
+
+.order-details__ticket-details-container {
+    margin-top: 16px;
+}
+
+.order-details__ticket-detail-item {
+    background-color: #fff;
+}
