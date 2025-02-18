@@ -1,4 +1,4 @@
-import Shield from "../../assets/shield.png"
+import Shield from "../../../public/assets/shield.png"
 import "../../styles/account-verify.css"
 import {Stack} from "@mui/material";
 import {Link, useLocation, useNavigate} from "react-router-dom";

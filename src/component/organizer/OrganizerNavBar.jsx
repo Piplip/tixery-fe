@@ -7,7 +7,7 @@ import FilterFramesIcon from '@mui/icons-material/FilterFrames';
 import EventIcon from '@mui/icons-material/Event';
 import HomeIcon from '@mui/icons-material/Home';
 import SignalCellularAltIcon from '@mui/icons-material/SignalCellularAlt';
-import ShortLogo from "../../assets/file.png"
+import ShortLogo from "../../../public/assets/file.png"
 
 function OrganizerNavBar(){
     const navItems = [

@@ -2,6 +2,7 @@ import {jwtDecode} from "jwt-decode";
 import {getDownloadURL, ref} from "firebase/storage";
 import {rootAxios} from "../config/axiosConfig.js";
 import cookie from "react-cookies";
+import {GoogleGenerativeAI} from "@google/generative-ai";
 
 export function hasRole(roles){
     const token = localStorage.getItem('tk');
@@ -87,4 +88,30 @@ export function formatCurrency(amount, currencyCode) {
     });
 
     return formatter.format(amount);
+}
+
+export async function generateGeminiContent(prompt, instruction){
+    const genAI = new GoogleGenerativeAI("AIzaSyAwmJA03uThRP4NQgGmhUtSioSVqB7xPcU");
+
+    const model = genAI.getGenerativeModel({
+        model: "gemini-1.5-flash",
+        systemInstruction: instruction
+    });
+
+    return await model.generateContent({
+        contents: [
+            {
+                role: 'user',
+                parts: [
+                    {
+                        text: prompt,
+                    }
+                ],
+            }
+        ],
+        generationConfig: {
+            maxOutputTokens: 1000,
+            temperature: 0.1,
+        }
+    });
 }

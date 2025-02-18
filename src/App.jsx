@@ -46,6 +46,7 @@ import RecurringEventSchedule from "./component/organizer/RecurringEventSchedule
 import OnlineEventPage from "./component/attendee/OnlineEventPage.jsx";
 import AttendeeInterest from "./component/attendee/AttendeeInterest.jsx";
 import OrderManagement from "./component/organizer/OrderManagement.jsx";
+import "./config/i18nConfig.js"
 
 function App() {
     const routers = createBrowserRouter([
@@ -59,7 +60,7 @@ function App() {
             hydrateFallbackElement: <LoadingFallback />,
             children: [
                 {index: true, element: <AttendeeHome />},
-                {path: '/payment/:type', element: <PaymentResponse />},
+                {path: 'payment/:type', element: <PaymentResponse />},
                 {path: 'events/search', element: <EventSearch />,},
                 {path: 'favorites', element: <AttendeeFavoriteEvents />,},
                 {

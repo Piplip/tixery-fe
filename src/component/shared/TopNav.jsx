@@ -1,4 +1,4 @@
-import Logo from "../../assets/logo.svg"
+import Logo from "../../../public/assets/logo.svg"
 import {Stack} from "@mui/material";
 import "../../styles/top-nav-styles.css"
 import {Link} from "react-router-dom";

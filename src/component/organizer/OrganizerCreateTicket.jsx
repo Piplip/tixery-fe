@@ -2,7 +2,7 @@ import "../../styles/organizer-create-tickets-styles.css"
 import {Alert, Checkbox, MenuItem, Snackbar, Stack, TextField, Typography} from "@mui/material";
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import FreeIcon from "../../assets/free-icon.png"
+import FreeIcon from "../../../public/assets/free-icon.png"
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {useCallback, useContext, useEffect, useState} from "react";
 import * as Yup from "yup";

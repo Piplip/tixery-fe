@@ -6,11 +6,13 @@ import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import {getUserData} from "../../common/Utilities.js";
 import {useLocation, useNavigate} from "react-router-dom";
 import "../../styles/create-event-menu-styles.css"
+import {useTranslation} from "react-i18next";
 
 function CreateEventMenu(){
     const [isLoading, setIsLoading] = useState(false)
     const navigate = useNavigate();
     const location = useLocation()
+    const { t } = useTranslation();
 
     function handleCreateEventRequest(){
         setIsLoading(true)
@@ -28,28 +30,26 @@ function CreateEventMenu(){
         <Stack direction={'row'} columnGap={'1rem'}>
             <div className={'create-events-item'} onClick={handleCreateEventRequest}>
                 {isLoading ?
-                    <Stack style={{height: '100%'}} alignItems={'center'} justifyContent={'center'}>
+                    <Stack style={{ height: '100%' }} alignItems={'center'} justifyContent={'center'}>
                         <div className={'loader-02'}></div>
                     </Stack>
                     :
                     <>
-                        <EditIcon/>
-                        <Typography variant={'h5'}>Start from scratch</Typography>
-                        <Typography variant={'body2'}>Add all your event details, create new tickets,
-                            and set up
-                            recurring events</Typography>
-                        <button>Create event</button>
+                        <EditIcon />
+                        <Typography variant={'h5'}>{t('create_event_scratch')}</Typography>
+                        <Typography variant={'body2'}>{t('create_event_scratch_description')}</Typography>
+                        <button>{t('create_event_button')}</button>
                     </>
                 }
             </div>
             <div className={'create-events-item'}>
                 <AutoFixHighIcon />
-                <Typography variant={'h5'}>Create with AI</Typography>
-                <Typography variant={'body2'}>Answer a few quick questions to generate an event that&#39;s ready to publish almost instantly</Typography>
-                <button>Create with AI</button>
+                <Typography variant={'h5'}>{t('create_with_ai')}</Typography>
+                <Typography variant={'body2'}>{t('create_with_ai_description')}</Typography>
+                <button>{t('create_event_button')}</button>
             </div>
         </Stack>
-    )
+    );
 }
 
 export default CreateEventMenu

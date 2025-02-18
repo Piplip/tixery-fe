@@ -10,6 +10,7 @@ import {useContext, useEffect, useMemo, useRef, useState} from "react";
 import {EventContext} from "../../context.js";
 import {debounce} from "lodash";
 import EventAdditionalInfo from "./EventAdditionalInfo.jsx";
+import {generateGeminiContent} from "../../common/Utilities.js";
 
 const validationSchema = Yup.object().shape({
     eventTitle: Yup.string()
@@ -17,13 +18,14 @@ const validationSchema = Yup.object().shape({
         .max(100, "Event title cannot exceed 100 characters."),
     summary: Yup.string()
         .required("Summary is required.")
-        .max(140, "Summary cannot exceed 140 characters."),
+        .max(500, "Summary cannot exceed 140 characters."),
 });
 
 function OrganizerBuildEventPage(){
     const {data, setData, setHasUnsavedChanges} = useContext(EventContext);
     const [collapsed, setCollapsed] = useState({});
     const sectionRefs = useRef({});
+    const [loading, setLoading] = useState(false);
 
     const formik = useFormik({
         enableReinitialize: true,
@@ -67,6 +69,21 @@ function OrganizerBuildEventPage(){
             return newState;
         });
     };
+
+    function handleGenerateDescriptionSuggestion(){
+        if(data.eventTitle === '')
+            alert('Please enter an event title first.')
+        setLoading(true)
+        const instruction = "Write a short description with the given event name. It should no longer than 500 characters." +
+            " The description should be engaging and informative. If the given name is just a random string, return an alert to notify that the name is not descriptive enough." +
+            "Grab people's attention with a short description about your event. Attendees will see this at the top of your event page.";
+        const prompt = data.eventTitle;
+
+        generateGeminiContent(prompt, instruction).then((response) => {
+            setLoading(false)
+            setData(prev => ({...prev, summary: response.response.candidates[0].content.parts[0].text}));
+        })
+    }
 
     return (
         <>
@@ -133,7 +150,7 @@ function OrganizerBuildEventPage(){
                                     Grab people&#39;s attention with a short description about your event. Attendees
                                     will
                                     see this at the
-                                    top of your event page. (140 characters max){" "}
+                                    top of your event page. (500 characters max){" "}
                                     <a href="#" className="see-examples">
                                         See examples
                                     </a>
@@ -152,9 +169,9 @@ function OrganizerBuildEventPage(){
                             <div>
                                 <Button
                                     variant="outlined"
-                                    className="suggest-summary-btn"
+                                    className={`suggest-summary-btn ${loading ? 'loading' : ''}`}
                                     type="button"
-                                    onClick={() => alert("Suggested summary feature coming soon!")}
+                                    onClick={handleGenerateDescriptionSuggestion}
                                 >
                                     ⚡ Suggest summary
                                 </Button>

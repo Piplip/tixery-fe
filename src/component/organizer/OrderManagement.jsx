@@ -26,6 +26,7 @@ import {debounce} from "lodash";
 import {Table} from "@mui/joy";
 import dayjs from "dayjs";
 import OrderCardDetail from "./OrderCardDetail.jsx";
+import {useTranslation} from "react-i18next";
 
 function OrderManagement(){
     const [searchParams, setSearchParams] = useSearchParams();
@@ -38,6 +39,7 @@ function OrderManagement(){
         info: {},
         order: {}
     });
+    const {t} = useTranslation()
 
     const handleFilterChange = useCallback((query, by, range) => {
         const params = new URLSearchParams({
@@ -84,17 +86,17 @@ function OrderManagement(){
         <Stack sx={{ padding: '5rem 2rem' }} rowGap={2}>
             {openOrderDetail && <OrderCardDetail open={openOrderDetail} handleClose={() => setOpenOrderDetail(false)} data={orderDetail} />}
             <Typography fontSize={50} fontFamily={'Raleway'} fontWeight={700} gutterBottom>
-                Order Management
+                {t('orderManagement.title')}
             </Typography>
             <Typography mb={2} fontFamily={'Raleway'}>
-                Manage all orders, including editing buyer info, resending tickets and processing refunds.
-                To download a list of orders, view the <Link to="#" sx={{ ml: 0.5, textDecoration: "none", color: "#1a73e8" }}>Orders report</Link>.
+                {t('orderManagement.description')}
+                <Link to="#" sx={{ ml: 0.5, textDecoration: "none", color: "#1a73e8" }}>{t('orderManagement.ordersReport')}</Link>.
             </Typography>
             <Stack rowGap={2}>
                 <Stack direction={'row'} columnGap={1}>
                     <TextField sx={{ width: '30%' }}
                                variant="outlined"
-                               placeholder="Search order number, event name"
+                               placeholder={t('orderManagement.searchPlaceholder')}
                                value={search}
                                onChange={(e) => setSearch(e.target.value)}
                                slotProps={{
@@ -104,18 +106,18 @@ function OrderManagement(){
                                }}
                     />
                     <FormControl sx={{ width: 150 }}>
-                        <InputLabel>Search by</InputLabel>
-                        <Select value={by} onChange={(e) => setBy(e.target.value)} label={'search by'}>
-                            <MenuItem value="Buyer">Buyer</MenuItem>
-                            <MenuItem value="Attendee">Attendee</MenuItem>
+                        <InputLabel>{t('orderManagement.searchBy')}</InputLabel>
+                        <Select value={by} onChange={(e) => setBy(e.target.value)} label={t('orderManagement.searchBy')}>
+                            <MenuItem value="Buyer">{t('orderManagement.buyer')}</MenuItem>
+                            <MenuItem value="Attendee">{t('orderManagement.attendee')}</MenuItem>
                         </Select>
                     </FormControl>
                     <FormControl sx={{ width: 200 }}>
-                        <InputLabel>Date range</InputLabel>
-                        <Select value={dateRange} onChange={(e) => setDateRange(e.target.value)} label={'Date range'}>
-                            <MenuItem value="3">Past 3 months</MenuItem>
-                            <MenuItem value="6">Past 6 months</MenuItem>
-                            <MenuItem value="12">Past year</MenuItem>
+                        <InputLabel>{t('orderManagement.dateRange')}</InputLabel>
+                        <Select value={dateRange} onChange={(e) => setDateRange(e.target.value)} label={t('orderManagement.dateRange')}>
+                            <MenuItem value="3">{t('orderManagement.past3Months')}</MenuItem>
+                            <MenuItem value="6">{t('orderManagement.past6Months')}</MenuItem>
+                            <MenuItem value="12">{t('orderManagement.pastYear')}</MenuItem>
                         </Select>
                     </FormControl>
                 </Stack>
@@ -123,14 +125,14 @@ function OrderManagement(){
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableCell sx={{width: '7%'}}>Order ID</TableCell>
-                                <TableCell sx={{width: '7%'}}>Status</TableCell>
-                                <TableCell sx={{width: '7%'}}>Amount</TableCell>
-                                <TableCell sx={{ width: '22.5%' }}>Event Name</TableCell>
-                                <TableCell sx={{ width: '22.5%' }}>Ticket</TableCell>
-                                <TableCell>Order At</TableCell>
-                                <TableCell>Event Start Time</TableCell>
-                                <TableCell sx={{width: '10%'}}>Action</TableCell>
+                                <TableCell sx={{ width: '7%' }}>{t('orderManagement.orderID')}</TableCell>
+                                <TableCell sx={{ width: '7%' }}>{t('orderManagement.status')}</TableCell>
+                                <TableCell sx={{ width: '7%' }}>{t('orderManagement.amount')}</TableCell>
+                                <TableCell sx={{ width: '22.5%' }}>{t('orderManagement.eventName')}</TableCell>
+                                <TableCell sx={{ width: '22.5%' }}>{t('orderManagement.ticket')}</TableCell>
+                                <TableCell>{t('orderManagement.orderAt')}</TableCell>
+                                <TableCell>{t('orderManagement.eventStartTime')}</TableCell>
+                                <TableCell sx={{ width: '10%' }}>{t('orderManagement.action')}</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -139,7 +141,7 @@ function OrderManagement(){
                                     <TableCell colSpan={8} align="center">
                                         <Stack sx={{ height: 300 }} alignItems={'center'} justifyContent={'center'} rowGap={2}>
                                             <ReceiptLongIcon sx={{ fontSize: 120, color: "#383838", backgroundColor: '#eaeaea', padding: 2, borderRadius: '50%' }} />
-                                            <Typography color={'gray'}>No orders to show. Use the filters above to search for specific orders or refine your results.</Typography>
+                                            <Typography color={'gray'}>{t('orderManagement.noOrders')}</Typography>
                                         </Stack>
                                     </TableCell>
                                 </TableRow>
@@ -147,10 +149,10 @@ function OrderManagement(){
                                 orders.map((order, index) => (
                                     <TableRow key={index}>
                                         <TableCell>{order.order_id}</TableCell>
-                                        <TableCell sx={{textTransform: 'uppercase'}}>{order.status}</TableCell>
+                                        <TableCell>{t(`orderManagement.order-status.${order.status.toLowerCase()}`)}</TableCell>
                                         <TableCell>{formatCurrency(order.amount / 100, order.currency)}</TableCell>
                                         <TableCell>{order.name}</TableCell>
-                                        <TableCell sx={{wordWrap: 'break-word'}}>
+                                        <TableCell sx={{ wordWrap: 'break-word' }}>
                                             {order.tickets.map(ticket => (
                                                 <Typography key={ticket.ticket_id} variant="body2">
                                                     {ticket.name} x{ticket.quantity}
@@ -161,9 +163,9 @@ function OrderManagement(){
                                         <TableCell>{dayjs(order.start_time).format("HH:mm DD/MM/YYYY")}</TableCell>
                                         <TableCell>
                                             <Button variant={'contained'} size={'small'}
-                                                onClick={() => getOrderAttendeeInfo(order.profile_id, index)}
+                                                    onClick={() => getOrderAttendeeInfo(order.profile_id, index)}
                                             >
-                                                View Order
+                                                {t('orderManagement.viewOrder')}
                                             </Button>
                                         </TableCell>
                                     </TableRow>
@@ -174,9 +176,9 @@ function OrderManagement(){
                 </TableContainer>
             </Stack>
             <Stack direction={'row'} alignItems={'center'} columnGap={.5}>
-                <HelpOutlineOutlinedIcon sx={{ fontSize: 16 }} /> Learn more about
+                <HelpOutlineOutlinedIcon sx={{ fontSize: 16 }} /> {t('orderManagement.learnMore')}
                 <Link to="help" style={{ display: 'flex', alignItems: 'center', columnGap: 3 }}>
-                    managing orders <LaunchOutlinedIcon sx={{ fontSize: 16 }} />
+                    {t('orderManagement.managingOrders')} <LaunchOutlinedIcon sx={{ fontSize: 16 }} />
                 </Link>
             </Stack>
         </Stack>

@@ -33,26 +33,28 @@ function AttendeeAccountManagement() {
     }, [selectedProfile]);
 
     useEffect(() => {
-        if(profiles.length === 0) {
+        if (profiles.length === 0) {
             accountAxiosWithToken.get(`/attendee/profiles?u=${getUserData('sub')}`)
-                .then(r => {
-                    setIsLoading(false)
-                    let data = r.data.records
-                    data.forEach(async profile => {
-                        if(profile[2]){
-                            if(profile[2].includes('googleusercontent')){
-                                setPpImageList(prev => [...prev, profile[2]])
-                            }
-                            else{
-                                const imgRef = ref(storage, profile[2])
-                                const img = await getDownloadURL(imgRef)
-                                setPpImageList(prev => [...prev, img])
+                .then(async r => {
+                    let data = r.data.records;
+                    const imagePromises = data.map(async profile => {
+                        if (profile[2]) {
+                            if (profile[2].includes('googleusercontent')) {
+                                return profile[2];
+                            } else {
+                                const imgRef = ref(storage, profile[2]);
+                                return await getDownloadURL(imgRef);
                             }
                         }
-                    })
-                    setProfiles(data)
+                        return null;
+                    });
+
+                    const images = await Promise.all(imagePromises);
+                    setPpImageList(images);
+                    setIsLoading(false);
+                    setProfiles(data);
                 })
-                .catch(err => console.log(err))
+                .catch(err => console.log(err));
         }
     }, []);
 

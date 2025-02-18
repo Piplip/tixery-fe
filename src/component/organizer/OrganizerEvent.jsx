@@ -37,6 +37,7 @@ import PropTypes from "prop-types";
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import {useTranslation} from "react-i18next";
 
 initializeApp(firebaseConfig);
 const storage = getStorage();
@@ -88,6 +89,7 @@ CustomEventWrapper.propTypes = {
 }
 
 function OrganizerEvent() {
+    const {t} = useTranslation();
     const [open, setOpen] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [events, setEvents] = useState(useLoaderData().data);
@@ -250,19 +252,19 @@ function OrganizerEvent() {
                     return (
                         <div key={index} className={'event-list__item'}>
                             <Stack direction={'row'} columnGap={2} alignItems={'center'}>
-                                <Stack sx={{textAlign: 'center'}}>
-                                    <p style={{fontSize: '.9rem', color: 'darkblue'}}>{item?.start_time && dayjs(item.start_time).format("MMM").toUpperCase()}</p>
-                                    <p style={{fontSize: '1.5rem'}}>{item?.start_time && dayjs(item.start_time).format("DD").toUpperCase()}</p>
+                                <Stack sx={{ textAlign: 'center' }}>
+                                    <p style={{ fontSize: '.9rem', color: 'darkblue' }}>{item?.start_time && dayjs(item.start_time).format("MMM").toUpperCase()}</p>
+                                    <p style={{ fontSize: '1.5rem' }}>{item?.start_time && dayjs(item.start_time).format("DD").toUpperCase()}</p>
                                 </Stack>
-                                <img style={{objectFit: 'cover'}}
-                                    src={item?.images && item.images[0] || "https://www.svgrepo.com/show/508699/landscape-placeholder.svg"}
-                                    alt={''}/>
+                                <img style={{ objectFit: 'cover' }}
+                                     src={item?.images && item.images[0] || "https://www.svgrepo.com/show/508699/landscape-placeholder.svg"}
+                                     alt={''} />
                                 <Stack justifyContent={'space-between'}>
-                                    <p style={{color: 'black'}}>{item?.name}</p>
+                                    <p style={{ color: 'black' }}>{item?.name}</p>
                                     <Stack marginTop={.5}>
-                                        <Typography variant={'body2'} color={'gray'} style={{textTransform: 'capitalize'}}>
-                                            {item?.is_recurring ? 'Recurring'
-                                                : item?.location && item.location.locationType} event</Typography>
+                                        <Typography variant={'body2'} color={'gray'} style={{ textTransform: 'capitalize' }}>
+                                            {item?.is_recurring ? t('event.recurring')
+                                                : item.location.locationType === 'venue' ? t('event.venue') : t('event.online')}</Typography>
                                         <Typography variant={'body2'} color={'gray'}>
                                             {item?.start_date && dayjs(item.start_date).format('dddd, MMMM D, YYYY [at] HH:mm [GMT]Z')}
                                         </Typography>
@@ -280,30 +282,31 @@ function OrganizerEvent() {
                                         />
                                     </>
                                     :
-                                    'No tickets available'
+                                    t('event.noTickets')
                                 }
                             </Stack>
                             <p>
                                 {item?.currency && item?.gross ? formatCurrency(item.gross / 100, item.currency) : "---"}
                             </p>
-                            <p style={{textTransform: 'uppercase'}}>{item?.status}</p>
+                            <p style={{ textTransform: 'uppercase' }}>{t(`event.status.${item?.status}`)}</p>
                             <CustomMenu
-                                options={type === 'past' ? ['View', 'Delete']
-                                    : ['Promote on Tixery', 'View', ...(item?.location.locationType === 'online' ? ['View Online Page'] : []), 'Edit', 'Delete']}
+                                options={type === 'past' ? [t('event.view'), t('event.delete')]
+                                    : [t('event.promote'), t('event.view'), ...(item?.location.locationType === 'online' ? [t('event.viewOnline')] : []), t('event.edit'), t('event.delete')]}
                                 handlers={
                                     type === 'past' ?
                                         [() => window.open(`../../events/${item.event_id}`, '_blank'), () => handlePreDelete(item.event_id)]
                                         :
                                         [null, () => window.open(`../../events/${item.event_id}`, '_blank'),
                                             ...(item?.location.locationType === 'online' ? [() => window.open(`/online/${item.event_id}`, '_blank')] : []),
-                                            () => {navigate(`edit/${item.event_id}`)}, () => handlePreDelete(item.event_id)]
+                                            () => { navigate(`edit/${item.event_id}`) }, () => handlePreDelete(item.event_id)]
                                 }
                             />
                         </div>
-                    )})
+                    )
+                })
                 :
                 <div className={'no-event'}>
-                    <p>No events found</p>
+                    <p>{t('event.noEventsFound')}</p>
                 </div>
         )
     }
@@ -348,11 +351,11 @@ function OrganizerEvent() {
     return (
         <div className="event-list">
             <Snackbar
-                anchorOrigin={{vertical: 'top', horizontal: 'right'}}
-                open={alert !== ""} sx={{marginTop: '3rem'}}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                open={alert !== ""} sx={{ marginTop: '3rem' }}
                 autoHideDuration={5000} onClose={() => setAlert("")}
             >
-                <Alert severity={"success"} variant="filled" sx={{ width: '100%'}}>
+                <Alert severity={"success"} variant="filled" sx={{ width: '100%' }}>
                     {alert}
                 </Alert>
             </Snackbar>
@@ -360,58 +363,58 @@ function OrganizerEvent() {
                 <ModalDialog variant="outlined" role="alertdialog">
                     <DialogTitle>
                         <ErrorOutlineRoundedIcon />
-                        Confirmation
+                        {t('modal.confirmation')}
                     </DialogTitle>
                     <Divider />
                     <DialogContent>
-                        Are you sure you want to delete this event? This action cannot be undone.
+                        {t('modal.deleteConfirmation')}
                     </DialogContent>
                     <DialogActions>
                         <Button variant="solid" color="danger" onClick={handleDelete}>
-                            Delete
+                            {t('modal.delete')}
                         </Button>
                         <Button variant="plain" color="neutral" onClick={() => setOpenModal(false)}>
-                            Cancel
+                            {t('modal.cancel')}
                         </Button>
                     </DialogActions>
                 </ModalDialog>
             </Modal>
             <Typography className={'title'}>
-                Events
+                {t('eventList.title')}
             </Typography>
             <div className="event-list__header">
-                <Stack direction={'row'} alignItems={'center'} columnGap={4}>
-                    <OutlinedInput placeholder={"Search events"} size={"small"} sx={{minWidth: '20rem'}}
+                <Stack direction={'row'} alignItems={'center'} columnGap={3}>
+                    <OutlinedInput placeholder={t('eventList.searchEvents')} size={"small"} sx={{ minWidth: '20rem' }}
                                    value={filters.keyword} onChange={filterEventsByName}
                                    endAdornment={
                                        <InputAdornment position="end">
                                            <IconButton>
-                                               <SearchIcon/>
+                                               <SearchIcon />
                                            </IconButton>
                                        </InputAdornment>
                                    }
                     />
                     <RadioGroup
-                        style={{display: 'flex', flexDirection: 'row', columnGap: '1rem'}}
+                        style={{ display: 'flex', flexDirection: 'row', columnGap: '1rem' }}
                         value={view}
                         onChange={(e) => setView(e.target.value)}
                     >
-                        <FormControlLabel value="list" control={<Radio sx={{marginRight: 1}}/>} label="List view" />
-                        <FormControlLabel value="calendar" control={<Radio sx={{marginRight: 1}}/>} label="Calendar view" />
+                        <FormControlLabel value="list" control={<Radio sx={{ marginRight: 1 }} />} label={t('eventList.listView')} />
+                        <FormControlLabel value="calendar" control={<Radio sx={{ marginRight: 1 }} />} label={t('eventList.calendarView')} />
                     </RadioGroup>
                     <div className="event-list__filters">
                         <Select defaultValue="all" onChange={(_, val) => handleTypeChange(val, "status")}>
-                            <Option value="draft">Draft</Option>
-                            <Option value="scheduled">Upcoming events</Option>
-                            <Option value="published">Published events</Option>
-                            <Option value="past">Past events</Option>
-                            <Option value="all">All events</Option>
+                            <Option value="draft">{t('eventList.draft')}</Option>
+                            <Option value="scheduled">{t('eventList.upcomingEvents')}</Option>
+                            <Option value="published">{t('eventList.publishedEvents')}</Option>
+                            <Option value="past">{t('eventList.pastEvents')}</Option>
+                            <Option value="all">{t('eventList.allEvents')}</Option>
                         </Select>
                         <Select value={filters.profile} onChange={(_, val) => handleTypeChange(val, "profile")}>
-                            <Option value="all">All organizers</Option>
+                            <Option value="all">{t('eventList.allOrganizers')}</Option>
                             {profiles && profiles.map((profile, index) => {
                                 return (
-                                    <Option value={profile[0]} key={index} sx={{padding: '.5rem 1rem'}}>
+                                    <Option value={profile[0]} key={index} sx={{ padding: '.5rem 1rem' }}>
                                         <Stack direction={'row'} columnGap={1} alignItems={'center'}>
                                             <Avatar src={profile[2]} />
                                             {profile[1]}
@@ -420,32 +423,32 @@ function OrganizerEvent() {
                                 )
                             })}
                         </Select>
-                        <FormControlLabel control={<Checkbox checked={showPastEvents} onChange={() => setShowPastEvents(prev => !prev)}/>}
-                                          label="Past events" labelPlacement={'start'}/>
+                        <FormControlLabel control={<Checkbox checked={showPastEvents} onChange={() => setShowPastEvents(prev => !prev)} />}
+                                          label={t('eventList.showPastEvents')} labelPlacement={'start'} />
                     </div>
                 </Stack>
                 <button className="event-list__create-button" onClick={() => setOpen(true)}>
-                    Create Event
+                    {t('eventList.createEvent')}
                 </button>
             </div>
             {view === 'list' ? (
                 <>
                     <Stack className={'event-list__list'}>
                         <div>
-                            <p>Event</p>
-                            <p>Sold</p>
-                            <p>Gross</p>
-                            <p>Status</p>
+                            <p>{t('eventList.event')}</p>
+                            <p>{t('eventList.sold')}</p>
+                            <p>{t('eventList.gross')}</p>
+                            <p>{t('eventList.status')}</p>
                         </div>
-                        <RenderEvents data={events}/>
+                        <RenderEvents data={events} />
                     </Stack>
                     {showPastEvents &&
                         <>
-                            <div className={'horizontal-text-line'} style={{marginBottom: 2}}>
-                                <p>Past events</p>
+                            <div className={'horizontal-text-line'} style={{ marginBottom: 2 }}>
+                                <p>{t('eventList.pastEvents')}</p>
                             </div>
                             <Stack className={'event-list__list'}>
-                                <RenderEvents data={pastEvents} type={'past'}/>
+                                <RenderEvents data={pastEvents} type={'past'} />
                             </Stack>
                         </>
                     }
@@ -471,13 +474,13 @@ function OrganizerEvent() {
             {(events.length > 0 || pastEvents.length > 0) &&
                 <div className="event-list__footer">
                     <a href="#" className="event-list__export-link">
-                        CSV Export
+                        {t('eventList.csvExport')}
                     </a>
                 </div>
             }
             <Dialog onClose={() => setOpen(false)} open={open} maxWidth={"md"}>
-                <DialogTitle sx={{marginTop: 2, fontSize: '1.75rem', padding: '.25rem 1.5rem 0', textAlign: 'center'}}>
-                    CREATE NEW EVENT
+                <DialogTitle sx={{ marginTop: 2, fontSize: '1.75rem', padding: '.25rem 1.5rem 0', textAlign: 'center' }}>
+                    {t('eventList.createNewEvent')}
                 </DialogTitle>
                 <IconButton
                     onClick={() => setOpen(false)}
@@ -488,9 +491,9 @@ function OrganizerEvent() {
                         color: (theme) => theme.palette.grey[500],
                     }}
                 >
-                    <CloseIcon/>
+                    <CloseIcon />
                 </IconButton>
-                <DialogContent sx={{padding: '1.5rem'}}>
+                <DialogContent sx={{ padding: '1.5rem' }}>
                     <CreateEventMenu />
                 </DialogContent>
             </Dialog>

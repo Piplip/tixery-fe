@@ -33,7 +33,7 @@ function CustomMenu({options, handlers}){
                     paper: {
                         style: {
                             maxHeight: ITEM_HEIGHT * 5,
-                            width: '20ch',
+                            width: '24ch',
                         },
                     },
                 }}

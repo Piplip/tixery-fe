@@ -18,6 +18,8 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import {accountAxiosWithToken} from "../../config/axiosConfig.js";
+import PropTypes from "prop-types";
+import {useTranslation} from "react-i18next";
 
 const checkboxStyle = {
     sx: {
@@ -28,9 +30,9 @@ const checkboxStyle = {
     }
 }
 
-const CustomCheckbox = () => {
+const CustomCheckbox = ({check}) => {
     return (
-        <Checkbox disabled
+        <Checkbox defaultChecked={check || false} disabled
             icon={<CircleOutlinedIcon />}
             checkedIcon={<CheckCircleIcon />}
             {...checkboxStyle}
@@ -38,10 +40,15 @@ const CustomCheckbox = () => {
     )
 }
 
+CustomCheckbox.propTypes = {
+    check: PropTypes.bool
+}
+
 initializeApp(firebaseConfig);
 const storage = getStorage()
 
 function OrganizerHome(){
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [profiles, setProfiles] = useState(useLoaderData().data.records)
     const [selectProfile, setSelectProfile] = useState(profiles.findIndex(profile => profile[0] == getUserData('profileID')))
@@ -99,21 +106,21 @@ function OrganizerHome(){
     return (
         <div className={'organizer-home-container'}>
             <Dialog open={open} onClose={onClose}>
-                <Stack sx={{p: 1, width: '30rem'}}>
+                <Stack sx={{ p: 1, width: '30rem' }}>
                     <DialogTitle>
-                        SWITCH PROFILE ?
+                        {t('switch_profile')}
                     </DialogTitle>
                     <DialogContent>
                         <DialogContentText id="alert-dialog-description">
-                            Are you sure you want to switch to this profile?
+                            {t('switch_profile_confirmation')}
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={onClose}>
-                            No, I&#39;ll stay
+                            {t('no_stay')}
                         </Button>
                         <Button onClick={handleSwitchProfile} variant="contained" color="primary">
-                            Yes, switch to {profiles[selectProfile][1]}
+                            {t('yes_switch', { profileName: profiles[selectProfile][1] })}
                         </Button>
                     </DialogActions>
                 </Stack>
@@ -121,42 +128,40 @@ function OrganizerHome(){
             <Stack direction={'row'} columnGap={'4rem'}>
                 <Stack rowGap={3}>
                     <Typography variant={'h2'} fontWeight={'bold'}>
-                        Hi there, {getUserData('profileName')}
+                        {t('hi_there', { profileName: getUserData('profileName') })}
                     </Typography>
                     <CreateEventMenu />
                     <Stack rowGap={1} className={'checklist-wrapper'}>
-                        <Typography variant={'h4'} fontWeight={'bold'}>Your checklist</Typography>
+                        <Typography variant={'h4'} fontWeight={'bold'}>{t('your_checklist')}</Typography>
                         <Typography variant={'body1'}>
-                            We make it easy to plan successful events. Here&#39;s how to start!
+                            {t('checklist_intro')}
                         </Typography>
                         <Stack rowGap={1}>
                             <Stack direction={'row'} justifyContent={'space-between'} className={'checklist-steps'}>
                                 <Stack direction={'row'} columnGap={1} alignItems={'center'}>
-                                    <CustomCheckbox />
+                                    <CustomCheckbox check={profiles[selectProfile][4] > 0} />
                                     <Stack>
-                                        <p>Create event</p>
-                                        <p>Publish an event to reach millions of people in
-                                            Tixery</p>
+                                        <p>{t('create_event')}</p>
+                                        <p>{t('publish_event')}</p>
                                     </Stack>
                                 </Stack>
                                 <Stack direction={'row'} alignItems={'center'} columnGap={1} className={'check-list-item-start'}>
-                                    <AutoAwesomeIcon/>
-                                    <p>Start here</p>
+                                    <AutoAwesomeIcon />
+                                    <p>{t('start_here')}</p>
                                 </Stack>
                             </Stack>
                             <div className={'checklist-steps'}>
-                                <CustomCheckbox />
+                                <CustomCheckbox check={profiles.length > 0} />
                                 <Stack onClick={() => navigate(`profile/info/${getUserData('profileID')}`)}>
-                                    <p>Set up your organizer profile</p>
-                                    <p>Highlight your brand by adding your organizer a name,
-                                        logo and bio</p>
+                                    <p>{t('set_up_profile')}</p>
+                                    <p>{t('highlight_brand')}</p>
                                 </Stack>
                             </div>
                             <div className={'checklist-steps'}>
                                 <CustomCheckbox />
                                 <Stack>
-                                    <p>Add your bank account</p>
-                                    <p>Get paid for futuring ticket sales by adding your bank details</p>
+                                    <p>{t('add_bank_account')}</p>
+                                    <p>{t('get_paid')}</p>
                                 </Stack>
                             </div>
                         </Stack>
@@ -168,55 +173,57 @@ function OrganizerHome(){
                             <Stack direction={'row'} alignItems={'center'} columnGap={1}>
                                 <Typography variant={'h5'}>{profiles[selectProfile][1]}</Typography>
                                 {profiles[selectProfile][0] == getUserData('profileID') &&
-                                    <div className={'default-profile-banner'}>Default</div>
+                                    <div className={'default-profile-banner'}>
+                                        {t('default')}
+                                    </div>
                                 }
                             </Stack>
                             <Stack direction={'row'} columnGap={3}>
                                 <Link to={`/o/${profiles[selectProfile][3] ? profiles[selectProfile][3] : profiles[selectProfile][0]} `} target={'_blank'}>
-                                    <p className={'link'}>View</p>
+                                    <p className={'link'}>{t('view')}</p>
                                 </Link>
                                 <Link to={`profile/info/${profiles[selectProfile][0]}`} target={'_blank'}>
-                                    <p className={'link'}>Edit</p>
+                                    <p className={'link'}>{t('edit')}</p>
                                 </Link>
-                                <Tooltip title={'Click to copy'}>
+                                <Tooltip title={t('click_to_copy')}>
                                     <p className={'link'}
                                        onClick={handleCopyProfileURL}
-                                    >Copy Profile URL</p>
+                                    >{t('copy_profile_url')}</p>
                                 </Tooltip>
                             </Stack>
                             <Stack direction={'row'} columnGap={4}>
                                 <Stack>
                                     <Typography variant={'h6'}>{profiles[selectProfile][4]}</Typography>
-                                    <p>Total events</p>
+                                    <p>{t('total_events')}</p>
                                 </Stack>
                                 <Stack>
                                     <Typography variant={'h6'}>{transformNumber(profiles[selectProfile][5])}</Typography>
-                                    <p>Total followers</p>
+                                    <p>{t('total_followers')}</p>
                                 </Stack>
                             </Stack>
                         </Stack>
-                        <hr style={{marginBlock: '1rem'}}/>
-                        <div style={{position: "relative"}}>
+                        <hr style={{ marginBlock: '1rem' }} />
+                        <div style={{ position: "relative" }}>
                             <div className={'organizer-setup-profile-cta__profile-select'}
                                  onClick={() => setClicked(prev => !prev)}
                             >
                                 <Stack direction={'row'} columnGap={1} alignItems={'center'}>
-                                    <Avatar src={profiles[selectProfile][2]} sx={{width: 30, height: 30}}/>
+                                    <Avatar src={profiles[selectProfile][2]} sx={{ width: 30, height: 30 }} />
                                     <p>{profiles[selectProfile][1]}</p>
                                 </Stack>
                                 <KeyboardArrowDownIcon />
                             </div>
-                            <Stack style={{position: 'absolute'}} className={'organizer-setup-profile-cta__profile-select-dropdown'}>
+                            <Stack style={{ position: 'absolute' }} className={'organizer-setup-profile-cta__profile-select-dropdown'}>
                                 {profiles.map((profile, index) => (
                                     index !== selectProfile && clicked &&
                                     <Stack key={index} className={'organizer-setup-profile-cta__profile-select__item'} direction={'row'}
-                                        onClick={() => {
-                                            setSelectProfile(index)
-                                            setOpen(true)
-                                            setClicked(false)
-                                        }}
+                                           onClick={() => {
+                                               setSelectProfile(index)
+                                               setOpen(true)
+                                               setClicked(false)
+                                           }}
                                     >
-                                        <Avatar src={profile[2]} sx={{width: 30, height: 30}}/>
+                                        <Avatar src={profile[2]} sx={{ width: 30, height: 30 }} />
                                         <p>{profile[1]}</p>
                                     </Stack>
                                 ))}
@@ -227,12 +234,12 @@ function OrganizerHome(){
                     <Link to={'u'}>
                         <Stack className={'organizer-setup-profile-cta'} rowGap={1}>
                             <Typography variant={'h6'} fontWeight={'bold'}>
-                                Set up your organizer profile
+                                {t('set_up_organizer_profile')}
                             </Typography>
                             <Typography variant={'body2'}>
-                                A complete profile can increase discoverability, highlight your brand and trust among attendees
+                                {t('complete_profile')}
                             </Typography>
-                            <p className={'link'}>Set up your profile →</p>
+                            <p className={'link'}>{t('set_up_profile_link')}</p>
                         </Stack>
                     </Link>
                 }

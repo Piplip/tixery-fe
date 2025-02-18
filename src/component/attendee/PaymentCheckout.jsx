@@ -9,11 +9,11 @@ import {
 } from "@mui/material";
 import {getUserData} from "../../common/Utilities.js";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import GooglePayIcon from "../../assets/google-pay.png"
-import StripeIcon from "../../assets/stripe.png"
-import CreditCardIcon from "../../assets/credit-card.png"
+import GooglePayIcon from "../../../public/assets/google-pay.png"
+import StripeIcon from "../../../public/assets/stripe.png"
+import CreditCardIcon from "../../../public/assets/credit-card.png"
 import '../../styles/payment-checkout-styles.css'
-import Logo from '../../assets/logo.svg'
+import Logo from '../../../public/assets/logo.svg'
 import {useState} from "react";
 import {accountAxiosWithToken, eventAxiosWithToken} from "../../config/axiosConfig.js";
 import PropTypes from "prop-types";

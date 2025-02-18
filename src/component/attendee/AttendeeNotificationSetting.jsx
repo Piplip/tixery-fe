@@ -41,12 +41,20 @@ function AttendeeNotificationSetting(){
             accountAxiosWithToken.get(`/notification/preferences?pid=${pid}`)
                 .then(r => {
                     console.log(r.data)
-                    setPreferences(prev => ({...prev, attending: {
+                    setPreferences(prev => ({
+                        ...prev,
+                        attending: {
                             feature_announcement: r.data.feature_announcement,
                             additional_info: r.data.additional_info,
                             organizer_announces: r.data.organizer_announces,
                             event_on_sales: r.data.event_on_sales,
                             liked_events: r.data.liked_events,
+                        },
+                        organizing: {
+                            feature_announcement: r.data.feature_announcement,
+                            event_sales_recap: r.data.event_sales_recap,
+                            important_reminders: r.data.important_reminders,
+                            order_confirmations: r.data.order_confirmations,
                         }
                     }))
                 })

@@ -171,6 +171,27 @@
     color: #2464e0;
     border-color: #2464e0;
 }
+
+.suggest-summary-btn.loading{
+    cursor: not-allowed;
+    pointer-events: none;
+    animation: backgroundMoving 4s infinite alternate;
+    background: linear-gradient(90deg, #f6f0c7 0%, #f8dbff 100%);
+    background-size: 400% 400%;
+}
+
+@keyframes backgroundMoving {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
 .create-events-main__continue-btn {
     position: fixed;
     bottom: 1rem;

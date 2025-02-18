@@ -24,7 +24,37 @@
     padding: 0.5rem;
     transition: background-color 0.15s ease-out;
 }
-.user-sub-nav div:hover{
+.user-sub-nav div:not(.language-select):hover{
     background-color: #ffa8a8;
     cursor: pointer;
+}
+.language-select-wrapper{
+    position: relative;
+}
+.language-select{
+    position: absolute;
+    top: 0;
+    left: -80%;
+    width: 80%;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    display: none;
+}
+.language-select-wrapper:hover .language-select{
+    display: block;
+}
+.language-select:hover{
+    display: block;
+}
+.language-select p{
+    padding: 0.5rem;
+    transition: all 0.1s ease-out;
+}
+.language-select p:hover{;
+    cursor: pointer;
+    background-color: rgba(239, 239, 239, 0.35);
+}
+.language-select p.selected{
+    border-left: 8px solid #283b50;
+    border-radius: .25rem;
 }

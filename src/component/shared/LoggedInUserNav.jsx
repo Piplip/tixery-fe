@@ -7,13 +7,17 @@ import {checkLoggedIn, getUserData, hasRole, logout} from "../../common/Utilitie
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
+import {Languages} from "../../common/Data.js";
+import {useTranslation} from "react-i18next";
 
 initializeApp(firebaseConfig);
 const storage = getStorage()
 
 function LoggedInUserNav(){
     const [ppImage, setPpImage] = useState(null)
-    const attendeeOptions = [
+    const [fullName] = useState(getUserData('profileName'))
+
+    const links = [
         { name: 'Browse Events', link: '/events', roles: ['attendee'] },
         { name: 'Manage my events', link: '/organizer/events', roles: ['host'] },
         { name: 'Tickets', link: `/u/${getUserData('profileID')}`, roles: ['attendee'] },
@@ -23,7 +27,8 @@ function LoggedInUserNav(){
         { name: 'Account Settings', link: '/account', public: true},
         { name: 'Profile', link: '/organizer/u', roles: ['host']},
     ];
-    const [fullName] = useState(getUserData('profileName'))
+
+    const {t, i18n} = useTranslation()
 
     useEffect(() => {
         if(checkLoggedIn()){
@@ -54,7 +59,7 @@ function LoggedInUserNav(){
                 <KeyboardArrowDownIcon />
             </Stack>
             <Stack className={'user-sub-nav'} rowGap={1}>
-                {attendeeOptions.map((item, index) => {
+                {links.map((item, index) => {
                     const cond = item.roles instanceof Array ? hasRole(item.roles) : []
                     if(cond || item.public){
                         return (
@@ -66,6 +71,21 @@ function LoggedInUserNav(){
                         )
                     }
                 })}
+                <div className={'language-select-wrapper'}>
+                    <p>Language</p>
+                    <div className={'language-select'}>
+                        {Languages.map((lang, index) => {
+                            return (
+                                <p key={index} onClick={() => {
+                                    i18n.changeLanguage(lang.code)
+                                    localStorage.setItem('locale', lang.code)
+                                }}
+                                    className={i18n.resolvedLanguage === lang.code ? 'selected' : ''}
+                                >{lang.label}</p>
+                            )
+                        })}
+                    </div>
+                </div>
                 <div onClick={logout}>
                     <p>Logout</p>
                 </div>
