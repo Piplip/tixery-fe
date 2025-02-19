@@ -6,6 +6,7 @@ import {Link} from "react-router-dom";
 import PropTypes from "prop-types";
 import debounce from "lodash.debounce";
 import {accountAxiosWithToken} from "../../config/axiosConfig.js";
+import {useTranslation} from "react-i18next";
 
 FollowOrganizer.propTypes = {
     profileImage: PropTypes.string,
@@ -16,6 +17,7 @@ FollowOrganizer.propTypes = {
 function FollowOrganizer({profileImage, organizerID, organizerName}) {
     const [isFollow, setIsFollow] = useState(sessionStorage.getItem('followed-organizer')?.includes(organizerID?.toString()));
     const [open, setOpen] = useState(false);
+    const {t} = useTranslation()
 
     useEffect(() => {
         setIsFollow(sessionStorage.getItem('followed-organizer')?.includes(organizerID));
@@ -59,18 +61,18 @@ function FollowOrganizer({profileImage, organizerID, organizerName}) {
             <Dialog onClose={handleClose} open={open} fullWidth={true} maxWidth={'sm'}>
                 <IconButton
                     onClick={handleClose}
-                    sx={{position: 'absolute', right: 8, top: 8,}}
+                    sx={{ position: 'absolute', right: 8, top: 8, }}
                 >
                     <CloseIcon />
                 </IconButton>
-                <DialogContent sx={{marginTop: 2, fontFamily: 'Nunito'}}>
+                <DialogContent sx={{ marginTop: 2, fontFamily: 'Nunito' }}>
                     <Stack alignItems={'center'} rowGap={3}>
-                        <Avatar src={profileImage} sx={{width: 100, height: 100}}/>
+                        <Avatar src={profileImage} sx={{ width: 100, height: 100 }} />
                         <Typography variant={'h4'} fontWeight={'bold'} fontFamily={'Nunito'}>
-                            Sign in to follow {organizerName}
+                            {t('followOrganizer.signInToFollow')} {organizerName}
                         </Typography>
                         <Typography variant={'body2'}>
-                            Stay up on the latest from your favorite event organizers
+                            {t('followOrganizer.stayUpToDate')}
                         </Typography>
                         <Link to={'/login'}>
                             <Button
@@ -82,17 +84,17 @@ function FollowOrganizer({profileImage, organizerID, organizerName}) {
                                     }
                                 }}
                             >
-                                Sign in
+                                {t('followOrganizer.signIn')}
                             </Button>
                         </Link>
                     </Stack>
                 </DialogContent>
             </Dialog>
             <button className={isFollow ? `followed-btn` : 'follow-btn'} onClick={handleFollow}>
-                {isFollow ? 'Following' : 'Follow'}
+                {isFollow ? t('followOrganizer.following') : t('followOrganizer.follow')}
             </button>
         </>
-    )
+    );
 }
 
 export default FollowOrganizer;

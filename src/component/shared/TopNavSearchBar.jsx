@@ -11,6 +11,7 @@ import {eventAxios, eventAxiosWithToken, locationIQAxios} from "../../config/axi
 import cookie from 'react-cookies'
 import {checkLoggedIn, getUserData, getUserLocation} from "../../common/Utilities.js";
 import ClearIcon from '@mui/icons-material/Clear';
+import {useTranslation} from "react-i18next";
 
 function TopNavSearchBar(){
     const location = useLocation()
@@ -30,6 +31,8 @@ function TopNavSearchBar(){
     const locationOptionRef = useRef(null);
     const searchBarRef = useRef(null);
     const hasDeleted = useRef(false)
+
+    const {t} = useTranslation()
 
     useEffect(() => {
         const handleOutsideClick = (event) => {
@@ -183,103 +186,103 @@ function TopNavSearchBar(){
     return (
         <>
             <Snackbar
-                anchorOrigin={{vertical: 'top', horizontal: 'right'}}
-                open={showSnackbar} sx={{marginTop: '3rem'}}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                open={showSnackbar} sx={{ marginTop: '3rem' }}
                 autoHideDuration={5000} onClose={() => setShowSnackbar(false)}
             >
-                <Alert severity={"error"} variant="filled" sx={{ width: '100%'}}>
-                    Unable to get your location. Please enable location services in your browser.
+                <Alert severity={"error"} variant="filled" sx={{ width: '100%' }}>
+                    {t('topNavSearchBar.locationServicesError')}
                 </Alert>
             </Snackbar>
             {!location.pathname.includes('organizer') &&
                 <Stack direction={'row'} className={'top-nav-input-container'} alignItems={'center'}>
-                    <div style={{position: 'relative', width: '50%'}} ref={recentSearchesRef}>
+                    <div style={{ position: 'relative', width: '50%' }} ref={recentSearchesRef}>
                         <SearchIcon />
-                        <input className={'top-nav-input-container__input'} type="text" placeholder="Search events"
+                        <input className={'top-nav-input-container__input'} type="text" placeholder={t('topNavSearchBar.searchEvents')}
                                value={searchValue} onChange={handleSearchChange}
                                onClick={handleSearchInpClick}
                         />
                         {showRecentSearches &&
                             (suggestion.length > 0 ?
-                                <Stack className={'drop-down-suggestion'}>
-                                    {suggestion.map((s, index) => (
-                                        <Stack key={index} flexDirection={'row'} className={'search-result-item'}
-                                            onClick={() => {
-                                                navigate(`events/search?q=${searchValue}&online=${locationValue.value === 'Online'}`)
-                                                setShowRecentSearches(false)
-                                            }}
-                                        >
-                                            <span>{s}</span>
-                                        </Stack>
-                                    ))}
-                                </Stack>
+                                    <Stack className={'drop-down-suggestion'}>
+                                        {suggestion.map((s, index) => (
+                                            <Stack key={index} flexDirection={'row'} className={'search-result-item'}
+                                                   onClick={() => {
+                                                       navigate(`events/search?q=${searchValue}&online=${locationValue.value === 'Online'}`)
+                                                       setShowRecentSearches(false)
+                                                   }}
+                                            >
+                                                <span>{s}</span>
+                                            </Stack>
+                                        ))}
+                                    </Stack>
                                     :
-                                (searchValue !== '' ?
-                                    <Stack className={'drop-down-suggestion'}>
-                                        <Stack flexDirection={'row'}>
-                                            <span>No results found</span>
-                                        </Stack>
-                                    </Stack>
-                                        :
-                                    <Stack className={'drop-down-suggestion'}>
-                                        {searchHistory.length > 0 ?
-                                            <>
-                                                <Stack flexDirection={'row'} className={'recent-search__header'}>
-                                                    <Typography variant={'h6'}>Recent searches</Typography>
+                                    (searchValue !== '' ?
+                                            <Stack className={'drop-down-suggestion'}>
+                                                <Stack flexDirection={'row'}>
+                                                    <span>{t('topNavSearchBar.noResultsFound')}</span>
                                                 </Stack>
-                                                <Stack rowGap={1.25} className={'search-history-wrapper'}>
-                                                    {searchHistory.map((s, index) => {
-                                                        return (
-                                                            <Stack key={index} direction={'row'} justifyContent={'space-between'} alignItems={'center'}
-                                                                   style={{width: '100%'}} className={'search-history-item'}
-                                                                   onClick={() => {
-                                                                       setSearchValue(s.search_term)
-                                                                       debounceSuggestion(s.search_term)
-                                                                       const searches = [...searchHistory]
-                                                                       searches.splice(index, 1)
-                                                                       searches.unshift(s)
-                                                                       setSearchHistory(searches)
-                                                                   }}
-                                                            >
-                                                                <Stack direction={'row'} columnGap={1.5} alignItems={'center'}>
-                                                                    <ScheduleIcon fontSize={'small'}/> <Typography fontSize={'medium'} variant={'caption'}>{s.search_term}</Typography>
-                                                                </Stack>
-                                                                <ClearIcon fontSize={'small'}
-                                                                           onClick={() => handleDeleteSearchHistory(s.search_id, index)}
-                                                                />
-                                                            </Stack>
-                                                        )
-                                                    })}
-                                                </Stack>
-                                            </>
+                                            </Stack>
                                             :
-                                            <Typography>
-                                                No recent searches
-                                            </Typography>
-                                        }
-                                    </Stack>
-                                )
+                                            <Stack className={'drop-down-suggestion'}>
+                                                {searchHistory.length > 0 ?
+                                                    <>
+                                                        <Stack flexDirection={'row'} className={'recent-search__header'}>
+                                                            <Typography variant={'h6'}>{t('topNavSearchBar.recentSearches')}</Typography>
+                                                        </Stack>
+                                                        <Stack rowGap={1.25} className={'search-history-wrapper'}>
+                                                            {searchHistory.map((s, index) => {
+                                                                return (
+                                                                    <Stack key={index} direction={'row'} justifyContent={'space-between'} alignItems={'center'}
+                                                                           style={{ width: '100%' }} className={'search-history-item'}
+                                                                           onClick={() => {
+                                                                               setSearchValue(s.search_term);
+                                                                               debounceSuggestion(s.search_term);
+                                                                               const searches = [...searchHistory];
+                                                                               searches.splice(index, 1);
+                                                                               searches.unshift(s);
+                                                                               setSearchHistory(searches);
+                                                                           }}
+                                                                    >
+                                                                        <Stack direction={'row'} columnGap={1.5} alignItems={'center'}>
+                                                                            <ScheduleIcon fontSize={'small'} /> <Typography fontSize={'medium'} variant={'caption'}>{s.search_term}</Typography>
+                                                                        </Stack>
+                                                                        <ClearIcon fontSize={'small'}
+                                                                                   onClick={() => handleDeleteSearchHistory(s.search_id, index)}
+                                                                        />
+                                                                    </Stack>
+                                                                )
+                                                            })}
+                                                        </Stack>
+                                                    </>
+                                                    :
+                                                    <Typography>
+                                                        {t('topNavSearchBar.noRecentSearches')}
+                                                    </Typography>
+                                                }
+                                            </Stack>
+                                    )
                             )
                         }
                     </div>
-                    <div style={{position: 'relative', width: '50%'}} ref={locationOptionRef}>
+                    <div style={{ position: 'relative', width: '50%' }} ref={locationOptionRef}>
                         <LocationOnIcon />
-                        <input className={'top-nav-input-container__input'} type="text" placeholder="Choose a location"
-                               value={locationValue?.value} onChange={(e) => setLocationValue({value: e.target.value})}
+                        <input className={'top-nav-input-container__input'} type="text" placeholder={t('topNavSearchBar.chooseLocation')}
+                               value={locationValue?.value} onChange={(e) => setLocationValue({ value: e.target.value })}
                                onClick={handleLocationInpClick}
                         />
                         {showLocationOption &&
                             <Stack className={'drop-down-suggestion'}>
                                 <Stack flexDirection={'row'} onClick={handleLocationClick}>
                                     <TurnSharpRightIcon />
-                                    <span>Use my current location</span>
+                                    <span>{t('topNavSearchBar.useCurrentLocation')}</span>
                                 </Stack>
                                 <Stack flexDirection={'row'} onClick={() => {
-                                    setLocationValue({value: 'Online'})
-                                    setShowLocationOption(false)
+                                    setLocationValue({ value: 'Online' });
+                                    setShowLocationOption(false);
                                 }}>
                                     <LiveTvIcon />
-                                    <span>Browse online events</span>
+                                    <span>{t('topNavSearchBar.browseOnlineEvents')}</span>
                                 </Stack>
                             </Stack>
                         }
@@ -290,7 +293,7 @@ function TopNavSearchBar(){
                 </Stack>
             }
         </>
-    )
+    );
 }
 
 export default TopNavSearchBar;

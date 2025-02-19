@@ -5,20 +5,23 @@ import {Alert, Button, Stack, TextField, Typography} from "@mui/material";
 import {accountAxiosWithToken} from "../../config/axiosConfig.js";
 import {getUserData} from "../../common/Utilities.js";
 import {useNavigate} from "react-router-dom";
+import {useTranslation} from "react-i18next";
 
 function AttendeeSetPassword(){
     const [success, setSuccess] = useState(false);
     const navigate = useNavigate()
+    const {t} = useTranslation()
+
+    const validationSchema = Yup.object({
+        password: Yup.string()
+            .min(8, t('attendeeSetPassword.passwordMinLength'))
+            .required(t('attendeeSetPassword.passwordRequired')),
+    });
 
     const formik = useFormik({
         initialValues: { password: '' },
-        validationSchema: Yup.object({
-            password: Yup.string()
-                .min(8, 'Password must be at least 8 characters')
-                .required('Password is required'),
-        }),
+        validationSchema: validationSchema,
         onSubmit: (values) => {
-            setIsLoading(true)
             accountAxiosWithToken.post(`/oauth2/set-password?u=${getUserData('sub')}`, values.password)
                 .then(() => {
                     setSuccess(true)
@@ -32,15 +35,15 @@ function AttendeeSetPassword(){
     return (
         <Stack spacing={2} width="100%" maxWidth="400px">
             <Typography variant="h5" fontWeight="bold">
-                Attendee Set Password
+                {t('attendeeSetPassword.setPassword')}
             </Typography>
 
-            {success && <Alert severity="success">Password set successfully!</Alert>}
+            {success && <Alert severity="success">{t('attendeeSetPassword.passwordSetSuccessfully')}</Alert>}
 
             <form onSubmit={formik.handleSubmit}>
                 <Stack spacing={2}>
                     <TextField
-                        fullWidth label="New Password" name="password" type="password" variant="outlined" required
+                        fullWidth label={t('attendeeSetPassword.newPassword')} name="password" type="password" variant="outlined" required
                         value={formik.values.password}
                         onChange={formik.handleChange} onBlur={formik.handleBlur}
                         error={formik.touched.password && Boolean(formik.errors.password)}
@@ -59,12 +62,12 @@ function AttendeeSetPassword(){
                         }}
                         fullWidth
                     >
-                        Set Password
+                        {t('attendeeSetPassword.setPassword')}
                     </Button>
                 </Stack>
             </form>
         </Stack>
-    )
+    );
 }
 
 export default AttendeeSetPassword

@@ -1,7 +1,7 @@
 import {useLocation, useNavigate} from "react-router-dom";
 import "../../styles/event-search-styles.css"
 import EventCard from "./EventCard.jsx";
-import {Box, Checkbox, FormControlLabel, Skeleton, Stack, Typography} from "@mui/material";
+import {Checkbox, FormControlLabel, Stack, Typography} from "@mui/material";
 import {Accordion, AccordionDetails, AccordionGroup, AccordionSummary} from "@mui/joy";
 import RadioGroup from '@mui/material/RadioGroup';
 import Chip from '@mui/material/Chip';
@@ -13,20 +13,22 @@ import PopularEvents from "./PopularEvents.jsx";
 import {eventAxios} from "../../config/axiosConfig.js";
 import {Categories} from "../../common/Data.js";
 import EventFetching from "./EventFetching.jsx";
-
-const categories = [
-    'Music', 'Food & Drink', 'Business', 'Community', 'Arts', 'Film & Media', 'Health', 'Sports & Fitness', 'Science & Tech', 'Travel & Outdoor',
-    'Charity & Causes', 'Spirituality', 'Family & Education', 'Seasonal & Holiday', 'Government', 'Fashion', 'Home & Lifestyle', 'Auto, Boat & Air',
-    'Hobbies', 'School Activities', 'Other'
-]
-const dates = [
-    {value: 'today', label: 'Today'}, {value: 'tomorrow', label: 'Tomorrow'}, {value: 'weekend', label: 'This Weekend'}, {value: 'week', label: 'This Week'},
-    {value: 'next-week', label: 'Next Week'}, {value: 'month', label: 'This Month'}, {value: 'next-month', label: 'Next Month'}
-];
+import {useTranslation} from "react-i18next";
 
 function EventSearch() {
     const location = useLocation()
     const navigate = useNavigate()
+    const {t} = useTranslation()
+
+    const dates = [
+        { value: 'today', label: t('eventSearch.today') },
+        { value: 'tomorrow', label: t('eventSearch.tomorrow') },
+        { value: 'weekend', label: t('eventSearch.thisWeekend') },
+        { value: 'week', label: t('eventSearch.thisWeek') },
+        { value: 'next-week', label: t('eventSearch.nextWeek') },
+        { value: 'month', label: t('eventSearch.thisMonth') },
+        { value: 'next-month', label: t('eventSearch.nextMonth') }
+    ];
 
     const [filters, setFilters] = useState({
         category: '',
@@ -36,6 +38,7 @@ function EventSearch() {
         followed: false,
         online: false
     });
+
     const [isLoading, setIsLoading] = useState(false);
     const [events, setEvents] = useState([]);
     const [viewMore, setViewMore] = useState({
@@ -141,11 +144,11 @@ function EventSearch() {
     return (
         <Stack className={'event-search'} direction={'row'}>
             <Stack className={'event-search__filter'} rowGap={1}>
-                <p>FILTERS</p>
+                <p>{t('eventSearch.filters')}</p>
                 <AccordionGroup sx={{ maxWidth: 375, maxHeight: 'fit-content' }}>
                     <Accordion defaultExpanded={true}>
                         <AccordionSummary>
-                            {filters.category === '' ? 'Category' : filters.category + ' categories'}
+                            {filters.category === '' ? t('eventSearch.category') : filters.category + t('eventSearch.categories')}
                         </AccordionSummary>
                         <AccordionDetails>
                             <Stack className={"event-search__options"}>
@@ -167,36 +170,36 @@ function EventSearch() {
                                         />
                                     ))
                                 )}
-                                <button className={'event-search-filter__view-more'} onClick={() => setViewMore(prev => ({...prev, categories: !viewMore.categories}))}>
-                                    View {viewMore.categories ? 'less' : 'more'}
+                                <button className={'event-search-filter__view-more'} onClick={() => setViewMore(prev => ({ ...prev, categories: !viewMore.categories }))}>
+                                    {t('eventSearch.view')} {viewMore.categories ? t('eventSearch.less') : t('eventSearch.more')}
                                 </button>
                             </Stack>
                         </AccordionDetails>
                     </Accordion>
                     <Accordion defaultExpanded={true}>
-                        <AccordionSummary>Date</AccordionSummary>
+                        <AccordionSummary>{t('eventSearch.date')}</AccordionSummary>
                         <AccordionDetails>
                             <Stack className={"event-search__options"}>
                                 <RadioGroup value={filters.date} onChange={(e) => handleFilterChange('date', e.target.value)}>
                                     {dates.map((date, index) => {
-                                        if(index < 4)
-                                            return <FormControlLabel value={date.value} control={<Radio />} label={date.label} key={index}/>
+                                        if (index < 4)
+                                            return <FormControlLabel value={date.value} control={<Radio />} label={date.label} key={index} />;
                                         else
-                                            return viewMore.date && (<FormControlLabel value={date.value} control={<Radio />} label={date.label} key={index}/>)
+                                            return viewMore.date && (<FormControlLabel value={date.value} control={<Radio />} label={date.label} key={index} />);
                                     })}
                                 </RadioGroup>
                                 <button className={'event-search-filter__view-more'}
-                                        onClick={() => setViewMore(prev => ({...prev, date: !viewMore.date}))}
-                                >View {viewMore.date ? 'less' : 'more'}</button>
+                                        onClick={() => setViewMore(prev => ({ ...prev, date: !viewMore.date }))}
+                                >{t('eventSearch.view')} {viewMore.date ? t('eventSearch.less') : t('eventSearch.more')}</button>
                             </Stack>
                         </AccordionDetails>
                     </Accordion>
                     <Accordion defaultExpanded={true}>
-                        <AccordionSummary>Price</AccordionSummary>
+                        <AccordionSummary>{t('eventSearch.price')}</AccordionSummary>
                         <AccordionDetails>
                             <RadioGroup value={filters.price} onChange={(e) => handleFilterChange('price', e.target.value)}>
-                                <FormControlLabel value={"Paid"} control={<Radio />} label={"Paid"}/>
-                                <FormControlLabel value={"Free"} control={<Radio />} label={"Free"}/>
+                                <FormControlLabel value={"Paid"} control={<Radio />} label={t('eventSearch.paid')} />
+                                <FormControlLabel value={"Free"} control={<Radio />} label={t('eventSearch.free')} />
                             </RadioGroup>
                         </AccordionDetails>
                     </Accordion>
@@ -204,25 +207,25 @@ function EventSearch() {
                 <Stack>
                     <Stack direction={'row'} alignItems={'center'}>
                         <Checkbox checked={filters.followed} onChange={() => handleCheckboxChange('followed')} />
-                        <p>Only show events from organizers I follow</p>
+                        <p>{t('eventSearch.followedOrganizers')}</p>
                     </Stack>
                     <Stack direction={'row'} alignItems={'center'}>
                         <Checkbox checked={filters.online} onChange={() => handleCheckboxChange('online')} />
-                        <p>Search for online events</p>
+                        <p>{t('eventSearch.onlineEvents')}</p>
                     </Stack>
                 </Stack>
             </Stack>
             <Stack className={'event-search__result'} rowGap={2}>
-                <p className={'event-search-result__tittle'}>Search result ({events?.length})</p>
+                <p className={'event-search-result__tittle'}>{t('eventSearch.searchResult')} ({events?.length})</p>
                 {(filters.category.length > 0 || filters.date || filters.price || filters.language) && (
                     <Stack direction={'row'}>
-                        <Stack direction={'row'} spacing={1} mb={2} alignItems={'center'} style={{textTransform: 'capitalize'}}>
-                            <Typography style={{textTransform: 'none'}} variant={'body1'}>Filters applied</Typography>
+                        <Stack direction={'row'} spacing={1} mb={2} alignItems={'center'} style={{ textTransform: 'capitalize' }}>
+                            <Typography style={{ textTransform: 'none' }} variant={'body1'}>{t('eventSearch.filtersApplied')}</Typography>
                             {filters.category !== '' && <Chip label={filters.category} onDelete={() => clearFilter("category")} />}
                             {filters["sub_category"] !== '' && <Chip label={filters["sub_category"]} onDelete={() => clearFilter("sub_category")} />}
                             {filters.date && <Chip label={filters.date} onDelete={() => clearFilter('date')} />}
                             {filters.price && <Chip label={filters.price} onDelete={() => clearFilter('price')} />}
-                            <button className={'clear-all-filter'} onClick={clearAllFilters}>Clear all</button>
+                            <button className={'clear-all-filter'} onClick={clearAllFilters}>{t('eventSearch.clearAll')}</button>
                         </Stack>
                     </Stack>
                 )}
@@ -231,24 +234,24 @@ function EventSearch() {
                     :
                     <>
                         {events.length === 0 && <div className={'event-search__no-event'}>
-                            Nothing matched your search
+                            {t('eventSearch.noMatches')}
                         </div>}
-                        <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }} sx={{width: '100%'}}>
+                        <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }} sx={{ width: '100%' }}>
                             {events.map((event, index) => (
                                 <Grid key={index} size={{ xs: 2, sm: 4, md: 4 }}>
-                                    <EventCard event={event} showAction={true} renderAddress={true} organizer={event.profileName} id={event.profile_id}/>
+                                    <EventCard event={event} showAction={true} renderAddress={true} organizer={event.profileName} id={event.profile_id} />
                                 </Grid>
                             ))}
                         </Grid>
                     </>
                 }
-                <Stack marginBlock={5} rowGap={5} sx={{width: '100%'}}>
+                <Stack marginBlock={5} rowGap={5} sx={{ width: '100%' }}>
                     <TrendingSearches />
                     <PopularEvents />
                 </Stack>
             </Stack>
         </Stack>
-    )
+    );
 }
 
 export default EventSearch

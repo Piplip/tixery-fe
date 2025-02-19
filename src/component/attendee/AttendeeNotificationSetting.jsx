@@ -4,28 +4,30 @@ import {getUserData} from "../../common/Utilities.js";
 import {accountAxiosWithToken} from "../../config/axiosConfig.js";
 import {CircularProgress} from "@mui/joy";
 import {useOutletContext} from "react-router-dom";
-
-const labels = {
-    attending: {
-        feature_announcement: "Updates about new Eventbrite features and announcements",
-        additional_info: "Requests for additional information on an event after you have attended",
-        organizer_announces: "When an organizer you follow announces a new event",
-        event_on_sales: "Reminders about event onsales",
-        liked_events: "Reminders about events I’ve liked",
-    },
-    organizing: {
-        feature_announcement: "Updates about new Eventbrite features and announcements",
-        event_sales_recap: "Event Sales Recap",
-        important_reminders: "Important reminders for my next event",
-        order_confirmations: "Order confirmations from my attendees",
-    },
-};
+import {useTranslation} from "react-i18next";
 
 function AttendeeNotificationSetting(){
     const {pid}  = useOutletContext()
     const [preferences, setPreferences] = useState({});
     const [open, setOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
+    const {t} = useTranslation()
+
+    const labels = {
+        attending: {
+            feature_announcement: t('attendeeNotificationSetting.attending.featureAnnouncement'),
+            additional_info: t('attendeeNotificationSetting.attending.additionalInfo'),
+            organizer_announces: t('attendeeNotificationSetting.attending.organizerAnnounces'),
+            event_on_sales: t('attendeeNotificationSetting.attending.eventOnSales'),
+            liked_events: t('attendeeNotificationSetting.attending.likedEvents'),
+        },
+        organizing: {
+            feature_announcement: t('attendeeNotificationSetting.organizing.featureAnnouncement'),
+            event_sales_recap: t('attendeeNotificationSetting.organizing.eventSalesRecap'),
+            important_reminders: t('attendeeNotificationSetting.organizing.importantReminders'),
+            order_confirmations: t('attendeeNotificationSetting.organizing.orderConfirmations'),
+        },
+    };
 
     const handleChange = (section, key) => {
         setPreferences((prev) => ({
@@ -75,13 +77,13 @@ function AttendeeNotificationSetting(){
 
     return (
         <Stack className="email-preferences" rowGap={1}>
-            <Typography variant="h5" fontWeight={'bold'} fontSize={'1.75rem'}>Email Preferences</Typography>
-            <hr style={{marginBlock: '.5rem 1rem'}}/>
+            <Typography variant="h5" fontWeight={'bold'} fontSize={'1.75rem'}>{t('attendeeNotificationSetting.emailPreferences')}</Typography>
+            <hr style={{ marginBlock: '.5rem 1rem' }} />
             {getUserData('role') === 'ATTENDEE' &&
                 <Stack rowGap={2}>
                     <Stack>
-                        <Typography variant="h6" fontWeight={'bold'} fontSize={'1.4rem'}>Attending Events</Typography>
-                        <Typography variant="body2" className="email-preferences__subtitle">News and updates about events created by event organizers</Typography>
+                        <Typography variant="h6" fontWeight={'bold'} fontSize={'1.4rem'}>{t('attendeeNotificationSetting.attendingEvents')}</Typography>
+                        <Typography variant="body2" className="email-preferences__subtitle">{t('attendeeNotificationSetting.attendingEventsDescription')}</Typography>
                     </Stack>
 
                     <Stack className="email-preferences__options">
@@ -99,8 +101,8 @@ function AttendeeNotificationSetting(){
             {getUserData('role') === 'HOST' &&
                 <Stack rowGap={2}>
                     <Stack>
-                        <Typography variant="h6" fontWeight={'bold'} fontSize={'1.4rem'}>Organizing Events</Typography>
-                        <Typography variant="body2" className="email-preferences__subtitle">Helpful updates and tips for organizing events on Eventbrite</Typography>
+                        <Typography variant="h6" fontWeight={'bold'} fontSize={'1.4rem'}>{t('attendeeNotificationSetting.organizingEvents')}</Typography>
+                        <Typography variant="body2" className="email-preferences__subtitle">{t('attendeeNotificationSetting.organizingEventsDescription')}</Typography>
                     </Stack>
 
                     <Stack>
@@ -115,10 +117,11 @@ function AttendeeNotificationSetting(){
                 </Stack>
             }
 
-            <Button variant="contained" className="email-preferences__save-btn" sx={{marginTop: 2, paddingBlock: 1}}
-                onClick={updatePreferences}
+            <Button variant="contained" className="email-preferences__save-btn" sx={{ marginTop: 2, paddingBlock: 1 }}
+                    onClick={updatePreferences}
+                    disabled={isLoading}
             >
-                {isLoading ? <CircularProgress size={'sm'} /> : 'Save Preferences'}
+                {isLoading ? <CircularProgress size={'sm'} /> : t('attendeeNotificationSetting.savePreferences')}
             </Button>
 
             <Snackbar
@@ -126,7 +129,7 @@ function AttendeeNotificationSetting(){
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                 autoHideDuration={5000}
                 onClose={() => setOpen(false)}
-                message="Preferences updated successfully"
+                message={t('attendeeNotificationSetting.preferencesUpdated')}
             />
         </Stack>
     );

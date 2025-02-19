@@ -15,6 +15,7 @@ import PropTypes from "prop-types";
 import "../../styles/forgot-password-dialog-styles.css"
 import accountAxios from "../../config/axiosConfig.js";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import {useTranslation} from "react-i18next";
 
 ForgotPasswordDialog.propTypes = {
     open: PropTypes.bool.isRequired,
@@ -29,6 +30,7 @@ function ForgotPasswordDialog ({ open, handleClose }) {
     const codeRefs = useRef([]);
     const [isLoading, setIsLoading] = useState(false);
     const [invalidCode, _] = useState(true);
+    const {t} = useTranslation()
 
     useEffect(() => {
         if (step === 2 && resendDisabled) {
@@ -54,17 +56,17 @@ function ForgotPasswordDialog ({ open, handleClose }) {
         },
         validationSchema: Yup.object({
             email: step === 1
-                ? Yup.string().email('Invalid email format').required('Email is required')
+                ? Yup.string().email(t('forgotPassword.invalidEmail')).required(t('forgotPassword.emailRequired'))
                 : null,
             password: step === 3
                 ? Yup.string()
-                    .min(6, 'Password must be at least 6 characters')
-                    .required('Password is required')
+                    .min(6, t('forgotPassword.passwordMinLength'))
+                    .required(t('forgotPassword.passwordRequired'))
                 : null,
             confirmPassword: step === 3
                 ? Yup.string()
-                    .oneOf([Yup.ref('password'), null], 'Passwords must match')
-                    .required('Confirm password is required')
+                    .oneOf([Yup.ref('password'), null], t('forgotPassword.passwordsMustMatch'))
+                    .required(t('forgotPassword.confirmPasswordRequired'))
                 : null,
         }),
         onSubmit: (values) => {
@@ -176,12 +178,12 @@ function ForgotPasswordDialog ({ open, handleClose }) {
                 <DialogContent>
                     {step === 1 && (
                         <Stack spacing={2}>
-                            <Typography variant="h6">Forgot Password</Typography>
+                            <Typography variant="h6">{t('forgotPassword.forgotPassword')}</Typography>
                             <TextField
                                 fullWidth
                                 id="email"
                                 name="email"
-                                label="Registered Email"
+                                label={t('forgotPassword.registeredEmail')}
                                 variant="outlined"
                                 value={formik.values.email}
                                 onChange={formik.handleChange}
@@ -194,7 +196,7 @@ function ForgotPasswordDialog ({ open, handleClose }) {
                     {step === 2 && (
                         <Stack spacing={2} alignItems="center">
                             <Typography variant="h6" textAlign={'center'}>
-                                A verification code has been sent to your email<br/>Please enter the code
+                                {t('forgotPassword.verificationSent')}
                             </Typography>
                             <Stack
                                 direction="row"
@@ -225,19 +227,19 @@ function ForgotPasswordDialog ({ open, handleClose }) {
                                 disabled={resendDisabled || isLoading}
                                 className="resend-btn"
                             >
-                                {resendDisabled ? `Resend Code in ${resendTimeout}s` : 'Resend Code'}
+                                {resendDisabled ? t('forgotPassword.resendCodeIn', {seconds: resendTimeout}) : t('forgotPassword.resendCode')}
                             </Button>
                         </Stack>
                     )}
 
                     {step === 3 && (
                         <Stack spacing={2}>
-                            <Typography variant="h6">Reset Password</Typography>
+                            <Typography variant="h6">{t('forgotPassword.resetPassword')}</Typography>
                             <TextField
                                 fullWidth
                                 id="password"
                                 name="password"
-                                label="New Password"
+                                label={t('forgotPassword.newPassword')}
                                 type="password"
                                 variant="outlined"
                                 value={formik.values.password}
@@ -249,7 +251,7 @@ function ForgotPasswordDialog ({ open, handleClose }) {
                                 fullWidth
                                 id="confirmPassword"
                                 name="confirmPassword"
-                                label="Confirm New Password"
+                                label={t('forgotPassword.confirmNewPassword')}
                                 type="password"
                                 variant="outlined"
                                 value={formik.values.confirmPassword}
@@ -277,10 +279,10 @@ function ForgotPasswordDialog ({ open, handleClose }) {
                                 />
                             </Box>
                             <Typography variant="h4" className="success-message">
-                                Password Reset Successfully!
+                                {t('forgotPassword.passwordResetSuccess')}
                             </Typography>
                             <Typography variant="body1" className="success-description">
-                                You can now use your new password to log in to your account.
+                                {t('forgotPassword.loginWithNewPassword')}
                             </Typography>
                         </Stack>
                     )}
@@ -289,26 +291,26 @@ function ForgotPasswordDialog ({ open, handleClose }) {
                 <DialogActions>
                     {step < 4 && (
                         <Button color="secondary"
-                            onClick={() => {
-                                resetState()
-                                handleClose()
-                            }}
+                                onClick={() => {
+                                    resetState()
+                                    handleClose()
+                                }}
                         >
-                            Cancel
+                            {t('forgotPassword.cancel')}
                         </Button>
                     )}
                     {step === 4 ? (
                         <Button color="primary"
-                            onClick={() => {
-                                resetState()
-                                handleClose()
-                            }}
+                                onClick={() => {
+                                    resetState()
+                                    handleClose()
+                                }}
                         >
-                            Close
+                            {t('forgotPassword.close')}
                         </Button>
                     ) : (
                         <Button type="submit" color="primary" disabled={step === 2 && invalidCode}>
-                            {step === 3 ? 'Reset Password' : 'Next'}
+                            {step === 3 ? t('forgotPassword.resetPassword') : t('forgotPassword.next')}
                         </Button>
                     )}
                 </DialogActions>

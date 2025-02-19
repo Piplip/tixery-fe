@@ -8,7 +8,6 @@ EventFetching.propTypes = {
 };
 
 function EventFetching({ rows, cols }) {
-    // Limit maximum rows to 3 and columns to 4
     const safeRows = Math.min(rows, 3);
     const safeCols = Math.min(cols, 4);
     const totalItems = safeRows * safeCols;
@@ -21,12 +20,12 @@ function EventFetching({ rows, cols }) {
                     xs={12 / safeCols}
                     sx={{
                         display: "flex",
-                        justifyContent: "center", // Center the fixed-width box within the grid cell
+                        justifyContent: "center",
                     }}
                 >
                     <Box
                         sx={{
-                            width: 300, // Fixed width so percentage values for Skeleton are computed properly
+                            width: 300,
                             borderRadius: "10px",
                             boxShadow: 2,
                             p: 2,

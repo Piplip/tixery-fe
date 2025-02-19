@@ -23,6 +23,7 @@ import CircleIcon from '@mui/icons-material/Circle';
 import dayjs from "dayjs";
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import CustomMenu from "../shared/CustomMenu.jsx";
+import {useTranslation} from "react-i18next";
 
 function OrganizerTicketAdmission(){
     const {data, setData, setHasUnsavedChanges} = useContext(EventContext)
@@ -32,6 +33,7 @@ function OrganizerTicketAdmission(){
     const handleAddMoreTicketChange = useCallback((event, isOpen) => {
         setOpen(isOpen)
     }, []);
+    const {t} = useTranslation()
 
     function handleEdit(index){
         setEditTicket(index)
@@ -65,52 +67,52 @@ function OrganizerTicketAdmission(){
                         const formData = new FormData(event.currentTarget);
                         const formJson = Object.fromEntries(formData.entries());
                         const capacity = formJson.capacity;
-                        setData({...data, capacity: capacity})
+                        setData({ ...data, capacity: capacity })
                         setOpenCapacity(false)
                     },
                 }}
             >
-                <DialogTitle>CHANGE EVENT CAPACITY</DialogTitle>
+                <DialogTitle>{t('ticketSection.changeEventCapacity')}</DialogTitle>
                 <DialogContent>
                     <Typography variant={'body2'}>
-                        Event capacity is the total number of tickets available for sale at your event. When you set an event capacity, your event will sell out as soon as you sell that number of total tickets. You can adjust your event capacity to prevent overselling.
+                        {t('ticketSection.eventCapacityDescription')}
                     </Typography>
-                    <TextField autoFocus required margin="dense" name="capacity" variant="outlined" value={data.capacity}
-                               label="Event capacity" fullWidth placeholder={'Maximum allow: 10000000000'}
+                    <TextField autoFocus required margin="dense" name="capacity" variant="outlined" value={data.capacity} sx={{marginTop: 3}}
+                               label={t('ticketSection.eventCapacityLabel')} fullWidth placeholder={t('ticketSection.maximumAllow')}
                                onChange={(e) => {
-                                      e.target.value = e.target.value.replace(/[^0-9]/g, '');
-                                      if (parseInt(e.target.value, 10) > 10000000000) {
-                                            e.target.value = 10000000000;
-                                      }
-                                        setData({...data, capacity: e.target.value})
+                                   e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                                   if (parseInt(e.target.value, 10) > 10000000000) {
+                                       e.target.value = 10000000000;
+                                   }
+                                   setData({ ...data, capacity: e.target.value })
                                }}
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button color={'error'} onClick={() => setOpenCapacity(false)}>Cancel</Button>
-                    <Button variant={'contained'} type="submit">Change</Button>
+                    <Button color={'error'} onClick={() => setOpenCapacity(false)}>{t('ticketSection.cancel')}</Button>
+                    <Button variant={'contained'} type="submit">{t('ticketSection.change')}</Button>
                 </DialogActions>
             </Dialog>
             <Dropdown onOpenChange={handleAddMoreTicketChange} open={open}>
                 <MenuButton className={'add-more-tickets'}>
-                    Add more tickets <ArrowDropDownIcon />
+                    {t('ticketSection.addMoreTickets')} <ArrowDropDownIcon />
                 </MenuButton>
                 <Menu>
                     <MenuItem onClick={() => {
                         setEditTicket(null)
                         handleTypeSelect('free')
                         setOpen(prev => !prev)
-                    }}>Free</MenuItem>
+                    }}>{t('ticket.free')}</MenuItem>
                     <MenuItem onClick={() => {
                         setEditTicket(null)
                         handleTypeSelect('paid')
                         setOpen(prev => !prev)
-                    }}>Paid</MenuItem>
+                    }}>{t('ticket.paid')}</MenuItem>
                     <MenuItem onClick={() => {
                         setEditTicket(null)
                         handleTypeSelect('donation')
                         setOpen(prev => !prev)
-                    }}>Donation</MenuItem>
+                    }}>{t('ticket.donation')}</MenuItem>
                 </Menu>
             </Dropdown>
             <div className="tickets-section__ticket-wrapper">
@@ -118,60 +120,60 @@ function OrganizerTicketAdmission(){
                     {data.tickets && data.tickets.map((ticket, index) => {
                         return (
                             <div className="tickets-section__ticket" key={index}>
-                                <DragHandleIcon className="tickets-section__ticket-drag-handle"/>
+                                <DragHandleIcon className="tickets-section__ticket-drag-handle" />
                                 <Stack className="tickets-section__ticket-details" rowGap={1}>
                                     <Stack className="tickets-section__ticket-title" direction={'row'} columnGap={1} alignItems={'center'}>
                                         <p>
                                             {ticket.ticketName}
                                         </p>
                                         {dayjs(ticket.startTime + " " + ticket.startDate, 'HH:mm DD/MM/YYYY').isBefore(dayjs()) ?
-                                            <Tooltip title="On Sale" placement={'top'}>
-                                                <CircleIcon sx={{color: '#77d927'}}/>
+                                            <Tooltip title={t('ticketSection.onSale')} placement={'top'}>
+                                                <CircleIcon sx={{ color: '#77d927' }} />
                                             </Tooltip>
                                             :
-                                            <CircleIcon sx={{color: 'gray'}}/>
+                                            <CircleIcon sx={{ color: 'gray' }} />
                                         }
                                     </Stack>
                                     <p className="tickets-section__ticket-dates">
                                         {
                                             dayjs(ticket.startTime + " " + ticket.startDate, 'HH:mm DD/MM/YYYY').isBefore(dayjs()) ?
-                                                'On Sale - Ends ' + dayjs(ticket.endDate, "DD/MM/YYYY").format("DD/MM/YYYY") + ' at '
+                                                t('ticketSection.onSaleEnds') + dayjs(ticket.endDate, "DD/MM/YYYY").format("DD/MM/YYYY") + t('ticketSection.at')
                                                 + dayjs(ticket.endTime, "HH:mm").format("HH:mm")
                                                 :
-                                                'Starts ' + ticket.startDate + ' at ' + ticket.startTime + ' - Ends ' + ticket.endDate + ' at ' + ticket.endTime
+                                                t('ticketSection.starts') + ticket.startDate + t('ticketSection.at') + ticket.startTime + t('ticketSection.ends') + ticket.endDate + t('ticketSection.at') + ticket.endTime
                                         }
                                     </p>
                                 </Stack>
-                                <p className="tickets-section__ticket-sold">Sold: 0 / {ticket.quantity || 'Unlimited'}</p>
-                                <p className="tickets-section__ticket-type">{ticket.ticketType}</p>
-                                <CustomMenu options={['Edit', 'Delete']}
-                                    handlers={[() => {
-                                        handleEdit(index)
-                                    }, () => {
-                                        handleDelete(index)
-                                    }]}
+                                <p className="tickets-section__ticket-sold">{t('ticketSection.sold')}: 0 / {ticket.quantity || t('ticketSection.unlimited')}</p>
+                                <p className="tickets-section__ticket-type">{t(`ticket.${ticket.ticketType.toLowerCase()}`)}</p>
+                                <CustomMenu options={[t('ticketSection.edit'), t('ticketSection.delete')]}
+                                            handlers={[() => {
+                                                handleEdit(index)
+                                            }, () => {
+                                                handleDelete(index)
+                                            }]}
                                 />
                             </div>
                         )
                     })}
                     <div className="tickets-section__ticket-capacity">
                         <Stack direction={'row'} columnGap={.5} alignItems={'center'}>
-                            Event capacity
-                            <Tooltip title={'Event capacity is the total number of tickets available for sale at your event. When you set an event capacity, your event will sell out as soon as you sell that number of total tickets. You can adjust your event capacity to prevent overselling.'}>
-                                <InfoOutlinedIcon className="tickets-section__info-icon"/>
+                            {t('ticketSection.eventCapacity')}
+                            <Tooltip title={t('ticketSection.eventCapacityTooltip')}>
+                                <InfoOutlinedIcon className="tickets-section__info-icon" />
                             </Tooltip>
                         </Stack>
                         <p className="tickets-section__capacity-count">
                             0 / {data.capacity}
                         </p>
                         <Button className="tickets-section__edit-capacity"
-                            onClick={() => setOpenCapacity(true)}
-                        >Edit capacity</Button>
+                                onClick={() => setOpenCapacity(true)}
+                        >{t('ticketSection.editCapacity')}</Button>
                     </div>
                 </Stack>
             </div>
         </Stack>
-    )
+    );
 }
 
 export default OrganizerTicketAdmission;

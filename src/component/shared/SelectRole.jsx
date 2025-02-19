@@ -7,10 +7,12 @@ import Vendor from "../../../public/assets/vendor-supplier.png"
 import {Link, useLocation, useNavigate} from "react-router-dom";
 import accountAxios from "../../config/axiosConfig.js";
 import {getCookie} from "../../common/Utilities.js";
+import {useTranslation} from "react-i18next";
 
 function SelectRole(){
     const navigate = useNavigate()
     const location = useLocation()
+    const { t } = useTranslation();
 
     function handleAttendeeSetUpRequest(){
         if(!location.search.includes('method=external')){
@@ -53,33 +55,33 @@ function SelectRole(){
     return (
         <div className={'select-role-container'}>
             <Link to={'/'} className={'select-role-container__logo'}>
-                <img src={Logo} alt={'logo'} width={'100px'}/>
+                <img src={Logo} alt={t('selectRole.logoAlt')} width={'100px'} />
             </Link>
             <Stack>
-                <p className={'select-role-title'}>Welcome to Tixery! 👋</p>
-                <p className={'select-role-description'}>Let&#39;s get started by selecting your interests</p>
+                <p className={'select-role-title'}>{t('selectRole.welcome')}</p>
+                <p className={'select-role-description'}>{t('selectRole.selectInterests')}</p>
             </Stack>
             <Stack direction={'row'} columnGap={'3rem'} className={'role-card-container'}>
                 <div className={'role-card'} onClick={handleOrganizerSetUp}>
-                    <img src={EventOrganizer} alt={'event-organizer'}/>
-                    <p>Organize an event</p>
-                    <button>Plan your best event ever</button>
+                    <img src={EventOrganizer} alt={t('selectRole.eventOrganizerAlt')} />
+                    <p>{t('selectRole.organizeEvent')}</p>
+                    <button>{t('selectRole.planBestEvent')}</button>
                 </div>
                 <div className={'role-card'} onClick={handleAttendeeSetUpRequest}>
-                    <img src={Attendee} alt={'event-attendee'}/>
-                    <p>Find an experience</p>
-                    <button>Tell us what you love</button>
+                    <img src={Attendee} alt={t('selectRole.eventAttendeeAlt')} />
+                    <p>{t('selectRole.findExperience')}</p>
+                    <button>{t('selectRole.tellUsWhatYouLove')}</button>
                 </div>
                 <Link to={'/vendor'}>
                     <div className={'role-card'}>
-                        <img src={Vendor} alt={'vendor supplier'}/>
-                        <p>Sell your services</p>
-                        <button>Make profit with us</button>
+                        <img src={Vendor} alt={t('selectRole.vendorSupplierAlt')} />
+                        <p>{t('selectRole.sellServices')}</p>
+                        <button>{t('selectRole.makeProfit')}</button>
                     </div>
                 </Link>
             </Stack>
         </div>
-    )
+    );
 }
 
 export default SelectRole

@@ -9,6 +9,7 @@ import {getDownloadURL, getStorage, ref} from "firebase/storage";
 import AttendeeProfileSettings from "../template/AttendeeProfileSettings.jsx";
 import AddIcon from '@mui/icons-material/Add';
 import {useLocation} from "react-router-dom";
+import {useTranslation} from "react-i18next";
 
 initializeApp(firebaseConfig);
 const storage = getStorage()
@@ -21,6 +22,7 @@ function AttendeeAccountManagement() {
     const [profileInfo, setProfileInfo] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [ppImageList, setPpImageList] = useState([]);
+    const {t} = useTranslation()
 
     useEffect(() => {
         if(profileInfo === null && selectedProfile !== null) {
@@ -62,7 +64,7 @@ function AttendeeAccountManagement() {
         <div className={'attendee-account-management'}>
             {step === 0 &&
                 <Stack rowGap={5} alignItems={'center'}>
-                    <Typography variant={'h3'}>Select profile</Typography>
+                    <Typography variant={'h3'}>{t('select-profile')}</Typography>
                     <Stack direction={'row'} columnGap={3} alignItems={'center'}>
                         {isLoading ?
                             <>

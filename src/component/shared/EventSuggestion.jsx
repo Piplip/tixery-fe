@@ -5,29 +5,30 @@ import {eventAxios} from "../../config/axiosConfig.js";
 import Grid from "@mui/material/Grid2";
 import EventCard from "./EventCard.jsx";
 import EventFetching from "./EventFetching.jsx";
+import {useTranslation} from "react-i18next";
 
 const fetchType = {
     cost: {
         path: '/events/cost',
-        title: ''
+        titleKey: 'eventSuggestion.costTitle'
     },
     online: {
         path: '/events/online',
-        title: 'Online events'
+        titleKey: 'eventSuggestion.onlineTitle'
     },
     time: {
         path: '/events/time',
-        title: 'Events '
+        titleKey: 'eventSuggestion.timeTitle'
     },
     category: {
         path: '/events/type',
-        title: ''
+        titleKey: 'eventSuggestion.categoryTitle'
     },
     self: {
-        title: 'Our magic algorithm think you might likes these events',
+        titleKey: 'eventSuggestion.selfTitle',
         path: '/get/suggested'
     }
-}
+};
 
 EventSuggestion.propTypes = {
     type: PropTypes.string,
@@ -39,6 +40,7 @@ EventSuggestion.propTypes = {
 function EventSuggestion({type, value, lat, lon}){
     const [events, setEvents] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const {t} = useTranslation()
 
     useEffect(() => {
         if(type) {
@@ -59,21 +61,21 @@ function EventSuggestion({type, value, lat, lon}){
         }
     }, [type, value]);
 
-    function renderTitle(){
-        if(type === 'time'){
-            if(value === 'today'){
-                return 'Today events'
+    function renderTitle() {
+        if (type === 'time') {
+            if (value === 'today') {
+                return t('eventSuggestion.todayEvents');
             } else {
-                return `Events this ${value}`
+                return t('eventSuggestion.eventsThis', { value: value });
             }
-        } else if(type === 'category'){
-            return `${value} events`
+        } else if (type === 'category') {
+            return t('eventSuggestion.categoryEvents', { value: value });
         }
-        else if(type === 'cost'){
-            return value === 0 ? 'Free events' : `Events under $${value}`
+        else if (type === 'cost') {
+            return value === 0 ? t('eventSuggestion.freeEvents') : t('eventSuggestion.eventsUnder', { value: value });
         }
-        else{
-            return fetchType[type]?.title
+        else {
+            return t(fetchType[type]?.titleKey);
         }
     }
 
@@ -81,34 +83,35 @@ function EventSuggestion({type, value, lat, lon}){
         <Stack rowGap={4.5}>
             {events.length !== 0 && <Typography fontSize={27.5} fontFamily={'Raleway'} fontWeight={'bold'}>{renderTitle()}</Typography>}
             {isLoading ?
-                <EventFetching rows={2} cols={4}/>
+                <EventFetching rows={2} cols={4} />
                 :
                 events.length !== 0 ?
-                        <>
-                            <Grid container spacing={3.25} columns={{xs: 16}}>
-                                {events.map((event, index) => (
-                                    <Grid item key={index} size={4}>
-                                        <EventCard event={event} showAction={true} renderAddress={true} organizer={event.profileName} id={event.profile_id}/>
-                                    </Grid>
-                                ))}
-                            </Grid>
-                            <Button sx={{background: 'transparent', color: 'blue', cursor: 'pointer', padding: '.5rem 1rem', border: '1px solid blue', width: '50%',
-                                alignSelf: 'center',
-                                '&:hover': {
-                                    background: '#3b51be',
-                                    color: 'white'
-                                }
-                            }}>
-                                See more
-                            </Button>
-                        </>
-                        :
-                        <Stack alignItems={'center'} paddingBlock={10} border={'2px solid gray'}>
-                            <Typography variant={'h5'}>No events found</Typography>
-                        </Stack>
+                    <>
+                        <Grid container spacing={3.25} columns={{ xs: 16 }}>
+                            {events.map((event, index) => (
+                                <Grid item key={index} size={4}>
+                                    <EventCard event={event} showAction={true} renderAddress={true} organizer={event.profileName} id={event.profile_id} />
+                                </Grid>
+                            ))}
+                        </Grid>
+                        <Button sx={{
+                            background: 'transparent', color: 'blue', cursor: 'pointer', padding: '.5rem 1rem', border: '1px solid blue', width: '50%',
+                            alignSelf: 'center',
+                            '&:hover': {
+                                background: '#3b51be',
+                                color: 'white'
+                            }
+                        }}>
+                            {t('eventSuggestion.seeMore')}
+                        </Button>
+                    </>
+                    :
+                    <Stack alignItems={'center'} paddingBlock={10} border={'2px solid gray'}>
+                        <Typography variant={'h5'}>{t('eventSuggestion.noEventsFound')}</Typography>
+                    </Stack>
             }
         </Stack>
-    )
+    );
 }
 
 export default EventSuggestion;

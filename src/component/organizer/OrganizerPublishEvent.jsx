@@ -14,12 +14,13 @@ import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import {EventContext} from "../../context.js";
 import dayjs from "dayjs";
-import {capitalizeFirstLetter, formatCurrency, getUserData} from "../../common/Utilities.js";
+import {formatCurrency, getUserData} from "../../common/Utilities.js";
 import {DatePicker, TimePicker} from "@mui/x-date-pickers";
 import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {getDownloadURL, getStorage, ref} from "firebase/storage";
 import {Categories} from "../../common/Data.js";
+import {useTranslation} from "react-i18next";
 
 const checkboxStyle = {
     sx: {
@@ -67,9 +68,11 @@ const EventType = [
     "Other"
 ]
 
+initializeApp(firebaseConfig);
+const storage = getStorage()
+
 function OrganizerPublishEvent(){
-    initializeApp(firebaseConfig);
-    const storage = getStorage()
+    const {t} = useTranslation()
     const {data, setData} = useContext(EventContext)
     const [eventImg, setEventImg] = useState(null)
 
@@ -79,6 +82,7 @@ function OrganizerPublishEvent(){
         data.category && Categories[data.category]
             ? Categories[data.category]
             : [];
+
     useEffect(() => {
         if(data.images && data.images[0] && eventImg === null){
             const imageRef = ref(storage, data.images[0])
@@ -94,20 +98,20 @@ function OrganizerPublishEvent(){
         <div className="event-publish">
             <div>
                 <h2 className="event-publish__heading">
-                    Your event is almost ready to publish
+                    {t('eventPublish.almostReady')}
                 </h2>
                 <p className="event-publish__subheading">
-                    Review your settings and let everyone find your event.
+                    {t('eventPublish.reviewSettings')}
                 </p>
 
                 <div className="event-publish__container">
-                    <Stack sx={{margin: '1rem 0 1rem 1rem'}}>
+                    <Stack sx={{ margin: '1rem 0 1rem 1rem' }}>
                         <Box className="event-publish__details-card">
                             {eventImg ?
-                                <img src={eventImg} alt="event" className="event-publish__image"/>
+                                <img src={eventImg} alt="event" className="event-publish__image" />
                                 :
                                 <div className="event-publish__image">
-                                    <ImageIcon className="event-publish__image-icon" sx={{fontSize: '3rem'}}/>
+                                    <ImageIcon className="event-publish__image-icon" sx={{ fontSize: '3rem' }} />
                                 </div>
                             }
                             <div className="event-publish__details">
@@ -116,28 +120,28 @@ function OrganizerPublishEvent(){
                                     {dayjs(data.eventDate, 'DD/MM/YYYY').format('dddd, DD MMMM')} • {dayjs(data.eventStartTime, "HH:mm").format("HH:mm")} - {dayjs(data.eventEndTime, "HH:mm").format("HH:mm")} GMT+{data.timezone}
                                 </p>
                                 <p className="event-publish__online">
-                                    {data.locationType === 'venue' ? 'Offline event' : 'Online event'}
+                                    {data.locationType === 'venue' ? t('eventPublish.offlineEvent') : t('eventPublish.onlineEvent')}
                                 </p>
                                 <Stack direction={'row'} justifyContent={'space-between'}>
                                     <div className="event-publish__info">
-                                        <span><BookOnlineIcon/>
+                                        <span><BookOnlineIcon />
                                             {data?.tickets ?
                                                 data.tickets[0]?.price > 0 ? formatCurrency(data.tickets[0]?.price, data.tickets[0]?.currency)
-                                                    : data.tickets[0]?.ticketType === 'free' ? 'Free' : 'Donation'
+                                                    : data.tickets[0]?.ticketType === 'free' ? t('eventPublish.free') : t('eventPublish.donation')
                                                 :
                                                 '---'
                                             }
                                         </span>
-                                        <span><PersonIcon/>{data?.capacity || '---'}</span>
+                                        <span><PersonIcon />{data?.capacity || '---'}</span>
                                     </div>
                                     <Link to="/preview" className="event-publish__preview">
-                                        Preview <OpenInNewIcon/>
+                                        {t('eventPublish.preview')} <OpenInNewIcon />
                                     </Link>
                                 </Stack>
                             </div>
                         </Box>
                         <Box className="event-publish__form-section">
-                            <h3>Organized by</h3>
+                            <h3>{t('eventPublish.organizedBy')}</h3>
                             <Select
                                 color="neutral"
                                 disabled
@@ -147,64 +151,64 @@ function OrganizerPublishEvent(){
                             >
                             </Select>
                             <p className="event-publish__organizer-info">
-                                Your event will appear on this organizer&#39;s profile page.
+                                {t('eventPublish.organizerInfo')}
                             </p>
                             <Link to="/organizer/u" target={'_blank'} className="event-publish__organizer-link">
-                                View organizer info
+                                {t('eventPublish.viewOrganizerInfo')}
                             </Link>
                         </Box>
                     </Stack>
                     <Stack className="event-publish__form">
                         <Box className="event-publish__form-section">
-                            <h3>Event type and category</h3>
-                            <p>Your type and category help your event appear in more searches.</p>
+                            <h3>{t('eventPublish.eventTypeCategory')}</h3>
+                            <p>{t('eventPublish.typeCategoryDescription')}</p>
                             <Stack rowGap={'1rem'}>
                                 <Select
                                     color="neutral"
                                     disabled={false}
-                                    placeholder="Type"
+                                    placeholder={t('eventPublish.type')}
                                     size="md"
                                     variant="soft"
                                     value={data.type}
-                                    onChange={(_, val) => setData(prev => ({...prev, type: val}))}
+                                    onChange={(_, val) => setData(prev => ({ ...prev, type: val }))}
                                 >
-                                    <Option value={''}>Select a type</Option>
+                                    <Option value={''}>{t('eventPublish.selectType')}</Option>
                                     {EventType.map((type) => (
                                         <Option key={type} value={type}>
-                                            {capitalizeFirstLetter(type)}
+                                            {t(`event-category.${type}`)}
                                         </Option>
                                     ))}
                                 </Select>
                                 <Stack direction={'row'} columnGap={2}>
-                                    <Select sx={{width: '100%'}}
-                                        color="neutral"
-                                        placeholder="Catergory"
-                                        size="md"
-                                        variant="soft"
-                                        value={data.category} disabled={!data.type}
-                                            onChange={(_, val) => setData(prev => ({...prev, category: val}))}
+                                    <Select sx={{ width: '100%' }}
+                                            color="neutral"
+                                            placeholder={t('eventPublish.category')}
+                                            size="md"
+                                            variant="soft"
+                                            value={data.category} disabled={!data.type}
+                                            onChange={(_, val) => setData(prev => ({ ...prev, category: val }))}
                                     >
-                                        <Option value={''}>Select a category</Option>
+                                        <Option value={''}>{t('eventPublish.selectCategory')}</Option>
                                         {availableCategories.map((category) => (
                                             <Option key={category} value={category}>
-                                                {capitalizeFirstLetter(category)}
+                                                {t(`event-category.${category}`)}
                                             </Option>
                                         ))}
                                     </Select>
                                     <Select
-                                        sx={{width: '100%'}}
+                                        sx={{ width: '100%' }}
                                         color="neutral"
-                                        placeholder="Sub category"
+                                        placeholder={t('eventPublish.subCategory')}
                                         size="md"
                                         variant="soft"
                                         disabled={!data.category || data.category === 'Other'}
                                         value={data.subCategory}
-                                        onChange={(_, val) => setData(prev => ({...prev, subCategory: val}))}
+                                        onChange={(_, val) => setData(prev => ({ ...prev, subCategory: val }))}
                                     >
-                                        <Option value={''}>Select sub category</Option>
+                                        <Option value={''}>{t('eventPublish.selectSubCategory')}</Option>
                                         {availableSubCategories.map((subCategory) => (
                                             <Option key={subCategory} value={subCategory}>
-                                                {capitalizeFirstLetter(subCategory)}
+                                                {t(`event-category.${subCategory}`)}
                                             </Option>
                                         ))}
                                     </Select>
@@ -213,78 +217,76 @@ function OrganizerPublishEvent(){
                         </Box>
 
                         <Box className="event-publish__form-section">
-                            <h3>Tags</h3>
+                            <h3>{t('eventPublish.tags')}</h3>
                             <Typography variant={'caption'}>
-                                Help people discover your event by adding tags related to your
-                                event’s theme, topic, vibe, location, and more.
+                                {t('eventPublish.tagsDescription')}
                             </Typography>
                             <TextField spellCheck={"false"}
-                                value={data.tags}
-                                onChange={(e) => setData(prev => ({...prev, tags: e.target.value}))}
-                                multiline
-                                rows={4}
-                                placeholder="Add search keywords to your event"
-                                variant="outlined"
-                                       helperText={`Tags: ${data?.tags ? data.tags.split(',').filter(tag => tag.trim() !== '').length : 0} / 10`}
+                                       value={data.tags}
+                                       onChange={(e) => setData(prev => ({ ...prev, tags: e.target.value }))}
+                                       multiline
+                                       rows={4}
+                                       placeholder={t('eventPublish.addSearchKeywords')}
+                                       variant="outlined"
+                                       helperText={`${t('eventPublish.tagsHelperText')}: ${data?.tags ? data.tags.split(',').filter(tag => tag.trim() !== '').length : 0} / 10`}
                             />
                         </Box>
                     </Stack>
                 </div>
             </div>
             <div className="publish-settings">
-                <h2 className="publish-settings__heading">Publish settings</h2>
+                <h2 className="publish-settings__heading">{t('eventPublish.publishSettings')}</h2>
                 <Stack className="publish-settings__container" direction="row" spacing={4}>
                     <Box className="publish-settings__form">
                         <Stack className="publish-settings__section" rowGap={1}>
-                            <h3>Is your event public or private?</h3>
+                            <h3>{t('eventPublish.publicPrivate')}</h3>
                             <RadioGroup name="eventPrivacy" defaultValue="public" className={'radio-group'}>
                                 <Stack>
                                     <FormControlLabel
                                         value="public"
-                                        control={<Radio sx={{marginRight: 1}}
+                                        control={<Radio sx={{ marginRight: 1 }}
                                                         checked={data.eventVisibility === 'public'}
-                                                        onClick={() => setData(prev => ({...prev, eventVisibility: 'public'}))}/>}
-                                        label="Public"
+                                                        onClick={() => setData(prev => ({ ...prev, eventVisibility: 'public' }))} />}
+                                        label={t('eventPublish.public')}
                                     />
                                     <p className="publish-settings__description">
-                                        Shared only with a select audience
+                                        {t('eventPublish.publicDescription')}
                                     </p>
                                 </Stack>
                                 <Stack>
                                     <FormControlLabel
                                         value="private"
-                                        control={<Radio sx={{marginRight: 1}}
-                                                        onClick={() => setData(prev => ({...prev, eventVisibility: 'private'}))}
-                                                        checked={data.eventVisibility === 'private'}/>}
-                                        label="Private"
+                                        control={<Radio sx={{ marginRight: 1 }}
+                                                        onClick={() => setData(prev => ({ ...prev, eventVisibility: 'private' }))}
+                                                        checked={data.eventVisibility === 'private'} />}
+                                        label={t('eventPublish.private')}
                                     />
                                     <p className="publish-settings__description">
-                                        Shared only with a select audience
+                                        {t('eventPublish.privateDescription')}
                                     </p>
                                 </Stack>
                             </RadioGroup>
                         </Stack>
                         <Stack className="publish-settings__section" rowGap={1}>
-                            <h3>Set your refund policy</h3>
+                            <h3>{t('eventPublish.refundPolicy')}</h3>
                             <p className="publish-settings__description">
-                                After your event is published, you can only update your policy to make it more flexible
-                                for your attendees.
+                                {t('eventPublish.refundPolicyDescription')}
                             </p>
                             <RadioGroup name="allowRefund" className={'radio-group'}
                                         value={data.allowRefund}
-                                onChange={() => {
-                                    setData(prev => ({...prev, allowRefund: !prev.allowRefund, daysForRefund: prev.allowRefund ? null : 1}))
-                                }}
+                                        onChange={() => {
+                                            setData(prev => ({ ...prev, allowRefund: !prev.allowRefund, daysForRefund: prev.allowRefund ? null : 1 }))
+                                        }}
                             >
                                 <FormControlLabel
                                     value={true}
-                                    control={<Radio sx={{marginRight: 1}}/>}
-                                    label="Allow refunds"
+                                    control={<Radio sx={{ marginRight: 1 }} />}
+                                    label={t('eventPublish.allowRefunds')}
                                 />
                                 <FormControlLabel
                                     value={false}
-                                    control={<Radio sx={{marginRight: 1}}/>}
-                                    label="Don't allow refunds"
+                                    control={<Radio sx={{ marginRight: 1 }} />}
+                                    label={t('eventPublish.dontAllowRefunds')}
                                 />
                             </RadioGroup>
                             {data.allowRefund &&
@@ -293,10 +295,10 @@ function OrganizerPublishEvent(){
                                         className="publish-settings__input"
                                         type="number"
                                         value={data.daysForRefund}
-                                        onChange={(e) => setData(prev => ({...prev, daysForRefund: e.target.value}))}
-                                        label="Days before the event"
+                                        onChange={(e) => setData(prev => ({ ...prev, daysForRefund: e.target.value }))}
+                                        label={t('eventPublish.daysBeforeEvent')}
                                         error={data.daysForRefund < 1 || data.daysForRefund > 30}
-                                        helperText={data.daysForRefund < 1 || data.daysForRefund > 30 ? 'Please enter a number between 1 and 30' : ''}
+                                        helperText={data.daysForRefund < 1 || data.daysForRefund > 30 ? t('eventPublish.daysBeforeEventHelperText') : ''}
                                         slotProps={{
                                             htmlInput: {
                                                 min: 1, max: 30
@@ -304,7 +306,7 @@ function OrganizerPublishEvent(){
                                         }}
                                     />
                                     <p className="publish-settings__description">
-                                        Set how many days (1 to 30) before the event that attendees can request refunds.
+                                        {t('eventPublish.daysBeforeEventDescription')}
                                     </p>
                                 </Stack>
                             }
@@ -312,70 +314,68 @@ function OrganizerPublishEvent(){
 
                         {data.allowRefund &&
                             <Stack className="publish-settings__section" rowGap={1}>
-                                <h3>Automate refunds</h3>
+                                <h3>{t('eventPublish.automateRefunds')}</h3>
                                 <p className="publish-settings__description">
-                                    Automatically approve refund requests for orders of one ticket if the event balance can
-                                    cover the request. If turned off, you must respond to all refund requests within five
-                                    days.
+                                    {t('eventPublish.automateRefundsDescription')}
                                 </p>
                                 <RadioGroup name="automateRefunds" defaultValue="manual" className={'radio-group'}
                                             value={data.automatedRefund}
-                                            onChange={(e) => setData(prev => ({...prev, automatedRefund: e.target.value}))}
+                                            onChange={(e) => setData(prev => ({ ...prev, automatedRefund: e.target.value }))}
                                 >
                                     <FormControlLabel
                                         value={true}
-                                        control={<Radio sx={{marginRight: 1}}/>}
-                                        label="Yes, automate refunds"
+                                        control={<Radio sx={{ marginRight: 1 }} />}
+                                        label={t('eventPublish.yesAutomateRefunds')}
                                     />
                                     <FormControlLabel
                                         value={false}
-                                        control={<Radio sx={{marginRight: 1}}/>}
-                                        label="No, I'll respond to each request"
+                                        control={<Radio sx={{ marginRight: 1 }} />}
+                                        label={t('eventPublish.noRespondToRequests')}
                                     />
                                 </RadioGroup>
                             </Stack>
                         }
 
                         <Stack className="publish-settings__section" rowGap={1}>
-                            <h3>When should we publish your event?</h3>
+                            <h3>{t('eventPublish.publishTiming')}</h3>
                             <RadioGroup name="publishTiming" defaultValue="now" className={'radio-group'}
-                                value={data.publishType}
-                                onChange={(e) => {
-                                    setData(prev => ({...prev, publishType: e.target.value}))
-                                    if(e.target.value === 'now'){
-                                        setData(prev => ({...prev, publishDate: null, publishTime: null}))
-                                    }
-                                }}
+                                        value={data.publishType}
+                                        onChange={(e) => {
+                                            setData(prev => ({ ...prev, publishType: e.target.value }))
+                                            if (e.target.value === 'now') {
+                                                setData(prev => ({ ...prev, publishDate: null, publishTime: null }))
+                                            }
+                                        }}
                             >
                                 <FormControlLabel
                                     value="now"
-                                    control={<Radio sx={{marginRight: 1}}/>}
-                                    label="Publish now"
+                                    control={<Radio sx={{ marginRight: 1 }} />}
+                                    label={t('eventPublish.publishNow')}
                                 />
                                 <FormControlLabel
                                     value="schedule"
-                                    control={<Radio sx={{marginRight: 1}}/>}
-                                    label="Schedule for later"
+                                    control={<Radio sx={{ marginRight: 1 }} />}
+                                    label={t('eventPublish.scheduleForLater')}
                                 />
                             </RadioGroup>
                             {data.publishType === 'schedule' && (
                                 <Stack marginTop={2} direction={'row'} columnGap={1}>
                                     <DatePicker format={'DD/MM/YYYY'} disablePast
                                                 value={dayjs(data.publishDate, 'DD/MM/YYYY')}
-                                                onChange={(date) => setData(prev => ({...prev, publishDate: date.format('DD/MM/YYYY')}))}
-                                            slotProps={{
-                                                textField: {
-                                                    error: data.publishDate === undefined,
-                                                    helperText: data.publishDate === undefined ? 'Please select a date' : ''
-                                                }
-                                            }}
+                                                onChange={(date) => setData(prev => ({ ...prev, publishDate: date.format('DD/MM/YYYY') }))}
+                                                slotProps={{
+                                                    textField: {
+                                                        error: data.publishDate === undefined,
+                                                        helperText: data.publishDate === undefined ? t('eventPublish.selectDate') : ''
+                                                    }
+                                                }}
                                     />
                                     <TimePicker format={'HH:mm'} value={dayjs(data.publishTime, 'HH:mm')} ampm={false}
-                                        onChange={(time) => setData(prev => ({...prev, publishTime: time.format("HH:mm")}))}
+                                                onChange={(time) => setData(prev => ({ ...prev, publishTime: time.format("HH:mm") }))}
                                                 slotProps={{
                                                     textField: {
                                                         error: data.publishTime === undefined,
-                                                        helperText: data.publishTime === undefined ? 'Please select a time' : ''
+                                                        helperText: data.publishTime === undefined ? t('eventPublish.selectTime') : ''
                                                     }
                                                 }}
                                     />
@@ -385,24 +385,24 @@ function OrganizerPublishEvent(){
                     </Box>
 
                     <Box className="publish-settings__tips">
-                        <h3>Check out these tips before you publish 💡</h3>
+                        <h3>{t('eventPublish.checkOutTips')} 💡</h3>
                         <NavLink to="/create-promo" className="publish-settings__tip-link">
-                            Create promo codes for your event
+                            {t('eventPublish.createPromoCodes')}
                         </NavLink>
                         <NavLink to="/customize-order-form" className="publish-settings__tip-link">
-                            Customize your order form
+                            {t('eventPublish.customizeOrderForm')}
                         </NavLink>
                         <NavLink to="/manage-payments" className="publish-settings__tip-link">
-                            Manage how you get paid
+                            {t('eventPublish.managePayments')}
                         </NavLink>
                         <NavLink to="/set-refund-policy" className="publish-settings__tip-link">
-                            Set your refund policy
+                            {t('eventPublish.setRefundPolicy')}
                         </NavLink>
                         <NavLink to="/increase-visibility" className="publish-settings__tip-link">
-                            Add this event to a collection to increase visibility
+                            {t('eventPublish.increaseVisibility')}
                         </NavLink>
                         <NavLink to="/safety-plan" className="publish-settings__tip-link">
-                            Develop a safety plan for your event
+                            {t('eventPublish.developSafetyPlan')}
                         </NavLink>
                     </Box>
                 </Stack>

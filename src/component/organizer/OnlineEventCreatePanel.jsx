@@ -45,6 +45,7 @@ import {CircularProgress} from "@mui/joy";
 import * as Yup from 'yup';
 import {useFormik} from "formik";
 import {EventContext} from "../../context.js";
+import {useTranslation} from "react-i18next";
 
 initializeApp(firebaseConfig);
 const storage = getStorage()
@@ -76,6 +77,7 @@ const validationSchema = Yup.object().shape({
 });
 
 function OnlineEventCreatePanel(){
+    const {t} = useTranslation()
     const {data, setData} = useContext(EventContext)
     const [openDrawer, setOpenDrawer] = useState({
         type: '', open: false
@@ -265,66 +267,72 @@ function OnlineEventCreatePanel(){
         <form onSubmit={formik.handleSubmit}>
             <Stack className={'online-event-create-panel'} rowGap={5}>
                 <Stack direction={'row'} justifyContent={'space-between'}>
-                    <Stack rowGap={3} sx={{width: '65%'}}>
-                        <Typography variant="h3" fontWeight={'bold'} fontFamily={'Nunito'} marginBottom={2}>Attendee Event Page</Typography>
+                    <Stack rowGap={3} sx={{ width: '65%' }}>
+                        <Typography variant="h3" fontWeight={'bold'} fontFamily={'Nunito'} marginBottom={2}>
+                            {t('onlineEvent.attendeeEventPage')}
+                        </Typography>
                         <Typography variant={"body1"} color={'#595959'}>
-                            Attendees will join your online event through your virtual venue. Use this space to add a live video or audio stream, share additional content, and customize the look of your event page.
+                            {t('onlineEvent.attendeeEventPageDescription')}
                         </Typography>
                         <Stack direction={'row'} alignItems={'center'} columnGap={.75} width={'fit-content'}
-                               onClick={() => setOpenDrawer({type: 'setting', open: true})} style={{cursor: 'pointer'}}>
+                               onClick={() => setOpenDrawer({ type: 'setting', open: true })} style={{ cursor: 'pointer' }}>
                             <SettingsIcon />
-                            <div style={{color: 'blue'}}>Page Settings</div>
+                            <div style={{ color: 'blue' }}>{t('onlineEvent.pageSettings')}</div>
                         </Stack>
                     </Stack>
-                    <img src={'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvO89aKgOsDOkECc7-arKNzRUpmPq-Xxs2Nw&s'} alt={'image'}/>
+                    <img src={'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvO89aKgOsDOkECc7-arKNzRUpmPq-Xxs2Nw&s'} alt={'image'} />
                 </Stack>
                 <hr />
                 <Stack direction={'row'} columnGap={3}>
-                    <Stack justifyContent={'space-between'} width={'70%'} sx={{border: '1px solid lightgray', padding: 2, borderRadius: 2}}>
+                    <Stack justifyContent={'space-between'} width={'70%'} sx={{ border: '1px solid lightgray', padding: 2, borderRadius: 2 }}>
                         <Stack rowGap={2}>
                             <Stack direction={'row'} alignItems={'center'} columnGap={1}>
                                 <AttachmentIcon />
-                                <Typography variant={'h5'}>Add live video or audio</Typography>
+                                <Typography variant={'h5'}>{t('onlineEvent.addLiveVideoAudio')}</Typography>
                             </Stack>
-                            <Typography variant={'body1'} color={'#595959'}>Add a live video or audio stream to your event. You can use any streaming service that provides a link to your stream.</Typography>
+                            <Typography variant={'body1'} color={'#595959'}>
+                                {t('onlineEvent.addLiveVideoAudioDescription')}
+                            </Typography>
                         </Stack>
                         <Stack direction={'row'}>
-                            <button type={'button'} style={{backgroundColor: 'transparent', padding: '.5rem 1.5rem', border: '1px solid blue', color: 'blue', cursor: 'pointer'}}
+                            <button type={'button'} style={{ backgroundColor: 'transparent', padding: '.5rem 1.5rem', border: '1px solid blue', color: 'blue', cursor: 'pointer' }}
                                     onClick={() => addElement('live')}
-                            >Add provider</button>
+                            >{t('onlineEvent.addProvider')}</button>
                         </Stack>
                     </Stack>
-                    <Stack rowGap={2} width={'70%'} sx={{border: '1px solid lightgray', padding: 2, borderRadius: 2}}>
+                    <Stack rowGap={2} width={'70%'} sx={{ border: '1px solid lightgray', padding: 2, borderRadius: 2 }}>
                         <Stack direction={'row'} columnGap={1} alignItems={'center'} >
                             <InfoOutlinedIcon />
-                            <Typography variant={'h5'}>Share additional content</Typography>
+                            <Typography variant={'h5'}>{t('onlineEvent.shareAdditionalContent')}</Typography>
                         </Stack>
-                        <Typography variant={'body1'} color={'#595959'}>Add additional content to your event. You can add files, links, and more.</Typography>
+                        <Typography variant={'body1'} color={'#595959'}>
+                            {t('onlineEvent.shareAdditionalContentDescription')}
+                        </Typography>
                         <Stack>
                             <Stack direction={'row'} columnGap={3}>
                                 <Stack alignItems={'center'} rowGap={.25} onClick={() => addElement('text')}>
                                     <IconButton>
-                                        <TextFieldsIcon sx={{color: 'black'}}/>
+                                        <TextFieldsIcon sx={{ color: 'black' }} />
                                     </IconButton>
-                                    <p style={{color: '#575757'}}>Text</p>
+                                    <p style={{ color: '#575757' }}>{t('onlineEvent.text')}</p>
                                 </Stack>
                                 <Stack alignItems={'center'} rowGap={.25} onClick={() => addElement('image')}>
                                     <IconButton>
-                                        <ImageIcon sx={{color: 'black'}}/>
+                                        <ImageIcon sx={{ color: 'black' }} />
                                     </IconButton>
-                                    <p style={{color: '#575757'}}>Image</p>
+                                    <p style={{ color: '#575757' }}>{t('onlineEvent.image')}</p>
                                 </Stack>
                                 <Stack alignItems={'center'} rowGap={.25} onClick={() => addElement('video')}>
                                     <IconButton>
-                                        <OndemandVideoIcon sx={{color: 'black'}}/>
+                                        <OndemandVideoIcon sx={{ color: 'black' }} />
                                     </IconButton>
-                                    <p style={{color: '#575757'}}>Video</p>
+                                    <p style={{ color: '#575757' }}>{t('onlineEvent.video')}</p>
                                 </Stack>
                                 <Stack alignItems={'center'} rowGap={.25} onClick={() => addElement('link')}>
                                     <IconButton>
-                                        <InsertLinkOutlinedIcon sx={{color: 'black'}}/>
+                                        <InsertLinkOutlinedIcon sx={{ color: 'black' }} />
                                     </IconButton>
-                                    <p style={{color: '#575757'}}>Link</p>
+                                    <p style={{ color: '#575757' }}>{t('onlineEvent.link')}</p>
                                 </Stack>
                             </Stack>
                         </Stack>
@@ -340,7 +348,7 @@ function OnlineEventCreatePanel(){
                                         <>
                                             <Stack direction={'row'} columnGap={1}>
                                                 <TextFieldsIcon />
-                                                <p className={'online-element__title'}>Text</p>
+                                                <p className={'online-element__title'}>{t('onlineEvent.text')}</p>
                                             </Stack>
                                             <CustomEditor
                                                 content={element?.content?.val}
@@ -355,7 +363,7 @@ function OnlineEventCreatePanel(){
                                         <>
                                             <Stack direction={'row'} columnGap={1}>
                                                 <ImageIcon />
-                                                <p className={'online-element__title'}>Image</p>
+                                                <p className={'online-element__title'}>{t('onlineEvent.image')}</p>
                                             </Stack>
                                             <DragAndDropZone image={formik.values.elements[index].content.link} onFileSelect={async file => {
                                                 const imgLink = await handleImageUpload(file);
@@ -370,16 +378,16 @@ function OnlineEventCreatePanel(){
                                         <>
                                             <Stack direction={'row'} columnGap={1}>
                                                 <OndemandVideoIcon />
-                                                <p className={'online-element__title'}>Video</p>
+                                                <p className={'online-element__title'}>{t('onlineEvent.video')}</p>
                                             </Stack>
                                             <FormControl variant="outlined" fullWidth>
-                                                <InputLabel>Video URL</InputLabel>
+                                                <InputLabel>{t('onlineEvent.videoURL')}</InputLabel>
                                                 <OutlinedInput value={element?.content?.url || ''}
                                                                onChange={(e) => handleChange(index, { url: e.target.value })}
                                                                error={formik.touched.elements && formik.errors.elements?.[index]?.content?.url}
                                                                endAdornment={
-                                                                   <InputAdornment position="end" style={{cursor: 'default'}}>
-                                                                       <Tooltip title={'We currently support Youtube videos only'}>
+                                                                   <InputAdornment position="end" style={{ cursor: 'default' }}>
+                                                                       <Tooltip title={t('onlineEvent.youtubeOnly')}>
                                                                            <InfoOutlinedIcon />
                                                                        </Tooltip>
                                                                    </InputAdornment>
@@ -398,10 +406,10 @@ function OnlineEventCreatePanel(){
                                         <>
                                             <Stack direction={'row'} columnGap={1}>
                                                 <InsertLinkOutlinedIcon />
-                                                <p className={'online-element__title'}>Link</p>
+                                                <p className={'online-element__title'}>{t('onlineEvent.link')}</p>
                                             </Stack>
                                             <TextField
-                                                label={'Link title'}
+                                                label={t('onlineEvent.linkTitle')}
                                                 value={element?.content?.title || ''}
                                                 onChange={(e) => handleChange(index, { title: e.target.value })}
                                             />
@@ -409,7 +417,7 @@ function OnlineEventCreatePanel(){
                                                 <div className="error">{formik.errors.elements[index].content.title}</div>
                                             )}
                                             <TextField
-                                                label={'External document or presentation URL'}
+                                                label={t('onlineEvent.externalURL')}
                                                 value={element?.content?.url || ''}
                                                 onChange={(e) => handleChange(index, { url: e.target.value })}
                                             />
@@ -420,7 +428,7 @@ function OnlineEventCreatePanel(){
                                     )}
                                     {type === 'live' && (
                                         <>
-                                            <p className={'online-element__title'}>Link video or audio</p>
+                                            <p className={'online-element__title'}>{t('onlineEvent.linkVideoAudio')}</p>
                                             <Stack>
                                                 <TextField
                                                     label={'URL'}
@@ -433,7 +441,7 @@ function OnlineEventCreatePanel(){
                                             </Stack>
                                             <Stack>
                                                 <TextField
-                                                    label={'Title'}
+                                                    label={t('onlineEvent.title')}
                                                     value={element?.content?.title || ''}
                                                     onChange={(e) => handleChange(index, { title: e.target.value })}
                                                 />
@@ -443,11 +451,11 @@ function OnlineEventCreatePanel(){
                                             </Stack>
                                             <DragAndDropZone image={formik.values.elements[index].content.link} onFileSelect={async file => {
                                                 const imgLink = await handleImageUpload(file)
-                                                handleChange(index, {link: imgLink})
-                                            }}/>
+                                                handleChange(index, { link: imgLink })
+                                            }} />
                                             <CustomEditor
                                                 content={element?.content?.description || ''}
-                                                handleChange={(content) => handleChange(index, {...element.content, description: content})} />
+                                                handleChange={(content) => handleChange(index, { ...element.content, description: content })} />
                                         </>
                                     )}
                                     <ElementAction index={index} />
@@ -456,12 +464,12 @@ function OnlineEventCreatePanel(){
                         })}
                     </Stack>
                 }
-                <Drawer anchor={'right'} open={openDrawer.open} onClose={() => setOpenDrawer({type: '', open: false})}>
+                <Drawer anchor={'right'} open={openDrawer.open} onClose={() => setOpenDrawer({ type: '', open: false })}>
                     <Stack paddingTop={'4rem'} width={'25rem'} paddingInline={3} rowGap={3}>
                         <Stack>
                             <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'} paddingBlock={'.5rem'}>
-                                <Typography variant={'h5'}>{editEl ? 'Edit Properties' : 'Page Settings'}</Typography>
-                                <IconButton onClick={() => setOpenDrawer({type: '', open: false})}>
+                                <Typography variant={'h5'}>{editEl ? t('onlineEvent.editProperties') : t('onlineEvent.pageSettings')}</Typography>
+                                <IconButton onClick={() => setOpenDrawer({ type: '', open: false })}>
                                     <CloseIcon />
                                 </IconButton>
                             </Stack>
@@ -471,67 +479,69 @@ function OnlineEventCreatePanel(){
                             <Stack>
                                 <Stack direction={'row'} justifyContent={'space-between'}>
                                     <Typography variant="body1" fontWeight="bold" sx={{ mb: 1 }}>
-                                        Ticket access
+                                        {t('onlineEvent.ticketAccess')}
                                     </Typography>
-                                    <Link to="#" sx={{ fontSize: 14 }} className={'link'}>Learn more</Link>
+                                    <Link to="#" sx={{ fontSize: 14 }} className={'link'}>{t('onlineEvent.learnMore')}</Link>
                                 </Stack>
                                 <FormControl fullWidth>
-                                    <InputLabel>Restrict access to</InputLabel>
+                                    <InputLabel>{t('onlineEvent.restrictAccess')}</InputLabel>
                                     <Select label="Restrict access to" value={formik.values.elements[editEl]?.access || 'all'}
                                             onChange={(e) => {
                                                 handleChangeProperties(editEl, 'access', e.target.value)
                                             }}
                                     >
-                                        <MenuItem value="all">All tickets</MenuItem>
+                                        <MenuItem value="all">{t('onlineEvent.allTickets')}</MenuItem>
                                     </Select>
                                 </FormControl>
                                 <Typography variant="body1" fontWeight="bold" sx={{ mt: 3, mb: 1 }}>
-                                    Visibility
+                                    {t('onlineEvent.visibility')}
                                 </Typography>
                                 <FormControl fullWidth>
-                                    <InputLabel>Visibility</InputLabel>
+                                    <InputLabel>{t('onlineEvent.visibility')}</InputLabel>
                                     <Select label={'Visibility'} value={formik.values.elements[editEl]?.visibility || 'visible'}
                                             onChange={(e) =>
                                                 handleChangeProperties(editEl, 'visibility', e.target.value)}
                                     >
-                                        <MenuItem value="visible">Visible</MenuItem>
-                                        <MenuItem value="hidden">Hidden</MenuItem>
-                                        <MenuItem value="start">Hidden until event starts</MenuItem>
-                                        <MenuItem value="custom">Custom schedule</MenuItem>
+                                        <MenuItem value="visible">{t('onlineEvent.visible')}</MenuItem>
+                                        <MenuItem value="hidden">{t('onlineEvent.hidden')}</MenuItem>
+                                        <MenuItem value="start">{t('onlineEvent.hiddenUntilStart')}</MenuItem>
+                                        <MenuItem value="custom">{t('onlineEvent.customSchedule')}</MenuItem>
                                     </Select>
                                 </FormControl>
                                 <Typography variant="body1" fontWeight="bold" sx={{ mt: 3 }}>
-                                    Notification settings
+                                    {t('onlineEvent.notificationSettings')}
                                 </Typography>
                                 <FormControlLabel
                                     control={<Checkbox disabled={formik.values.elements[editEl]?.content?.visibility === 'visible'} />}
-                                    label="Notify attendees when this is shown"
+                                    label={t('onlineEvent.notifyAttendees')}
                                     sx={{ color: "gray" }}
                                 />
                             </Stack>
                             :
                             <>
                                 <Stack rowGap={1}>
-                                    <Typography variant={'body1'}>Using your Attendee Event Page</Typography>
+                                    <Typography variant={'body1'}>{t('onlineEvent.usingAttendeeEventPage')}</Typography>
                                     <Typography variant={'body2'} color={'#595959'}>
-                                        We&#39;ll redirect your attendees to this page with automatic reminder emails and access instructions.
+                                        {t('onlineEvent.usingAttendeeEventPageDescription')}
                                     </Typography>
                                     <Stack direction={'row'} alignItems={'center'}>
-                                        <Switch checked={pageSettings.enabled} onChange={() => setPageSettings(prev => ({...prev, enabled: !prev.enabled}))}/>
-                                        <Typography variant={'body2'}>Attendee Event Page {pageSettings.enabled ? 'enabled' : 'disabled'}</Typography>
+                                        <Switch checked={pageSettings.enabled} onChange={() => setPageSettings(prev => ({ ...prev, enabled: !prev.enabled }))} />
+                                        <Typography variant={'body2'}>{t('onlineEvent.attendeeEventPage')} {pageSettings.enabled ? t('onlineEvent.enabled') : t('onlineEvent.disabled')}</Typography>
                                     </Stack>
                                 </Stack>
                                 <Stack>
-                                    <Typography variant={'body1'}>Who can access this page ?</Typography>
-                                    <RadioGroup value={pageSettings.access} onChange={(e) => setPageSettings(prev => ({...prev, access: e.target.value}))}>
-                                        <FormControlLabel value="holder" control={<Radio />} label="Ticket holders only" />
-                                        <FormControlLabel value="any" control={<Radio />} label="Anyone with the link" />
+                                    <Typography variant={'body1'}>{t('onlineEvent.whoCanAccess')}</Typography>
+                                    <RadioGroup value={pageSettings.access} onChange={(e) => setPageSettings(prev => ({ ...prev, access: e.target.value }))}>
+                                        <FormControlLabel value="holder" control={<Radio />} label={t('onlineEvent.ticketHoldersOnly')} />
+                                        <FormControlLabel value="any" control={<Radio />} label={t('onlineEvent.anyoneWithLink')} />
                                     </RadioGroup>
                                 </Stack>
-                                <Stack direction={'row'} alignItems={'center'} columnGap={1} style={{backgroundColor: '#eeeeee', padding: '.5rem', borderRadius: 5}}>
+                                <Stack direction={'row'} alignItems={'center'} columnGap={1} style={{ backgroundColor: '#eeeeee', padding: '.5rem', borderRadius: 5 }}>
                                     <HelpOutlineIcon />
-                                    <Typography sx={{display: 'flex', alignItems: 'center'}} variant={'body2'} columnGap={.5}>Learn more about
-                                        <span style={{display: 'flex', columnGap: '.5rem', alignItems: 'center'}} className={'link'}>online event <LaunchIcon /></span></Typography>
+                                    <Typography sx={{ display: 'flex', alignItems: 'center' }} variant={'body2'} columnGap={.5}>
+                                        {t('onlineEvent.learnMoreAbout')}
+                                        <span style={{ display: 'flex', columnGap: '.5rem', alignItems: 'center' }} className={'link'}>{t('onlineEvent.onlineEvent')} <LaunchIcon /></span>
+                                    </Typography>
                                 </Stack>
                             </>
                         }
@@ -539,26 +549,26 @@ function OnlineEventCreatePanel(){
                 </Drawer>
                 {formik.values.elements.length > 0 &&
                     <Stack direction={'row'} justifyContent={'space-between'} className={`online-event__bottom-panel`}>
-                        <Typography variant={'body2'} style={{display: 'flex', alignItems: 'center', columnGap: 2}} className={'link'}
-                            onClick={handlePreview}
+                        <Typography variant={'body2'} style={{ display: 'flex', alignItems: 'center', columnGap: 2 }} className={'link'}
+                                    onClick={handlePreview}
                         >
-                            Preview attendee event page <LaunchIcon />
+                            {t('onlineEvent.previewAttendeePage')} <LaunchIcon />
                         </Typography>
                         <Stack direction={'row'} columnGap={2}>
-                            <Button color={'error'} onClick={discard} type={'button'}>Discard</Button>
+                            <Button color={'error'} onClick={discard} type={'button'}>{t('onlineEvent.discard')}</Button>
                             <Button variant={'contained'} type={'submit'} disabled={isChanges}>
-                                {isLoading ? <CircularProgress color={'warning'} size={'sm'} variant={'soft'}/> : 'Save'}
+                                {isLoading ? <CircularProgress color={'warning'} size={'sm'} variant={'soft'} /> : t('onlineEvent.save')}
                             </Button>
                         </Stack>
                     </Stack>
                 }
                 <Snackbar open={openSnackbar} autoHideDuration={5000} onClose={() => setOpenSnackbar(false)}
-                          anchorOrigin={{vertical: 'top', horizontal: 'right'}} sx={{marginTop: '3rem'}}>
-                    <Alert severity="success" variant={'filled'}>All changes saved</Alert>
+                          anchorOrigin={{ vertical: 'top', horizontal: 'right' }} sx={{ marginTop: '3rem' }}>
+                    <Alert severity="success" variant={'filled'}>{t('onlineEvent.allChangesSaved')}</Alert>
                 </Snackbar>
             </Stack>
         </form>
-    )
+    );
 }
 
 export default OnlineEventCreatePanel

@@ -2,7 +2,8 @@ import {useOutletContext} from "react-router-dom";
 import {
     Autocomplete,
     Box,
-    Button, FormControl,
+    Button,
+    FormControl,
     FormHelperText,
     InputLabel,
     MenuItem,
@@ -25,25 +26,27 @@ import dayjs from "dayjs";
 import {CircularProgress} from "@mui/joy";
 import {countries} from "../../common/Data.js";
 import {DatePicker} from "@mui/x-date-pickers";
-
-const validationSchema = Yup.object({
-    profile_name: Yup.string().required('Profile name is required'),
-    description: Yup.string().required('Description is required'),
-    full_name: Yup.string().required('Full name is required'),
-    nickname: Yup.string().required('Nickname is required'),
-    date_of_birth: Yup.date()
-        .required('Date of birth is required')
-        .typeError('Please enter a valid date'),
-    phone_number: Yup.string().required('Phone number is required'),
-});
+import {useTranslation} from "react-i18next";
 
 initializeApp(firebaseConfig);
 const storage = getStorage()
 
-function AttendeeContactInfo(){
+function AttendeeContactInfo() {
+    const {t} = useTranslation()
     const {pid, data} = useOutletContext()
     const [isLoading, setIsLoading] = useState(false)
     const [open, setOpen] = useState(false)
+
+    const validationSchema = Yup.object({
+        profile_name: Yup.string().required(t('attendeeContactInfo.profileNameRequired')),
+        description: Yup.string().required(t('attendeeContactInfo.descriptionRequired')),
+        full_name: Yup.string().required(t('attendeeContactInfo.fullNameRequired')),
+        nickname: Yup.string().required(t('attendeeContactInfo.nicknameRequired')),
+        date_of_birth: Yup.date()
+            .required(t('attendeeContactInfo.dateOfBirthRequired'))
+            .typeError(t('attendeeContactInfo.validDate')),
+        phone_number: Yup.string().required(t('attendeeContactInfo.phoneNumberRequired')),
+    });
 
     const initialValues = {
         profile_name: data?.profile_name || '',
@@ -89,19 +92,21 @@ function AttendeeContactInfo(){
         <Stack className={'attendee-contact-info'}>
             <Snackbar
                 open={open}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
                 autoHideDuration={5000}
                 onClose={() => setOpen(false)}
-                message="Updated successfully"
+                message={t('attendeeContactInfo.updatedSuccessfully')}
             />
             <Stack rowGap={3}>
-                <Typography fontSize={'1.6rem'} fontWeight={'bold'}>Profile Picture</Typography>
+                <Typography fontSize={'1.6rem'}
+                            fontWeight={'bold'}>{t('attendeeContactInfo.profilePicture')}</Typography>
                 {data?.profile_image_url &&
-                    <DragAndDropZone image={data.profile_image_url} onFileSelect={(file) => data.profile_image_url = file}/>
+                    <DragAndDropZone image={data.profile_image_url}
+                                     onFileSelect={(file) => data.profile_image_url = file}/>
                 }
             </Stack>
             <Stack rowGap={3}>
-                <Typography fontSize={'1.6rem'} fontWeight={'bold'}>Info</Typography>
+                <Typography fontSize={'1.6rem'} fontWeight={'bold'}>{t('attendeeContactInfo.info')}</Typography>
                 <Formik
                     initialValues={initialValues}
                     enableReinitialize={true}
@@ -119,7 +124,7 @@ function AttendeeContactInfo(){
                         <Form style={{width: '70%', alignSelf: 'center'}}>
                             <Stack spacing={2}>
                                 <TextField
-                                    fullWidth label="Profile Name" name="profile_name"
+                                    fullWidth label={t('attendeeContactInfo.profileName')} name="profile_name"
                                     value={values.profile_name}
                                     onChange={handleChange} onBlur={handleBlur}
                                     error={touched.profile_name && Boolean(errors.profile_name)}
@@ -127,7 +132,7 @@ function AttendeeContactInfo(){
                                 />
 
                                 <TextField
-                                    fullWidth label="Description" name="description"
+                                    fullWidth label={t('attendeeContactInfo.description')} name="description"
                                     multiline rows={3}
                                     value={values.description}
                                     onChange={handleChange} onBlur={handleBlur}
@@ -137,7 +142,7 @@ function AttendeeContactInfo(){
 
                                 <Stack direction={'row'} columnGap={1.5}>
                                     <TextField
-                                        fullWidth label="Full Name" name="full_name"
+                                        fullWidth label={t('attendeeContactInfo.fullName')} name="full_name"
                                         value={values.full_name}
                                         onChange={handleChange} onBlur={handleBlur}
                                         error={touched.full_name && Boolean(errors.full_name)}
@@ -145,7 +150,7 @@ function AttendeeContactInfo(){
                                     />
 
                                     <TextField
-                                        fullWidth label="Nickname" name="nickname"
+                                        fullWidth label={t('attendeeContactInfo.nickname')} name="nickname"
                                         value={values.nickname}
                                         onChange={handleChange} onBlur={handleBlur}
                                         error={touched.nickname && Boolean(errors.nickname)}
@@ -156,16 +161,18 @@ function AttendeeContactInfo(){
                                 <Stack direction={'row'} columnGap={1.5}>
                                     <FormControl sx={{width: '100%'}} error={touched.gender && Boolean(errors.gender)}
                                     >
-                                        <InputLabel>Gender</InputLabel>
-                                        <Select value={values.gender} label="gender" name={'gender'}
+                                        <InputLabel>{t('attendeeContactInfo.gender')}</InputLabel>
+                                        <Select value={values.gender} label={t('attendeeContactInfo.gender')}
+                                                name={'gender'}
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
                                         >
-                                            <MenuItem value=""><em>Select a gender</em></MenuItem>
-                                            <MenuItem value={'male'}>Male</MenuItem>
-                                            <MenuItem value={'female'}>Female</MenuItem>
-                                            <MenuItem value={'other'}>Other</MenuItem>
-                                            <MenuItem value={'not'}>Rather not say</MenuItem>
+                                            <MenuItem
+                                                value=""><em>{t('attendeeContactInfo.selectGender')}</em></MenuItem>
+                                            <MenuItem value={'male'}>{t('attendeeContactInfo.male')}</MenuItem>
+                                            <MenuItem value={'female'}>{t('attendeeContactInfo.female')}</MenuItem>
+                                            <MenuItem value={'other'}>{t('attendeeContactInfo.other')}</MenuItem>
+                                            <MenuItem value={'not'}>{t('attendeeContactInfo.ratherNotSay')}</MenuItem>
                                         </Select>
                                         {touched.gender && Boolean(errors.gender) &&
                                             <FormHelperText>
@@ -175,16 +182,16 @@ function AttendeeContactInfo(){
                                     </FormControl>
 
                                     <DatePicker sx={{width: '100%'}} format={"DD/MM/YYYY"}
-                                        label="Date of Birth"
-                                        value={values.date_of_birth}
-                                        onChange={(date) => {
-                                            values.date_of_birth = date
-                                            data.date_of_birth = date
-                                        }}
+                                                label={t('attendeeContactInfo.dateOfBirth')}
+                                                value={values.date_of_birth}
+                                                onChange={(date) => {
+                                                    values.date_of_birth = date;
+                                                    data.date_of_birth = date;
+                                                }}
                                     />
 
                                     <TextField
-                                        fullWidth label="Phone Number" name="phone_number"
+                                        fullWidth label={t('attendeeContactInfo.phoneNumber')} name="phone_number"
                                         value={values.phone_number}
                                         onChange={handleChange} onBlur={handleBlur}
                                         error={touched.phone_number && Boolean(errors.phone_number)}
@@ -198,12 +205,12 @@ function AttendeeContactInfo(){
                                               onChange={(_, val) => values.nationality = val?.code}
                                               renderOption={(props, option) => {
                                                   // eslint-disable-next-line react/prop-types
-                                                  const { key, ...optionProps } = props;
+                                                  const {key, ...optionProps} = props;
                                                   return (
                                                       <Box
                                                           key={key}
                                                           component="li"
-                                                          sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
+                                                          sx={{'& > img': {mr: 2, flexShrink: 0}}}
                                                           {...optionProps}
                                                       >
                                                           <img loading="lazy" width="20" alt=""
@@ -217,7 +224,7 @@ function AttendeeContactInfo(){
                                               renderInput={(params) => (
                                                   <TextField
                                                       {...params}
-                                                      label="Nationality" name={"nationality"}
+                                                      label={t('attendeeContactInfo.nationality')} name={"nationality"}
                                                       onBlur={handleBlur}
                                                       error={touched.nationality && Boolean(errors.nationality)}
                                                       helperText={touched.nationality && errors.nationality}
@@ -231,8 +238,9 @@ function AttendeeContactInfo(){
                                               )}
                                 />
 
-                                <Button type="submit" variant="contained" color="primary" disabled={isSubmitting || Object.keys(errors).length > 0}>
-                                    {isLoading ? <CircularProgress size={'sm'} /> : "Save"}
+                                <Button type="submit" variant="contained" color="primary"
+                                        disabled={isSubmitting || Object.keys(errors).length > 0}>
+                                    {isLoading ? <CircularProgress size={'sm'}/> : t('attendeeContactInfo.save')}
                                 </Button>
                             </Stack>
                         </Form>
@@ -240,7 +248,7 @@ function AttendeeContactInfo(){
                 </Formik>
             </Stack>
         </Stack>
-    )
+    );
 }
 
 export default AttendeeContactInfo;

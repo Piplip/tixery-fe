@@ -21,6 +21,7 @@ import {firebaseConfig} from "../../config/firebaseConfig.js";
 import DeleteDialog from "../shared/DeleteDialog.jsx";
 import {accountAxiosWithToken} from "../../config/axiosConfig.js";
 import {getUserData} from "../../common/Utilities.js";
+import {useTranslation} from "react-i18next";
 
 function OrganizerSettingProfile() {
     initializeApp(firebaseConfig);
@@ -35,6 +36,7 @@ function OrganizerSettingProfile() {
     })
     const handleDialogOpen = () => setDialogOpen(true);
     const handleDialogClose = () => setDialogOpen(false);
+    const {t} = useTranslation()
 
     const loadImage = useCallback(async (url) => {
         if (!url) return null;
@@ -79,30 +81,30 @@ function OrganizerSettingProfile() {
 
     return (
         <section className="organizer-profile">
-            <Snackbar sx={{marginTop: '3rem'}} anchorOrigin={{vertical: 'top', horizontal: 'right'}} open={alert.open}
-                      autoHideDuration={3000} onClose={() => setAlert({open: false, message: ""})}
+            <Snackbar sx={{ marginTop: '3rem' }} anchorOrigin={{ vertical: 'top', horizontal: 'right' }} open={alert.open}
+                      autoHideDuration={3000} onClose={() => setAlert({ open: false, message: "" })}
             >
-                <Alert severity={"success"} variant="filled" sx={{ width: '100%', backgroundColor: '#21cc0f'}}>
+                <Alert severity={"success"} variant="filled" sx={{ width: '100%', backgroundColor: '#21cc0f' }}>
                     {alert.message}
                 </Alert>
             </Snackbar>
-            <h1 className="organizer-profile__title">Organizer Profiles</h1>
+            <h1 className="organizer-profile__title">{t('organizerSetting.organizerProfiles')}</h1>
             <div className="organizer-profile__description">
-                Each profile describes a unique organizer and shows all of their events on one page. Having a complete profile can encourage attendees to follow you.
-                <Link to={'/help'}> <div style={{display: 'inline', color: 'blue'}}>Learn more</div></Link>
+                {t('organizerSetting.profileDescription')}
+                <Link to={'/help'}> <div style={{ display: 'inline', color: 'blue' }}>{t('organizerSetting.learnMore')}</div></Link>
             </div>
 
             <div className="organizer-profile__list">
                 {profiles && profiles.map((profile, index) => (
                     <div key={index} className="organizer-profile__card">
                         <Avatar src={profile[2]}
-                                alt={profile.name} className="organizer-profile__avatar"/>
+                                alt={profile.name} className="organizer-profile__avatar" />
                         <p className="organizer-profile__name">{profile[1]}</p>
                         {
                             profile[0] == getUserData("profileID") &&
-                            <div className={'default-profile-banner'}>Default</div>
+                            <div className={'default-profile-banner'}>{t('organizerSetting.default')}</div>
                         }
-                        <CustomMenu options={['View', 'Edit', 'Delete']} handlersWithParams={true}
+                        <CustomMenu options={[t('organizerSetting.view'), t('organizerSetting.edit'), t('organizerSetting.delete')]} handlersWithParams={true}
                                     handlers={[() => window.open(`/o/${profile[3] ? profile[3] : profile[0]}`),
                                         () => navigate(`/organizer/profile/info/${profile[0]}`),
                                         () => {
@@ -115,13 +117,13 @@ function OrganizerSettingProfile() {
                 <button className="organizer-profile__add-button"
                         onClick={handleDialogOpen}
                 >
-                    Add New Profile
+                    {t('organizerSetting.addNewProfile')}
                 </button>
             </div>
 
-            <DeleteDialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)} handleDelete={handleDeleteProfile}/>
+            <DeleteDialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)} handleDelete={handleDeleteProfile} />
 
-            <Dialog open={dialogOpen} onClose={handleDialogClose} sx={{textAlign: 'center'}}>
+            <Dialog open={dialogOpen} onClose={handleDialogClose} sx={{ textAlign: 'center' }}>
                 <IconButton
                     onClick={handleDialogClose}
                     sx={(theme) => ({
@@ -133,17 +135,18 @@ function OrganizerSettingProfile() {
                 >
                     <CloseIcon />
                 </IconButton>
-                <DialogTitle sx={{m: 0, paddingTop: '3rem', paddingInline: '5rem'}}>
-                    Are you sure you want to create a new <br/>organizer profile?</DialogTitle>
-                <DialogContent sx={{paddingInline: '3rem'}}>
+                <DialogTitle sx={{ m: 0, paddingTop: '3rem', paddingInline: '5rem' }}>
+                    {t('organizerSetting.createProfileConfirmation')}
+                </DialogTitle>
+                <DialogContent sx={{ paddingInline: '3rem' }}>
                     <Typography variant={'body2'} color={'gray'}>
-                        You can create a new profile for a different organizer
+                        {t('organizerSetting.profileDescription2')}
                     </Typography>
                 </DialogContent>
-                <DialogActions sx={{alignSelf: 'center', marginBottom: '.5rem'}}>
+                <DialogActions sx={{ alignSelf: 'center', marginBottom: '.5rem' }}>
                     <Link to={'/organizer/profile/info'}>
                         <Button variant="contained">
-                            Create New
+                            {t('organizerSetting.createNew')}
                         </Button>
                     </Link>
                 </DialogActions>

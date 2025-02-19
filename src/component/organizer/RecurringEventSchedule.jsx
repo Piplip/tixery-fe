@@ -43,12 +43,14 @@ import {useLocation} from "react-router-dom";
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import {EventContext} from "../../context.js";
 import "../../styles/recurring-event-schedule-styles.css"
+import {useTranslation} from "react-i18next";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(isSameOrBefore)
 
 function RecurringEventSchedule() {
+    const {t} = useTranslation()
     const {data, setData} = useContext(EventContext);
     const location = useLocation();
     const [events, setEvents] = useState(data?.events || {});
@@ -78,7 +80,7 @@ function RecurringEventSchedule() {
     const [snackbarMessage, setSnackbarMessage] = useState("");
     const [editingTickets, setEditingTickets] = useState([]);
     const [selectedTicketSlotKey, setSelectedTicketSlotKey] = useState(null);
-    console.log(data)
+
     useEffect(() => {
         setData(prev => ({...prev,
             eventDate: events[Object.keys(events)[0]]?.startDate,
@@ -515,9 +517,9 @@ function RecurringEventSchedule() {
             case "Monthly":
                 return (
                     <FormControl fullWidth>
-                        <InputLabel>Day of month</InputLabel>
+                        <InputLabel>{t('renderRepeatOption.dayOfMonth')}</InputLabel>
                         <Select
-                            label="Day of month"
+                            label={t('renderRepeatOption.dayOfMonth')}
                             value={monthlyDay}
                             onChange={(e) => setMonthlyDay(e.target.value)}
                         >
@@ -534,17 +536,17 @@ function RecurringEventSchedule() {
                     <Stack rowGap={4}>
                         <Stack direction="row" columnGap={1}>
                             <FormControl>
-                                <InputLabel required>Repeat every</InputLabel>
+                                <InputLabel required>{t('renderRepeatOption.repeatEvery')}</InputLabel>
                                 <OutlinedInput
-                                    label="Repeat every"
+                                    label={t('renderRepeatOption.repeatEvery')}
                                     value={repeatInterval}
                                     onChange={handleRepeatIntervalChange}
                                 />
                             </FormControl>
                             <FormControl fullWidth>
-                                <InputLabel required>Cadence</InputLabel>
+                                <InputLabel required>{t('renderRepeatOption.cadence')}</InputLabel>
                                 <Select
-                                    label="Cadence"
+                                    label={t('renderRepeatOption.cadence')}
                                     value={repeatCadence}
                                     onChange={handleRepeatCadenceChange}
                                     fullWidth
@@ -570,9 +572,9 @@ function RecurringEventSchedule() {
                             </ToggleButtonGroup>
                             :
                             <FormControl fullWidth>
-                                <InputLabel>Day of month</InputLabel>
+                                <InputLabel>{t('renderRepeatOption.dayOfMonth')}</InputLabel>
                                 <Select
-                                    label="Day of month"
+                                    label={t('renderRepeatOption.dayOfMonth')}
                                     value={monthlyDay}
                                     onChange={(e) => setMonthlyDay(e.target.value)}
                                 >
@@ -636,7 +638,7 @@ function RecurringEventSchedule() {
                                     <Stack justifyContent="space-between" alignItems="flex-start">
                                         <Stack direction="row" columnGap={1}>
                                             <span className="month-name">{monthName}</span>
-                                            <span className="time-slot-count">{slots.length} time slot(s)</span>
+                                            <span className="time-slot-count">{slots.length} {t('renderTimeSlotPreview.timeSlots')}</span>
                                         </Stack>
                                         <Stack>
                                             {openDateCard === dateKey ? (
@@ -649,7 +651,7 @@ function RecurringEventSchedule() {
                                                         handleOpenEditDrawer(dateKey);
                                                     }}
                                                 >
-                                                  <EditIcon fontSize="small" /> Edit times
+                                                    <EditIcon fontSize="small" /> {t('renderTimeSlotPreview.editTimes')}
                                                 </span>
                                                     <span
                                                         className="delete-action"
@@ -659,7 +661,7 @@ function RecurringEventSchedule() {
                                                             handleDeleteDate(dateKey);
                                                         }}
                                                     >
-                                                    <DeleteIcon fontSize="small" /> Delete date
+                                                    <DeleteIcon fontSize="small" /> {t('renderTimeSlotPreview.deleteDate')}
                                                 </span>
                                                 </Stack>
                                             ) : (
@@ -675,13 +677,13 @@ function RecurringEventSchedule() {
                                     </Stack>
                                 </Stack>
                                 <Stack>
-                                    <span className="toggle-icon">
-                                      {openDateCard === dateKey ? (
-                                          <KeyboardArrowUpIcon fontSize="medium" />
-                                      ) : (
-                                          <KeyboardArrowDownIcon fontSize="medium" />
-                                      )}
-                                    </span>
+                                <span className="toggle-icon">
+                                    {openDateCard === dateKey ? (
+                                        <KeyboardArrowUpIcon fontSize="medium" />
+                                    ) : (
+                                        <KeyboardArrowDownIcon fontSize="medium" />
+                                    )}
+                                </span>
                                 </Stack>
                             </div>
 
@@ -690,17 +692,18 @@ function RecurringEventSchedule() {
                                     <table>
                                         <thead>
                                         <tr>
-                                            <th>Time Slot</th>
-                                            <th>Duration</th>
-                                            <th>Visible Tickets</th>
-                                            <th>Ticket Price</th>
+                                            <th>{t('renderTimeSlotPreview.timeSlot')}</th>
+                                            <th>{t('renderTimeSlotPreview.duration')}</th>
+                                            <th>{t('renderTimeSlotPreview.visibleTickets')}</th>
+                                            <th>{t('renderTimeSlotPreview.ticketPrice')}</th>
                                         </tr>
                                         </thead>
                                         <tbody>
                                         {slots.map((slot, index) => {
                                             const startTimeFormatted = dayjs(slot.startTime).format("h:mm A");
                                             const slotKey = slot.occurrenceID || slot.startTime.valueOf().toString();
-                                            const slotTickets = occurrenceTickets[dateKey]?.find(obj => Object.keys(obj)[0] == slotKey)?.[slotKey] || [];
+                                            const slotTickets = occurrenceTickets[dateKey]?.find(obj => Object.keys(obj)[0] == slotKey)
+                                                ?.[slotKey] || [];
                                             const enabledTicketCount = slotTickets.filter(t => t.enabled).length;
 
                                             return (
@@ -709,7 +712,7 @@ function RecurringEventSchedule() {
                                                     <td>{dayjs(slot.endTime).diff(dayjs(slot.startTime), 'minute')} min</td>
                                                     <td>
                                                         <Stack direction={'row'} alignItems={'center'}>
-                                                            <BookOnlineIcon sx={{fontSize: 16, color: 'gray'}}/>
+                                                            <BookOnlineIcon sx={{ fontSize: 16, color: 'gray' }} />
                                                             {enabledTicketCount}
                                                         </Stack>
                                                     </td>
@@ -753,10 +756,9 @@ function RecurringEventSchedule() {
                     {snackbarMessage}
                 </Alert>
             </Snackbar>
-            <h1 className="event-date-picker__title">Manage dates and times</h1>
+            <h1 className="event-date-picker__title">{t('eventDatePicker.manageDatesTimes')}</h1>
             <p className="event-date-picker__subtitle">
-                Start by adding the dates and time slots for your recurring event. Then
-                edit ticket types, prices, and quantities for each time slot you create.
+                {t('eventDatePicker.addDatesTimesDescription')}
             </p>
             <Stack
                 direction="row"
@@ -790,24 +792,32 @@ function RecurringEventSchedule() {
                             <div className="event-date-picker__illustration">
                                 <img
                                     src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0eRAW3FmfiHgn_Z8trB3HZhDPXcpkbNYAoA&s"
-                                    alt="Event Planning"
+                                    alt={t('eventDatePicker.eventPlanningAlt')}
                                 />
                             </div>
-                            <h2 className="event-date-picker__heading">Start planning your event</h2>
-                            <p className="event-date-picker__description">It&#39;s gonna be epic!</p>
+                            <h2 className="event-date-picker__heading">{t('eventDatePicker.startPlanning')}</h2>
+                            <p className="event-date-picker__description">{t('eventDatePicker.gonnaBeEpic')}</p>
                             <button
                                 className="event-date-picker__button"
                                 onClick={handleAddDate}
                             >
-                                Add a date
+                                {t('eventDatePicker.addDate')}
                             </button>
                         </>
                     ) : (
-                        <Stack sx={{width: "100%"}} rowGap={1}>
+                        <Stack sx={{ width: "100%" }} rowGap={1}>
                             <p className="link" onClick={handleAddDate}>
-                                + Add a date
+                                + {t('eventDatePicker.addDate')}
                             </p>
-                            <RenderTimeSlotPreview />
+                            <RenderTimeSlotPreview
+                                events={events}
+                                openDateCard={openDateCard}
+                                toggleDateCard={toggleDateCard}
+                                handleOpenEditDrawer={handleOpenEditDrawer}
+                                handleDeleteDate={handleDeleteDate}
+                                handleTimeSlotClick={handleTimeSlotClick}
+                                occurrenceTickets={occurrenceTickets}
+                            />
                         </Stack>
                     )}
                 </Stack>
@@ -818,7 +828,7 @@ function RecurringEventSchedule() {
                     width="30rem"
                     paddingInline={3}
                     rowGap={3}
-                    sx={{fontFamily: "Nunito"}}
+                    sx={{ fontFamily: "Nunito" }}
                 >
                     <Stack>
                         <Stack
@@ -828,22 +838,22 @@ function RecurringEventSchedule() {
                             paddingBlock=".5rem"
                         >
                             <Typography fontSize={17} fontWeight="bold">
-                                Add dates and times
+                                {t('eventDatePicker.addDatesTimes')}
                             </Typography>
                             <IconButton onClick={() => setOpenDrawer(false)}>
-                                <CloseIcon/>
+                                <CloseIcon />
                             </IconButton>
                         </Stack>
-                        <hr/>
+                        <hr />
                     </Stack>
 
                     <Stack rowGap={3}>
                         <Typography fontWeight="bold" fontSize={22}>
-                            Date
+                            {t('eventDatePicker.date')}
                         </Typography>
                         <DatePicker
                             format="DD/MM/YYYY"
-                            label="Start date"
+                            label={t('eventDatePicker.startDate')}
                             value={selectedDate}
                             onChange={(newValue) => {
                                 setSelectedDate(newValue);
@@ -851,25 +861,35 @@ function RecurringEventSchedule() {
                             }}
                         />
                         <FormControl fullWidth>
-                            <InputLabel required>Repeats</InputLabel>
+                            <InputLabel required>{t('eventDatePicker.repeats')}</InputLabel>
                             <Select
-                                label="Repeats"
+                                label={t('eventDatePicker.repeats')}
                                 value={repeatOption}
                                 onChange={handleRepeatOptionChange}
                                 fullWidth
                             >
-                                <MenuItem value="Once">Once</MenuItem>
-                                <MenuItem value="Daily">Daily</MenuItem>
+                                <MenuItem value="Once">{t('eventDatePicker.once')}</MenuItem>
+                                <MenuItem value="Daily">{t('eventDatePicker.daily')}</MenuItem>
                                 <MenuItem value="Weekly">Weekly</MenuItem>
                                 <MenuItem value="Monthly">Monthly</MenuItem>
                                 <MenuItem value="Custom">Custom</MenuItem>
                             </Select>
                         </FormControl>
-                        <RenderRepeatOption/>
+                        <RenderRepeatOption
+                            repeatOption={repeatOption}
+                            weeklyDays={weeklyDays}
+                            setWeeklyDays={setWeeklyDays}
+                            monthlyDay={monthlyDay}
+                            setMonthlyDay={setMonthlyDay}
+                            repeatInterval={repeatInterval}
+                            handleRepeatIntervalChange={handleRepeatIntervalChange}
+                            repeatCadence={repeatCadence}
+                            handleRepeatCadenceChange={handleRepeatCadenceChange}
+                        />
                         {repeatOption !== "Once" && (
                             <DatePicker
                                 format="DD/MM/YYYY"
-                                label="End date"
+                                label={t('eventDatePicker.endDate')}
                                 value={endDate}
                                 onChange={(newValue) => setEndDate(newValue)}
                             />
@@ -878,7 +898,7 @@ function RecurringEventSchedule() {
 
                     <Stack rowGap={2}>
                         <Typography fontWeight="bold" fontSize={22}>
-                            Time
+                            {t('eventDatePicker.time')}
                         </Typography>
                         <ToggleButtonGroup
                             color="primary"
@@ -887,18 +907,18 @@ function RecurringEventSchedule() {
                             value={timeType}
                             onChange={handleTimeTypeChange}
                         >
-                            <ToggleButton value="single">Single time</ToggleButton>
-                            <ToggleButton value="multiple">Multiple times</ToggleButton>
+                            <ToggleButton value="single">{t('eventDatePicker.singleTime')}</ToggleButton>
+                            <ToggleButton value="multiple">{t('eventDatePicker.multipleTimes')}</ToggleButton>
                         </ToggleButtonGroup>
 
                         <Stack rowGap={2}>
                             {timeType === "multiple" && (
                                 <Accordion>
-                                    <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
+                                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                         <Stack direction="row" columnGap={2}>
-                                            <DynamicFeedIcon/>{" "}
-                                            <p style={{fontFamily: "Nunito", color: "gray"}}>
-                                                Generate time slots
+                                            <DynamicFeedIcon />{" "}
+                                            <p style={{ fontFamily: "Nunito", color: "gray" }}>
+                                                {t('eventDatePicker.generateTimeSlots')}
                                             </p>
                                         </Stack>
                                     </AccordionSummary>
@@ -906,26 +926,26 @@ function RecurringEventSchedule() {
                                         <Stack paddingBottom={2} rowGap={4}>
                                             <Stack direction="row" spacing={1} alignItems="center">
                                                 <TimePicker
-                                                    label="Start time"
+                                                    label={t('eventDatePicker.startTime')}
                                                     variant="outlined"
                                                     fullWidth
                                                     value={timeSlot.startTime}
                                                     onChange={(newValue) =>
-                                                        setTimeSlot((prev) => ({...prev, startTime: newValue}))
+                                                        setTimeSlot((prev) => ({ ...prev, startTime: newValue }))
                                                     }
                                                 />
                                                 <TimePicker
-                                                    label="End time"
+                                                    label={t('eventDatePicker.endTime')}
                                                     variant="outlined"
                                                     fullWidth
                                                     value={timeSlot.endTime}
                                                     onChange={(newValue) =>
-                                                        setTimeSlot((prev) => ({...prev, endTime: newValue}))
+                                                        setTimeSlot((prev) => ({ ...prev, endTime: newValue }))
                                                     }
                                                 />
                                             </Stack>
                                             <Stack rowGap={2}>
-                                                <p style={{fontWeight: "bold"}}>Time slots repeat every</p>
+                                                <p style={{ fontWeight: "bold" }}>{t('eventDatePicker.timeSlotsRepeat')}</p>
                                                 <ToggleButtonGroup
                                                     value={repeatInterval}
                                                     exclusive
@@ -937,28 +957,28 @@ function RecurringEventSchedule() {
                                                             <ToggleButton fullWidth={false}
                                                                           key={time}
                                                                           value={time}
-                                                                          sx={{borderRadius: 5}}
+                                                                          sx={{ borderRadius: 5 }}
                                                             >
-                                                                {time >= 60 ? time / 60 : time} {time >= 60 ? "hours" : "min"}
+                                                                {time >= 60 ? time / 60 : time} {time >= 60 ? t('eventDatePicker.hours') : t('eventDatePicker.min')}
                                                             </ToggleButton>
                                                         ))}
                                                     </Stack>
                                                 </ToggleButtonGroup>
                                                 <Typography fontSize={16} color="#306adc">
-                                                    Add a custom time
+                                                    {t('eventDatePicker.addCustomTime')}
                                                 </Typography>
                                             </Stack>
                                             <Stack rowGap={1}>
-                                                <p style={{fontWeight: "bold"}}>Time slot duration</p>
+                                                <p style={{ fontWeight: "bold" }}>{t('eventDatePicker.timeSlotDuration')}</p>
                                                 <Select
                                                     value={slotDuration}
                                                     onChange={(e) => setSlotDuration(e.target.value)}
                                                     fullWidth
                                                 >
                                                     <MenuItem value="Until event ends">
-                                                        Until event ends (10:00 PM)
+                                                        {t('eventDatePicker.untilEventEnds')} (10:00 PM)
                                                     </MenuItem>
-                                                    <MenuItem value="Custom">Custom duration</MenuItem>
+                                                    <MenuItem value="Custom">{t('eventDatePicker.customDuration')}</MenuItem>
                                                 </Select>
                                             </Stack>
                                             <Button
@@ -988,7 +1008,7 @@ function RecurringEventSchedule() {
                                                     setEditingSlots((prev) => [...prev, ...generated]);
                                                 }}
                                             >
-                                                Preview changes
+                                                {t('eventDatePicker.previewChanges')}
                                             </Button>
                                         </Stack>
                                     </AccordionDetails>
@@ -1003,19 +1023,19 @@ function RecurringEventSchedule() {
                                 <Stack direction="row" columnGap={1} key={index} alignItems="center">
                                     <TimePicker
                                         format="HH:mm"
-                                        label="Start time"
+                                        label={t('eventDatePicker.startTime')}
                                         value={item.startTime}
                                         onChange={(newValue) => handleTimeChange(index, "startTime", newValue)}
                                     />
                                     <TimePicker
                                         format="HH:mm"
-                                        label="End time"
+                                        label={t('eventDatePicker.endTime')}
                                         value={item.endTime}
                                         onChange={(newValue) => handleTimeChange(index, "endTime", newValue)}
                                     />
                                     {editingSlots.length > 1 && (
                                         <IconButton onClick={() => handleDeleteTimeSlot(index)}>
-                                            <DeleteIcon/>
+                                            <DeleteIcon />
                                         </IconButton>
                                     )}
                                 </Stack>
@@ -1023,50 +1043,50 @@ function RecurringEventSchedule() {
                         </Stack>
                         {timeType === "multiple" && (
                             <div className="link" onClick={handleAddTimeSlot}>
-                                + Add a time slot
+                                + {t('eventDatePicker.addTimeSlot')}
                             </div>
                         )}
                     </Stack>
 
                     <Stack direction="row" marginTop={3} columnGap={1}>
                         <Button fullWidth variant="outlined" onClick={() => setOpenDrawer(false)}>
-                            Cancel
+                            {t('eventDatePicker.cancel')}
                         </Button>
                         <Button fullWidth variant="contained" color="error" onClick={handleSave}>
-                            Save
+                            {t('eventDatePicker.save')}
                         </Button>
                     </Stack>
                 </Stack>
             </Drawer>
             <Drawer anchor="right" open={openEditDrawer} onClose={() => setOpenEditDrawer(false)}>
-                <Stack width="30rem" rowGap={2} sx={{fontFamily: "Nunito"}} paddingBlock="5rem 1rem" height={'100%'}>
+                <Stack width="30rem" rowGap={2} sx={{ fontFamily: "Nunito" }} paddingBlock="5rem 1rem" height={'100%'}>
                     <Stack direction="row" justifyContent="space-between" alignItems="center" paddingInline={3}>
                         {editDateKey && (
-                            <Typography fontSize={17} fontWeight="bold">Edit time slots</Typography>
+                            <Typography fontSize={17} fontWeight="bold">{t('eventDatePicker.editTimeSlots')}</Typography>
                         )}
                         <IconButton onClick={() => setOpenEditDrawer(false)}>
-                            <CloseIcon/>
+                            <CloseIcon />
                         </IconButton>
                     </Stack>
-                    <Stack rowGap={3} paddingInline={3} flexGrow={1} sx={{height: '70%', overflowY: 'auto'}}>
-                        <hr/>
+                    <Stack rowGap={3} paddingInline={3} flexGrow={1} sx={{ height: '70%', overflowY: 'auto' }}>
+                        <hr />
                         <Typography fontWeight="bold" fontSize={22}>
                             {dayjs(editDateKey).format("dddd, MMMM D, YYYY")}
                         </Typography>
                         {editSlots.map((slot, index) => (
                             <Stack direction="row" columnGap={1} key={index} alignItems="center">
                                 <TimePicker
-                                    label="Time slot start"
+                                    label={t('eventDatePicker.timeSlotStart')}
                                     value={slot.startTime}
                                     onChange={(newValue) => handleEditTimeChange(index, "startTime", newValue)}
                                 />
                                 <TimePicker
-                                    label="Time slot end"
+                                    label={t('eventDatePicker.timeSlotEnd')}
                                     value={slot.endTime}
                                     onChange={(newValue) => handleEditTimeChange(index, "endTime", newValue)}
                                 />
                                 <IconButton onClick={() => handleDeleteEditTimeSlot(index)}>
-                                    <DeleteIcon/>
+                                    <DeleteIcon />
                                 </IconButton>
                             </Stack>
                         ))}
@@ -1075,12 +1095,12 @@ function RecurringEventSchedule() {
                             style={{ color: "#306adc", cursor: "pointer" }}
                             onClick={handleAddEditTimeSlot}
                         >
-                            + Add a time slot
+                            + {t('eventDatePicker.addTimeSlot')}
                         </div>
                     </Stack>
 
                     <Stack paddingInline={3} rowGap={1}>
-                        <hr/>
+                        <hr />
                         <FormControlLabel
                             control={
                                 <Checkbox
@@ -1088,14 +1108,14 @@ function RecurringEventSchedule() {
                                     onChange={(e) => setApplyToMultipleDates(e.target.checked)}
                                 />
                             }
-                            label="Apply changes to multiple dates"
+                            label={t('eventDatePicker.applyToMultipleDates')}
                         />
                         <Stack direction="row" marginTop="auto" columnGap={1}>
                             <Button variant="outlined" fullWidth onClick={() => setOpenEditDrawer(false)}>
-                                Cancel
+                                {t('eventDatePicker.cancel')}
                             </Button>
                             <Button variant="contained" color="error" fullWidth onClick={handleSaveEditTimes}>
-                                Save
+                                {t('eventDatePicker.save')}
                             </Button>
                         </Stack>
                     </Stack>
@@ -1116,23 +1136,23 @@ function RecurringEventSchedule() {
                     <Stack>
                         <Stack direction="row" justifyContent="space-between" alignItems="center" paddingInline={3}>
                             <Typography fontSize={17} fontWeight="bold">
-                                Tickets
+                                {t('eventDatePicker.tickets')}
                             </Typography>
                             <IconButton onClick={() => setOpenEditTicketDrawer(false)}>
-                                <CloseIcon/>
+                                <CloseIcon />
                             </IconButton>
                         </Stack>
-                        <hr/>
+                        <hr />
                     </Stack>
-                    <Stack rowGap={3} paddingInline={3} flexGrow={1} sx={{height: '70%', overflowY: 'auto'}}>
+                    <Stack rowGap={3} paddingInline={3} flexGrow={1} sx={{ height: '70%', overflowY: 'auto' }}>
                         <Typography fontWeight="bold" fontSize={22}>
                             {dayjs(editDateKey).format("dddd, MMMM D, YYYY")}
                         </Typography>
                         {events[editDateKey] &&
                             <FormControl>
-                                <InputLabel>Select a time slot</InputLabel>
+                                <InputLabel>{t('eventDatePicker.selectTimeSlot')}</InputLabel>
                                 <Select
-                                    label="Select a time slot"
+                                    label={t('eventDatePicker.selectTimeSlot')}
                                     fullWidth
                                     value={selectedTicketSlotKey}
                                     onChange={(e) => {
@@ -1155,16 +1175,16 @@ function RecurringEventSchedule() {
                             {data?.tickets?.map((item, index) => {
                                 const editedTicket = editingTickets.find((t) => t.ticketID === item.id) || { ...item, enabled: true };
                                 return (
-                                    <Stack key={index} sx={{border: '1px solid', padding: '.75rem 1rem'}}>
+                                    <Stack key={index} sx={{ border: '1px solid', padding: '.75rem 1rem' }}>
                                         <Stack direction={'row'} justifyContent={'space-between'}>
                                             <Stack alignItems={'center'} direction={'row'} columnGap={1}>
                                                 {editedTicket.enabled ?
                                                     <>
-                                                        <VisibilityIcon sx={{ fontSize: 16 }} /> Visible
+                                                        <VisibilityIcon sx={{ fontSize: 16 }} /> {t('eventDatePicker.visible')}
                                                     </>
                                                     :
                                                     <>
-                                                        <VisibilityOffIcon sx={{ fontSize: 16 }} /> Hidden
+                                                        <VisibilityOffIcon sx={{ fontSize: 16 }} /> {t('eventDatePicker.hidden')}
                                                     </>
                                                 }
                                             </Stack>
@@ -1185,23 +1205,23 @@ function RecurringEventSchedule() {
                                             </Typography>
                                             <Stack direction={'row'} columnGap={1.5}>
                                                 <TextField disabled
-                                                    label={'Price'}
-                                                    value={
-                                                        editedTicket.ticketType === 'paid' ? editedTicket.price
-                                                        :
-                                                        editedTicket.ticketType === 'free' ? 'Free' : 'Donation'
-                                                    }
-                                                    onChange={(e) => {
-                                                        const newPrice = e.target.value;
-                                                        setEditingTickets((prev) =>
-                                                            prev.map((t) =>
-                                                                t.id === item.id ? { ...t, price: newPrice } : t
-                                                            )
-                                                        );
-                                                    }}
+                                                           label={t('eventDatePicker.price')}
+                                                           value={
+                                                               editedTicket.ticketType === 'paid' ? editedTicket.price
+                                                                   :
+                                                                   editedTicket.ticketType === 'free' ? t('eventDatePicker.free') : t('eventDatePicker.donation')
+                                                           }
+                                                           onChange={(e) => {
+                                                               const newPrice = e.target.value;
+                                                               setEditingTickets((prev) =>
+                                                                   prev.map((t) =>
+                                                                       t.id === item.id ? { ...t, price: newPrice } : t
+                                                                   )
+                                                               );
+                                                           }}
                                                 />
                                                 <TextField
-                                                    label={'Quantity'} disabled
+                                                    label={t('eventDatePicker.quantity')} disabled
                                                     value={editedTicket.quantity}
                                                     onChange={(e) => {
                                                         const newQuantity = e.target.value;
@@ -1223,7 +1243,7 @@ function RecurringEventSchedule() {
                                 alignItems={'center'}
                                 sx={{ backgroundColor: '#dcdcdc', padding: '.5rem 1rem' }}
                             >
-                                <InfoOutlinedIcon sx={{ fontSize: 16 }} /> Create new tickets on the Add tickets page
+                                <InfoOutlinedIcon sx={{ fontSize: 16 }} /> {t('eventDatePicker.createNewTickets')}
                             </Stack>
                         </Stack>
                     </Stack>
@@ -1237,14 +1257,14 @@ function RecurringEventSchedule() {
                                         onChange={(e) => setApplyToMultipleDates(e.target.checked)}
                                     />
                                 }
-                                label="Apply changes to multiple dates"
+                                label={t('eventDatePicker.applyToMultipleDates')}
                             />
                             <Stack direction={'row'} marginTop="auto" columnGap={1}>
                                 <Button variant="outlined" fullWidth onClick={() => setOpenEditTicketDrawer(false)}>
-                                    Cancel
+                                    {t('eventDatePicker.cancel')}
                                 </Button>
                                 <Button variant="contained" color="error" fullWidth onClick={handleSaveTickets}>
-                                    Save
+                                    {t('eventDatePicker.save')}
                                 </Button>
                             </Stack>
                         </Stack>

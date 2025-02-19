@@ -9,6 +9,7 @@ import {deleteObject, getMetadata, getDownloadURL, getStorage, listAll, ref, upl
 import {generateFileName} from "../../common/Utilities.js";
 import {useLocation} from "react-router-dom";
 import {EventContext} from "../../context.js";
+import {useTranslation} from "react-i18next";
 
 const Section = ({ title, description, children }) => (
     <div className="media-uploader__section">
@@ -39,6 +40,7 @@ initializeApp(firebaseConfig);
 const storage = getStorage()
 
 function MediaUploader () {
+    const {t} = useTranslation()
     const {data, setData, setHasUnsavedChanges} = useContext(EventContext)
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [uploadedImages, setUploadedImages] = useState([]);
@@ -209,10 +211,10 @@ function MediaUploader () {
     }
 
     return (
-        <div className={`media-uploader ${data?.images?.length > 0 || data?.videos?.length > 0 || uploadedImages?.length > 0 || uploadedVideos?.length > 0 
+        <div className={`media-uploader ${data?.images?.length > 0 || data?.videos?.length > 0 || uploadedImages?.length > 0 || uploadedVideos?.length > 0
             ? 'complete-section' : ''}`}>
             <Snackbar open={showError} autoHideDuration={6000} onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'top', horizontal: 'right' }} sx={{marginTop: '3rem'}}
+                      anchorOrigin={{ vertical: 'top', horizontal: 'right' }} sx={{ marginTop: '3rem' }}
             >
                 <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
                     {errorMessage.split('\n').map((msg, index) => (
@@ -227,7 +229,7 @@ function MediaUploader () {
                             <img
                                 key={index}
                                 src={image}
-                                alt={`Carousel ${index + 1}`}
+                                alt={`${t('mediaUploader.carousel')} ${index + 1}`}
                                 className={`media-uploader__carousel-image ${
                                     index === currentImageIndex ? 'active' : ''
                                 }`}
@@ -245,16 +247,16 @@ function MediaUploader () {
                         ))}
                     </div>
                     <div className="media-uploader__upload-button">
-                        <UploadIcon className="media-uploader__upload-icon"/>
-                        <p>Upload <br/>Photos & Videos</p>
+                        <UploadIcon className="media-uploader__upload-icon" />
+                        <p>{t('mediaUploader.uploadPhotosVideos')}</p>
                     </div>
                 </div>
             ) : (
                 <Stack className="media-uploader__expanded-state">
                     <section className="media-uploader__section">
-                        <h2>Upload Images</h2>
+                        <h2>{t('mediaUploader.uploadImages')}</h2>
                         <p className="media-uploader__description">
-                            Drag and drop your images here, or click to browse. Recommended: JPG, PNG (max 5MB each).
+                            {t('mediaUploader.imageDescription')}
                         </p>
                         <div
                             className={`media-uploader__drop-zone ${isDragOver ? 'drag-over' : ''}`}
@@ -262,7 +264,7 @@ function MediaUploader () {
                             onDragLeave={handleDragLeave}
                             onDrop={handleDrop}
                         >
-                            <p>Drag and drop images here, or click to upload</p>
+                            <p>{t('mediaUploader.dragDropImages')}</p>
                             <input
                                 type="file"
                                 accept="image/*"
@@ -275,10 +277,10 @@ function MediaUploader () {
                                 <div
                                     key={index}
                                     className="media-uploader__preview-item"
-                                    onClick={() => setCurrentPreview({type: 'img', src: isFile(file) ? URL.createObjectURL(file) : file.url})}
-                                    style={{animationDelay: `${index * 100}ms`}}
+                                    onClick={() => setCurrentPreview({ type: 'img', src: isFile(file) ? URL.createObjectURL(file) : file.url })}
+                                    style={{ animationDelay: `${index * 100}ms` }}
                                 >
-                                    <img src={isFile(file) ? URL.createObjectURL(file) : file.url} alt={`Preview ${index}`}/>
+                                    <img src={isFile(file) ? URL.createObjectURL(file) : file.url} alt={`${t('mediaUploader.preview')} ${index}`} />
                                     <button
                                         className="media-uploader__delete-btn"
                                         onClick={(e) => {
@@ -297,12 +299,12 @@ function MediaUploader () {
                     </section>
 
                     <section className="media-uploader__section">
-                        <h2>Upload Videos</h2>
+                        <h2>{t('mediaUploader.uploadVideos')}</h2>
                         <p className="media-uploader__description">
-                            Upload your event videos here. Recommended formats: MP4, MOV (max 10MB each).
+                            {t('mediaUploader.videoDescription')}
                         </p>
                         <div className="media-uploader__drop-zone">
-                            <p>Click to upload videos</p>
+                            <p>{t('mediaUploader.clickUploadVideos')}</p>
                             <input
                                 type="file"
                                 accept="video/*"
@@ -314,9 +316,9 @@ function MediaUploader () {
                                 <div
                                     key={index}
                                     className="media-uploader__preview-item"
-                                    onClick={() => {setCurrentPreview({type: 'video', src: isFile(file) ? URL.createObjectURL(file) : file.url})}}
+                                    onClick={() => { setCurrentPreview({ type: 'video', src: isFile(file) ? URL.createObjectURL(file) : file.url }) }}
                                 >
-                                    <video src={isFile(file) ? URL.createObjectURL(file) : file.url}/>
+                                    <video src={isFile(file) ? URL.createObjectURL(file) : file.url} />
                                     <button className="media-uploader__delete-btn"
                                             onClick={(e) => {
                                                 e.stopPropagation();
@@ -334,11 +336,10 @@ function MediaUploader () {
                     </section>
 
                     {currentPreview.src && (
-                        <div className="media-uploader__preview-overlay" onClick={() => setCurrentPreview({type: '', src: null})}>
+                        <div className="media-uploader__preview-overlay" onClick={() => setCurrentPreview({ type: '', src: null })}>
                             {currentPreview.type === 'video' ? (
-                                <video src={currentPreview.src} autoPlay controls/>
-                                ) : <img src={currentPreview.src} alt={'Preview'}/>
-                            }
+                                <video src={currentPreview.src} autoPlay controls />
+                            ) : <img src={currentPreview.src} alt={t('mediaUploader.preview')} />}
                         </div>
                     )}
                 </Stack>

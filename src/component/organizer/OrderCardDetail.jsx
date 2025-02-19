@@ -21,6 +21,7 @@ import Grid from "@mui/material/Grid2";
 import dayjs from "dayjs";
 import {formatCurrency} from "../../common/Utilities.js";
 import "../../styles/organizer-order-card-detail-styles.css"
+import {useTranslation} from "react-i18next";
 
 OrderCardDetail.propTypes = {
     open: PropTypes.bool.isRequired,
@@ -63,6 +64,7 @@ const orderData = {
 function OrderCardDetail({open, handleClose, data}){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const {t} = useTranslation()
 
     return (
         <Dialog
@@ -70,7 +72,7 @@ function OrderCardDetail({open, handleClose, data}){
             onClose={handleClose}
             maxWidth="md"
             fullWidth
-            sx={{ zIndex: 10000000}}
+            sx={{ zIndex: 10000000 }}
         >
             <DialogContent dividers={true}>
                 <Stack p={1} className="order-details">
@@ -79,30 +81,30 @@ function OrderCardDetail({open, handleClose, data}){
                             <Grid container alignItems="center" justifyContent={'space-between'} alignContent={'center'}>
                                 <Grid item xs={12} sm={3}>
                                     <Typography variant={'h6'} className="order-details__header-title">
-                                        Order ID: <b>#{data.order.order_id}</b>
+                                        {t('orderCardDetail.orderID')}: <b>#{data.order.order_id}</b>
                                     </Typography>
                                 </Grid>
                                 <Grid item xs={12} sm={3}>
                                     <Typography variant="h6">
-                                        Status:{' '}
+                                        {t('orderCardDetail.status')}:{' '}
                                         <span
                                             style={{
                                                 color: orderData.statusColor,
                                                 textTransform: 'uppercase'
                                             }}
                                         >
-                                    {data.order.status}
-                                  </span>
+                                            {t(`orderCardDetail.order-status.${data.order.status.toLowerCase()}`)}
+                                        </span>
                                     </Typography>
                                 </Grid>
                                 <Grid item xs={12} sm={3}>
                                     <Typography variant="h6">
-                                        Date: {dayjs(data.order.created_at).format('HH:mm DD/MM/YYYY')}
+                                        {t('orderCardDetail.date')}: {dayjs(data.order.created_at).format('HH:mm DD/MM/YYYY')}
                                     </Typography>
                                 </Grid>
                                 <Grid item xs={12} sm={3}>
                                     <Typography variant="h6">
-                                        Total:{' '}
+                                        {t('orderCardDetail.total')}:{' '}
                                         {data.order.amount &&
                                             data.order.currency &&
                                             formatCurrency(data.order.amount / 100, data.order.currency)}
@@ -120,12 +122,12 @@ function OrderCardDetail({open, handleClose, data}){
                                 </Link>
                             </Typography>
                             <Typography variant="body2">
-                                Date: {dayjs(data.order.start_time).format('HH:mm DD/MM/YYYY')}
+                                {t('orderCardDetail.eventDate')}: {dayjs(data.order.start_time).format('HH:mm DD/MM/YYYY')}
                             </Typography>
                             <Typography variant="body2">
                                 {data.order?.location?.locationType === 'venue'
                                     ? `${data.order.location.name}, ${data.order.location.location}`
-                                    : `Online event`}
+                                    : t('orderCardDetail.onlineEvent')}
                             </Typography>
                         </CardContent>
                     </Card>
@@ -133,7 +135,7 @@ function OrderCardDetail({open, handleClose, data}){
                     <Card className="order-details__card order-details__tickets">
                         <CardContent className="order-details__tickets-content">
                             <Typography variant="h6" gutterBottom>
-                                Tickets
+                                {t('orderCardDetail.tickets')}
                             </Typography>
                             {isMobile ? (
                                 data.order.tickets.map((ticket, index) => (
@@ -146,13 +148,13 @@ function OrderCardDetail({open, handleClose, data}){
                                         borderRadius={1}
                                         className="order-details__ticket-item"
                                     >
-                                        <Typography variant="body2">Ticket ID: {ticket.ticket_id}</Typography>
+                                        <Typography variant="body2">{t('orderCardDetail.ticketID')}: {ticket.ticket_id}</Typography>
                                         <Typography variant="body2" sx={{ wordWrap: 'break-word' }}>
-                                            Ticket Name: {ticket.name}
+                                            {t('orderCardDetail.ticketName')}: {ticket.name}
                                         </Typography>
-                                        <Typography variant="body2">Quantity: {ticket.quantity}</Typography>
-                                        <Typography variant="body2">Price: {ticket.price}</Typography>
-                                        <Typography variant="body2">Subtotal: {ticket.subtotal}</Typography>
+                                        <Typography variant="body2">{t('orderCardDetail.quantity')}: {ticket.quantity}</Typography>
+                                        <Typography variant="body2">{t('orderCardDetail.price')}: {ticket.price}</Typography>
+                                        <Typography variant="body2">{t('orderCardDetail.subtotal')}: {ticket.subtotal}</Typography>
                                     </Box>
                                 ))
                             ) : (
@@ -165,13 +167,13 @@ function OrderCardDetail({open, handleClose, data}){
                                     >
                                         <TableHead>
                                             <TableRow>
-                                                <TableCell className="order-details__table-header">Ticket ID</TableCell>
+                                                <TableCell className="order-details__table-header">{t('orderCardDetail.ticketID')}</TableCell>
                                                 <TableCell className="order-details__ticket-name order-details__table-header">
-                                                    Ticket Name
+                                                    {t('orderCardDetail.ticketName')}
                                                 </TableCell>
-                                                <TableCell className="order-details__table-header">Quantity</TableCell>
-                                                <TableCell className="order-details__table-header">Price</TableCell>
-                                                <TableCell className="order-details__table-header">Subtotal</TableCell>
+                                                <TableCell className="order-details__table-header">{t('orderCardDetail.quantity')}</TableCell>
+                                                <TableCell className="order-details__table-header">{t('orderCardDetail.price')}</TableCell>
+                                                <TableCell className="order-details__table-header">{t('orderCardDetail.subtotal')}</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
@@ -207,12 +209,12 @@ function OrderCardDetail({open, handleClose, data}){
                     <Card className="order-details__card order-details__customer">
                         <CardContent className="order-details__customer-content">
                             <Typography variant="h6" gutterBottom>
-                                Customer Information
+                                {t('orderCardDetail.customerInformation')}
                             </Typography>
-                            <Typography variant="body1">Name: {data.info.profile_name}</Typography>
-                            <Typography variant="body1">Email: {data.info.account_email}</Typography>
+                            <Typography variant="body1">{t('orderCardDetail.name')}: {data.info.profile_name}</Typography>
+                            <Typography variant="body1">{t('orderCardDetail.email')}: {data.info.account_email}</Typography>
                             {orderData.customer.phone && (
-                                <Typography variant="body1">Phone: {data.info.phone_number}</Typography>
+                                <Typography variant="body1">{t('orderCardDetail.phone')}: {data.info.phone_number}</Typography>
                             )}
                         </CardContent>
                     </Card>
@@ -220,19 +222,19 @@ function OrderCardDetail({open, handleClose, data}){
                     <Card className="order-details__card order-details__payment-delivery">
                         <CardContent className="order-details__payment-delivery-content">
                             <Typography variant="h6" gutterBottom>
-                                Payment & Delivery
+                                {t('orderCardDetail.paymentDelivery')}
                             </Typography>
-                            <Typography variant="body1" sx={{ textTransform: 'capitalize' }}>
-                                Payment Method: {data.order.payment_method}
+                            <Typography variant="body1">
+                                {t('orderCardDetail.paymentMethod')}: <span style={{textTransform: 'capitalize'}}>{data.order.payment_method}</span>
                             </Typography>
-                            <Typography variant="body1">Delivery Method: e-Ticket</Typography>
+                            <Typography variant="body1">{t('orderCardDetail.deliveryMethod')}: e-Ticket</Typography>
                         </CardContent>
                     </Card>
                 </Stack>
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleClose} variant={'contained'} color={'primary'}>
-                    Close
+                    {t('orderCardDetail.close')}
                 </Button>
             </DialogActions>
         </Dialog>

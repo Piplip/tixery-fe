@@ -9,6 +9,7 @@ import VideoCallOutlinedIcon from '@mui/icons-material/VideoCallOutlined';
 import SportsGymnasticsOutlinedIcon from '@mui/icons-material/SportsGymnasticsOutlined';
 import BeachAccessOutlinedIcon from '@mui/icons-material/BeachAccessOutlined';
 import "../../styles/attendee-hero.css"
+import {useTranslation} from "react-i18next";
 
 const images = [
     {
@@ -33,18 +34,20 @@ const images = [
     },
 ];
 
-const eventGenres = [
-    {label: "Music", icon: <MusicNoteOutlinedIcon sx={{fontSize: '3rem'}}/>},
-    {label: "Food & Drink", icon: <FastfoodOutlinedIcon sx={{fontSize: '3rem'}}/>},
-    {label: "Business", icon: <BusinessOutlinedIcon sx={{fontSize: '3rem'}}/>},
-    {label: "Health", icon: <HealthAndSafetyOutlinedIcon sx={{fontSize: '3rem'}}/>},
-    {label: "Fashion", icon: <DiamondOutlinedIcon sx={{fontSize: '3rem'}}/>},
-    {label: "Film & Media", icon: <VideoCallOutlinedIcon sx={{fontSize: '3rem'}}/>},
-    {label: "Hobbies", icon: <SportsGymnasticsOutlinedIcon sx={{fontSize: '3rem'}}/>},
-    {label: "Travel & Outdoor", icon: <BeachAccessOutlinedIcon sx={{fontSize: '3rem'}}/>}
-]
-
 function AttendeeHero() {
+    const {t} = useTranslation()
+
+    const eventGenres = [
+        { labelKey: 'attendeeHero.music', icon: <MusicNoteOutlinedIcon sx={{ fontSize: '3rem' }} /> },
+        { labelKey: 'attendeeHero.foodAndDrink', icon: <FastfoodOutlinedIcon sx={{ fontSize: '3rem' }} /> },
+        { labelKey: 'attendeeHero.business', icon: <BusinessOutlinedIcon sx={{ fontSize: '3rem' }} /> },
+        { labelKey: 'attendeeHero.health', icon: <HealthAndSafetyOutlinedIcon sx={{ fontSize: '3rem' }} /> },
+        { labelKey: 'attendeeHero.fashion', icon: <DiamondOutlinedIcon sx={{ fontSize: '3rem' }} /> },
+        { labelKey: 'attendeeHero.filmAndMedia', icon: <VideoCallOutlinedIcon sx={{ fontSize: '3rem' }} /> },
+        { labelKey: 'attendeeHero.hobbies', icon: <SportsGymnasticsOutlinedIcon sx={{ fontSize: '3rem' }} /> },
+        { labelKey: 'attendeeHero.travelAndOutdoor', icon: <BeachAccessOutlinedIcon sx={{ fontSize: '3rem' }} /> }
+    ];
+
     return (
         <Stack className={'attendee-hero'} rowGap={'2rem'}>
             <Carousel>
@@ -59,13 +62,13 @@ function AttendeeHero() {
                             <div className={'attendee-hero__event-genre__icon-wrapper'}>
                                 {genre.icon}
                             </div>
-                            <p>{genre.label}</p>
+                            <p>{t(genre.labelKey)}</p>
                         </Stack>
                     )
                 })}
             </Stack>
         </Stack>
-    )
+    );
 }
 
 export default AttendeeHero;

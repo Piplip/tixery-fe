@@ -13,6 +13,7 @@ import {useState} from "react";
 import {Divider, Modal, ModalDialog, Slider} from "@mui/joy";
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import PaymentCheckout from "../attendee/PaymentCheckout.jsx";
+import {useTranslation} from "react-i18next";
 
 TicketPanel.propTypes = {
     tickets: PropTypes.array.isRequired,
@@ -32,6 +33,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
     const [totalDonationPrice, setTotalDonationPrice] = useState(0)
     const [quantities, setQuantities] = useState(tickets.reduce((acc, _, index) => ({ ...acc, [index]: 0 }), {}));
     const [open, setOpen] = useState(false);
+    const {t} = useTranslation()
 
     const toggleTicketInfo = (index) => {
         setExpandedTickets((prevState) => ({
@@ -105,9 +107,9 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
         if (dayjs(eventEndTime).isBefore(dayjs())) {
             return (
                 <Stack rowGap={2}>
-                    <Typography variant={'h6'} textAlign={'center'}>This event has ended</Typography>
+                    <Typography variant={'h6'} textAlign={'center'}>{t('ticketPanel.eventEnded')}</Typography>
                     <button className={'view-more-btn'}>
-                        View more events
+                        {t('ticketPanel.viewMoreEvents')}
                     </button>
                 </Stack>
             );
@@ -116,7 +118,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
         if (tickets.length === 0) {
             return (
                 <div>
-                    <Typography variant={'h6'} textAlign={'center'}>No tickets available now</Typography>
+                    <Typography variant={'h6'} textAlign={'center'}>{t('ticketPanel.noTicketsAvailable')}</Typography>
                 </div>
             );
         }
@@ -139,7 +141,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
                                 justifyContent={'space-between'}>
                                 <div className={'event-view__registration-price'}>
                                     {ticket.ticket_type === 'paid' ? `${ticket.currency.symbol !== "null" ? ticket.currency.symbol : ''}${ticket.price}` : ticket.ticket_type}
-                                    <Tooltip title="Show more details">
+                                    <Tooltip title={t('ticketPanel.showMoreDetails')}>
                                         <InfoOutlinedIcon
                                             onClick={() => toggleTicketInfo(index)}
                                             style={{ cursor: "pointer", marginLeft: 1 }}
@@ -150,13 +152,13 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
                             </Stack>
                             {saleEndingSoon &&
                                 <div className={'event-view__sale-ending'}>
-                                    <ErrorOutlineOutlinedIcon /> Sale ending soon
+                                    <ErrorOutlineOutlinedIcon /> {t('ticketPanel.saleEndingSoon')}
                                 </div>
                             }
                             {isExpanded && (
                                 <Stack rowGap={1}>
                                     <Typography variant={"body2"} alignSelf={"end"}>
-                                        Sales end on{" "}
+                                        {t('ticketPanel.salesEndOn')}
                                         {dayjs(ticket.sale_end_time).format(
                                             "HH:mm, DD MMMM YYYY"
                                         )}
@@ -168,7 +170,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
                     );
                 })}
                 <button className={'event-view__registration-button'} onClick={() => setOpen(true)}>
-                    Checkout {totalPrice > 0 ? `- $${Math.round((totalPrice + totalDonationPrice) * 100) / 100}` : ''}
+                    {t('ticketPanel.checkout')} {totalPrice > 0 ? `- $${Math.round((totalPrice + totalDonationPrice) * 100) / 100}` : ''}
                 </button>
             </>
         );
@@ -176,7 +178,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
 
     function handleCheckout(){
         if(Object.values(quantities).reduce((acc, quantity) => acc + quantity, 0) === 0){
-            alert('Please select at least one ticket before continuing');
+            alert(t('eventRegistration.selectAtLeastOneTicket'));
             return;
         }
         setStep(2)
@@ -184,112 +186,125 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
 
     return (
         <Stack className={'event-view__registration'} rowGap={2}>
-            <Modal open={open} onClose={() => setOpen(false)} sx={{zIndex: 100000000}}>
-                <ModalDialog size={"md"} sx={{minWidth: '80%', height: '95dvh'}}>
-                    <IconButton sx={{width: 'fit-content', marginLeft: 2, position: 'absolute'}}
-                        onClick={() => {
-                            if(step === 2){
-                                setStep(1);
-                            }
-                            else setOpen(false)
-                        }}
+            <Modal open={open} onClose={() => setOpen(false)} sx={{ zIndex: 100000000 }}>
+                <ModalDialog size={"md"} sx={{ minWidth: '80%', height: '95dvh' }}>
+                    <IconButton sx={{ width: 'fit-content', marginLeft: 2, position: 'absolute' }}
+                                onClick={() => {
+                                    if (step === 2) {
+                                        setStep(1);
+                                    }
+                                    else setOpen(false);
+                                }}
                     >
                         <KeyboardBackspaceIcon />
                     </IconButton>
                     <Stack direction={'row'} height={'100%'}>
                         {step === 1 ?
-                            <Stack rowGap={3} sx={{minWidth: '25rem', paddingInline: '2rem 3rem' ,flexGrow: 1}}>
+                            <Stack rowGap={3} sx={{ minWidth: '25rem', paddingInline: '2rem 3rem', flexGrow: 1 }}>
                                 <Stack textAlign={'center'} borderBottom={'1px solid'} paddingBottom={2}>
                                     <Typography variant={'h5'}>{eventName}</Typography>
-                                    <Typography variant={'caption'}>Starts on {dayjs(eventStartTime).format("ddd, DD MMM YYYY HH:mm [GMT]Z")}</Typography>
+                                    <Typography variant={'caption'}>{t('eventRegistration.startsOn')} {dayjs(eventStartTime).format("ddd, DD MMM YYYY HH:mm [GMT]Z")}</Typography>
                                 </Stack>
                                 <Stack rowGap={2} flexGrow={1} overflow={'auto'} paddingBlock={1}>
-                                    <TextField placeholder={'Enter code'} fullWidth variant={'outlined'}
-                                               label="Promo code" focused
-                                               slotProps={
-                                                   {input: {
-                                                           endAdornment: <Button>Apply</Button>
-                                                       }}
-                                               }
+                                    <TextField
+                                        placeholder={t('eventRegistration.enterCode')}
+                                        fullWidth
+                                        variant={'outlined'}
+                                        label={t('eventRegistration.promoCode')}
+                                        focused
+                                        InputProps={{
+                                            endAdornment: <Button>{t('eventRegistration.apply')}</Button>
+                                        }}
                                     />
                                     {tickets.map((ticket, index) => {
                                         const quantity = quantities[index];
                                         return (
-                                            <Stack key={index} style={{border: '2px solid blue', borderRadius: 5, padding: '.75rem'}}>
+                                            <Stack key={index} style={{ border: '2px solid blue', borderRadius: 5, padding: '.75rem' }}>
                                                 <Stack direction={'row'} justifyContent={'space-between'} paddingBottom={2}>
-                                                    <Typography variant={'h6'} style={{maxWidth: '70%', wordWrap: 'break-word'}}>{ticket.name}</Typography>
+                                                    <Typography variant={'h6'} style={{ maxWidth: '70%', wordWrap: 'break-word' }}>{ticket.name}</Typography>
                                                     {renderQuantityControl(quantity, index)}
                                                 </Stack>
                                                 <Divider />
                                                 {quantity !== 0 && ticket.ticket_type === 'donation' && (
                                                     <>
                                                         <Stack direction={'row'} width={'80%'} paddingBlock={2} columnGap={2} alignItems={'center'} alignSelf={'center'}>
-                                                            <TextField fullWidth variant={'outlined'} label={'Donation amount'} autoFocus size={"small"}
-                                                                       value={prices[index]}
-                                                                       onChange={(e) => {
-                                                                           const newPrices = [...prices];
-                                                                           const value = parseFloat(e.target.value);
-                                                                           newPrices[index] = isNaN(value) ? 0 : value;
-                                                                           setPrices(newPrices);
-                                                                           setTotalDonationPrice(newPrices.reduce((total, price, idx) => total + (price * quantities[idx]), 0));
-                                                                       }}
-                                                                       slotProps={{input:
-                                                                               {startAdornment:
-                                                                                       <InputAdornment position={'start'}>
-                                                                                           $
-                                                                                       </InputAdornment>
-                                                                               }
-                                                                       }}
+                                                            <TextField
+                                                                fullWidth
+                                                                variant={'outlined'}
+                                                                label={t('eventRegistration.donationAmount')}
+                                                                autoFocus
+                                                                size={"small"}
+                                                                value={prices[index]}
+                                                                onChange={(e) => {
+                                                                    const newPrices = [...prices];
+                                                                    const value = parseFloat(e.target.value);
+                                                                    newPrices[index] = isNaN(value) ? 0 : value;
+                                                                    setTotalDonationPrice(newPrices.reduce((total, price, idx) => total + (price * quantities[idx]), 0));
+                                                                }}
+                                                                InputProps={{
+                                                                    startAdornment: (
+                                                                        <InputAdornment position={'start'}>
+                                                                            $
+                                                                        </InputAdornment>
+                                                                    )
+                                                                }}
                                                             />
-                                                            <Slider disabled={prices[index] > 1000}
-                                                                    onChange={(e, value) => {
-                                                                        const newPrices = [...prices];
-                                                                        newPrices[index] = value;
-                                                                        setPrices(newPrices);
-                                                                        setTotalDonationPrice(Math.round(value * quantities[index] * 100) / 100);
-                                                                    }}
-                                                                    marks
-                                                                    step={25}
-                                                                    value={prices[index]}
-                                                                    valueLabelDisplay="auto"
-                                                                    min={0}
-                                                                    max={1000}
+                                                            <Slider
+                                                                disabled={prices[index] > 1000}
+                                                                onChange={(e, value) => {
+                                                                    const newPrices = [...prices];
+                                                                    newPrices[index] = value;
+                                                                    setPrices(newPrices);
+                                                                    setTotalDonationPrice(Math.round(value * quantities[index] * 100) / 100);
+                                                                }}
+                                                                marks
+                                                                step={25}
+                                                                value={prices[index]}
+                                                                valueLabelDisplay="auto"
+                                                                min={0}
+                                                                max={1000}
                                                             />
                                                         </Stack>
                                                         <Divider />
                                                     </>
                                                 )}
                                                 <Stack paddingBlock={1}>
-                                                    <Typography variant={'h6'} sx={{textTransform: 'capitalize'}}>
-                                                        {ticket.ticket_type === 'paid' ? `${ticket.currency.symbol !== "null" ? ticket.currency.symbol : ''}${ticket.price}` : ticket.ticket_type}</Typography>
-                                                    <Typography variant={'body2'}>Sales end at {dayjs(ticket.sale_end_time).format("HH:mm DD MMM YYYY")}</Typography>
+                                                    <Typography variant={'h6'} sx={{ textTransform: 'capitalize' }}>
+                                                        {ticket.ticket_type === 'paid' ? `${ticket.currency.symbol !== "null" ? ticket.currency.symbol : ''}${ticket.price}` : ticket.ticket_type}
+                                                    </Typography>
+                                                    <Typography variant={'body2'}>{t('eventRegistration.salesEndAt')} {dayjs(ticket.sale_end_time).format("HH:mm DD MMM YYYY")}</Typography>
                                                 </Stack>
                                             </Stack>
                                         )
                                     })}
                                 </Stack>
                                 <Stack borderTop={'1px solid'} paddingTop={2} alignItems={'flex-end'} onClick={handleCheckout}>
-                                    <button className={'event-view__registration-button'} style={{width: 'fit-content'}}>Checkout</button>
+                                    <button className={'event-view__registration-button'} style={{ width: 'fit-content' }}>{t('eventRegistration.checkout')}</button>
                                 </Stack>
                             </Stack>
                             :
-                            <PaymentCheckout total={totalPrice} currency={tickets[0]?.currency?.currency} eventName={eventName}
-                                eventID={tickets[0]?.event_id} tickets={tickets} quantities={quantities}
+                            <PaymentCheckout
+                                total={totalPrice}
+                                currency={tickets[0]?.currency?.currency}
+                                eventName={eventName}
+                                eventID={tickets[0]?.event_id}
+                                tickets={tickets}
+                                quantities={quantities}
                             />
                         }
                         <Stack rowGap={2} className={'order-summary'}>
-                            <Stack style={{width: '20rem', height: '10rem', backgroundColor: '#e5e5e5'}} justifyContent={'center'} alignItems={'center'}>
-                                <img src={image} alt={eventName} height={'100%'}/>
+                            <Stack style={{ width: '20rem', height: '10rem', backgroundColor: '#e5e5e5' }} justifyContent={'center'} alignItems={'center'}>
+                                <img src={image} alt={eventName} height={'100%'} />
                             </Stack>
                             <Stack paddingInline={2}>
-                                <b>Order summary</b>
+                                <b>{t('eventRegistration.orderSummary')}</b>
                                 <Stack paddingBlock={1} rowGap={1}>
                                     {tickets.map((ticket, index) => {
                                         const quantity = quantities[index];
-                                        if(quantity > 0){
+                                        if (quantity > 0) {
                                             return (
                                                 <Stack key={index} direction={'row'} justifyContent={'space-between'} className={'billed-item'}>
-                                                    <Typography style={{maxWidth: '70%', wordWrap: 'break-word'}} variant={'body2'}>{ticket.name} x{quantity}</Typography>
+                                                    <Typography style={{ maxWidth: '70%', wordWrap: 'break-word' }} variant={'body2'}>{ticket.name} x{quantity}</Typography>
                                                     <Typography variant={'body2'}>{ticket.currency.symbol !== "null" ? ticket.currency.symbol : ''}{Math.round(quantity * prices[index] * 100) / 100}</Typography>
                                                 </Stack>
                                             )
@@ -297,7 +312,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
                                     })}
                                 </Stack>
                                 <Stack direction={'row'} justifyContent={'space-between'} borderTop={'2px solid'} paddingTop={.5}>
-                                    <Typography variant={'h6'} fontWeight={'bold'}>Total</Typography>
+                                    <Typography variant={'h6'} fontWeight={'bold'}>{t('eventRegistration.total')}</Typography>
                                     <Typography variant={'h6'} fontWeight={'bold'}>{tickets[0]?.currency.symbol}{Math.round((totalPrice + totalDonationPrice) * 100) / 100}</Typography>
                                 </Stack>
                             </Stack>
@@ -307,7 +322,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
             </Modal>
             {renderTickets()}
         </Stack>
-    )
+    );
 }
 
 export default TicketPanel;

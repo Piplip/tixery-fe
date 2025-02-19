@@ -17,6 +17,7 @@ import FacebookRoundedIcon from "@mui/icons-material/FacebookRounded";
 import XIcon from "@mui/icons-material/X";
 import LanguageIcon from "@mui/icons-material/Language";
 import relativeTime from 'dayjs/plugin/relativeTime'
+import {useTranslation} from "react-i18next";
 
 dayjs.extend(relativeTime)
 
@@ -32,6 +33,7 @@ function OnlineEventPage({preview}){
     const [profile, setProfile] = useState({})
     const isProfileLoaded = useRef(false)
     const [heroImage, setHeroImage] = useState()
+    const {t} = useTranslation()
 
     useEffect(() => {
         if (loaderData.images && loaderData.images.length > 0) {
@@ -57,8 +59,6 @@ function OnlineEventPage({preview}){
                 .catch((error) => console.error("Error loading profile:", error));
         }
     }, [loaderData.profile_id]);
-
-    console.log(loaderData)
 
     const renderOnlineContent = () => {
         const content = loaderData.location.data;
@@ -94,9 +94,11 @@ function OnlineEventPage({preview}){
                             <div key={index} className="online-event__live">
                                 <Stack direction={'row'} alignItems={'center'} columnGap={1}>
                                     <h3>{item.content.title}</h3>
-                                    <div style={{backgroundColor: 'black', color: 'white', padding: '.1rem .5rem', borderRadius: '1rem'
-                                        , fontFamily: 'Nunito', fontSize: 14}}>
-                                        Starts {dayjs(loaderData.start_time).fromNow()}
+                                    <div style={{
+                                        backgroundColor: 'black', color: 'white', padding: '.1rem .5rem', borderRadius: '1rem'
+                                        , fontFamily: 'Nunito', fontSize: 14
+                                    }}>
+                                        {t('onlineEventElementLive.starts')} {dayjs(loaderData.start_time).fromNow()}
                                     </div>
                                 </Stack>
                                 <Stack rowGap={1} className="online-event__live-details">
@@ -109,17 +111,17 @@ function OnlineEventPage({preview}){
                                 </Stack>
                                 <p dangerouslySetInnerHTML={{ __html: item.content.description }}></p>
                                 <Link to={item.content.url} className="online-event__live-link">
-                                    Open in <OpenInNewIcon sx={{ fontSize: 16 }} />
+                                    {t('onlineEventElementLive.openIn')} <OpenInNewIcon sx={{ fontSize: 16 }} />
                                 </Link>
                             </div>
-                            <Stack rowGap={2} sx={{minWidth: '25%', padding: '1rem', backgroundColor: 'rgba(239,239,239,0.46)'}}>
-                                <Avatar src={profile.profile_image_url} sx={{width: '4rem', height: '4rem'}}
-                                        alt={'avatar'} />
+                            <Stack rowGap={2} sx={{ minWidth: '25%', padding: '1rem', backgroundColor: 'rgba(239,239,239,0.46)' }}>
+                                <Avatar src={profile.profile_image_url} sx={{ width: '4rem', height: '4rem' }}
+                                        alt={t('onlineEventElementLive.avatar')} />
                                 <p className={'event-view__organizer-name'}>
-                                    Organized by <Link to={`/o/${profile.custom_url || profile.profile_id}`} target={'_blank'}>
-                                        <b>{profile.profile_name}</b>
-                                    </Link>  <br/>
-                                    {transformNumber(profile.total_followers)} followers
+                                    {t('onlineEventElementLive.organizedBy')} <Link to={`/o/${profile.custom_url || profile.profile_id}`} target={'_blank'}>
+                                    <b>{profile.profile_name}</b>
+                                </Link>  <br />
+                                    {transformNumber(profile.total_followers)} {t('onlineEventElementLive.followers')}
                                 </p>
                                 <Stack columnGap={1.25} color={'#797979'}
                                        className={'event-view__social-links'}
@@ -139,9 +141,9 @@ function OnlineEventPage({preview}){
                                        className={'event-view__organizer-buttons'}
                                        direction={'row'}>
                                     <button className={'event-view__contact-button'}>
-                                        Contact
+                                        {t('onlineEventElementLive.contact')}
                                     </button>
-                                    <FollowOrganizer profileImage={profile.profile_image_url} organizerID={loaderData.profile_id} organizerName={profile.profile_name}/>
+                                    <FollowOrganizer profileImage={profile.profile_image_url} organizerID={loaderData.profile_id} organizerName={profile.profile_name} />
                                 </Stack>
                             </Stack>
                         </Stack>
@@ -155,17 +157,17 @@ function OnlineEventPage({preview}){
     return (
         <Stack className={`online-event ${preview ? 'online-event--preview' : ''}`}>
             {preview && (
-                <div className="online-event__preview-banner">PREVIEW MODE: ONLINE PAGE</div>
+                <div className="online-event__preview-banner">{t('onlineEvent.previewMode')}</div>
             )}
-            <div className="online-event__hero" style={{height: '60dvh'}}>
-                <img src={heroImage} alt="event image" className="online-event__hero-image" />
+            <div className="online-event__hero" style={{ height: '60dvh' }}>
+                <img src={heroImage} alt={t('onlineEvent.eventImage')} className="online-event__hero-image" />
                 <div className="online-event__hero-text">
                     <h1>{loaderData.name}</h1>
                     <p>{loaderData.short_description}</p>
-                    <p>Event Type: {loaderData.event_type}</p>
-                    <p>Start Time: {dayjs(loaderData.start_time).format('DD/MM/YYYY HH:mm')}</p>
+                    <p>{t('onlineEvent.eventType')}: {loaderData.event_type}</p>
+                    <p>{t('onlineEvent.startTime')}: {dayjs(loaderData.start_time).format('DD/MM/YYYY HH:mm')}</p>
                     {loaderData.show_end_time && (
-                        <p>End Time: {dayjs(loaderData.end_time).format('DD/MM/YYYY HH:mm')}</p>
+                        <p>{t('onlineEvent.endTime')}: {dayjs(loaderData.end_time).format('DD/MM/YYYY HH:mm')}</p>
                     )}
                 </div>
             </div>

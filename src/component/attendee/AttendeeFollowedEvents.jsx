@@ -5,10 +5,12 @@ import {useEffect, useState} from "react";
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {useNavigate} from "react-router-dom";
+import {useTranslation} from "react-i18next";
 
 function AttendeeFollowedEvents(){
     const [followedEvents, setFollowedEvents] = useState([]);
     const navigate = useNavigate();
+    const {t} = useTranslation()
 
     useEffect(() => {
         if(followedEvents.length === 0){
@@ -21,26 +23,26 @@ function AttendeeFollowedEvents(){
     }, []);
 
     return (
-        <Stack style={{padding: '7.5rem 10%'}} rowGap={3}>
+        <Stack style={{ paddingBlock: '7.5rem 10%' }} rowGap={3}>
             <Stack direction={'row'} columnGap={2} alignItems={'center'}>
                 <IconButton onClick={() => navigate(-1)}>
                     <ArrowBackIcon />
                 </IconButton>
-                <Typography fontSize={'1.8rem'} fontWeight={'bold'}>Events from Organizers you follow</Typography>
+                <Typography fontSize={'1.8rem'} fontWeight={'bold'}>{t('followedEvents.eventsFromFollowedOrganizers')}</Typography>
             </Stack>
             <Stack rowGap={3}>
                 {followedEvents?.length > 0 ?
                     followedEvents.map((event, index) => {
-                        return(
-                            <EventCard key={index} event={event} horizontal={true} showAction={true} renderAddress={true}/>
+                        return (
+                            <EventCard key={index} event={event} horizontal={true} showAction={true} renderAddress={true} />
                         )
                     })
                     :
                     <Stack alignItems={'center'} rowGap={3}>
-                        <BeenhereIcon sx={{width: '7.5rem', height: '7.5rem', backgroundColor: '#ecf6e1', padding: 2, borderRadius: '50%', color: 'limegreen'}}/>
+                        <BeenhereIcon sx={{ width: '7.5rem', height: '7.5rem', backgroundColor: '#ecf6e1', padding: 2, borderRadius: '50%', color: 'limegreen' }} />
                         <Stack textAlign={'center'}>
-                            <Typography variant={'h5'} fontWeight={'bold'}>Add events, share with friends!</Typography>
-                            <Typography variant={'body1'}>Easy peasy</Typography>
+                            <Typography variant={'h5'} fontWeight={'bold'}>{t('followedEvents.addEventsShareFriends')}</Typography>
+                            <Typography variant={'body1'}>{t('followedEvents.easyPeasy')}</Typography>
                         </Stack>
                     </Stack>
                 }

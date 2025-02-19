@@ -1,7 +1,10 @@
 import "../../styles/loading-fallback-styles.css"
 import Logo from "../../../public/assets/logo.svg"
+import {useTranslation} from "react-i18next";
 
 function LoadingFallback() {
+    const {t} = useTranslation()
+
     return (
         <div className="loading-fallback">
             <img className="loading-fallback__logo" src={Logo} alt="logo"/>
@@ -15,7 +18,7 @@ function LoadingFallback() {
                     d="M10 50 Q30 20 50 50 T90 50 Q70 80 50 50 T10 50 Z"
                 />
             </svg>
-            <p className="loading-fallback__text">Loading...</p>
+            <p className="loading-fallback__text">{t('loading')}</p>
         </div>
     )
 }

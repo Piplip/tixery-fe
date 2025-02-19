@@ -35,6 +35,7 @@ import {useLocation} from "react-router-dom";
 import {nominatimAxios} from "../../config/axiosConfig.js";
 import debounce from 'lodash.debounce';
 import Map from "../shared/Map.jsx";
+import {useTranslation} from "react-i18next";
 
 const checkboxStyle = {
     sx: {
@@ -93,6 +94,7 @@ const languages = [
 ];
 
 function DateAndLocationForm(){
+    const {t} = useTranslation()
     const location = useLocation()
     const {data, setData, setHasUnsavedChanges} = useContext(EventContext)
 
@@ -179,39 +181,39 @@ function DateAndLocationForm(){
 
     return (
         <div className={`date-and-location ${isValidData() ? 'complete-section' : ''}`}>
-            <h2>Date and Location</h2>
+            <h2>{t('dateAndTime.title')}</h2>
             <Stack rowGap={1}>
-                <h3>Type of event</h3>
+                <h3>{t('dateAndTime.eventType')}</h3>
                 <Stack direction={'row'} marginBottom={'1rem'} columnGap={1}>
                     <Button onClick={() => {
-                        setData(prev => ({...prev, eventType: 'single'}))
+                        setData(prev => ({ ...prev, eventType: 'single' }))
                         setHasUnsavedChanges(true)
-                    }} sx={{border: '1px solid #bebebe'}}
+                    }} sx={{ border: '1px solid #bebebe' }}
                             className={`event-type__button ${
                                 data.eventType === "single" || data.eventType === undefined ? "active" : ""
                             }`}
                     >
-                        <EventIcon sx={{color: data.eventType === 'single' || data.eventType === undefined ? '#175486' : 'gray'}}/>
+                        <EventIcon sx={{ color: data.eventType === 'single' || data.eventType === undefined ? '#175486' : 'gray' }} />
                         <Stack alignItems={'flex-start'}>
-                            <p>Single event</p>
-                            <p>For event that happen once</p>
+                            <p>{t('dateAndTime.singleEvent')}</p>
+                            <p>{t('dateAndTime.singleEventDescription')}</p>
                         </Stack>
-                        <CustomCheckbox checked={data.eventType === 'single' || data.eventType === undefined}/>
+                        <CustomCheckbox checked={data.eventType === 'single' || data.eventType === undefined} />
                     </Button>
                     <Button onClick={() => {
-                        setData(prev => ({...prev, eventType: 'recurring'}))
+                        setData(prev => ({ ...prev, eventType: 'recurring' }))
                         setHasUnsavedChanges(true)
-                    }} sx={{border: '1px solid #bebebe'}}
+                    }} sx={{ border: '1px solid #bebebe' }}
                             className={`event-type__button ${
                                 data.eventType === "recurring" ? "active" : ""
                             }`}
                     >
-                        <CalendarMonthIcon sx={{color: data.eventType === 'recurring' ? '#175486' : 'gray'}}/>
+                        <CalendarMonthIcon sx={{ color: data.eventType === 'recurring' ? '#175486' : 'gray' }} />
                         <Stack alignItems={'flex-start'}>
-                            <p>Recurring event</p>
-                            <p>For timed entry and multiple days</p>
+                            <p>{t('dateAndTime.recurringEvent')}</p>
+                            <p>{t('dateAndTime.recurringEventDescription')}</p>
                         </Stack>
-                        <CustomCheckbox checked={data.eventType === 'recurring'}/>
+                        <CustomCheckbox checked={data.eventType === 'recurring'} />
                     </Button>
                 </Stack>
             </Stack>
@@ -219,11 +221,11 @@ function DateAndLocationForm(){
                 <>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <div className="date-time-section">
-                            <DatePicker format={'DD/MM/YYYY'} disablePast label="Event Date *"
+                            <DatePicker format={'DD/MM/YYYY'} disablePast label={t('dateAndTime.eventDateLabel')}
                                         value={dayjs(formik.values.eventDate, 'DD/MM/YYYY')} name={'eventDate'}
                                         onChange={(newValue) => {
                                             setHasUnsavedChanges(true)
-                                            setData(prev => ({...prev, eventDate: newValue.format('DD/MM/YYYY')}))
+                                            setData(prev => ({ ...prev, eventDate: newValue.format('DD/MM/YYYY') }))
                                             formik.setFieldValue('eventDate', newValue)
                                         }}
                                         slotProps={{
@@ -234,11 +236,11 @@ function DateAndLocationForm(){
                                             },
                                         }}
                             />
-                            <TimePicker label="Start time *" ampm={false} name={'eventStartTime'}
+                            <TimePicker label={t('dateAndTime.startTimeLabel')} ampm={false} name={'eventStartTime'}
                                         value={formik.values.eventStartTime}
                                         onChange={(newValue) => {
                                             setHasUnsavedChanges(true)
-                                            setData(prev => ({...prev, eventStartTime: newValue}))
+                                            setData(prev => ({ ...prev, eventStartTime: newValue }))
                                             formik.setFieldValue('eventStartTime', newValue)
                                         }}
                                         slotProps={{
@@ -250,11 +252,11 @@ function DateAndLocationForm(){
                                         }}
                             />
                             <TimePicker
-                                label="End time *" ampm={false} name={'eventEndTime'}
+                                label={t('dateAndTime.endTimeLabel')} ampm={false} name={'eventEndTime'}
                                 value={formik.values.eventEndTime}
                                 onChange={(newValue) => {
                                     setHasUnsavedChanges(true)
-                                    setData(prev => ({...prev, eventEndTime: newValue}))
+                                    setData(prev => ({ ...prev, eventEndTime: newValue }))
                                     formik.setFieldValue('eventEndTime', newValue)
                                 }}
                                 slotProps={{
@@ -270,36 +272,36 @@ function DateAndLocationForm(){
 
                     <p className={'date-and-location__more-options'}
                        onClick={() => setOpen(true)}
-                    >More options</p>
+                    >{t('dateAndTime.moreOptions')}</p>
                     <p className="date-time-info">
                         {formik.values.timezone && `GMT${formik.values.timezone >= 0 ? `+${formik.values.timezone}` : formik.values.timezone}, `}
-                        {formik.values.displayEndTime ? 'Display start and end time, ' : 'Display start time only, '}
-                        {languages.find(lang => lang.value === formik.values.language)?.label || 'Language not selected'}
+                        {formik.values.displayEndTime ? t('dateAndTime.displayStartEndTime') : t('dateAndTime.displayStartTimeOnly')},
+                        {languages.find(lang => lang.value === formik.values.language)?.label || t('dateAndTime.languageNotSelected')}
                     </p>
                 </>
                 :
-                <Typography fontSize={16} sx={{color: 'gray'}}>
-                    You’ll be able to add dates and times in the next step.
+                <Typography fontSize={16} sx={{ color: 'gray' }}>
+                    {t('dateAndTime.recurringEventInfo')}
                 </Typography>
             }
 
             <div className="location-section">
-                <h3>Location</h3>
+                <h3>{t('dateAndTime.location')}</h3>
                 <Tabs
                     value={data.locationType || "venue"}
                     onChange={(e, newValue) => {
                         setHasUnsavedChanges(true)
-                        setData(prev => ({...prev, locationType: newValue}))
+                        setData(prev => ({ ...prev, locationType: newValue }))
                     }}
                 >
-                    <Tab label="Venue" value="venue"/>
-                    <Tab label="Online event" value="online"/>
-                    <Tab label="To be announced" value="tba"/>
+                    <Tab label={t('dateAndTime.venue')} value="venue" />
+                    <Tab label={t('dateAndTime.onlineEvent')} value="online" />
+                    <Tab label={t('dateAndTime.tba')} value="tba" />
                 </Tabs>
                 {data.locationType === "venue" && (
                     <Stack>
-                        <Stack style={{position: 'relative'}}>
-                            <TextField label="Location *" fullWidth placeholder="Enter a location" margin="normal"
+                        <Stack style={{ position: 'relative' }}>
+                            <TextField label={t('dateAndTime.locationLabel')} fullWidth placeholder={t('dateAndTime.locationPlaceholder')} margin="normal"
                                        name='location' onBlur={formik.handleBlur} autoComplete={"one-time-code"}
                                        value={formik.values.location}
                                        onChange={handleLocationChange}
@@ -310,48 +312,46 @@ function DateAndLocationForm(){
                                 <Stack className={'location-venue__suggested-location'} rowGap={1}>
                                     {suggestedLocation.map((location, index) => (
                                         <p key={index}
-                                            onClick={() => handleSelectLocation(location)}
+                                           onClick={() => handleSelectLocation(location)}
                                         >{location.display_name}</p>
                                     ))}
                                 </Stack>
                             }
                         </Stack>
-                        {showMap && data.lat && data.lon && <Map latitude={data.lat} longitude={data.lon} locationName={data.location}/>}
+                        {showMap && data.lat && data.lon && <Map latitude={data.lat} longitude={data.lon} locationName={data.location} />}
                         <div className={'location-venue__reserve-seating'}>
                             <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
-                                <p style={{fontWeight: 'bold'}}>Reserved seating</p>
+                                <p style={{ fontWeight: 'bold' }}>{t('dateAndTime.reservedSeating')}</p>
                                 <Switch checked={data.reserveSeating || false}
                                         onChange={() => {
                                             setHasUnsavedChanges(true)
-                                            setData(prev => ({...prev, reserveSeating: !prev.reserveSeating}))
-                                        }}/>
+                                            setData(prev => ({ ...prev, reserveSeating: !prev.reserveSeating }))
+                                        }} />
                             </Stack>
-                            <p>Use your venue map to set price tiers for each section and choose whether attendees can
-                                pick their seat.</p>
+                            <p>{t('dateAndTime.reservedSeatingDescription')}</p>
                         </div>
                         {isValidData() &&
                             <Stack className={'location-venue__verify-phone'} direction={'row'} alignItems={'center'} columnGap={2}>
-                                <PriorityHighIcon sx={{backgroundColor: '#ffed41'}}/>
+                                <PriorityHighIcon sx={{ backgroundColor: '#ffed41' }} />
                                 <Stack rowGap={1}>
-                                    <p>Verify your phone number</p>
-                                    <p>We&#39;ll send the phone number you enter a one-time verification code. This keeps Tixery a place to host real events.</p>
+                                    <p>{t('dateAndTime.verifyPhone')}</p>
+                                    <p>{t('dateAndTime.verifyPhoneDescription')}</p>
                                 </Stack>
-                                <Button variant={'text'} sx={{width: 'fit=content', fontSize: '.8rem'}}>Verify now</Button>
+                                <Button variant={'text'} sx={{ fontSize: '.8rem', width: '20rem' }}>{t('dateAndTime.verifyNow')}</Button>
                             </Stack>
                         }
                     </Stack>
                 )}
                 {data.locationType === "online" && (
                     <p className="online-event-info">
-                        Online events have unique event pages where you can add links to
-                        livestreams and more.
+                        {t('dateAndTime.onlineEventInfo')}
                     </p>
                 )}
             </div>
 
             <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm">
                 <DialogTitle textAlign={'center'}>
-                    More options
+                    {t('dateAndTime.moreOptions')}
                 </DialogTitle>
                 <form onSubmit={formik.handleSubmit}>
                     <DialogContent>
@@ -370,9 +370,9 @@ function DateAndLocationForm(){
                                     }
                                     label={
                                         <div>
-                                            <strong>Display end time</strong>
-                                            <p style={{fontSize: '0.9rem', margin: '0'}}>
-                                                The time your event ends will appear on your event page
+                                            <strong>{t('dateAndTime.displayEndTime')}</strong>
+                                            <p style={{ fontSize: '0.9rem', margin: '0' }}>
+                                                {t('dateAndTime.displayEndTimeDescription')}
                                             </p>
                                         </div>
                                     }
@@ -380,11 +380,11 @@ function DateAndLocationForm(){
                             </FormControl>
                         </div>
 
-                        <div style={{marginTop: '16px'}}>
+                        <div style={{ marginTop: '16px' }}>
                             <FormControl fullWidth>
-                                <InputLabel id="demo-simple-select-label">Timezone</InputLabel>
+                                <InputLabel id="demo-simple-select-label">{t('dateAndTime.timezone')}</InputLabel>
                                 <Select
-                                    label="Timezone"
+                                    label={t('dateAndTime.timezone')}
                                     name="timezone"
                                     value={formik.values.timezone}
                                     onChange={e => {
@@ -405,12 +405,12 @@ function DateAndLocationForm(){
                             </FormControl>
                         </div>
 
-                        <div style={{marginTop: '16px'}}>
+                        <div style={{ marginTop: '16px' }}>
                             <FormControl fullWidth>
-                                <InputLabel>Language</InputLabel>
+                                <InputLabel>{t('dateAndTime.language')}</InputLabel>
                                 <Select
                                     name="language"
-                                    label="Language"
+                                    label={t('dateAndTime.language')}
                                     value={formik.values.language}
                                     onChange={e => {
                                         setHasUnsavedChanges(true)
@@ -432,10 +432,10 @@ function DateAndLocationForm(){
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={() => setOpen(false)} variant="outlined">
-                            Cancel
+                            {t('dateAndTime.cancel')}
                         </Button>
                         <Button type="submit" variant="contained" color="error">
-                            Save
+                            {t('dateAndTime.save')}
                         </Button>
                     </DialogActions>
                 </form>

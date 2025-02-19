@@ -5,6 +5,7 @@ import {Stack, Typography} from "@mui/material";
 import {getDownloadURL, getStorage, ref} from "firebase/storage";
 import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
+import {useTranslation} from "react-i18next";
 
 DragAndDropZone.propTypes = {
     onFileSelect: PropTypes.func,
@@ -15,6 +16,7 @@ initializeApp(firebaseConfig);
 const storage = getStorage()
 
 function DragAndDropZone({onFileSelect, image}) {
+    const {t} = useTranslation()
     const fileInputRef = useRef();
     const [isDragging, setIsDragging] = useState(false);
     const [previewImage, setPreviewImage] = useState(null);
@@ -71,7 +73,7 @@ function DragAndDropZone({onFileSelect, image}) {
             reader.readAsDataURL(file);
             onFileSelect(file);
         } else {
-            alert("Please upload a valid image file.");
+            alert(t('dragAndDropZone.invalidImageFile'));
         }
     };
 
@@ -84,14 +86,14 @@ function DragAndDropZone({onFileSelect, image}) {
             onDrop={handleDrop}
         >
             {previewImage ? (
-                <img src={previewImage} alt="Preview" className="drag-and-drop-preview" />
+                <img src={previewImage} alt={t('dragAndDropZone.preview')} className="drag-and-drop-preview" />
             ) : isDragging ? (
-                <p className="dragging-indicator">Drag your image here</p>
+                <p className="dragging-indicator">{t('dragAndDropZone.dragImageHere')}</p>
             ) : (
                 <Stack textAlign={'center'} rowGap={1}>
-                    <p>Drag & drop your image or click to upload</p>
+                    <p>{t('dragAndDropZone.dragDropOrClick')}</p>
                     <Typography variant={'caption'}>
-                        (To replace the current image, just drag or select a new image)
+                        {t('dragAndDropZone.replaceImage')}
                     </Typography>
                 </Stack>
             )}

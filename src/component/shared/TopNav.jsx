@@ -7,6 +7,7 @@ import LoggedInUserNav from "./LoggedInUserNav.jsx";
 import * as PropsType from "prop-types";
 import {useEffect, useState} from "react";
 import TopNavSearchBar from "./TopNavSearchBar.jsx";
+import {useTranslation} from "react-i18next";
 
 TopNav.propTypes = {
     isLoggedIn: PropsType.bool,
@@ -17,40 +18,17 @@ function TopNav({isLoggedIn, enableScrollEffect}){
     const homeLocation = getUserData('role') === 'HOST' ? '/organizer' : '/'
     const [isVisible, setIsVisible] = useState(true);
     const [lastScrollPos, setLastScrollPos] = useState(0);
+    const {t} = useTranslation()
 
     const navLinks = [
-        {
-            title: 'Likes', link: '/favorites',
-            shouldRender: (isLoggedIn) => isLoggedIn && hasRole(['attendee'])
-        },
-        {
-            title: 'Tickets', link: `/u/${getUserData('profileID')}`,
-            shouldRender: (isLoggedIn) => isLoggedIn && hasRole(['attendee'])
-        },
-        {
-            title: 'Create Events', link: '/organizer',
-            shouldRender: (isLoggedIn) => isLoggedIn && hasRole(['host'])
-        },
-        {
-            title: 'Create Events', link: isLoggedIn ? '/organizer' : 'organizer/overview',
-            shouldRender: (isLoggedIn) => !isLoggedIn
-        },
-        {
-            title: 'For Supplier', link: '/about',
-            shouldRender: (isLoggedIn) => !isLoggedIn || hasRole(['supplier'])
-        },
-        {
-            title: 'Help Center', link: '/help',
-            shouldRender: (isLoggedIn) => !isLoggedIn || hasRole(['attendee', 'host', 'vendor'])
-        },
-        {
-            title: 'Log In', link: '/login',
-            shouldRender: (isLoggedIn) => !isLoggedIn
-        },
-        {
-            title: 'Sign Up', link: '/sign-up',
-            shouldRender: (isLoggedIn) => !isLoggedIn
-        }
+        { nameKey: 'topNav.likes', link: '/favorites', shouldRender: (isLoggedIn) => isLoggedIn && hasRole(['attendee']) },
+        { nameKey: 'topNav.tickets', link: `/u/${getUserData('profileID')}`, shouldRender: (isLoggedIn) => isLoggedIn && hasRole(['attendee']) },
+        { nameKey: 'topNav.createEvents', link: '/organizer/events', shouldRender: (isLoggedIn) => isLoggedIn && hasRole(['host']) },
+        { nameKey: 'topNav.createEvents', link: isLoggedIn ? '/organizer' : 'organizer/overview', shouldRender: (isLoggedIn) => !isLoggedIn },
+        { nameKey: 'topNav.forSupplier', link: '/about', shouldRender: (isLoggedIn) => !isLoggedIn || hasRole(['supplier']) },
+        { nameKey: 'topNav.helpCenter', link: '/help', shouldRender: (isLoggedIn) => !isLoggedIn || hasRole(['attendee', 'host', 'vendor']) },
+        { nameKey: 'topNav.logIn', link: '/login', shouldRender: (isLoggedIn) => !isLoggedIn },
+        { nameKey: 'topNav.signUp', link: '/sign-up', shouldRender: (isLoggedIn) => !isLoggedIn }
     ];
 
     useEffect(() => {
@@ -76,7 +54,7 @@ function TopNav({isLoggedIn, enableScrollEffect}){
                className={`top-nav-container ${isVisible ? 'visible' : 'hidden'}`}
         >
             <Link to={homeLocation}>
-                <img src={Logo} alt="logo" width={'100px'}/>
+                <img src={Logo} alt="logo" width={'100px'} />
             </Link>
             <TopNavSearchBar />
             <Stack direction={'row'} className={'top-nav-container__nav-links-container'} columnGap={'1rem'}>
@@ -85,7 +63,7 @@ function TopNav({isLoggedIn, enableScrollEffect}){
                     return (
                         <Stack key={index} justifyContent={'center'}>
                             <Link to={item.link} className={'top-nav-container__nav-links-container__link'}>
-                                {item.title}
+                                {t(item.nameKey)}
                             </Link>
                         </Stack>
                     );
@@ -93,7 +71,7 @@ function TopNav({isLoggedIn, enableScrollEffect}){
                 {isLoggedIn && <LoggedInUserNav />}
             </Stack>
         </Stack>
-    )
+    );
 }
 
 export default TopNav

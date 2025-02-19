@@ -3,6 +3,7 @@ import {Stack, Typography} from "@mui/material";
 import EventCard from "./EventCard.jsx";
 import {useEffect, useRef, useState} from "react";
 import {eventAxios} from "../../config/axiosConfig.js";
+import {useTranslation} from "react-i18next";
 
 MoreRelatedByOrganizer.propTypes = {
     id: PropTypes.string.isRequired,
@@ -14,6 +15,7 @@ MoreRelatedByOrganizer.propTypes = {
 function MoreRelatedByOrganizer({id, name, customURL, profileID}) {
     const [relateEvents, setRelatedEvents] = useState([]);
     const isCalled = useRef(false);
+    const {t} = useTranslation()
     
     useEffect(() => {
         if(isCalled.current) return;
@@ -30,7 +32,7 @@ function MoreRelatedByOrganizer({id, name, customURL, profileID}) {
     return (
         relateEvents.length !== 0 &&
             <Stack rowGap={2}>
-                <Typography variant="h5" fontWeight={'bold'}>More {name} events</Typography>
+                <Typography variant="h5" fontWeight={'bold'}>{t(`more-event`, {name: name})}</Typography>
                 <Stack direction={'row'} rowGap={3} sx={{flexWrap: 'wrap'}}>
                     {relateEvents.map((event, index) => {
                         return <EventCard key={index} event={event} organizer={name} id={profileID} customURL={customURL} horizontal={true}/>

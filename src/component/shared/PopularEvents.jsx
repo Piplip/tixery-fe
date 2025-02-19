@@ -18,22 +18,22 @@ function PopularEvents(){
     }, [events]);
 
     return (
-        <Stack sx={{width: '100%'}} rowGap={3}>
+        <Stack sx={{ width: '100%' }} rowGap={3}>
             <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
                 <Typography fontWeight={'bold'} fontSize={24}>
-                    Popular Events
+                    {t('popularEvents.popularEvents')}
                 </Typography>
                 <Typography variant={'body2'} className={'link'}>
-                    Explore more events
+                    {t('popularEvents.exploreMore')}
                 </Typography>
             </Stack>
-            <Stack rowGap={2.5} sx={{alignSelf: 'center'}}>
+            <Stack rowGap={2.5} sx={{ alignSelf: 'center' }}>
                 {events.map((event, index) => (
-                    <EventCard event={event} key={index} horizontal={true} renderAddress={true}/>
+                    <EventCard event={event} key={index} horizontal={true} renderAddress={true} />
                 ))}
             </Stack>
         </Stack>
-    )
+    );
 }
 
 export default PopularEvents;

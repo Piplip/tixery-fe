@@ -55,7 +55,10 @@ function OrganizerHome(){
     const [clicked, setClicked] = useState(false)
     const [open, setOpen] = useState(false);
 
-    const onClose = () => setOpen(false);
+    const onClose = () => {
+        setOpen(false)
+        setSelectProfile(profiles.findIndex(profile => profile[0] == getUserData('profileID')))
+    };
 
     const loadImage = useCallback(async (url) => {
         if (!url) return null;
@@ -105,8 +108,8 @@ function OrganizerHome(){
 
     return (
         <div className={'organizer-home-container'}>
-            <Dialog open={open} onClose={onClose}>
-                <Stack sx={{ p: 1, width: '30rem' }}>
+            <Dialog open={open} onClose={onClose} maxWidth={'sm'} fullWidth>
+                <Stack sx={{ p: 1 }}>
                     <DialogTitle>
                         {t('switch_profile')}
                     </DialogTitle>
@@ -127,7 +130,7 @@ function OrganizerHome(){
             </Dialog>
             <Stack direction={'row'} columnGap={'4rem'}>
                 <Stack rowGap={3}>
-                    <Typography variant={'h2'} fontWeight={'bold'}>
+                    <Typography variant={'h2'} fontWeight={'bold'} fontFamily={'Raleway'}>
                         {t('hi_there', { profileName: getUserData('profileName') })}
                     </Typography>
                     <CreateEventMenu />

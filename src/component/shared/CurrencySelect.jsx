@@ -1,50 +1,51 @@
 import {MenuItem, Select} from "@mui/material";
 import PropTypes from "prop-types";
+import {useTranslation} from "react-i18next";
 
 const currencyData = [
-    {label: 'USD', sign: '$', full: 'United States Dollar'},
-    {label: 'EUR', sign: '€', full: 'Euro'},
-    {label: 'JPY', sign: '¥', full: 'Japanese Yen'},
-    {label: 'GBP', sign: '£', full: 'British Pound'},
-    {label: 'AUD', sign: 'A$', full: 'Australian Dollar'},
-    {label: 'CAD', sign: 'C$', full: 'Canadian Dollar'},
-    {label: 'CHF', sign: 'Fr', full: 'Swiss Franc'},
-    {label: 'CNY', sign: '¥', full: 'Chinese Yuan'},
-    {label: 'SEK', sign: 'kr', full: 'Swedish Krona'},
-    {label: 'NZD', sign: 'NZ$', full: 'New Zealand Dollar'},
-    {label: 'KRW', sign: '₩', full: 'South Korean Won'},
-    {label: 'SGD', sign: 'S$', full: 'Singapore Dollar'},
-    {label: 'NOK', sign: 'kr', full: 'Norwegian Krone'},
-    {label: 'MXN', sign: 'Mex$', full: 'Mexican Peso'},
-    {label: 'INR', sign: '₹', full: 'Indian Rupee'},
-    {label: 'RUB', sign: '₽', full: 'Russian Ruble'},
-    {label: 'ZAR', sign: 'R', full: 'South African Rand'},
-    {label: 'TRY', sign: '₺', full: 'Turkish Lira'},
-    {label: 'BRL', sign: 'R$', full: 'Brazilian Real'},
-    {label: 'TWD', sign: 'NT$', full: 'New Taiwan Dollar'},
-    {label: 'DKK', sign: 'kr', full: 'Danish Krone'},
-    {label: 'PLN', sign: 'zł', full: 'Polish Zloty'},
-    {label: 'THB', sign: '฿', full: 'Thai Baht'},
-    {label: 'IDR', sign: 'Rp', full: 'Indonesian Rupiah'},
-    {label: 'HUF', sign: 'Ft', full: 'Hungarian Forint'},
-    {label: 'CZK', sign: 'Kč', full: 'Czech Koruna'},
-    {label: 'ILS', sign: '₪', full: 'Israeli New Shekel'},
-    {label: 'CLP', sign: 'CLP$', full: 'Chilean Peso'},
-    {label: 'PHP', sign: '₱', full: 'Philippine Peso'},
-    {label: 'AED', sign: 'AED', full: 'United Arab Emirates Dirham'},
-    {label: 'COP', sign: 'COL$', full: 'Colombian Peso'},
-    {label: 'SAR', sign: 'SR', full: 'Saudi Riyal'},
-    {label: 'MYR', sign: 'RM', full: 'Malaysian Ringgit'},
-    {label: 'RON', sign: 'lei', full: 'Romanian Leu'},
-    {label: 'VND', sign: '₫', full: 'Vietnamese Dong'},
-    {label: 'IQD', sign: 'IQD', full: 'Iraqi Dinar'},
-    {label: 'KWD', sign: 'KD', full: 'Kuwaiti Dinar'},
-    {label: 'EGP', sign: 'EGP', full: 'Egyptian Pound'},
-    {label: 'PKR', sign: 'PKR', full: 'Pakistani Rupee'},
-    {label: 'QAR', sign: 'QR', full: 'Qatari Riyal'},
-    {label: 'KES', sign: 'KSh', full: 'Kenyan Shilling'},
-    {label: 'BDT', sign: 'BDT', full: 'Bangladeshi Taka'},
-    {label: 'MAD', sign: 'MAD', full: 'Moroccan Dirham'},
+    { label: 'USD', sign: '$', fullKey: 'currency.usd' },
+    { label: 'EUR', sign: '€', fullKey: 'currency.eur' },
+    { label: 'JPY', sign: '¥', fullKey: 'currency.jpy' },
+    { label: 'GBP', sign: '£', fullKey: 'currency.gbp' },
+    { label: 'AUD', sign: 'A$', fullKey: 'currency.aud' },
+    { label: 'CAD', sign: 'C$', fullKey: 'currency.cad' },
+    { label: 'CHF', sign: 'Fr', fullKey: 'currency.chf' },
+    { label: 'CNY', sign: '¥', fullKey: 'currency.cny' },
+    { label: 'SEK', sign: 'kr', fullKey: 'currency.sek' },
+    { label: 'NZD', sign: 'NZ$', fullKey: 'currency.nzd' },
+    { label: 'KRW', sign: '₩', fullKey: 'currency.krw' },
+    { label: 'SGD', sign: 'S$', fullKey: 'currency.sgd' },
+    { label: 'NOK', sign: 'kr', fullKey: 'currency.nok' },
+    { label: 'MXN', sign: 'Mex$', fullKey: 'currency.mxn' },
+    { label: 'INR', sign: '₹', fullKey: 'currency.inr' },
+    { label: 'RUB', sign: '₽', fullKey: 'currency.rub' },
+    { label: 'ZAR', sign: 'R', fullKey: 'currency.zar' },
+    { label: 'TRY', sign: '₺', fullKey: 'currency.try' },
+    { label: 'BRL', sign: 'R$', fullKey: 'currency.brl' },
+    { label: 'TWD', sign: 'NT$', fullKey: 'currency.twd' },
+    { label: 'DKK', sign: 'kr', fullKey: 'currency.dkk' },
+    { label: 'PLN', sign: 'zł', fullKey: 'currency.pln' },
+    { label: 'THB', sign: '฿', fullKey: 'currency.thb' },
+    { label: 'IDR', sign: 'Rp', fullKey: 'currency.idr' },
+    { label: 'HUF', sign: 'Ft', fullKey: 'currency.huf' },
+    { label: 'CZK', sign: 'Kč', fullKey: 'currency.czk' },
+    { label: 'ILS', sign: '₪', fullKey: 'currency.ils' },
+    { label: 'CLP', sign: 'CLP$', fullKey: 'currency.clp' },
+    { label: 'PHP', sign: '₱', fullKey: 'currency.php' },
+    { label: 'AED', sign: 'AED', fullKey: 'currency.aed' },
+    { label: 'COP', sign: 'COL$', fullKey: 'currency.cop' },
+    { label: 'SAR', sign: 'SR', fullKey: 'currency.sar' },
+    { label: 'MYR', sign: 'RM', fullKey: 'currency.myr' },
+    { label: 'RON', sign: 'lei', fullKey: 'currency.ron' },
+    { label: 'VND', sign: '₫', fullKey: 'currency.vnd' },
+    { label: 'IQD', sign: 'IQD', fullKey: 'currency.iqd' },
+    { label: 'KWD', sign: 'KD', fullKey: 'currency.kwd' },
+    { label: 'EGP', sign: 'EGP', fullKey: 'currency.egp' },
+    { label: 'PKR', sign: 'PKR', fullKey: 'currency.pkr' },
+    { label: 'QAR', sign: 'QR', fullKey: 'currency.qar' },
+    { label: 'KES', sign: 'KSh', fullKey: 'currency.kes' },
+    { label: 'BDT', sign: 'BDT', fullKey: 'currency.bdt' },
+    { label: 'MAD', sign: 'MAD', fullKey: 'currency.mad' },
 ];
 
 CurrencySelect.propTypes = {
@@ -52,18 +53,20 @@ CurrencySelect.propTypes = {
     value: PropTypes.string
 }
 
-function CurrencySelect({value, customHandleChange}){
-    function handleChange(index){
-        if(customHandleChange) {
-            customHandleChange(currencyData[index].label, currencyData[index].sign, currencyData[index].full);
+function CurrencySelect({ value, customHandleChange }) {
+    const { t } = useTranslation();
+
+    function handleChange(index) {
+        if (customHandleChange) {
+            customHandleChange(currencyData[index].label, currencyData[index].sign, t(currencyData[index].fullKey));
         }
     }
 
     return (
-        <Select value={value || 'USD'} variant={'outlined'} style={{width: 'fit-content'}}>
+        <Select value={value || 'USD'} variant={'outlined'} style={{ width: 'fit-content' }}>
             {currencyData.map((item, index) => {
                 return <MenuItem key={index} value={item.label}
-                    onClick={() => handleChange(index)}
+                                 onClick={() => handleChange(index)}
                 >{item.label} - {item.sign}</MenuItem>
             })}
         </Select>

@@ -4,11 +4,13 @@ import {useEffect, useRef, useState} from "react";
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import {getUserData} from "../../common/Utilities.js";
 import OrderCard from "../shared/OrderCard.jsx";
+import {useTranslation} from "react-i18next";
 
 function AttendeeOrders(){
     const [orders, setOrders] = useState([])
     const [pastOrders, setPastOrders] = useState(null)
     const hasFetch = useRef(false)
+    const {t} = useTranslation()
 
     useEffect(() => {
         if(!hasFetch.current){
@@ -32,43 +34,43 @@ function AttendeeOrders(){
     return (
         <>
             <Stack direction={'row'} alignItems={'center'} columnGap={.5} className="attendee-profile__section-header">
-                <p className="attendee-profile__section-title">Orders ({orders.length})</p>
+                <Typography className="attendee-profile__section-title">{t('attendeeOrders.orders')} ({orders.length})</Typography>
             </Stack>
             <Stack rowGap={3}>
                 {orders.length > 0 ?
                     orders.map((item, index) => {
                         return (
-                            <OrderCard key={index} order={item}/>
+                            <OrderCard key={index} order={item} />
                         )
                     })
                     :
                     <Stack className="attendee-profile__section-content" alignItems={'center'} justifyContent={'center'} rowGap={4}>
-                        <ShoppingBasketIcon sx={{width: '6rem', height: '6rem', backgroundColor: '#e7e7e7', padding: 1.5, borderRadius: '50%'}}/>
-                        <Typography variant={'h6'} sx={{color: '#4b6791'}}>No upcoming orders</Typography>
+                        <ShoppingBasketIcon sx={{ width: '6rem', height: '6rem', backgroundColor: '#e7e7e7', padding: 1.5, borderRadius: '50%' }} />
+                        <Typography variant={'h6'} sx={{ color: '#4b6791' }}>{t('attendeeOrders.noUpcomingOrders')}</Typography>
                     </Stack>
                 }
             </Stack>
             <Stack marginTop={5}>
                 {pastOrders === null ?
-                    <Typography variant={'body2'} className="link" style={{alignSelf: 'center'}}
+                    <Typography variant={'body2'} className="link" style={{ alignSelf: 'center' }}
                                 onClick={loadPastOrders}
-                    >See past orders</Typography>
+                    >{t('attendeeOrders.seePastOrders')}</Typography>
                     :
                     <Stack>
                         <Stack direction={'row'} alignItems={'center'} columnGap={.5} className="attendee-profile__section-header">
-                            <p className="attendee-profile__section-title">Past Orders ({pastOrders?.length})</p>
+                            <Typography className="attendee-profile__section-title">{t('attendeeOrders.pastOrders')} ({pastOrders?.length})</Typography>
                         </Stack>
                         <Stack rowGap={3}>
                             {pastOrders?.length > 0 ?
                                 pastOrders.map((item, index) => {
                                     return (
-                                        <OrderCard key={index} order={item}/>
+                                        <OrderCard key={index} order={item} />
                                     )
                                 })
                                 :
                                 <Stack className="attendee-profile__section-content" alignItems={'center'} justifyContent={'center'} rowGap={4}>
-                                    <ShoppingBasketIcon sx={{width: '6rem', height: '6rem', backgroundColor: '#e7e7e7', padding: 1.5, borderRadius: '50%'}}/>
-                                    <Typography variant={'h6'} sx={{color: '#4b6791'}}>No upcoming orders</Typography>
+                                    <ShoppingBasketIcon sx={{ width: '6rem', height: '6rem', backgroundColor: '#e7e7e7', padding: 1.5, borderRadius: '50%' }} />
+                                    <Typography variant={'h6'} sx={{ color: '#4b6791' }}>{t('attendeeOrders.noUpcomingOrders')}</Typography>
                                 </Stack>
                             }
                         </Stack>
@@ -76,7 +78,7 @@ function AttendeeOrders(){
                 }
             </Stack>
         </>
-    )
+    );
 }
 
 export default AttendeeOrders;

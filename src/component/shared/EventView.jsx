@@ -25,6 +25,7 @@ import TicketPanel from "./TicketPanel.jsx";
 import Map from "./Map.jsx";
 import LikeEvent from "./LikeEvent.jsx";
 import FollowOrganizer from "./FollowOrganizer.jsx";
+import {useTranslation} from "react-i18next";
 
 const OtherEvents = lazy(() => import('./OtherEvents.jsx'));
 
@@ -38,6 +39,7 @@ function EventView(){
     const [viewDetail, setViewDetail] = useState(false)
     const [showMapDetail, setShowMapDetail] = useState(false)
     const isProfileLoaded = useRef(false)
+    const {t} = useTranslation()
 
     useEffect(() => {
         if (loaderData.profile_id && !isProfileLoaded.current) {
@@ -90,7 +92,7 @@ function EventView(){
                                     </Stack>
                                     <Box ml={5}>
                                         <Typography variant="subtitle1" color="textSecondary">
-                                            Available tickets
+                                            {t('eventView.availableTickets')}
                                         </Typography>
                                         <ul style={{ marginLeft: "1.5rem" }}>
                                             {tickets.length > 0 ? (
@@ -102,7 +104,7 @@ function EventView(){
                                             ) : (
                                                 <li>
                                                     <Typography variant="body2">
-                                                        No tickets available
+                                                        {t('eventView.noTicketsAvailable')}
                                                     </Typography>
                                                 </li>
                                             )}
@@ -121,7 +123,7 @@ function EventView(){
         <>
             {dayjs(loaderData.end_time).isBefore(dayjs()) &&
                 <div className={'ended-notify'}>
-                    This event has ended
+                    {t('eventView.eventEnded')}
                 </div>
             }
             <div className={'event-view'}>
@@ -129,15 +131,15 @@ function EventView(){
                     {heroImage ?
                         <div
                             className={'event-view__hero-background'}
-                            style={{backgroundImage: `url(${heroImage})`}}>
+                            style={{ backgroundImage: `url(${heroImage})` }}>
                             <Stack
                                 className={'event-view__hero-stack'}
-                                style={{width: '100%', backdropFilter: 'blur(30px)'}}
+                                style={{ width: '100%', backdropFilter: 'blur(30px)' }}
                                 direction={'row'}
                                 justifyContent={'center'}>
                                 <img
                                     className={'event-view__hero-image'}
-                                    alt={'img'}
+                                    alt={t('eventView.heroImage')}
                                     src={heroImage}
                                 />
                             </Stack>
@@ -153,9 +155,9 @@ function EventView(){
                 </div>
                 <div className={'event-view__content'}>
                     <TicketPanel tickets={loaderData.tickets} eventEndTime={loaderData.end_time} image={heroImage}
-                        eventStartTime={loaderData.start_time} eventName={loaderData.name}
+                                 eventStartTime={loaderData.start_time} eventName={loaderData.name}
                     />
-                    <Stack style={{width: '60%'}} rowGap={6}>
+                    <Stack style={{ width: '60%' }} rowGap={6}>
                         <div>
                             <Stack
                                 className={'event-view__info-bar'}
@@ -167,7 +169,7 @@ function EventView(){
                                     direction={'row'}
                                     columnGap={2}>
                                     <LikeEvent event={loaderData} imageUrl={heroImage} />
-                                    <ShareDialog  link={"foo"}/>
+                                    <ShareDialog link={"foo"} />
                                 </Stack>
                             </Stack>
                             <Stack className={'event-view__description'} rowGap={3}>
@@ -183,44 +185,44 @@ function EventView(){
                                            className={'event-view__organizer-details'}
                                            direction={'row'}>
                                         <Avatar src={profile.profile_image_url}
-                                            className={'event-view__organizer-avatar'}
-                                            alt={'avatar'} />
+                                                className={'event-view__organizer-avatar'}
+                                                alt={t('eventView.avatar')} />
                                         <Stack>
                                             <p className={'event-view__organizer-name'}>
-                                                By <Link to={`/o/${profile.custom_url || profile.profile_id}`}>
+                                                {t('eventView.by')} <Link to={`/o/${profile.custom_url || profile.profile_id}`}>
                                                 <b>{profile.profile_name}</b>
-                                            </Link> · {transformNumber(profile.total_followers)} followers
+                                            </Link> · {transformNumber(profile.total_followers)} {t('eventView.followers')}
                                             </p>
                                             <div className={'event-view__organizer-stats'}>
-                                                {profile.total_event_hosted ? <p><b>{profile.total_event_hosted}</b> events hosted</p>
-                                                    : <p><b>{profile.total_attendee_hosted}</b> attendees hosted</p>
+                                                {profile.total_event_hosted ? <p><b>{profile.total_event_hosted}</b> {t('eventView.eventsHosted')}</p>
+                                                    : <p><b>{profile.total_attendee_hosted}</b> {t('eventView.attendeesHosted')}</p>
                                                 } <ShowChartIcon />
                                             </div>
                                         </Stack>
                                     </Stack>
-                                    <FollowOrganizer profileImage={profile.profile_image_url} organizerID={loaderData.profile_id} organizerName={profile.profile_name}/>
+                                    <FollowOrganizer profileImage={profile.profile_image_url} organizerID={loaderData.profile_id} organizerName={profile.profile_name} />
                                 </Stack>
                             </Stack>
                         </div>
                         {viewDetail ?
                             <>
                                 <Stack className={'event-view__details'} rowGap={1}>
-                                    <p className={'event-view__details-heading'}>Date and Time</p>
+                                    <p className={'event-view__details-heading'}>{t('eventView.dateAndTime')}</p>
                                     {loaderData.is_recurring ?
                                         renderOccurrences()
                                         :
                                         <div className={'event-view__details-date'}>
-                                            <EventIcon sx={{fontSize: 32}}/> {dayjs(loaderData.start_time).format("dddd, DD MMMM")} · {dayjs(loaderData.start_time).format("HH:mm")} - {dayjs(loaderData.end_time).format("HH:mm")}
+                                            <EventIcon sx={{ fontSize: 32 }} /> {dayjs(loaderData.start_time).format("dddd, DD MMMM")} · {dayjs(loaderData.start_time).format("HH:mm")} - {dayjs(loaderData.end_time).format("HH:mm")}
                                             {` GMT+${loaderData.timezone}`}
                                         </div>
                                     }
                                 </Stack>
                                 <Stack className={'event-view__location'} rowGap={1}>
-                                    <p className={'event-view__location-heading'}>Location</p>
+                                    <p className={'event-view__location-heading'}>{t('eventView.location')}</p>
                                     <Stack columnGap={1}
                                            className={'event-view__location-content'}
                                            direction={'row'}>
-                                        <LocationOnIcon sx={{fontSize: 32}} className={'event-view__location-icon'} />
+                                        <LocationOnIcon sx={{ fontSize: 32 }} className={'event-view__location-icon'} />
                                         <Stack rowGap={.5}>
                                             <p className={'event-view__location-name'}>
                                                 {loaderData.location.name}
@@ -228,10 +230,10 @@ function EventView(){
                                             <Stack className={'event-view__location-address'} rowGap={1}>
                                                 {loaderData?.location?.locationType === 'online' ?
                                                     <>
-                                                        <p>Online event</p>
+                                                        <p>{t('eventView.onlineEvent')}</p>
                                                         {loaderData?.location.access !== 'holder' &&
                                                             <Link to={`/online/${loaderData.event_id}`} className={'link'} target={'_blank'}>
-                                                                View details
+                                                                {t('eventView.viewDetails')}
                                                             </Link>
                                                         }
                                                     </>
@@ -239,41 +241,41 @@ function EventView(){
                                                     <>
                                                         {loaderData.location.location.replace(new RegExp(loaderData.location.name + ', ', 'g'), '')}
                                                         <div className={'event-view__location-map'} onClick={() => setShowMapDetail(prev => !prev)}>
-                                                            Show map {showMapDetail ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                                                            {t('eventView.showMap')} {showMapDetail ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
                                                         </div>
                                                     </>
                                                 }
                                             </Stack>
                                             {showMapDetail && <Map latitude={loaderData.location.lat} longitude={loaderData.location.lon}
-                                                locationName={loaderData.location.name}
+                                                                   locationName={loaderData.location.name}
                                             />}
                                         </Stack>
                                     </Stack>
                                 </Stack>
                                 {loaderData?.refund_policy &&
                                     <Stack className={'event-view__refund-policy'} rowGap={1}>
-                                        <p className={'event-view__refund-policy-heading'}>Refund policy</p>
+                                        <p className={'event-view__refund-policy-heading'}>{t('eventView.refundPolicy')}</p>
                                         <div>
                                             {loaderData.refund_policy.allowRefund ?
-                                                <Typography variant={'body1'}>Refunds up to <b>{loaderData.refund_policy.daysForRefund} days</b> before event</Typography>
+                                                <Typography variant={'body1'}>{t('eventView.refundsUpTo')} <b>{loaderData.refund_policy.daysForRefund} {t('eventView.daysBeforeEvent')}</b></Typography>
                                                 :
-                                                "No refunds"
+                                                t('eventView.noRefunds')
                                             }
                                         </div>
                                     </Stack>
                                 }
                                 <Stack className={'event-view__about'} rowGap={2}>
-                                    <p className={'event-view__about-heading'}>About this event</p>
+                                    <p className={'event-view__about-heading'}>{t('eventView.aboutThisEvent')}</p>
                                     <Stack alignItems={'center'} columnGap={1}
                                            className={'event-view__about-duration'}
                                            direction={'row'}>
-                                        <TimelapseIcon /> <p>Event lasts <b>{dayjs(loaderData.end_time).diff(loaderData.start_time, 'hour', true)} hours</b></p>
+                                        <TimelapseIcon /> <p>{t('eventView.eventLasts')} <b>{dayjs(loaderData.end_time).diff(loaderData.start_time, 'hour', true)} {t('eventView.hours')}</b></p>
                                     </Stack>
-                                    <div className={'render-html'} dangerouslySetInnerHTML={{__html: loaderData.full_description}}></div>
+                                    <div className={'render-html'} dangerouslySetInnerHTML={{ __html: loaderData.full_description }}></div>
                                 </Stack>
                                 {loaderData.tags &&
                                     <Stack rowGap={1}>
-                                        <p className={'event-view__about-heading'}>Tags</p>
+                                        <p className={'event-view__about-heading'}>{t('eventView.tags')}</p>
                                         <Stack direction={'row'} columnGap={1}>
                                             {loaderData.event_type &&
                                                 <div className={'event-view__tag'}>
@@ -282,7 +284,7 @@ function EventView(){
                                             }
                                             {loaderData.category &&
                                                 <div className={'event-view__tag'}>
-                                                {loaderData.category}
+                                                    {loaderData.category}
                                                 </div>
                                             }
                                             {loaderData.sub_category &&
@@ -302,16 +304,16 @@ function EventView(){
                                 }
                                 {loaderData?.faq.length !== 0 &&
                                     <Stack className={'event-view__faqs'} rowGap={1}>
-                                        <p className={'event-view__faqs-heading'}>FAQs</p>
+                                        <p className={'event-view__faqs-heading'}>{t('eventView.faqs')}</p>
                                         <Stack rowGap={1}>
                                             {loaderData.faq.map((faq, index) => (
-                                                <Accordion key={index} sx={{borderBottom: '1px solid', paddingBottom: 1}}>
+                                                <Accordion key={index} sx={{ borderBottom: '1px solid', paddingBottom: 1 }}>
                                                     <AccordionSummary>
                                                         <Typography className={'event-view__faq-question'} fontSize={'.95rem'}>
                                                             {faq.question}
                                                         </Typography>
                                                     </AccordionSummary>
-                                                    <AccordionDetails sx={{paddingTop: 1}}>
+                                                    <AccordionDetails sx={{ paddingTop: 1 }}>
                                                         <Typography className={'event-view__faq-answer'} fontSize={'.95rem'}>
                                                             {faq.answer}
                                                         </Typography>
@@ -322,7 +324,7 @@ function EventView(){
                                     </Stack>
                                 }
                                 <Stack className={'event-view__organizer-info'} rowGap={2}>
-                                    <p className={'event-view__organizer-title'}>Organized by</p>
+                                    <p className={'event-view__organizer-title'}>{t('eventView.organizedBy')}</p>
                                     <Stack className={'event-view__organizer-overview'} rowGap={5}>
                                         <Stack
                                             direction={'row'}
@@ -333,7 +335,7 @@ function EventView(){
                                                    columnGap={2}>
                                                 <Avatar src={profile.profile_image_url}
                                                         className={'event-view__organizer-avatar'}
-                                                        alt={'avatar'} />
+                                                        alt={t('eventView.avatar')} />
                                                 <Stack rowGap={.25}>
                                                     <Link to={`/o/${profile.custom_url || profile.profile_id}`}>
                                                         <p className={'event-view__organizer-name'}>
@@ -341,16 +343,16 @@ function EventView(){
                                                         </p>
                                                     </Link>
                                                     <p className={'event-view__organizer-followers'}>
-                                                        <b>{transformNumber(profile.total_followers)}</b> followers
+                                                        <b>{transformNumber(profile.total_followers)}</b> {t('eventView.followers')}
                                                     </p>
                                                     <p className={'event-view__organizer-attendees'}>
                                                         {profile.total_event_hosted ?
                                                             <>
-                                                                <b>{profile.total_event_hosted}</b> events hosted
+                                                                <b>{profile.total_event_hosted}</b> {t('eventView.eventsHosted')}
                                                             </>
                                                             :
                                                             <>
-                                                                <b>{transformNumber(profile.total_attendee_hosted)}</b> attendees hosted
+                                                                <b>{transformNumber(profile.total_attendee_hosted)}</b> {t('eventView.attendeesHosted')}
                                                             </>
                                                         }
                                                     </p>
@@ -360,9 +362,9 @@ function EventView(){
                                                    className={'event-view__organizer-buttons'}
                                                    direction={'row'}>
                                                 <button className={'event-view__contact-button'}>
-                                                    Contact
+                                                    {t('eventView.contact')}
                                                 </button>
-                                                <FollowOrganizer profileImage={profile.profile_image_url} organizerID={loaderData.profile_id} organizerName={profile.profile_name}/>
+                                                <FollowOrganizer profileImage={profile.profile_image_url} organizerID={loaderData.profile_id} organizerName={profile.profile_name} />
                                             </Stack>
                                         </Stack>
                                         <p className={'event-view__organizer-description'}>
@@ -382,33 +384,33 @@ function EventView(){
                                                 )
                                             })}
                                         </Stack>
-                                    </Stack>
-                                    <Stack alignSelf={'center'}
-                                           className={'event-view__report'}
-                                           direction={'row'}>
-                                        <FlagIcon /> Report this event
+                                        <Stack alignSelf={'center'}
+                                               className={'event-view__report'}
+                                               direction={'row'}>
+                                            <FlagIcon /> {t('eventView.reportThisEvent')}
+                                        </Stack>
                                     </Stack>
                                 </Stack>
                             </>
                             :
                             <Stack justifyContent={'center'} alignItems={'center'}>
                                 <button className={'event-view__view-detail-btn'} onClick={() => setViewDetail(true)}>
-                                    View all event details
+                                    {t('eventView.viewAllDetails')}
                                 </button>
                             </Stack>
                         }
                         {loaderData.event_id && profile.profile_id &&
                             <MoreRelatedByOrganizer id={loaderData.event_id} name={profile.profile_name} customURL={profile.custom_url}
-                                                    profileID={profile.profile_id}/>
+                                                    profileID={profile.profile_id} />
                         }
                     </Stack>
                 </div>
             </div>
-            <div style={{paddingInline: '10%', backgroundColor: '#ececec', paddingBlock: '1rem 2rem', marginBlock: '2rem'}}>
+            <div style={{ paddingInline: '10%', backgroundColor: '#ececec', paddingBlock: '1rem 2rem', marginBlock: '2rem' }}>
                 <OtherEvents />
             </div>
         </>
-    )
+    );
 }
 
 export default EventView

@@ -5,6 +5,7 @@ import EventCard from "../shared/EventCard.jsx";
 import {useEffect, useState} from "react";
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import PropTypes from "prop-types";
+import {useTranslation} from "react-i18next";
 
 AttendeeFavoriteEvents.propTypes = {
     isSubComponent: PropTypes.bool
@@ -12,6 +13,7 @@ AttendeeFavoriteEvents.propTypes = {
 
 function AttendeeFavoriteEvents({isSubComponent = false}){
     const [favoriteEvents, setFavoriteEvents] = useState([]);
+    const {t} = useTranslation()
 
     useEffect(() => {
         if(sessionStorage.getItem('liked-event')?.length > 0){
@@ -23,28 +25,28 @@ function AttendeeFavoriteEvents({isSubComponent = false}){
         }
     }, []);
 
-    return(
+    return (
         <div className={isSubComponent ? 'attendee-favorite' : 'attendee-favorite-f'}>
-            {!isSubComponent && <Typography variant={'h3'} fontWeight={'bold'}>Like Events</Typography>}
+            {!isSubComponent && <Typography variant={'h3'} fontWeight={'bold'}>{t('attendeeFavorites.likeEvents')}</Typography>}
             <Stack gap={3} className={isSubComponent ? 'attendee-favorite-sub' : 'attendee-favorite-sub-f'} flexDirection={isSubComponent ? 'row' : 'column'}>
                 {favoriteEvents?.length > 0 ?
                     favoriteEvents.map((event, index) => {
-                        return(
-                            <EventCard key={index} event={event} horizontal={!isSubComponent} renderAddress={true}/>
+                        return (
+                            <EventCard key={index} event={event} horizontal={!isSubComponent} renderAddress={true} />
                         )
                     })
                     :
                     <Stack alignItems={'center'} rowGap={3}>
-                        <BeenhereIcon sx={{width: '7.5rem', height: '7.5rem', backgroundColor: '#ecf6e1', padding: 2, borderRadius: '50%', color: 'limegreen'}}/>
+                        <BeenhereIcon sx={{ width: '7.5rem', height: '7.5rem', backgroundColor: '#ecf6e1', padding: 2, borderRadius: '50%', color: 'limegreen' }} />
                         <Stack textAlign={'center'}>
-                            <Typography variant={'h5'} fontWeight={'bold'}>Add events, share with friends!</Typography>
-                            <Typography variant={'body1'}>Easy peasy</Typography>
+                            <Typography variant={'h5'} fontWeight={'bold'}>{t('attendeeFavorites.addEventsShareFriends')}</Typography>
+                            <Typography variant={'body1'}>{t('attendeeFavorites.easyPeasy')}</Typography>
                         </Stack>
                     </Stack>
                 }
             </Stack>
         </div>
-    )
+    );
 }
 
 export default AttendeeFavoriteEvents;

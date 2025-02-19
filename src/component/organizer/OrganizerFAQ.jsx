@@ -5,6 +5,7 @@ import "../../styles/organizer-fag-styles.css"
 import TextAreaWithLimit from "../shared/TextAreaWithLimit.jsx";
 import {Stack} from "@mui/material";
 import {EventContext} from "../../context.js";
+import {useTranslation} from "react-i18next";
 
 function OrganizerFAQ(){
     const {data, setData, setHasUnsavedChanges} = useContext(EventContext)
@@ -14,6 +15,7 @@ function OrganizerFAQ(){
     const [selectedFaqs, setSelectedFaqs] = useState([]);
     const [collapsed, setCollapsed] = useState();
     const sectionRef = useRef({});
+    const {t} = useTranslation()
 
     const formik = useFormik({
         initialValues: {
@@ -108,24 +110,23 @@ function OrganizerFAQ(){
             }}>
                 {!collapsed ? '+' : '-'}
             </div>
-            <h2 className="faq-section__title">Good to know</h2>
+            <h2 className="faq-section__title">{t('faqSection.title')}</h2>
             <p className="faq-section__description">
-                Use this section to feature specific information about your event. Add highlights and frequently asked
-                questions for attendees.
+                {t('faqSection.description')}
             </p>
             {collapsed &&
                 <>
-                    <h3 className="faq-section__subtitle">Frequently asked questions</h3>
+                    <h3 className="faq-section__subtitle">{t('faqSection.subtitle')}</h3>
                     <p className="faq-section__instructions">
-                        Answer questions your attendees may have about the event, like accessibility and amenities.
+                        {t('faqSection.instructions')}
                     </p>
 
                     <form className="faq-section__form" onSubmit={formik.handleSubmit}>
                         <div className="faq-section__form-group">
                             <label htmlFor="question" className="faq-section__label">
-                                Question
+                                {t('faqSection.questionLabel')}
                             </label>
-                            <input name="question" type="text" placeholder={'Enter your question'}
+                            <input name="question" type="text" placeholder={t('faqSection.questionPlaceholder')}
                                    className={`faq-section__input ${
                                        formik.errors.question && formik.touched.question ? "faq-section__input--error" : ""
                                    }`}
@@ -139,18 +140,18 @@ function OrganizerFAQ(){
                         </div>
                         <div className="faq-section__form-group">
                             <label htmlFor="question" className="faq-section__label">
-                                Answer
+                                {t('faqSection.answerLabel')}
                             </label>
                             <TextAreaWithLimit name={'answer'} value={formik.values.answer}
                                                error={formik.errors.answer && formik.touched.answer}
                                                handleChange={formik.handleChange}
                                                onBlur={formik.handleBlur} rows={4}
-                                               maxChars={300} helperText={formik.errors.answer} placeholder={"Answer"}
+                                               maxChars={300} helperText={formik.errors.answer} placeholder={t('faqSection.answerPlaceholder')}
 
                             />
                         </div>
                         <button type="submit" className="faq-section__submit">
-                            {editIndex !== null ? "Update Question" : "Add Question"}
+                            {editIndex !== null ? t('faqSection.updateQuestion') : t('faqSection.addQuestion')}
                         </button>
                     </form>
                 </>
@@ -159,14 +160,14 @@ function OrganizerFAQ(){
             {faqList.length !== 0 &&
                 <div className="faq-section__bulk-actions">
                     <button onClick={handleBulkExpand} className="faq-section__bulk-action">
-                        {expandedIndex.length === faqList.length ? "Collapse All" : "Expand All"}
+                        {expandedIndex.length === faqList.length ? t('faqSection.collapseAll') : t('faqSection.expandAll')}
                     </button>
                     <button
                         onClick={handleBulkDelete}
                         className="faq-section__bulk-action faq-section__bulk-action--delete"
                         disabled={selectedFaqs.length === 0}
                     >
-                        Delete Selected
+                        {t('faqSection.deleteSelected')}
                     </button>
                 </div>
             }

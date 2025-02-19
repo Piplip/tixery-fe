@@ -25,6 +25,7 @@ import SuccessAnimation from "../../animation/success-animation.json"
 import {motion} from 'framer-motion';
 import Lottie from 'react-lottie';
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
+import {useTranslation} from "react-i18next";
 
 const checkboxStyle = {
     sx: {
@@ -59,33 +60,8 @@ const defaultOptions = {
     }
 };
 
-const steps = [
-    {
-        title: 'Build Event Page',
-        description: 'Add all of your event details and let attendees know what to expect',
-        to: ''
-    },
-    {
-        title: 'Online Page',
-        description: 'Create your online event page and start selling tickets',
-        to: 'online'
-    },
-    {
-        title: 'Recurring Schedule',
-        description: 'Choose when to publish your event',
-        to: 'recurring'
-    },
-    {
-        title: 'Add Tickets',
-        description: 'Create tickets and start selling', to: 'tickets'
-    },
-    {
-        title: 'Publish Event',
-        description: 'Choose when to publish your event', to: 'publish'
-    }
-]
-
 function CreateEvent() {
+    const {t} = useTranslation()
     const loader = useLoaderData()
     const location = useLocation()
     const navigate = useNavigate()
@@ -99,6 +75,24 @@ function CreateEvent() {
 
     const isLive = eventData.publishType === "now";
     const isEdit = location.pathname.includes("edit");
+
+    const steps = [
+        {
+            to: ''
+        },
+        {
+            to: 'online'
+        },
+        {
+            to: 'recurring'
+        },
+        {
+            to: 'tickets'
+        },
+        {
+            to: 'publish'
+        }
+    ]
 
     useEffect(() => {
         let loaderData = loader ? loader.data : undefined
@@ -438,22 +432,22 @@ function CreateEvent() {
     return (
         <div className={'create-events-wrapper'}>
             {isLoading &&
-                <LinearProgress color={'error'} sx={{position: 'fixed', width: '100%', zIndex: 1, bottom: 0, height: '.75rem'}}/>}
+                <LinearProgress color={'error'} sx={{ position: 'fixed', width: '100%', zIndex: 1, bottom: 0, height: '.75rem' }} />}
             <Dialog
                 onClose={(e, reason) => {
-                    if(reason !== "backdropClick") {
+                    if (reason !== "backdropClick") {
                         handleClose()
                     }
                 }}
                 disableEscapeKeyDown
                 open={showSuccessDialog}
             >
-                <DialogTitle sx={{ m: 0, p: 2, textAlign: 'center'}}>
-                    {isEdit ? "EDIT EVENT" : "EVENT PUBLISHING"}
+                <DialogTitle sx={{ m: 0, p: 2, textAlign: 'center' }}>
+                    {isEdit ? t('createEvent.editEvent') : t('createEvent.eventPublishing')}
                 </DialogTitle>
                 <DialogContent dividers sx={{ paddingInline: '7.5rem' }}>
                     <Stack direction="column" spacing={5} className="event-dialog-content">
-                        {isLive && <Lottie options={defaultOptions} height={'10rem'} width={'10rem'}/>}
+                        {isLive && <Lottie options={defaultOptions} height={'10rem'} width={'10rem'} />}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -461,7 +455,7 @@ function CreateEvent() {
                         >
                             <Stack direction="row" alignItems="center" spacing={2} justifyContent={'center'}>
                                 <Typography variant="h6" className={`event-status ${isLive ? 'live' : 'scheduled'}`}>
-                                    {isLive ? "Your event is now live!" : "Your event is scheduled to be published on"}
+                                    {isLive ? t('createEvent.eventLive') : t('createEvent.eventScheduled')}
                                 </Typography>
                                 {!isLive && (
                                     <Typography variant="h6" className="event-date-time">
@@ -486,15 +480,15 @@ function CreateEvent() {
                                 {isLive ? (
                                     <>
                                         <Link to={'../events'}>
-                                            <Button variant="contained" color="primary">View Events</Button>
+                                            <Button variant="contained" color="primary">{t('createEvent.viewEvents')}</Button>
                                         </Link>
-                                        <Button variant="contained" color="primary">Dashboard</Button>
-                                        <Button variant="outlined" color="secondary">Share</Button>
+                                        <Button variant="contained" color="primary">{t('createEvent.dashboard')}</Button>
+                                        <Button variant="outlined" color="secondary">{t('createEvent.share')}</Button>
                                     </>
                                 ) : (
                                     <>
-                                        <Button variant="contained" color="primary">Edit Schedule</Button>
-                                        <Button variant="outlined" color="error">Cancel Event</Button>
+                                        <Button variant="contained" color="primary">{t('createEvent.editSchedule')}</Button>
+                                        <Button variant="outlined" color="error">{t('createEvent.cancelEvent')}</Button>
                                     </>
                                 )}
                             </Stack>
@@ -503,48 +497,48 @@ function CreateEvent() {
                 </DialogContent>
             </Dialog>
             <Snackbar
-                anchorOrigin={{vertical: 'top', horizontal: 'right'}}
-                open={alert !== ""} sx={{marginTop: '3rem'}}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                open={alert !== ""} sx={{ marginTop: '3rem' }}
                 autoHideDuration={5000} onClose={() => setAlert("")}
             >
-                <Alert severity={"error"} variant="filled" sx={{ width: '100%'}}>
+                <Alert severity={"error"} variant="filled" sx={{ width: '100%' }}>
                     {alert}
                 </Alert>
             </Snackbar>
             <div className={'create-events__stepper'}>
                 <Link to={'/organizer/events'}>
                     <Stack className={'link'} direction={'row'} alignItems={'center'}>
-                        <ChevronLeftIcon /> Back to events
+                        <ChevronLeftIcon /> {t('createEvent.backToEvents')}
                     </Stack>
                 </Link>
                 <div className={'create-events-stepper__main'}>
                     <Stack className={'create-events__summary'}>
-                        <p>{eventData.eventTitle || "Event Title"}</p>
+                        <p>{eventData.eventTitle || t('createEvent.eventTitle')}</p>
                         <Stack direction={'row'} alignItems={'center'} columnGap={1}>
-                            <CalendarTodayIcon/> {eventData.eventDate && eventData.eventStartTime
-                            ? `${dayjs(eventData.eventDate, "DD/MM/YYYY").format('ddd, MMM D, YYYY')} 
-                            ${dayjs(eventData.eventStartTime, "HH:mm").format(" HH:mm")}` : "Event Date"}
+                            <CalendarTodayIcon /> {eventData.eventDate && eventData.eventStartTime
+                            ? `${dayjs(eventData.eventDate, "DD/MM/YYYY").format('ddd, MMM D, YYYY')}
+                            ${dayjs(eventData.eventStartTime, "HH:mm").format(" HH:mm")}` : t('createEvent.eventDate')}
                         </Stack>
-                        <Stack sx={{border: '1px solid grey', p: 1, textAlign: 'center', borderRadius: '.5rem'}}>
-                            {eventData.publishType === 'schedule' ? 'SCHEDULED' : 'DRAFT'}
+                        <Stack sx={{ border: '1px solid grey', p: 1, textAlign: 'center', borderRadius: '.5rem' }}>
+                            {eventData.publishType === 'schedule' ? t('createEvent.scheduled') : t('createEvent.draft')}
                         </Stack>
                     </Stack>
                     <Stack className={'create-events-stepper__wrapper'}>
                         <Stack className={'create-events-stepper__steps'} rowGap={1}>
                             {steps.map((step, index) => {
-                                if(index === 1 && eventData.locationType !== 'online') return
-                                if(index === 2 && eventData.eventType !== 'recurring') return
+                                if (index === 1 && eventData.locationType !== 'online') return
+                                if (index === 2 && eventData.eventType !== 'recurring') return
                                 return (
                                     <div key={index}
                                          className={`create-events-stepper__step ${currentStep === index ? 'create-events__active-step' : ''}
                                      ${maxStep.current < index ? 'create-events__disabled-step' : ''}`}
                                          onClick={() => handleSetStep(index)}
                                     >
-                                        <CustomCheckbox checked={currentStep === index} completed={maxStep.current > index}/>
+                                        <CustomCheckbox checked={currentStep === index} completed={maxStep.current > index} />
                                         <div>
-                                            <p>{step.title}</p>
+                                            <p>{t(`createEvent.steps.step-${index+1}.title`)}</p>
                                             {currentStep === index &&
-                                                <p>{step.description}</p>
+                                                <p>{t(`createEvent.steps.step-${index+1}.description`)}</p>
                                             }
                                         </div>
                                     </div>
@@ -555,17 +549,17 @@ function CreateEvent() {
                 </div>
             </div>
             <div className={'create-events__main'}>
-                <EventContext.Provider value={{data: eventData, setData: setEventData, setHasUnsavedChanges}}>
-                    <Outlet context={{validate: validateStep, setAlert: setAlert, setCurrentStep: setCurrentStep}}/>
+                <EventContext.Provider value={{ data: eventData, setData: setEventData, setHasUnsavedChanges }}>
+                    <Outlet context={{ validate: validateStep, setAlert: setAlert, setCurrentStep: setCurrentStep }} />
                 </EventContext.Provider>
             </div>
             <button className={'create-events-main__continue-btn'}
-                onClick={handleContinue}
+                    onClick={handleContinue}
             >
-                {hasUnsavedChanges && location.pathname.includes("edit") ? 'Save Changes' : (currentStep < steps.length - 1 ? 'Continue' : 'Finish')}
+                {hasUnsavedChanges && location.pathname.includes("edit") ? t('createEvent.saveChanges') : (currentStep < steps.length - 1 ? t('createEvent.continue') : t('createEvent.finish'))}
             </button>
         </div>
-    )
+    );
 }
 
 export default CreateEvent;

@@ -1,15 +1,6 @@
 .organizer-setting-template{
     padding-inline: 3rem;
 }
-.organizer-setting-header{
-    p {
-        font-weight: bold;
-        font-size: 1.5rem;
-    }
-    .MuiTypography-h2, p {
-        font-family: "Franklin Gothic Heavy", sans-serif;
-    }
-}
 .horizontal-nav {
     width: 100%;
     border-bottom: 2px solid #f1f1f1;

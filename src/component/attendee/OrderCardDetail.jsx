@@ -16,6 +16,7 @@ import {useState} from "react";
 import {QRCodeSVG} from 'qrcode.react';
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import "../../styles/order-card-detail-styles.css"
+import {useTranslation} from "react-i18next";
 
 OrderCardDetail.propTypes = {
     open: PropTypes.bool.isRequired,
@@ -29,6 +30,7 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
     const [openDialog, setOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [selectedTicket, setSelectedTicket] = useState(0);
+    const {t} = useTranslation()
 
     function handleCancelOrder(){
         setIsLoading(true)
@@ -88,23 +90,23 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
 
     return (
         <Dialog fullScreen open={open} onClose={handleClose} sx={{zIndex: 10000000}}>
-            <Stack sx={{padding: '2rem 5rem'}} rowGap={2}>
-                <Typography className={'link'} onClick={handleClose}>Back to orders</Typography>
+            <Stack sx={{ padding: '2rem 5rem' }} rowGap={2}>
+                <Typography className={'link'} onClick={handleClose}>{t('attendeeOrderCardDetail.backToOrders')}</Typography>
                 <Stack direction={'row'} className={'order-detail-content-wrapper'}>
                     <div className={'order-ticket-wrapper'}>
                         {ticketInfo?.length > 0 && ticketInfo?.map((item, index) => {
                             return (
                                 <Stack className={`${selectedTicket === index ? 'selected-ticket' : ''} order-ticket`}
-                                       key={index} sx={{boxShadow: '0 0 1rem #e8e8e8', borderRadius: 5, overflow: 'hidden', width: '27.5rem'}}
+                                       key={index} sx={{ boxShadow: '0 0 1rem #e8e8e8', borderRadius: 5, overflow: 'hidden', width: '27.5rem' }}
                                        onClick={() => {
-                                           if(selectedTicket === index) return
-                                           setSelectedTicket(index)
+                                           if (selectedTicket === index) return;
+                                           setSelectedTicket(index);
                                        }}
                                 >
                                     <Stack maxHeight={'12.5rem'}>
                                         <img
                                             src={eventImg}
-                                            alt={'event image'}
+                                            alt={t('attendeeOrderCardDetail.eventImage')}
                                             style={{
                                                 maxHeight: '100%',
                                                 width: 'auto',
@@ -119,8 +121,8 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                                                 <Typography fontWeight={'bold'} fontSize={30}>{order.name}</Typography>
                                                 <ShareDialog eventID={order.event_id} />
                                             </Stack>
-                                            <p style={{color: '#2a2a2a', fontSize: 14}}>{dayjs(order.start_date).format("ddd, MMM DD HH:mm")}</p>
-                                            <p style={{color: '#564f4f', fontSize: 14}}>{order.location.location}</p>
+                                            <p style={{ color: '#2a2a2a', fontSize: 14 }}>{dayjs(order.start_date).format("ddd, MMM DD HH:mm")}</p>
+                                            <p style={{ color: '#564f4f', fontSize: 14 }}>{order.location.location}</p>
                                         </Stack>
                                         <Stack rowGap={2}>
                                             {order?.event_id &&
@@ -142,10 +144,11 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                                                     fgColor="#21214d"
                                                 />
                                             }
-                                            <p style={{color: '#2a2a38', fontFamily: 'Raleway', fontSize: 16, wordWrap: 'break-word', textAlign: 'center'}}>
+                                            <p style={{ color: '#2a2a38', fontFamily: 'Raleway', fontSize: 16, wordWrap: 'break-word', textAlign: 'center' }}>
                                                 {item?.name} x{item?.quantity}</p>
                                             {item?.price &&
-                                                <div style={{alignSelf: 'center', fontSize: '2.5rem', fontWeight: 'bold', background: 'linear-gradient(90deg, #4CAF50, #81C784)',
+                                                <div style={{
+                                                    alignSelf: 'center', fontSize: '2.5rem', fontWeight: 'bold', background: 'linear-gradient(90deg, #4CAF50, #81C784)',
                                                     WebkitBackgroundClip: 'text', color: 'transparent', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
                                                     paddingInline: '20px', borderRadius: '10px', display: 'inline-block'
                                                 }}>
@@ -154,46 +157,44 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                                             }
                                         </Stack>
                                         <Stack rowGap={1.5}>
-                                            <MuiButton color={'error'} variant={'contained'} sx={{width: '100%'}}
-                                                onClick={() => handleDownloadTicket(index)}
+                                            <MuiButton color={'error'} variant={'contained'} sx={{ width: '100%' }}
+                                                    onClick={() => handleDownloadTicket(index)}
                                             >
-                                                {isLoading ? 'Generating...' : 'Download ticket'}
+                                                {isLoading ? t('attendeeOrderCardDetail.generating') : t('attendeeOrderCardDetail.downloadTicket')}
                                             </MuiButton>
-                                            <MuiButton variant={'outlined'} onClick={() => setOpen(true)}>Cancel order</MuiButton>
+                                            <MuiButton variant={'outlined'} onClick={() => setOpen(true)}>{t('attendeeOrderCardDetail.cancelOrder')}</MuiButton>
                                             {item?.refund_policy?.allowRefund &&
-                                                <Stack sx={{backgroundColor: '#e8e8e8', padding: '.5rem .75rem'}}>
-                                                    <b>Refund policy</b>
-                                                    <p>Refunds up to <b>{item?.refund_policy?.daysForRefund} days</b> before event</p>
+                                                <Stack sx={{ backgroundColor: '#e8e8e8', padding: '.5rem .75rem' }}>
+                                                    <b>{t('attendeeOrderCardDetail.refundPolicy')}</b>
+                                                    <p>{t('attendeeOrderCardDetail.refundsUpTo')} <b>{item?.refund_policy?.daysForRefund} {t('attendeeOrderCardDetail.daysBeforeEvent')}</b></p>
                                                 </Stack>
                                             }
                                         </Stack>
-                                        <p className={'link'} style={{alignSelf: 'center', marginBlock: 10}}>Contact the organizer</p>
+                                        <p className={'link'} style={{ alignSelf: 'center', marginBlock: 10 }}>{t('attendeeOrderCardDetail.contactOrganizer')}</p>
                                         <Stack fontSize={14} borderTop={'1px solid'} paddingTop={2.5}>
-                                            <p>Order <b>#{order.order_id}</b> on {dayjs(order.created_at).format('HH:mm DD, MMM YYYY')}</p>
-                                            <p className={'link'}>Report this event</p>
+                                            <p>{t('attendeeOrderCardDetail.order')} <b>#{order.order_id}</b> {t('attendeeOrderCardDetail.on')} {dayjs(order.created_at).format('HH:mm DD, MMM YYYY')}</p>
+                                            <p className={'link'}>{t('attendeeOrderCardDetail.reportThisEvent')}</p>
                                         </Stack>
                                     </Stack>
                                 </Stack>
                             )
                         })}
                     </div>
-                    <Stack flexGrow={1} rowGap={2} fontFamily={'Roboto Slab'} sx={{transform: `translateX(-${90 * (ticketInfo?.length - 1)}%)`}}>
+                    <Stack flexGrow={1} rowGap={2} fontFamily={'Roboto Slab'} sx={{ transform: `translateX(-${90 * (ticketInfo?.length - 1)}%)` }}>
                         <Typography fontWeight={'bold'} fontSize={30}>{order.name}</Typography>
                         <hr />
-                        <Typography variant={'h5'}>
-                            Contact information
-                        </Typography>
-                        <p className={'order-detail-title'}>Attendee Name</p>
+                        <Typography variant={'h5'}>{t('attendeeOrderCardDetail.contactInformation')}</Typography>
+                        <p className={'order-detail-title'}>{t('attendeeOrderCardDetail.attendeeName')}</p>
                         <p className={'order-detail-content'}>{getUserData('fullName')}</p>
-                        <p className={'order-detail-title'}>Email</p>
+                        <p className={'order-detail-title'}>{t('attendeeOrderCardDetail.email')}</p>
                         <p className={'order-detail-content'}>{getUserData('sub')}</p>
-                        <p className={'order-detail-title'}>Delivery Method</p>
+                        <p className={'order-detail-title'}>{t('attendeeOrderCardDetail.deliveryMethod')}</p>
                         <p className={'order-detail-content'}>eTicket</p>
-                        <p className={'order-detail-title'}>Ticket Name</p>
+                        <p className={'order-detail-title'}>{t('attendeeOrderCardDetail.ticketName')}</p>
                         <p className={'order-detail-content'}>{ticketInfo[selectedTicket]?.name}</p>
-                        <p className={'order-detail-title'}>Quantity</p>
+                        <p className={'order-detail-title'}>{t('attendeeOrderCardDetail.quantity')}</p>
                         <p className={'order-detail-content'}>{ticketInfo[selectedTicket]?.quantity}</p>
-                        <p className={'order-detail-title'}>Total Cost</p>
+                        <p className={'order-detail-title'}>{t('attendeeOrderCardDetail.totalCost')}</p>
                         <p className={'order-detail-content'}>
                             {ticketInfo[selectedTicket]?.currency && formatCurrency(ticketInfo[selectedTicket]?.price, ticketInfo[selectedTicket]?.currency)}
                         </p>
@@ -204,18 +205,18 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                 <ModalDialog variant="outlined" role="alertdialog">
                     <DialogTitle>
                         <WarningRoundedIcon />
-                        Cancel Order
+                        {t('attendeeOrderCardDetail.cancelOrder')}
                     </DialogTitle>
                     <Divider />
                     <DialogContent>
-                        Are you sure you want to cancel this order ?
+                        {t('attendeeOrderCardDetail.cancelConfirmation')}
                     </DialogContent>
                     <DialogActions>
                         <Button variant="plain" color="neutral" onClick={() => setOpen(false)}>
-                            No, nevermind
+                            {t('attendeeOrderCardDetail.noNevermind')}
                         </Button>
                         <Button variant="solid" color="danger" onClick={handleCancelOrder}>
-                            {isLoading ? 'Cancelling...' : 'Yes, cancel this order'}
+                            {isLoading ? t('attendeeOrderCardDetail.cancelling') : t('attendeeOrderCardDetail.yesCancelOrder')}
                         </Button>
                     </DialogActions>
                 </ModalDialog>

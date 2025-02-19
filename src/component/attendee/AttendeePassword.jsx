@@ -7,16 +7,6 @@ import * as Yup from "yup";
 import CheckIcon from '@mui/icons-material/Check';
 import {CircularProgress} from "@mui/joy";
 
-const validationSchema = Yup.object({
-    currentPassword: Yup.string().required('Current password is required'),
-    newPassword: Yup.string()
-        .min(8, 'Password must be at least 8 characters')
-        .required('New password is required'),
-    confirmPassword: Yup.string()
-        .oneOf([Yup.ref('newPassword'), null], 'Passwords must match')
-        .required('Please confirm your password'),
-});
-
 const ButtonStyle = {
     backgroundColor: '#e82727', marginBlock: '1rem', fontFamily: 'Raleway',
     color: 'white',
@@ -33,6 +23,16 @@ function AttendeePassword(){
     const [isLoading, setIsLoading] = useState(false);
     const [showResponse, setShowResponse] = useState({
         open: false, msg: '', severity: null
+    });
+
+    const validationSchema = Yup.object({
+        currentPassword: Yup.string().required(t('attendeePassword.currentPasswordRequired')),
+        newPassword: Yup.string()
+            .min(8, t('attendeePassword.passwordMinLength'))
+            .required(t('attendeePassword.newPasswordRequired')),
+        confirmPassword: Yup.string()
+            .oneOf([Yup.ref('newPassword'), null], t('attendeePassword.passwordsMustMatch'))
+            .required(t('attendeePassword.confirmPasswordRequired')),
     });
 
     const formik = useFormik({
@@ -54,7 +54,7 @@ function AttendeePassword(){
                     setIsLoading(false)
                     if(r.data.status === 'OK'){
                         setShowResponse({
-                            open: true, msg: 'Password updated successfully', severity: 'success'
+                            open: true, msg: t('attendeePassword.passwordUpdatedSuccessfully'), severity: 'success'
                         })
                     }
                     else{
@@ -98,11 +98,11 @@ function AttendeePassword(){
         <Stack className={"attendee-password"} marginTop={3}>
             {hasSetPassword ?
                 <Stack rowGap={2}>
-                    <Typography variant={'h5'} fontWeight={'bold'} style={{borderBottom: '1px solid gray', paddingBottom: '.5rem'}}>
-                        Your password
+                    <Typography variant={'h5'} fontWeight={'bold'} style={{ borderBottom: '1px solid gray', paddingBottom: '.5rem' }}>
+                        {t('attendeePassword.yourPassword')}
                     </Typography>
                     <Typography fontSize={15} color={'gray'}>
-                        Set a new password
+                        {t('attendeePassword.setNewPassword')}
                     </Typography>
 
                     {showResponse.open && <Alert severity={showResponse.severity}>{showResponse.msg}</Alert>}
@@ -110,20 +110,20 @@ function AttendeePassword(){
                         <form onSubmit={formik.handleSubmit}>
                             <Stack spacing={2}>
                                 <TextField fullWidth
-                                    label="Current Password"
-                                    name="currentPassword" type="password" variant="outlined" required
-                                    value={formik.values.currentPassword}
-                                    onChange={formik.handleChange} onBlur={formik.handleBlur}
-                                    error={
-                                        formik.touched.currentPassword &&
-                                        Boolean(formik.errors.currentPassword)
-                                    }
-                                    helperText={
-                                        formik.touched.currentPassword && formik.errors.currentPassword
-                                    }
+                                           label={t('attendeePassword.currentPassword')}
+                                           name="currentPassword" type="password" variant="outlined" required
+                                           value={formik.values.currentPassword}
+                                           onChange={formik.handleChange} onBlur={formik.handleBlur}
+                                           error={
+                                               formik.touched.currentPassword &&
+                                               Boolean(formik.errors.currentPassword)
+                                           }
+                                           helperText={
+                                               formik.touched.currentPassword && formik.errors.currentPassword
+                                           }
                                 />
                                 <TextField
-                                    fullWidth label="New Password" name="newPassword" type="password" variant="outlined" required
+                                    fullWidth label={t('attendeePassword.newPassword')} name="newPassword" type="password" variant="outlined" required
                                     value={formik.values.newPassword}
                                     onChange={formik.handleChange} onBlur={formik.handleBlur}
                                     error={
@@ -133,7 +133,7 @@ function AttendeePassword(){
                                 />
 
                                 <TextField
-                                    fullWidth label="Repeat Password" name="confirmPassword" type="password" variant="outlined" required
+                                    fullWidth label={t('attendeePassword.repeatPassword')} name="confirmPassword" type="password" variant="outlined" required
                                     value={formik.values.confirmPassword}
                                     onChange={formik.handleChange} onBlur={formik.handleBlur}
                                     error={
@@ -147,8 +147,9 @@ function AttendeePassword(){
 
                                 <Button type="submit" variant="contained"
                                         sx={ButtonStyle}
+                                        disabled={isLoading}
                                 >
-                                    {isLoading ? <CircularProgress color={'danger'} size={'sm'}/> : 'Update'}
+                                    {isLoading ? <CircularProgress color={'danger'} size={'sm'} /> : t('attendeePassword.update')}
                                 </Button>
                             </Stack>
                         </form>
@@ -156,38 +157,37 @@ function AttendeePassword(){
                 </Stack>
                 :
                 <Stack rowGap={2}>
-                    <Typography variant={'h5'} fontWeight={'bold'} style={{borderBottom: '1px solid gray', paddingBottom: '.5rem'}}>
-                        Set password
+                    <Typography variant={'h5'} fontWeight={'bold'} style={{ borderBottom: '1px solid gray', paddingBottom: '.5rem' }}>
+                        {t('attendeePassword.setPassword')}
                     </Typography>
                     <Stack rowGap={1}>
                         <Typography fontSize={15} color={'gray'}>
-                            A password has not been set for your account.
+                            {t('attendeePassword.noPasswordSet')}
                         </Typography>
-                        <Button style={ButtonStyle} sx={{width: 'fit-content', padding: '.5rem 2rem'}}
+                        <Button style={ButtonStyle} sx={{ width: 'fit-content', padding: '.5rem 2rem' }}
                                 onClick={handleRequestSetPassword}
-                                disabled={isCounting}
+                                disabled={isCounting || isLoading}
                         >
                             {isLoading ?
-                                <CircularProgress size={'sm'}/>
+                                <CircularProgress size={'sm'} />
                                 :
-                                hasSendEmail ? 'Resend email' : 'Set Password'
-                            }
+                                hasSendEmail ? t('attendeePassword.resendEmail') : t('attendeePassword.setPassword')}
                         </Button>
                         {isCounting && countdown !== 0 && (
                             <Typography fontSize={15} color={'gray'}>
-                                Please wait {countdown} seconds to set your password.
+                                {t('attendeePassword.waitToSetPassword', {countdown})}
                             </Typography>
                         )}
-                        {hasSendEmail &&
+                        {hasSendEmail && (
                             <Alert icon={<CheckIcon fontSize="inherit" />} severity="success">
-                                We just sent you an email with a link to set your password. Please check your inbox.
+                                {t('attendeePassword.emailSentToSetPassword')}
                             </Alert>
-                        }
+                        )}
                     </Stack>
                 </Stack>
             }
         </Stack>
-    )
+    );
 }
 
 export default AttendeePassword

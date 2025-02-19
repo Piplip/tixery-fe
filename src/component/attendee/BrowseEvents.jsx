@@ -5,23 +5,10 @@ import EventSuggestion from "../shared/EventSuggestion.jsx";
 import debounce from "lodash.debounce";
 import {nominatimAxios} from "../../config/axiosConfig.js";
 import {getCookie} from "../../common/Utilities.js";
-
-const genres = [
-    {type: "self", label: 'For You', value: 'self'},
-    {type: 'online', label: 'Online', value: 'online'},
-    {type: 'time', label: 'Today', value: 'today'},
-    {type: 'time', label: 'This Weekend', value: 'weekend'},
-    {type: 'time', label: 'This Week', value: 'week'},
-    {type: 'time', label: 'This Month', value: 'month'},
-    {type: 'cost', label: 'Free', value: 0},
-    {type: 'category', label: 'Music', value: 'Music'},
-    {type: 'category', label: 'Food & Drink', value: 'food & Drink'},
-    {type: 'category', label: 'Health & Wellness', value: 'Health & Wellness'},
-    {type: 'category', label: 'Religion & Spirituality', value: 'Religion & Spirituality'},
-    {type: 'category', label: 'Community & Culture', value: 'Community & Culture'},
-]
+import {useTranslation} from "react-i18next";
 
 function BrowseEvents(){
+    const {t} = useTranslation()
     const [active, setActive] = useState({
         type: "self",
         value: 'self'
@@ -33,6 +20,22 @@ function BrowseEvents(){
         lat:  getCookie("user-location").lat,
         lon: getCookie("user-location").lon,
     })
+
+    const genres = [
+        { type: "self", labelKey: 'browseEvents.forYou', value: 'self' },
+        { type: 'online', labelKey: 'browseEvents.online', value: 'online' },
+        { type: 'time', labelKey: 'browseEvents.today', value: 'today' },
+        { type: 'time', labelKey: 'browseEvents.thisWeekend', value: 'weekend' },
+        { type: 'time', labelKey: 'browseEvents.thisWeek', value: 'week' },
+        { type: 'time', labelKey: 'browseEvents.thisMonth', value: 'month' },
+        { type: 'cost', labelKey: 'browseEvents.free', value: 0 },
+        { type: 'category', value: 'Music' },
+        { type: 'category', value: 'Food & Drink' },
+        { type: 'category', value: 'Health & Wellness' },
+        { type: 'category', value: 'Religion & Spirituality' },
+        { type: 'category', value: 'Dinner' },
+        { type: 'category', value: 'Travel & Outdoor' }
+    ];
 
     const debouncedApiCall = useCallback(
         debounce((query) => {
@@ -70,12 +73,12 @@ function BrowseEvents(){
     return (
         <div className="browse-events">
             <Stack direction={'row'} className="browse-events__header">
-                <p className="browse-events__header-text">Browse events in</p>
-                <Stack sx={{position: 'relative'}}>
+                <p className="browse-events__header-text">{t('browseEvents.browseEventsIn')}</p>
+                <Stack sx={{ position: 'relative' }}>
                     <input
                         value={location.location}
                         onChange={handleLocationChange}
-                        type={'text'} placeholder={'City or Zip Code'} className="browse-events__header-input"/>
+                        type={'text'} placeholder={'City or Zip Code'} className="browse-events__header-input" />
                     {suggestedLocation.length > 0 && showSuggestion && location &&
                         <Stack className={'relative-suggestion-panel'} rowGap={2}>
                             {suggestedLocation.map((location, index) => (
@@ -90,12 +93,15 @@ function BrowseEvents(){
             <Stack direction={'row'} className="browse-events__genres">
                 {genres.map((genre, index) => {
                     return <p key={index} className={`browse-events__genre ${active.value === genre.value ? 'browse-events__genre--active' : ''}`}
-                              onClick={() => handleChangeGenre(index)}>{genre.label}</p>
+                              onClick={() => handleChangeGenre(index)}>
+                        {genre.type === 'category' ? t(`event-category.${genre.value}`)
+                            : t(genre.labelKey)}
+                    </p>
                 })}
             </Stack>
-            <EventSuggestion {...active} lat={location.lat} lon={location.lon}/>
+            <EventSuggestion {...active} lat={location.lat} lon={location.lon} />
         </div>
-    )
+    );
 }
 
 export default BrowseEvents

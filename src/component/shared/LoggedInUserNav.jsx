@@ -17,18 +17,18 @@ function LoggedInUserNav(){
     const [ppImage, setPpImage] = useState(null)
     const [fullName] = useState(getUserData('profileName'))
 
-    const links = [
-        { name: 'Browse Events', link: '/events', roles: ['attendee'] },
-        { name: 'Manage my events', link: '/organizer/events', roles: ['host'] },
-        { name: 'Tickets', link: `/u/${getUserData('profileID')}`, roles: ['attendee'] },
-        { name: 'Likes', link: '/favorites' , roles: ['attendee']},
-        { name: 'Followings', link: `/u/${getUserData('profileID')}`, roles: ['attendee'] },
-        { name: 'Interests', link: '/interests', roles: ['attendee'] },
-        { name: 'Account Settings', link: '/account', public: true},
-        { name: 'Profile', link: '/organizer/u', roles: ['host']},
-    ];
-
     const {t, i18n} = useTranslation()
+
+    const links = [
+        { nameKey: 'loggedInUserNav.browseEvents', link: '/events', roles: ['attendee'] },
+        { nameKey: 'loggedInUserNav.manageMyEvents', link: '/organizer/events', roles: ['host'] },
+        { nameKey: 'loggedInUserNav.tickets', link: `/u/${getUserData('profileID')}`, roles: ['attendee'] },
+        { nameKey: 'loggedInUserNav.likes', link: '/favorites', roles: ['attendee'] },
+        { nameKey: 'loggedInUserNav.followings', link: `/u/${getUserData('profileID')}`, roles: ['attendee'] },
+        { nameKey: 'loggedInUserNav.interests', link: '/interests', roles: ['attendee'] },
+        { nameKey: 'loggedInUserNav.accountSettings', link: '/account', public: true },
+        { nameKey: 'loggedInUserNav.profile', link: '/organizer/u', roles: ['host'] },
+    ];
 
     useEffect(() => {
         if(checkLoggedIn()){
@@ -52,46 +52,46 @@ function LoggedInUserNav(){
     return (
         <div className={'logged-in-user-nav'}>
             <Stack direction={'row'} alignItems={'center'} columnGap={1}>
-                <Avatar src={ppImage} alt="profile">
-                    {fullName.charAt(0)}
+                <Avatar src={ppImage} alt={t('loggedInUserNav.profile')}>
+                    {fullName && fullName.charAt(0)}
                 </Avatar>
                 {fullName && <p>{fullName}</p>}
                 <KeyboardArrowDownIcon />
             </Stack>
             <Stack className={'user-sub-nav'} rowGap={1}>
                 {links.map((item, index) => {
-                    const cond = item.roles instanceof Array ? hasRole(item.roles) : []
-                    if(cond || item.public){
+                    const cond = item.roles instanceof Array ? hasRole(item.roles) : [];
+                    if (cond || item.public) {
                         return (
                             <Link to={item.link} key={index}>
                                 <div>
-                                    <p>{item.name}</p>
+                                    <p>{t(item.nameKey)}</p>
                                 </div>
                             </Link>
                         )
                     }
                 })}
                 <div className={'language-select-wrapper'}>
-                    <p>Language</p>
+                    <p>{t('loggedInUserNav.language')}</p>
                     <div className={'language-select'}>
                         {Languages.map((lang, index) => {
                             return (
                                 <p key={index} onClick={() => {
-                                    i18n.changeLanguage(lang.code)
-                                    localStorage.setItem('locale', lang.code)
+                                    i18n.changeLanguage(lang.code);
+                                    localStorage.setItem('locale', lang.code);
                                 }}
-                                    className={i18n.resolvedLanguage === lang.code ? 'selected' : ''}
+                                   className={i18n.resolvedLanguage === lang.code ? 'selected' : ''}
                                 >{lang.label}</p>
                             )
                         })}
                     </div>
                 </div>
                 <div onClick={logout}>
-                    <p>Logout</p>
+                    <p>{t('loggedInUserNav.logout')}</p>
                 </div>
             </Stack>
         </div>
-    )
+    );
 }
 
 export default LoggedInUserNav

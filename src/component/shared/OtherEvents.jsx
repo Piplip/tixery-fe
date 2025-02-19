@@ -5,12 +5,14 @@ import {useEffect, useRef, useState} from "react";
 import {eventAxios} from "../../config/axiosConfig.js";
 import EventCard from "./EventCard.jsx";
 import Grid from "@mui/material/Grid2";
+import {useTranslation} from "react-i18next";
 
 function OtherEvents(){
     const [events, setEvents] = useState(null)
     const [currentPage, setCurrentPage] = useState(0);
     const eventsPerPage = 4;
     const isCalled = useRef(false)
+    const {t} = useTranslation()
 
     useEffect(() => {
         if(isCalled.current) return
@@ -41,7 +43,7 @@ function OtherEvents(){
         <Stack rowGap={3}>
             <Stack direction={'row'} justifyContent={'space-between'}>
                 <Typography variant={'h5'} fontWeight={'bold'}>
-                    Other events you may like
+                    {t('otherEvents')}
                 </Typography>
                 <Stack direction={'row'} columnGap={2}>
                     <IconButton onClick={handlePrev} disabled={currentPage === 0}>

@@ -7,28 +7,26 @@ import FacebookRoundedIcon from '@mui/icons-material/FacebookRounded';
 import XIcon from '@mui/icons-material/X';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import PropTypes from "prop-types";
+import {useTranslation} from "react-i18next";
 
 const prefix = "http://localhost:5173/events/"
 
-ShareDialog.propTypes = {
-    eventID: PropTypes.string
-}
-
-function ShareDialog({eventID}){
+const ShareDialog = ({ eventID }) => {
+    const { t } = useTranslation();
     const [open, setOpen] = useState(false);
-    const [copyTooltip, setCopyTooltip] = useState('Copy to clipboard');
+    const [copyTooltip, setCopyTooltip] = useState(t('shareDialog.copyToClipboard'));
 
     const handleCopy = () => {
         const eventURL = eventID ? prefix + eventID : window.location.href;
 
         navigator.clipboard.writeText(eventURL)
             .then(() => {
-                setCopyTooltip('Copied!');
-                setTimeout(() => setCopyTooltip('Copy to clipboard'), 2000);
+                setCopyTooltip(t('shareDialog.copied'));
+                setTimeout(() => setCopyTooltip(t('shareDialog.copyToClipboard')), 2000);
             })
             .catch(() => {
-                setCopyTooltip('Failed to copy');
-                setTimeout(() => setCopyTooltip('Copy to clipboard'), 2000);
+                setCopyTooltip(t('shareDialog.copyFailed'));
+                setTimeout(() => setCopyTooltip(t('shareDialog.copyToClipboard')), 2000);
             });
     };
 
@@ -36,40 +34,44 @@ function ShareDialog({eventID}){
         <div>
             <Tooltip
                 className={'event-view__action event-view__action--share'}
-                title={'Share event'}>
+                title={t('shareDialog.shareEvent')}>
                 <ShareIcon onClick={(e) => {
-                    setOpen(true)
-                    e.stopPropagation()
-                }}/>
+                    setOpen(true);
+                    e.stopPropagation();
+                }} />
             </Tooltip>
             <Modal open={open} onClick={e => e.stopPropagation()}
-                   onClose={() => {setOpen(false)}}
-                   sx={{zIndex: 10000001}}
+                   onClose={() => { setOpen(false) }}
+                   sx={{ zIndex: 10000001 }}
             >
                 <ModalDialog>
                     <ModalClose />
-                    <Typography textAlign={'center'} variant={'h6'}>Share events</Typography>
+                    <Typography textAlign={'center'} variant={'h6'}>{t('shareDialog.shareEvents')}</Typography>
                     <Divider />
                     <Stack rowGap={5} margin={4}>
                         <Stack alignSelf={'center'} direction={'row'} columnGap={3}>
-                            <FacebookRoundedIcon sx={{fontSize: 30}}/>
-                            <InstagramIcon sx={{fontSize: 30}}/>
-                            <XIcon sx={{fontSize: 30}}/>
+                            <FacebookRoundedIcon sx={{ fontSize: 30 }} />
+                            <InstagramIcon sx={{ fontSize: 30 }} />
+                            <XIcon sx={{ fontSize: 30 }} />
                         </Stack>
-                        <Stack direction={'row'} columnGap={5} alignItems={'center'} style={{border: '1px solid', padding: '.5rem 1rem'}}>
+                        <Stack direction={'row'} columnGap={5} alignItems={'center'} style={{ border: '1px solid', padding: '.5rem 1rem' }}>
                             <Stack>
-                                <Typography variant={'body2'} fontWeight={'bold'}>Event URL</Typography>
+                                <Typography variant={'body2'} fontWeight={'bold'}>{t('shareDialog.eventURL')}</Typography>
                                 <p>{eventID ? prefix + eventID : window.location.href}</p>
                             </Stack>
                             <Tooltip title={copyTooltip}>
-                                <ContentCopyIcon onClick={handleCopy} style={{cursor: 'pointer'}} />
+                                <ContentCopyIcon onClick={handleCopy} style={{ cursor: 'pointer' }} />
                             </Tooltip>
                         </Stack>
                     </Stack>
                 </ModalDialog>
             </Modal>
         </div>
-    )
+    );
+}
+
+ShareDialog.propTypes = {
+    eventID: PropTypes.string
 }
 
 export default ShareDialog;

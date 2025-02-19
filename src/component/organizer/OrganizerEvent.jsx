@@ -41,6 +41,8 @@ import {useTranslation} from "react-i18next";
 
 initializeApp(firebaseConfig);
 const storage = getStorage();
+
+moment.locales(localStorage.getItem('localce'))
 const localizer = momentLocalizer(moment);
 
 const eventStyleGetter = (event) => {
@@ -64,29 +66,6 @@ const eventStyleGetter = (event) => {
         }
     };
 };
-
-const CustomEventWrapper = ({ event }) => {
-    return (
-        <div title={event.title}>
-            <strong>{event.title}</strong>
-            <div>
-                {moment(event.start).format('h:mm a')} - {moment(event.end).format('h:mm a')}
-            </div>
-            <div style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}>
-                {event.resource.status}
-            </div>
-        </div>
-    );
-};
-
-CustomEventWrapper.propTypes = {
-    event: PropTypes.shape({
-        title: PropTypes.string.isRequired,
-        start: PropTypes.instanceOf(Date).isRequired,
-        end: PropTypes.instanceOf(Date).isRequired,
-        resource: PropTypes.object.isRequired
-    })
-}
 
 function OrganizerEvent() {
     const {t} = useTranslation();
@@ -243,6 +222,29 @@ function OrganizerEvent() {
                 setOpenModal(false);
             })
             .catch(err => console.log(err));
+    }
+
+    const CustomEventWrapper = ({ event }) => {
+        return (
+            <Stack title={event.title} rowGap={.5}>
+                <strong>{event.title}</strong>
+                <div>
+                    {moment(event.start).format('h:mm a')} - {moment(event.end).format('h:mm a')}
+                </div>
+                <div style={{ fontSize: '0.8rem' , textTransform: 'uppercase'}}>
+                    {t(`event.status.${event.resource.status.toLowerCase()}`)}
+                </div>
+            </Stack>
+        );
+    };
+
+    CustomEventWrapper.propTypes = {
+        event: PropTypes.shape({
+            title: PropTypes.string.isRequired,
+            start: PropTypes.instanceOf(Date).isRequired,
+            end: PropTypes.instanceOf(Date).isRequired,
+            resource: PropTypes.object.isRequired
+        })
     }
 
     const RenderEvents = ({data, type}) => {
@@ -459,8 +461,16 @@ function OrganizerEvent() {
                     events={calendarEvents}
                     startAccessor="start"
                     endAccessor="end"
-                    style={{ height: 700, margin: '20px 0' }}
+                    style={{ height: 1200, margin: '20px 0' }}
                     onSelectEvent={event => navigate(`../../events/${event.resource.event_id}`)}
+                    messages={{
+                        month: t('calendar.month'),
+                        week: t('calendar.week'),
+                        day: t('calendar.day'),
+                        today: t('calendar.today'),
+                        previous: t('calendar.previous'),
+                        next: t('calendar.next'),
+                    }}
                     eventPropGetter={eventStyleGetter}
                     components={{
                         event: CustomEventWrapper

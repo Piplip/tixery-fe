@@ -11,6 +11,7 @@ import {EventContext} from "../../context.js";
 import {debounce} from "lodash";
 import EventAdditionalInfo from "./EventAdditionalInfo.jsx";
 import {generateGeminiContent} from "../../common/Utilities.js";
+import {useTranslation} from "react-i18next";
 
 const validationSchema = Yup.object().shape({
     eventTitle: Yup.string()
@@ -22,6 +23,7 @@ const validationSchema = Yup.object().shape({
 });
 
 function OrganizerBuildEventPage(){
+    const {t} = useTranslation()
     const {data, setData, setHasUnsavedChanges} = useContext(EventContext);
     const [collapsed, setCollapsed] = useState({});
     const sectionRefs = useRef({});
@@ -74,9 +76,7 @@ function OrganizerBuildEventPage(){
         if(data.eventTitle === '')
             alert('Please enter an event title first.')
         setLoading(true)
-        const instruction = "Write a short description with the given event name. It should no longer than 500 characters." +
-            " The description should be engaging and informative. If the given name is just a random string, return an alert to notify that the name is not descriptive enough." +
-            "Grab people's attention with a short description about your event. Attendees will see this at the top of your event page.";
+        const instruction = `Write a short description with the given event name. It should be no longer than 500 characters. The description should be engaging and informative. If the given name is just a random string, return an alert to notify that the name is not descriptive enough. Grab people's attention with a short description about your event. Attendees will see this at the top of your event page.  **The response language should match the dominant language of the entire prompt.**  If the prompt contains multiple languages, prioritize the language with the highest percentage of text.`;
         const prompt = data.eventTitle;
 
         generateGeminiContent(prompt, instruction).then((response) => {
@@ -100,59 +100,55 @@ function OrganizerBuildEventPage(){
                         () => handleExpandClick('eventTitle')
                     }>
                         <p className={'create-events-title__title'}>
-                            {data.eventTitle || 'Event Title'}
+                            {data.eventTitle || t('eventTitle.eventTitle')}
                         </p>
                         <p>
-                            {data.summary || 'A short and sweet sentence about your event'}
+                            {data.summary || t('eventTitle.eventSummary')}
                         </p>
                     </div>
                     :
                     <form onSubmit={formik.handleSubmit}>
                         <Stack spacing={4} className="event-overview-form">
                             <div>
-                                <h2>Event Overview</h2>
+                                <h2>{t('eventTitle.eventOverview')}</h2>
                             </div>
                             <div>
                                 <label htmlFor="eventTitle" className="form-label">
-                                    Event title
+                                    {t('eventTitle.eventTitleLabel')}
                                 </label>
                                 <p className="form-description">
-                                    Be clear and descriptive with a title that tells people what your event is
-                                    about.
+                                    {t('eventTitle.eventTitleDescription')}
                                 </p>
                                 <div className="input-wrapper">
                                     <TextField name="eventTitle" variant="outlined" fullWidth
-                                        error={formik.touched.eventTitle && Boolean(formik.errors.eventTitle)}
-                                        helperText={formik.touched.eventTitle && formik.errors.eventTitle}
-                                        value={formik.values.eventTitle}
-                                        onChange={(e) => {
-                                            formik.handleChange(e)
-                                            setHasUnsavedChanges(true)
-                                        }}
-                                        onBlur={formik.handleBlur}
-                                        slotProps={{
-                                            input: {
-                                                endAdornment: formik.errors.eventTitle && (
-                                                    <IconButton disabled>
-                                                        <ErrorOutlinedIcon color="error"/>
-                                                    </IconButton>
-                                                )
-                                            }
-                                        }}
+                                               error={formik.touched.eventTitle && Boolean(formik.errors.eventTitle)}
+                                               helperText={formik.touched.eventTitle && formik.errors.eventTitle}
+                                               value={formik.values.eventTitle}
+                                               onChange={(e) => {
+                                                   formik.handleChange(e)
+                                                   setHasUnsavedChanges(true)
+                                               }}
+                                               onBlur={formik.handleBlur}
+                                               slotProps={{
+                                                   input: {
+                                                       endAdornment: formik.errors.eventTitle && (
+                                                           <IconButton disabled>
+                                                               <ErrorOutlinedIcon color="error" />
+                                                           </IconButton>
+                                                       )
+                                                   }
+                                               }}
                                     />
                                 </div>
                             </div>
                             <div>
                                 <label htmlFor="summary" className="form-label">
-                                    Summary
+                                    {t('eventTitle.summaryLabel')}
                                 </label>
                                 <p className="form-description">
-                                    Grab people&#39;s attention with a short description about your event. Attendees
-                                    will
-                                    see this at the
-                                    top of your event page. (500 characters max){" "}
+                                    {t('eventTitle.summaryDescription')}{" "}
                                     <a href="#" className="see-examples">
-                                        See examples
+                                        {t('eventTitle.seeExamples')}
                                     </a>
                                 </p>
                                 <TextAreaWithLimit name={'summary'}
@@ -161,7 +157,7 @@ function OrganizerBuildEventPage(){
                                                        setHasUnsavedChanges(true)
                                                    }}
                                                    value={formik.values.summary}
-                                                   maxChars={500}  error={formik.touched.summary && Boolean(formik.errors.summary)}
+                                                   maxChars={500} error={formik.touched.summary && Boolean(formik.errors.summary)}
                                                    helperText={formik.touched.summary && formik.errors.summary}
                                                    onBlur={formik.handleBlur}
                                 />
@@ -173,7 +169,7 @@ function OrganizerBuildEventPage(){
                                     type="button"
                                     onClick={handleGenerateDescriptionSuggestion}
                                 >
-                                    ⚡ Suggest summary
+                                    ⚡ {t('eventTitle.suggestSummary')}
                                 </Button>
                             </div>
                         </Stack>

@@ -10,6 +10,7 @@ import {Link} from "react-router-dom";
 import ShareDialog from "./ShareDialog.jsx";
 import LikeEvent from "./LikeEvent.jsx";
 import {formatCurrency} from "../../common/Utilities.js";
+import {useTranslation} from "react-i18next";
 
 EventCard.propTypes = {
     event: PropTypes.shape({
@@ -39,6 +40,7 @@ const storage = getStorage()
 
 function EventCard ({ event, organizer, id, customURL, horizontal, showAction = true, renderAddress}) {
     const [imageUrl, setImageUrl] = useState(null)
+    const {t} = useTranslation()
 
     useEffect(() => {
         if(event?.images?.length > 0) {
@@ -77,7 +79,7 @@ function EventCard ({ event, organizer, id, customURL, horizontal, showAction = 
                 <p className="event-card__title">{event.name}</p>
                 <p className="event-card__date">{dayjs(event.start_time).format("ddd, DD MMM")} • {dayjs(event.start_time).format("HH:mm [GMT]Z")}</p>
                 {event.price && <p className="event-card__price">
-                    {event.price === 'Free' ? 'Free ' : `From ${formatCurrency(event.price, event.currency.currency)}`}
+                    {event.price === 'Free' ? 'Free ' : `${t('from')} ${formatCurrency(event.price, event.currency.currency)}`}
                 </p>}
                 {renderAddress && <p className={'event-card__address'}
                     style={!horizontal ? {textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap'} : {}}

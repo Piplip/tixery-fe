@@ -8,12 +8,14 @@ import {getDownloadURL, getStorage, ref} from "firebase/storage";
 import Grid from "@mui/material/Grid2";
 import FollowOrganizer from "../shared/FollowOrganizer.jsx";
 import {Link} from "react-router-dom";
+import {useTranslation} from "react-i18next";
 
 initializeApp(firebaseConfig);
 const storage = getStorage()
 
 function AttendeeFollowing(){
     const [followedOrganizer, setFollowedOrganizer] = useState([]);
+    const {t} = useTranslation()
 
     useEffect(() => {
         if(followedOrganizer?.length === 0 && sessionStorage.getItem('followed-organizer')?.length > 0){
@@ -38,21 +40,21 @@ function AttendeeFollowing(){
         followedOrganizer?.length > 0 &&
         <Stack className="attendee-profile__section">
             <Stack className={'attendee-profile__section-header'} direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
-                <p className="attendee-profile__section-title">Following</p>
+                <p className="attendee-profile__section-title">{t('attendeeFollowing.following')}</p>
                 <Stack direction={'row'} alignItems={'center'} columnGap={.5} className={'link'}>
                     <Link to={'following'}>
-                        <p>See events</p>
+                        <p>{t('attendeeFollowing.seeEvents')}</p>
                     </Link>
                     <ChevronRightIcon className="attendee-profile__section-icon" />
                 </Stack>
             </Stack>
-            <Grid container spacing={3} columns={{xs: 12}} sx={{paddingInline: 2}}>
+            <Grid container spacing={3} columns={{ xs: 12 }} sx={{ paddingInline: 2 }}>
                 {followedOrganizer.map((organizer, index) => (
                     <Grid key={index} size={6} className={'attendee-profile__following'}>
                         <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
                             <Link to={`/o/${organizer?.custom_url || organizer.profile_id}`}>
                                 <Stack direction={'row'} alignItems={'center'} columnGap={2}>
-                                    <Avatar src={organizer.profile_image_url} alt={organizer.profile_name}/>
+                                    <Avatar src={organizer.profile_image_url} alt={organizer.profile_name} />
                                     <p className={'attendee-profile__following-name'}>{organizer.profile_name}</p>
                                 </Stack>
                             </Link>
@@ -62,7 +64,7 @@ function AttendeeFollowing(){
                 ))}
             </Grid>
         </Stack>
-    )
+    );
 }
 
 export default AttendeeFollowing

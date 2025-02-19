@@ -85,7 +85,7 @@ function OrderManagement(){
     return (
         <Stack sx={{ padding: '5rem 2rem' }} rowGap={2}>
             {openOrderDetail && <OrderCardDetail open={openOrderDetail} handleClose={() => setOpenOrderDetail(false)} data={orderDetail} />}
-            <Typography fontSize={50} fontFamily={'Raleway'} fontWeight={700} gutterBottom>
+            <Typography fontSize={'3.5rem'} fontFamily={'Raleway'} fontWeight={700} gutterBottom>
                 {t('orderManagement.title')}
             </Typography>
             <Typography mb={2} fontFamily={'Raleway'}>
@@ -155,7 +155,7 @@ function OrderManagement(){
                                         <TableCell sx={{ wordWrap: 'break-word' }}>
                                             {order.tickets.map(ticket => (
                                                 <Typography key={ticket.ticket_id} variant="body2">
-                                                    {ticket.name} x{ticket.quantity}
+                                                    {ticket.name} <b style={{fontSize: 17}}>x{ticket.quantity}</b>
                                                 </Typography>
                                             ))}
                                         </TableCell>
