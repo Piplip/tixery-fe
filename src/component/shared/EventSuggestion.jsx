@@ -66,10 +66,10 @@ function EventSuggestion({type, value, lat, lon}){
             if (value === 'today') {
                 return t('eventSuggestion.todayEvents');
             } else {
-                return t('eventSuggestion.eventsThis', { value: value });
+                return t('eventSuggestion.eventsThis', { value: t(`eventSuggestion.${value}`) });
             }
         } else if (type === 'category') {
-            return t('eventSuggestion.categoryEvents', { value: value });
+            return t('eventSuggestion.categoryEvents', { value: t(`eventSuggestion.${value}`) });
         }
         else if (type === 'cost') {
             return value === 0 ? t('eventSuggestion.freeEvents') : t('eventSuggestion.eventsUnder', { value: value });
@@ -81,7 +81,7 @@ function EventSuggestion({type, value, lat, lon}){
 
     return (
         <Stack rowGap={4.5}>
-            {events.length !== 0 && <Typography fontSize={27.5} fontFamily={'Raleway'} fontWeight={'bold'}>{renderTitle()}</Typography>}
+            {<Typography fontSize={27.5} fontFamily={'Raleway'} fontWeight={'bold'}>{renderTitle()}</Typography>}
             {isLoading ?
                 <EventFetching rows={2} cols={4} />
                 :

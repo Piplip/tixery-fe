@@ -142,7 +142,7 @@ function LoginSignUp() {
             <ForgotPasswordDialog open={openForgotPassword} handleClose={() => setOpenForgotPassword(false)}/>
             <div className={'login-page__img-wrapper'}>
                 <img className={'login-page__img'}
-                     src={'https://preview.redd.it/arcane-season-2-fanart-poster-v0-1b1syno6q8qd1.jpeg?width=1080&crop=smart&auto=webp&s=62c457f3dca468d3d6fc9515d40625dd72b5d0b0'}
+                     src={'https://static.vecteezy.com/system/resources/previews/001/437/104/non_2x/people-celebrating-a-festivity-party-event-at-outdoor-roof-illustration-free-vector.jpg'}
                      alt={'login-page-img'}/>
             </div>
             <div className={'login-page__form-wrapper'}>

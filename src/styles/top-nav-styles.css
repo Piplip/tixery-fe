@@ -6,7 +6,7 @@
     z-index: 10000000;
     background-color: white;
     border-bottom: 1px solid gray;
-    font-family: DengXian, sans-serif;
+    font-family: "Roboto Slab", sans-serif;
     font-size: .9rem;
     transition: transform 0.3s ease, opacity 0.3s ease;
 }

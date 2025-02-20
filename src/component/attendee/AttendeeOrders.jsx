@@ -34,7 +34,7 @@ function AttendeeOrders(){
     return (
         <>
             <Stack direction={'row'} alignItems={'center'} columnGap={.5} className="attendee-profile__section-header">
-                <Typography className="attendee-profile__section-title">{t('attendeeOrders.orders')} ({orders.length})</Typography>
+                <p className="attendee-profile__section-title">{t('attendeeOrders.orders')} ({orders.length})</p>
             </Stack>
             <Stack rowGap={3}>
                 {orders.length > 0 ?
@@ -58,7 +58,7 @@ function AttendeeOrders(){
                     :
                     <Stack>
                         <Stack direction={'row'} alignItems={'center'} columnGap={.5} className="attendee-profile__section-header">
-                            <Typography className="attendee-profile__section-title">{t('attendeeOrders.pastOrders')} ({pastOrders?.length})</Typography>
+                            <p className="attendee-profile__section-title">{t('attendeeOrders.pastOrders')} ({pastOrders?.length})</p>
                         </Stack>
                         <Stack rowGap={3}>
                             {pastOrders?.length > 0 ?

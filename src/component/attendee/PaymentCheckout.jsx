@@ -129,7 +129,7 @@ function PaymentCheckout({total, currency, eventName, eventID, tickets, quantiti
                         </Stack>
                     </Stack>
                     <Stack rowGap={.25}>
-                        <Typography fontSize={'.9rem'}>By selecting {selectedMethod === 'stripe' ? 'Stripe' : 'Place Order'},
+                        <Typography fontSize={'.9rem'}>
                             {t("paymentCheckout.agreement", {method: selectedMethod})} <Link to={'/terms-of-service'} className={'link'} target={'_blank'}>{t('paymentCheckout.terms-of-service')}</Link></Typography>
                         {selectedMethod === 'stripe' ?
                             <button className={`pay-btn stripe-pay-btn ${isLoading ? 'stripe-pay-btn-loading' : ''}`} onClick={handleStripePayment}>

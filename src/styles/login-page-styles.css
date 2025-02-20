@@ -8,9 +8,11 @@
 .login-page__img-wrapper{
     height: 100%;
     width: 50%;
+    object-fit: cover;
     display: flex;
     justify-content: center;
     background-color: black;
+    overflow: hidden;
 }
 .login-page__img-wrapper > img{
     height: 100%;

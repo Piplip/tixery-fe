@@ -79,7 +79,7 @@ function AttendeeNotificationSetting(){
         <Stack className="email-preferences" rowGap={1}>
             <Typography variant="h5" fontWeight={'bold'} fontSize={'1.75rem'}>{t('attendeeNotificationSetting.emailPreferences')}</Typography>
             <hr style={{ marginBlock: '.5rem 1rem' }} />
-            {getUserData('role') === 'ATTENDEE' &&
+            {getUserData('role') !== 'ATTENDEE' &&
                 <Stack rowGap={2}>
                     <Stack>
                         <Typography variant="h6" fontWeight={'bold'} fontSize={'1.4rem'}>{t('attendeeNotificationSetting.attendingEvents')}</Typography>
@@ -98,7 +98,7 @@ function AttendeeNotificationSetting(){
                 </Stack>
             }
 
-            {getUserData('role') === 'HOST' &&
+            {getUserData('role') !== 'HOST' &&
                 <Stack rowGap={2}>
                     <Stack>
                         <Typography variant="h6" fontWeight={'bold'} fontSize={'1.4rem'}>{t('attendeeNotificationSetting.organizingEvents')}</Typography>

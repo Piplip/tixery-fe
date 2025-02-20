@@ -16,6 +16,7 @@ function AttendeeFollowedEvents(){
         if(followedEvents.length === 0){
             eventAxiosWithToken.post(`/event/followed`, sessionStorage.getItem('followed-organizer'))
                 .then(r => {
+                    console.log(r.data)
                     setFollowedEvents(r.data)
                 })
                 .catch(err => console.log(err))
@@ -23,7 +24,7 @@ function AttendeeFollowedEvents(){
     }, []);
 
     return (
-        <Stack style={{ paddingBlock: '7.5rem 10%' }} rowGap={3}>
+        <Stack sx={{ padding: '7.5rem 10%' }} rowGap={3}>
             <Stack direction={'row'} columnGap={2} alignItems={'center'}>
                 <IconButton onClick={() => navigate(-1)}>
                     <ArrowBackIcon />
@@ -38,7 +39,7 @@ function AttendeeFollowedEvents(){
                         )
                     })
                     :
-                    <Stack alignItems={'center'} rowGap={3}>
+                    <Stack alignItems={'center'} rowGap={3} marginTop={10}>
                         <BeenhereIcon sx={{ width: '7.5rem', height: '7.5rem', backgroundColor: '#ecf6e1', padding: 2, borderRadius: '50%', color: 'limegreen' }} />
                         <Stack textAlign={'center'}>
                             <Typography variant={'h5'} fontWeight={'bold'}>{t('followedEvents.addEventsShareFriends')}</Typography>

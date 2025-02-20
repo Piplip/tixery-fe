@@ -207,6 +207,10 @@
   },
   "eventTitle": {
     "eventTitle": "Event Title",
+    "title-require": "Event title is required.",
+    "title-max": "Event title cannot exceed 100 characters.",
+    "summary-required": "Summary is required.",
+    "summary-max": "Summary cannot exceed 500 characters.",
     "eventSummary": "A short and sweet sentence about your event",
     "eventOverview": "Event Overview",
     "eventTitleLabel": "Event title",
@@ -269,6 +273,7 @@
     "title": "More info for your event"
   },
   "onlineEvent": {
+    "previewMode": "Preview mode",
     "attendeeEventPage": "Attendee Event Page",
     "attendeeEventPageDescription": "Attendees will join your online event through your virtual venue. Use this space to add a live video or audio stream, share additional content, and customize the look of your event page.",
     "pageSettings": "Page Settings",
@@ -281,6 +286,9 @@
     "image": "Image",
     "video": "Video",
     "link": "Link",
+    "eventType": "Event type",
+    "startTime": "Start time",
+    "endTime": "End time",
     "videoURL": "Video URL",
     "youtubeOnly": "We currently support Youtube videos only",
     "linkTitle": "Link title",
@@ -795,6 +803,7 @@
     "ticketPrice": "Ticket Price"
   },
   "eventDatePicker": {
+    "addTimeSlot": "Add a time slot",
     "manageDatesTimes": "Manage dates and times",
     "addDatesTimesDescription": "Start by adding the dates and time slots for your recurring event. Then edit ticket types, prices, and quantities for each time slot you create.",
     "eventPlanningAlt": "Event Planning",
@@ -807,6 +816,9 @@
     "repeats": "Repeats",
     "once": "Once",
     "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "custom": "Custom",
     "endDate": "End date",
     "time": "Time",
     "singleTime": "Single time",
@@ -893,7 +905,7 @@
   "eventSearch": {
     "filters": "FILTERS",
     "category": "Category",
-    "categories": " categories",
+    "categories": "{{category}} categories",
     "date": "Date",
     "price": "Price",
     "view": "View",
@@ -923,6 +935,8 @@
     "selfTitle": "Our magic algorithm think you might likes these events",
     "todayEvents": "Today events",
     "eventsThis": "Events this {{value}}",
+    "weekend": "weekend",
+    "month": "month",
     "categoryEvents": "{{value}} events",
     "freeEvents": "Free events",
     "eventsUnder": "Events under ${{value}}",
@@ -930,6 +944,7 @@
     "noEventsFound": "No events found"
   },
   "eventView": {
+    "contact": "Contact",
     "eventEnded": "This event has ended",
     "heroImage": "img",
     "avatar": "avatar",
@@ -1018,6 +1033,7 @@
     "signInWithFacebook": "Sign {{action}} with Facebook",
     "up": "up",
     "in": "in",
+    "emailAlreadyUsed": "Email already used! Please login directly with that email",
     "alreadyHaveAccount": "Already have an account? Log in",
     "dontHaveAccount": "Don't have an account? Sign up",
     "invalidEmail": "Invalid email",
@@ -1051,8 +1067,15 @@
     "retry": "Retry"
   },
   "popularEvents": {
-    "popularEvents": "Sự kiện Phổ biến",
-    "exploreMore": "Khám phá thêm sự kiện"
+    "popularEvents": "Popular Events",
+    "exploreMore": "Explore more events"
+  },
+  "attendeeProfile": {
+    "likes": "likes",
+    "following": "following",
+    "interests": "Interests",
+    "ticketMissing": "Ticket missing ?",
+    "findMyTickets": "Find my tickets"
   },
   "footer": {
     "useTixeryTitle": "Use Tixery",
@@ -1148,6 +1171,7 @@
     "checkout": "Checkout",
     "orderSummary": "Order summary",
     "total": "Total",
+    "enterCode": "Enter code",
     "selectAtLeastOneTicket": "Please select at least one ticket before continuing"
   },
   "topDestination": {
@@ -1387,6 +1411,7 @@
     "terms-of-service": "Tixery terms of service",
     "processing": "Processing...",
     "placeOrder": "Place Order",
+    "poweredBy": "Powered by",
     "ticketsForEvent": "Tickets for {{eventName}} - Tixery Event - ",
     "paymentError": "Payment failed. Please try again in a few minutes."
   }

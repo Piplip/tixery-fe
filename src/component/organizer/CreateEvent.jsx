@@ -77,21 +77,11 @@ function CreateEvent() {
     const isEdit = location.pathname.includes("edit");
 
     const steps = [
-        {
-            to: ''
-        },
-        {
-            to: 'online'
-        },
-        {
-            to: 'recurring'
-        },
-        {
-            to: 'tickets'
-        },
-        {
-            to: 'publish'
-        }
+        {to: ''},
+        {to: 'online'},
+        {to: 'recurring'},
+        {to: 'tickets'},
+        {to: 'publish'}
     ]
 
     useEffect(() => {
@@ -445,7 +435,7 @@ function CreateEvent() {
                 <DialogTitle sx={{ m: 0, p: 2, textAlign: 'center' }}>
                     {isEdit ? t('createEvent.editEvent') : t('createEvent.eventPublishing')}
                 </DialogTitle>
-                <DialogContent dividers sx={{ paddingInline: '7.5rem' }}>
+                <DialogContent dividers sx={{ paddingInline: '5rem' }}>
                     <Stack direction="column" spacing={5} className="event-dialog-content">
                         {isLive && <Lottie options={defaultOptions} height={'10rem'} width={'10rem'} />}
                         <motion.div

@@ -266,7 +266,7 @@ function OrganizerEvent() {
                                     <Stack marginTop={.5}>
                                         <Typography variant={'body2'} color={'gray'} style={{ textTransform: 'capitalize' }}>
                                             {item?.is_recurring ? t('event.recurring')
-                                                : item.location.locationType === 'venue' ? t('event.venue') : t('event.online')}</Typography>
+                                                : item.location?.locationType === 'venue' ? t('event.venue') : t('event.online')}</Typography>
                                         <Typography variant={'body2'} color={'gray'}>
                                             {item?.start_date && dayjs(item.start_date).format('dddd, MMMM D, YYYY [at] HH:mm [GMT]Z')}
                                         </Typography>
@@ -293,13 +293,13 @@ function OrganizerEvent() {
                             <p style={{ textTransform: 'uppercase' }}>{t(`event.status.${item?.status}`)}</p>
                             <CustomMenu
                                 options={type === 'past' ? [t('event.view'), t('event.delete')]
-                                    : [t('event.promote'), t('event.view'), ...(item?.location.locationType === 'online' ? [t('event.viewOnline')] : []), t('event.edit'), t('event.delete')]}
+                                    : [t('event.promote'), t('event.view'), ...(item?.location?.locationType === 'online' ? [t('event.viewOnline')] : []), t('event.edit'), t('event.delete')]}
                                 handlers={
                                     type === 'past' ?
                                         [() => window.open(`../../events/${item.event_id}`, '_blank'), () => handlePreDelete(item.event_id)]
                                         :
                                         [null, () => window.open(`../../events/${item.event_id}`, '_blank'),
-                                            ...(item?.location.locationType === 'online' ? [() => window.open(`/online/${item.event_id}`, '_blank')] : []),
+                                            ...(item?.location?.locationType === 'online' ? [() => window.open(`/online/${item.event_id}`, '_blank')] : []),
                                             () => { navigate(`edit/${item.event_id}`) }, () => handlePreDelete(item.event_id)]
                                 }
                             />

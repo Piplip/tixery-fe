@@ -23,8 +23,8 @@ function EventSearch() {
     const dates = [
         { value: 'today', label: t('eventSearch.today') },
         { value: 'tomorrow', label: t('eventSearch.tomorrow') },
-        { value: 'weekend', label: t('eventSearch.thisWeekend') },
-        { value: 'week', label: t('eventSearch.thisWeek') },
+        { value: 'weekend', label: t('eventSearch.weekend') },
+        { value: 'week', label: t('eventSearch.week') },
         { value: 'next-week', label: t('eventSearch.nextWeek') },
         { value: 'month', label: t('eventSearch.thisMonth') },
         { value: 'next-month', label: t('eventSearch.nextMonth') }
@@ -148,7 +148,7 @@ function EventSearch() {
                 <AccordionGroup sx={{ maxWidth: 375, maxHeight: 'fit-content' }}>
                     <Accordion defaultExpanded={true}>
                         <AccordionSummary>
-                            {filters.category === '' ? t('eventSearch.category') : filters.category + t('eventSearch.categories')}
+                            {filters.category === '' ? t('eventSearch.category') : t('eventSearch.categories', {category: t(`event-category.${filters.category}`)})}
                         </AccordionSummary>
                         <AccordionDetails>
                             <Stack className={"event-search__options"}>
@@ -157,7 +157,7 @@ function EventSearch() {
                                         <FormControlLabel
                                             key={index}
                                             control={<Checkbox checked={filters.categories === category} onChange={() => handleFilterChange('category', category)} />}
-                                            label={category}
+                                            label={t(`event-category.${category}`)}
                                         />
                                     ))
                                 ) : (
@@ -166,7 +166,7 @@ function EventSearch() {
                                             key={index}
                                             control={<Checkbox checked={filters["sub_category"] === subCategory}
                                                                onChange={() => handleFilterChange('sub_category', subCategory)} />}
-                                            label={subCategory}
+                                            label={t(`event-category.${subCategory}`)}
                                         />
                                     ))
                                 )}
@@ -219,12 +219,12 @@ function EventSearch() {
                 <p className={'event-search-result__tittle'}>{t('eventSearch.searchResult')} ({events?.length})</p>
                 {(filters.category.length > 0 || filters.date || filters.price || filters.language) && (
                     <Stack direction={'row'}>
-                        <Stack direction={'row'} spacing={1} mb={2} alignItems={'center'} style={{ textTransform: 'capitalize' }}>
+                        <Stack direction={'row'} spacing={1} mb={2} alignItems={'center'}>
                             <Typography style={{ textTransform: 'none' }} variant={'body1'}>{t('eventSearch.filtersApplied')}</Typography>
-                            {filters.category !== '' && <Chip label={filters.category} onDelete={() => clearFilter("category")} />}
+                            {filters.category !== '' && <Chip label={t(`event-category.${filters.category}`)} onDelete={() => clearFilter("category")} />}
                             {filters["sub_category"] !== '' && <Chip label={filters["sub_category"]} onDelete={() => clearFilter("sub_category")} />}
-                            {filters.date && <Chip label={filters.date} onDelete={() => clearFilter('date')} />}
-                            {filters.price && <Chip label={filters.price} onDelete={() => clearFilter('price')} />}
+                            {filters.date && <Chip label={t(`eventSearch.${filters.date}`)} onDelete={() => clearFilter('date')} />}
+                            {filters.price && <Chip label={t(`eventSearch.${filters.price}`)} onDelete={() => clearFilter('price')} />}
                             <button className={'clear-all-filter'} onClick={clearAllFilters}>{t('eventSearch.clearAll')}</button>
                         </Stack>
                     </Stack>

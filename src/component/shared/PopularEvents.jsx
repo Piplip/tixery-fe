@@ -3,9 +3,11 @@ import {eventAxios} from "../../config/axiosConfig.js";
 import cookie from "react-cookies";
 import {Stack, Typography} from "@mui/material";
 import EventCard from "./EventCard.jsx";
+import {useTranslation} from "react-i18next";
 
 function PopularEvents(){
     const [events, setEvents] = useState([]);
+    const {t} = useTranslation()
 
     useEffect(() => {
         if(events.length === 0){

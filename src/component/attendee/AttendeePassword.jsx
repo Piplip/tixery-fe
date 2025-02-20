@@ -6,6 +6,7 @@ import {useFormik} from "formik";
 import * as Yup from "yup";
 import CheckIcon from '@mui/icons-material/Check';
 import {CircularProgress} from "@mui/joy";
+import {useTranslation} from "react-i18next";
 
 const ButtonStyle = {
     backgroundColor: '#e82727', marginBlock: '1rem', fontFamily: 'Raleway',
@@ -24,6 +25,7 @@ function AttendeePassword(){
     const [showResponse, setShowResponse] = useState({
         open: false, msg: '', severity: null
     });
+    const {t} = useTranslation()
 
     const validationSchema = Yup.object({
         currentPassword: Yup.string().required(t('attendeePassword.currentPasswordRequired')),

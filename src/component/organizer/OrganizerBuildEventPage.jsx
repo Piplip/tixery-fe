@@ -13,21 +13,21 @@ import EventAdditionalInfo from "./EventAdditionalInfo.jsx";
 import {generateGeminiContent} from "../../common/Utilities.js";
 import {useTranslation} from "react-i18next";
 
-const validationSchema = Yup.object().shape({
-    eventTitle: Yup.string()
-        .required("Event title is required.")
-        .max(100, "Event title cannot exceed 100 characters."),
-    summary: Yup.string()
-        .required("Summary is required.")
-        .max(500, "Summary cannot exceed 140 characters."),
-});
-
 function OrganizerBuildEventPage(){
     const {t} = useTranslation()
     const {data, setData, setHasUnsavedChanges} = useContext(EventContext);
     const [collapsed, setCollapsed] = useState({});
     const sectionRefs = useRef({});
     const [loading, setLoading] = useState(false);
+
+    const validationSchema = Yup.object().shape({
+        eventTitle: Yup.string()
+            .required(t('eventTitle.title-require'))
+            .max(100, t('eventTitle.title-max')),
+        summary: Yup.string()
+            .required(t('eventTitle.summary-required'))
+            .max(500, t('eventTitle.summary-max')),
+    });
 
     const formik = useFormik({
         enableReinitialize: true,

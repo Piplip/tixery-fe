@@ -355,7 +355,7 @@ function RecurringEventSchedule() {
         }
 
         setEvents(newEvents);
-        setOccurrenceTickets(newOccurrenceTickets); // Important: update the state!
+        setOccurrenceTickets(newOccurrenceTickets);
         sendToServer(newEvents, newOccurrenceTickets);
 
         setShowSnackbar(true);
@@ -551,8 +551,8 @@ function RecurringEventSchedule() {
                                     onChange={handleRepeatCadenceChange}
                                     fullWidth
                                 >
-                                    <MenuItem value="Weekly">Weekly</MenuItem>
-                                    <MenuItem value="Monthly">Monthly</MenuItem>
+                                    <MenuItem value="Weekly">{t('eventDatePicker.weekly')}</MenuItem>
+                                    <MenuItem value="Monthly">{t('eventDatePicker.monthly')}</MenuItem>
                                 </Select>
                             </FormControl>
                         </Stack>
@@ -790,8 +790,8 @@ function RecurringEventSchedule() {
                     {Object.keys(events).length === 0 ? (
                         <>
                             <div className="event-date-picker__illustration">
-                                <img
-                                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0eRAW3FmfiHgn_Z8trB3HZhDPXcpkbNYAoA&s"
+                                <img style={{height: '10rem'}}
+                                    src="https://firebasestorage.googleapis.com/v0/b/medicare-10c3b.appspot.com/o/events%2FAdobe%20Express%20-%20file.png?alt=media&token=711f6d98-4a61-4ca3-ba87-1d16c593d68a"
                                     alt={t('eventDatePicker.eventPlanningAlt')}
                                 />
                             </div>
@@ -870,9 +870,9 @@ function RecurringEventSchedule() {
                             >
                                 <MenuItem value="Once">{t('eventDatePicker.once')}</MenuItem>
                                 <MenuItem value="Daily">{t('eventDatePicker.daily')}</MenuItem>
-                                <MenuItem value="Weekly">Weekly</MenuItem>
-                                <MenuItem value="Monthly">Monthly</MenuItem>
-                                <MenuItem value="Custom">Custom</MenuItem>
+                                <MenuItem value="Weekly">{t('eventDatePicker.weekly')}</MenuItem>
+                                <MenuItem value="Monthly">{t('eventDatePicker.monthly')}</MenuItem>
+                                <MenuItem value="Custom">{t('eventDatePicker.custom')}</MenuItem>
                             </Select>
                         </FormControl>
                         <RenderRepeatOption

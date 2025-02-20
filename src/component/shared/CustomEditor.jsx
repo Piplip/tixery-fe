@@ -40,7 +40,7 @@ function CustomEditor({content, handleChange}){
                     ],
                     importcss_append: true,
                     menubar: false,
-                    height: 750,
+                    height: 450,
                     image_caption: true,
                     quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote quickimage quicktable',
                     noneditable_class: 'mceNonEditable',

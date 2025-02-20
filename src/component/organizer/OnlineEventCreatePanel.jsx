@@ -280,7 +280,8 @@ function OnlineEventCreatePanel(){
                             <div style={{ color: 'blue' }}>{t('onlineEvent.pageSettings')}</div>
                         </Stack>
                     </Stack>
-                    <img src={'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvO89aKgOsDOkECc7-arKNzRUpmPq-Xxs2Nw&s'} alt={'image'} />
+                    <img style={{width: '20rem'}}
+                        src={'https://previews.123rf.com/images/alexandraklestova/alexandraklestova2008/alexandraklestova200800058/153601220-virtual-meeting-vector-illustration-with-diverse-people-on-online-group-video-chat-screen-internet.jpg'} alt={'image'} />
                 </Stack>
                 <hr />
                 <Stack direction={'row'} columnGap={3}>

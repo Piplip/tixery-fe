@@ -19,7 +19,7 @@
     transition: all .2s;
 }
 .create-events-item > .MuiTypography-h5{
-    font-family: "Microsoft Tai Le", sans-serif;
+    font-family: "Roboto Slab", sans-serif;
     font-weight: 500;
 }
 .create-events-item button:hover{

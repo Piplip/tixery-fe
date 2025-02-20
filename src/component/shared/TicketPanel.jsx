@@ -213,7 +213,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
                                         label={t('eventRegistration.promoCode')}
                                         focused
                                         InputProps={{
-                                            endAdornment: <Button>{t('eventRegistration.apply')}</Button>
+                                            endAdornment: <Button sx={{width: '6.5rem'}}>{t('eventRegistration.apply')}</Button>
                                         }}
                                     />
                                     {tickets.map((ticket, index) => {
