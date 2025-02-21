@@ -3,6 +3,8 @@ import {getDownloadURL, ref} from "firebase/storage";
 import {rootAxios} from "../config/axiosConfig.js";
 import cookie from "react-cookies";
 import {GoogleGenerativeAI} from "@google/generative-ai";
+import dayjs from "dayjs";
+import i18n from "i18next";
 
 export function hasRole(roles){
     const token = localStorage.getItem('tk');
@@ -114,4 +116,22 @@ export async function generateGeminiContent(prompt, instruction){
             temperature: 0.1,
         }
     });
+}
+
+import "dayjs/locale/vi.js"
+
+export function configureDayjs() {
+    const updateDayjsLocale = () => {
+        const currentLocale = i18n.language;
+        try {
+            dayjs.locale(currentLocale);
+        } catch (error) {
+            console.warn(`Day.js locale not found for ${currentLocale}. Falling back to default.`, error);
+            dayjs.locale('en');
+        }
+    };
+
+    updateDayjsLocale();
+
+    i18n.on('languageChanged', updateDayjsLocale);
 }

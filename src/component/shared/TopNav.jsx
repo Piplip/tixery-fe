@@ -25,7 +25,6 @@ function TopNav({isLoggedIn, enableScrollEffect}){
         { nameKey: 'topNav.tickets', link: `/u/${getUserData('profileID')}`, shouldRender: (isLoggedIn) => isLoggedIn && hasRole(['attendee']) },
         { nameKey: 'topNav.createEvents', link: '/organizer/events', shouldRender: (isLoggedIn) => isLoggedIn && hasRole(['host']) },
         { nameKey: 'topNav.createEvents', link: isLoggedIn ? '/organizer' : 'organizer/overview', shouldRender: (isLoggedIn) => !isLoggedIn },
-        { nameKey: 'topNav.forSupplier', link: '/about', shouldRender: (isLoggedIn) => !isLoggedIn || hasRole(['supplier']) },
         { nameKey: 'topNav.helpCenter', link: '/help', shouldRender: (isLoggedIn) => !isLoggedIn || hasRole(['attendee', 'host', 'vendor']) },
         { nameKey: 'topNav.logIn', link: '/login', shouldRender: (isLoggedIn) => !isLoggedIn },
         { nameKey: 'topNav.signUp', link: '/sign-up', shouldRender: (isLoggedIn) => !isLoggedIn }

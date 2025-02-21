@@ -4,15 +4,19 @@ import {
     Checkbox,
     Drawer,
     FormControl,
-    FormControlLabel, FormHelperText,
-    IconButton, InputAdornment,
+    FormControlLabel,
+    FormHelperText,
+    IconButton,
+    InputAdornment,
     InputLabel,
-    MenuItem, OutlinedInput,
+    MenuItem,
+    OutlinedInput,
     Select,
     Snackbar,
     Stack,
     Switch,
-    TextField, Tooltip,
+    TextField,
+    Tooltip,
     Typography
 } from "@mui/material";
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -33,7 +37,7 @@ import DragAndDropZone from "../shared/DragAndDropZone.jsx";
 import "../../styles/online-event-create-panel-styles.css"
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {Link, useNavigate} from "react-router-dom";
+import {Link} from "react-router-dom";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import {generateFileName} from "../../common/Utilities.js";
@@ -92,7 +96,6 @@ function OnlineEventCreatePanel(){
         access: data?.access || 'holder',
         enabled: data?.enabled || true
     })
-    const navigate = useNavigate()
 
     const formik = useFormik({
         initialValues: {
@@ -235,18 +238,22 @@ function OnlineEventCreatePanel(){
         })
     }
 
-    function handleSave(value){
-        setIsLoading(true)
-        eventAxiosWithToken.post(`/create/online?eid=${location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3]}`, {
-            data: value,
-            enabled: pageSettings.enabled,
-            access: pageSettings.access
-        })
-            .then(() => {
-                setIsLoading(false)
-                setOpenSnackbar(true)
-            })
-            .catch(err => console.log(err))
+    async function handleSave(value) {
+        setIsLoading(true);
+        try {
+            await eventAxiosWithToken.post(`/create/online?eid=${location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3]}`, {
+                data: value,
+                enabled: pageSettings.enabled,
+                access: pageSettings.access
+            });
+            setIsLoading(false);
+            setOpenSnackbar(true);
+            return true
+        } catch (err) {
+            console.log(err);
+            setIsLoading(false);
+            return false
+        }
     }
 
     function discard(){
@@ -256,11 +263,14 @@ function OnlineEventCreatePanel(){
         }
     }
 
-    function handlePreview(){
-        if(isChanges){
-            formik.handleSubmit()
+    async function handlePreview() {
+        const saveSuccessful = await handleSave(formik.values.elements);
+        if (saveSuccessful) {
+            window.open(`/online/${location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3]}/preview`, '_blank'
+            );
+        } else {
+            console.error("Failed to save, preview will not open");
         }
-        navigate(`/online/${location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3]}/preview`)
     }
 
     return (

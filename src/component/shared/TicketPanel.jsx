@@ -1,11 +1,19 @@
-import PropTypes from "prop-types";
 import {
-    Button, IconButton, InputAdornment,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    IconButton,
+    InputAdornment,
+    LinearProgress,
     Stack,
     TextField,
     Tooltip,
     Typography
 } from "@mui/material";
+import PropTypes from "prop-types";
 import dayjs from "dayjs";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ErrorOutlineOutlinedIcon from "@mui/icons-material/ErrorOutlineOutlined";
@@ -14,26 +22,31 @@ import {Divider, Modal, ModalDialog, Slider} from "@mui/joy";
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import PaymentCheckout from "../attendee/PaymentCheckout.jsx";
 import {useTranslation} from "react-i18next";
+import {checkLoggedIn, getUserData} from "../../common/Utilities.js";
+import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 
 TicketPanel.propTypes = {
-    tickets: PropTypes.array.isRequired,
-    eventEndTime: PropTypes.string.isRequired,
+    tickets: PropTypes.array,
+    eventEndTime: PropTypes.string,
     image: PropTypes.string,
     eventName: PropTypes.string,
-    eventStartTime: PropTypes.string
+    eventStartTime: PropTypes.string,
+    isLoggedIn: PropTypes.bool
 }
 
-function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
+function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, isLoggedIn}){
     const [totalPrice, setTotalPrice] = useState(0)
     const [step, setStep] = useState(1)
     const [expandedTickets, setExpandedTickets] = useState({});
     const [prices, setPrices] = useState(
-        tickets.map((ticket) => ticket.price || 0)
+        tickets && tickets?.map((ticket) => ticket.price || 0) || []
     );
     const [totalDonationPrice, setTotalDonationPrice] = useState(0)
-    const [quantities, setQuantities] = useState(tickets.reduce((acc, _, index) => ({ ...acc, [index]: 0 }), {}));
+    const [quantities, setQuantities] = useState(tickets && tickets.reduce((acc, _, index) => ({ ...acc, [index]: 0 }), {}) || {});
     const [open, setOpen] = useState(false);
+    const [loginDialogOpen, setLoginDialogOpen] = useState(false);
     const {t} = useTranslation()
+    const [isLoading, setIsLoading] = useState(false);
 
     const toggleTicketInfo = (index) => {
         setExpandedTickets((prevState) => ({
@@ -104,6 +117,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
     }
 
     const renderTickets = () => {
+        if(!tickets) return
         if (dayjs(eventEndTime).isBefore(dayjs())) {
             return (
                 <Stack rowGap={2}>
@@ -169,16 +183,55 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
                         </Stack>
                     );
                 })}
-                <button className={'event-view__registration-button'} onClick={() => setOpen(true)}>
+                <button className={'event-view__registration-button'} onClick={() => {
+                    if(!checkLoggedIn()) {
+                        setLoginDialogOpen(true)
+                    }
+                    else setOpen(true)
+                }}>
                     {t('ticketPanel.checkout')} {totalPrice > 0 ? `- $${Math.round((totalPrice + totalDonationPrice) * 100) / 100}` : ''}
                 </button>
             </>
         );
     };
 
+    function handleFreeCheckout(){
+        setIsLoading(true)
+        eventAxiosWithToken.post('/payment/free/checkout', {
+                amount: totalPrice * 100,
+                email: getUserData('sub'),
+                currency: tickets[0]?.currency?.currency,
+                quantity: 1,
+                userID: getUserData('userID'),
+                profileID: getUserData('profileID'),
+                eventID: tickets[0]?.event_id,
+                username: getUserData('fullName'),
+                tickets: tickets.filter((ticket, originalIndex) => quantities[originalIndex] !== 0)
+                    .map((ticket) => ({
+                        ticketTypeID: ticket.ticket_type_id,
+                        quantity: quantities[tickets.indexOf(ticket)],
+                        price: ticket.price * quantities[tickets.indexOf(ticket)]
+                    }))
+            }
+        ).catch(error => {
+            setIsLoading(false)
+            alert(t('paymentCheckout.paymentError'));
+        })
+    }
+
     function handleCheckout(){
+        if (!isLoggedIn) {
+            setLoginDialogOpen(true)
+            return;
+        }
         if(Object.values(quantities).reduce((acc, quantity) => acc + quantity, 0) === 0){
             alert(t('eventRegistration.selectAtLeastOneTicket'));
+            return;
+        }
+        if(totalPrice === 0){
+            handleFreeCheckout()
+            setOpen(false)
+            alert(t('eventRegistration.freeCheckoutSuccess'));
             return;
         }
         setStep(2)
@@ -188,6 +241,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
         <Stack className={'event-view__registration'} rowGap={2}>
             <Modal open={open} onClose={() => setOpen(false)} sx={{ zIndex: 100000000 }}>
                 <ModalDialog size={"md"} sx={{ minWidth: '80%', height: '95dvh' }}>
+                    {isLoading && <LinearProgress  sx={{height: ',5rem'}}/>}
                     <IconButton sx={{ width: 'fit-content', marginLeft: 2, position: 'absolute' }}
                                 onClick={() => {
                                     if (step === 2) {
@@ -216,7 +270,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
                                             endAdornment: <Button sx={{width: '6.5rem'}}>{t('eventRegistration.apply')}</Button>
                                         }}
                                     />
-                                    {tickets.map((ticket, index) => {
+                                    {tickets && tickets.map((ticket, index) => {
                                         const quantity = quantities[index];
                                         return (
                                             <Stack key={index} style={{ border: '2px solid blue', borderRadius: 5, padding: '.75rem' }}>
@@ -299,7 +353,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
                             <Stack paddingInline={2}>
                                 <b>{t('eventRegistration.orderSummary')}</b>
                                 <Stack paddingBlock={1} rowGap={1}>
-                                    {tickets.map((ticket, index) => {
+                                    {tickets && tickets.map((ticket, index) => {
                                         const quantity = quantities[index];
                                         if (quantity > 0) {
                                             return (
@@ -313,13 +367,32 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime}){
                                 </Stack>
                                 <Stack direction={'row'} justifyContent={'space-between'} borderTop={'2px solid'} paddingTop={.5}>
                                     <Typography variant={'h6'} fontWeight={'bold'}>{t('eventRegistration.total')}</Typography>
-                                    <Typography variant={'h6'} fontWeight={'bold'}>{tickets[0]?.currency.symbol}{Math.round((totalPrice + totalDonationPrice) * 100) / 100}</Typography>
+                                    <Typography variant={'h6'} fontWeight={'bold'}>{tickets && tickets[0]?.currency.symbol}{Math.round((totalPrice + totalDonationPrice) * 100) / 100}</Typography>
                                 </Stack>
                             </Stack>
                         </Stack>
                     </Stack>
                 </ModalDialog>
             </Modal>
+            <Dialog
+                open={loginDialogOpen}
+                onClose={() => setLoginDialogOpen(false)}
+            >
+                <DialogTitle id="alert-dialog-title">{t('loginDialog.title')}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        {t('loginDialog.description')}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setLoginDialogOpen(false)} color="primary">
+                        {t('loginDialog.cancel')}
+                    </Button>
+                    <Button onClick={() => window.location.href = '/login'} color="primary" autoFocus variant={'contained'}>
+                        {t('loginDialog.login')}
+                    </Button>
+                </DialogActions>
+            </Dialog>
             {renderTickets()}
         </Stack>
     );

@@ -35,6 +35,7 @@
 .event-search__options{
     font-size: 1.1rem;
     font-family: "Nunito", sans-serif;
+    text-transform: capitalize;
 }
 .event-search__options > p{
     cursor: pointer;

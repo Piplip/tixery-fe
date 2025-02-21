@@ -21,9 +21,10 @@
     background-color: white;
 }
 .attendee-hero__event-genre{
+    width: calc(100% / 8);
     flex-direction: column;
-    text-align: center;
     row-gap: .75rem;
+    align-items: center;
 }
 .attendee-hero__event-genre > p{
     font-size: .75rem;

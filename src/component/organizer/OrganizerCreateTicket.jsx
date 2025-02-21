@@ -279,7 +279,7 @@ function OrganizerCreateTicket() {
         enableReinitialize: true,
         onSubmit: (values) => {
             setOpenDetail({type: null, open: false});
-            let newCapacity = data.capacity;
+            let newCapacity = Number(data.capacity);
             let newData = transformData(values);
 
             if (editTicket !== null) {

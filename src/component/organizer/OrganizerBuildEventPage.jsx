@@ -102,7 +102,7 @@ function OrganizerBuildEventPage(){
                         <p className={'create-events-title__title'}>
                             {data.eventTitle || t('eventTitle.eventTitle')}
                         </p>
-                        <p>
+                        <p style={{wordWrap: 'break-word'}}>
                             {data.summary || t('eventTitle.eventSummary')}
                         </p>
                     </div>

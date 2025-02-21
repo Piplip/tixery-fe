@@ -17,7 +17,7 @@ import OrganizerSettingProfile from "./component/organizer/OrganizerSettingProfi
 import OrganizerViewTemplate from "./component/template/OrganizerViewTemplate.jsx";
 import OrganizerView from "./component/organizer/OrganizerView.jsx";
 import {accountAxiosWithToken, eventAxiosWithToken} from "./config/axiosConfig.js";
-import {checkLoggedIn, getUserData} from "./common/Utilities.js";
+import {checkLoggedIn, configureDayjs, getUserData} from "./common/Utilities.js";
 import LoadingFallback from "./component/shared/LoadingFallback.jsx";
 import OrganizerNewProfile from "./component/organizer/OrganizerNewProfile.jsx";
 import OrganizerEditProfile from "./component/organizer/OrganizerEditProfile.jsx";
@@ -46,7 +46,9 @@ import RecurringEventSchedule from "./component/organizer/RecurringEventSchedule
 import OnlineEventPage from "./component/attendee/OnlineEventPage.jsx";
 import AttendeeInterest from "./component/attendee/AttendeeInterest.jsx";
 import OrderManagement from "./component/organizer/OrderManagement.jsx";
-import "./config/i18nConfig.js"
+import "./config/i18nConfig.js";
+
+configureDayjs()
 
 function App() {
     const routers = createBrowserRouter([

@@ -272,7 +272,16 @@
   "additionalInfo": {
     "title": "More info for your event"
   },
+  "onlineEventElementLive": {
+    "starts": "Starts",
+    "openIn": "Open in",
+    "avatar": "avatar",
+    "organizedBy": "Organized by",
+    "followers": "followers",
+    "contact": "Contact"
+  },
   "onlineEvent": {
+    "title": "Title",
     "previewMode": "Preview mode",
     "attendeeEventPage": "Attendee Event Page",
     "attendeeEventPageDescription": "Attendees will join your online event through your virtual venue. Use this space to add a live video or audio stream, share additional content, and customize the look of your event page.",
@@ -1020,6 +1029,12 @@
     "language": "Language",
     "logout": "Logout"
   },
+  "loginDialog": {
+    "title": "Please log in to continue",
+    "description": "Log in to your account to buy tickets, save events, follow organizers, and more.",
+    "cancel": "Cancel",
+    "login": "Log in"
+  },
   "loginPage": {
     "signUp": "Sign up",
     "login": "Log in",
@@ -1172,7 +1187,8 @@
     "orderSummary": "Order summary",
     "total": "Total",
     "enterCode": "Enter code",
-    "selectAtLeastOneTicket": "Please select at least one ticket before continuing"
+    "selectAtLeastOneTicket": "Please select at least one ticket before continuing",
+    "freeCheckoutSuccess": "Order successful"
   },
   "topDestination": {
     "topDestinationsAroundWorld": "Top Destinations Around the World",
@@ -1414,5 +1430,12 @@
     "poweredBy": "Powered by",
     "ticketsForEvent": "Tickets for {{eventName}} - Tixery Event - ",
     "paymentError": "Payment failed. Please try again in a few minutes."
+  },
+  "response-code": {
+    "ACLG_001": "Account not found",
+    "ACLG_002": "Account is not verified! Please verify your account",
+    "ACLG_003": "The email you use to login is associated to google login! Please use it to log into your account",
+    "ACLG_004": "Login successfully",
+    "ACLG_005": "Invalid email or password"
   }
 }

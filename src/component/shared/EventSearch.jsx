@@ -48,6 +48,18 @@ function EventSearch() {
     });
 
     useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        setFilters({
+            category: params.get('category') || '',
+            sub_category: params.get('sub_category') || '',
+            date: params.get('date') || '',
+            price: params.get('price') || '',
+            followed: params.get('followed') === 'true',
+            online: params.get('online') === 'true'
+        });
+    }, [location.search]);
+
+    useEffect(() => {
         setIsLoading(true)
         let isCancelled = false;
         const params = new URLSearchParams(location.search);
@@ -73,7 +85,7 @@ function EventSearch() {
         setFilters(prev => ({...prev, [type]: !prev[type]}));
         const searchParams = new URLSearchParams(location.search);
         searchParams.set(type, !filters[type]);
-        navigate({ search: searchParams.toString().toLowerCase() });
+        navigate({ search: searchParams.toString() });
     };
 
     const handleFilterChange = (type, value) => {
@@ -89,7 +101,7 @@ function EventSearch() {
                 searchParams.set(key, val);
             });
 
-            navigate({ search: searchParams.toString().toLowerCase() });
+            navigate({ search: searchParams.toString() });
             return newFilters;
         });
     };
@@ -115,7 +127,7 @@ function EventSearch() {
                 searchParams.set(key, val);
             });
 
-            navigate({ search: searchParams.toString().toLowerCase() });
+            navigate({ search: searchParams.toString() });
             return newFilters;
         });
     };
@@ -145,7 +157,7 @@ function EventSearch() {
         <Stack className={'event-search'} direction={'row'}>
             <Stack className={'event-search__filter'} rowGap={1}>
                 <p>{t('eventSearch.filters')}</p>
-                <AccordionGroup sx={{ maxWidth: 375, maxHeight: 'fit-content' }}>
+                <AccordionGroup sx={{ maxWidth: 375, maxHeight: 'fit-content'}}>
                     <Accordion defaultExpanded={true}>
                         <AccordionSummary>
                             {filters.category === '' ? t('eventSearch.category') : t('eventSearch.categories', {category: t(`event-category.${filters.category}`)})}
@@ -156,12 +168,12 @@ function EventSearch() {
                                     Object.keys(Categories).slice(0, viewMore.categories ? undefined : 4).map((category, index) => (
                                         <FormControlLabel
                                             key={index}
-                                            control={<Checkbox checked={filters.categories === category} onChange={() => handleFilterChange('category', category)} />}
+                                            control={<Checkbox checked={filters.category === category} onChange={() => handleFilterChange('category', category)} />}
                                             label={t(`event-category.${category}`)}
                                         />
                                     ))
                                 ) : (
-                                    Categories[filters.category].slice(0, viewMore.categories ? undefined : 4).map((subCategory, index) => (
+                                    Categories[filters.category]?.slice(0, viewMore.categories ? undefined : 4).map((subCategory, index) => (
                                         <FormControlLabel
                                             key={index}
                                             control={<Checkbox checked={filters["sub_category"] === subCategory}
@@ -222,7 +234,7 @@ function EventSearch() {
                         <Stack direction={'row'} spacing={1} mb={2} alignItems={'center'}>
                             <Typography style={{ textTransform: 'none' }} variant={'body1'}>{t('eventSearch.filtersApplied')}</Typography>
                             {filters.category !== '' && <Chip label={t(`event-category.${filters.category}`)} onDelete={() => clearFilter("category")} />}
-                            {filters["sub_category"] !== '' && <Chip label={filters["sub_category"]} onDelete={() => clearFilter("sub_category")} />}
+                            {filters["sub_category"] !== '' && <Chip label={t(`event-category.${filters["sub_category"]}`)} onDelete={() => clearFilter("sub_category")} />}
                             {filters.date && <Chip label={t(`eventSearch.${filters.date}`)} onDelete={() => clearFilter('date')} />}
                             {filters.price && <Chip label={t(`eventSearch.${filters.price}`)} onDelete={() => clearFilter('price')} />}
                             <button className={'clear-all-filter'} onClick={clearAllFilters}>{t('eventSearch.clearAll')}</button>

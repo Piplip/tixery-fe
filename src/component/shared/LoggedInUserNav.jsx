@@ -20,7 +20,7 @@ function LoggedInUserNav(){
     const {t, i18n} = useTranslation()
 
     const links = [
-        { nameKey: 'loggedInUserNav.browseEvents', link: '/events', roles: ['attendee'] },
+        { nameKey: 'loggedInUserNav.browseEvents', link: '/events/search', roles: ['attendee'] },
         { nameKey: 'loggedInUserNav.manageMyEvents', link: '/organizer/events', roles: ['host'] },
         { nameKey: 'loggedInUserNav.tickets', link: `/u/${getUserData('profileID')}`, roles: ['attendee'] },
         { nameKey: 'loggedInUserNav.likes', link: '/favorites', roles: ['attendee'] },

@@ -162,16 +162,20 @@ function TopNavSearchBar(){
         setShowSnackbar(true)
     }
 
-    function handleSearchChange(e){
-        if(e.target.value === ''){
-            setLocationValue({value: ''})
+    function handleSearchChange(e) {
+        const newValue = e.target.value;
+        setSearchValue(newValue);
+        setSuggestion([]);
+
+        const searchParams = new URLSearchParams(location.search);
+        if (newValue === '') {
+            searchParams.delete('q');
+        } else {
+            searchParams.set('q', newValue);
+            debounceSuggestion(newValue);
         }
-        setSuggestion([])
-        setSearchValue(e.target.value)
-        const searchParams = new URLSearchParams(location.search)
-        searchParams.set('q', e.target.value)
-        navigate(location.pathname + '?' + searchParams.toString())
-        debounceSuggestion(e.target.value)
+
+        navigate(location.pathname + '?' + searchParams.toString());
     }
 
     function handleDeleteSearchHistory(id, index){

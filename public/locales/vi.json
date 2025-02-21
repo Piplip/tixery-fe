@@ -31,7 +31,7 @@
   "event": {
     "recurring": "Định kỳ",
     "venue": "Sự kiện offline",
-    "online": "Sự kiện trực tuyến",
+    "online": "Sự kiện online",
     "noTickets": "Không có vé",
     "view": "Xem",
     "delete": "Xóa",
@@ -272,7 +272,16 @@
   "additionalInfo": {
     "title": "Thêm thông tin cho sự kiện của bạn"
   },
+  "onlineEventElementLive": {
+    "starts": "Bắt đầu",
+    "openIn": "Mở trong",
+    "avatar": "Ảnh đại diện",
+    "organizedBy": "Được tổ chức bởi",
+    "followers": "người theo dõi",
+    "contact": "Liên hệ"
+  },
   "onlineEvent": {
+    "title": "Tiêu đề",
     "attendeeEventPage": "Trang sự kiện cho người tham dự",
     "attendeeEventPageDescription": "Người tham dự sẽ tham gia sự kiện trực tuyến của bạn thông qua địa điểm ảo của bạn. Sử dụng không gian này để thêm luồng video hoặc âm thanh trực tiếp, chia sẻ nội dung bổ sung và tùy chỉnh giao diện của trang sự kiện của bạn.",
     "pageSettings": "Cài đặt Trang",
@@ -367,7 +376,7 @@
     }
   },
   "ticketSection": {
-    "changeEventCapacity": "Thay đổi sức chứa cự kiện",
+    "changeEventCapacity": "Thay đổi sức chứa sự kiện",
     "eventCapacityDescription": "Sức chứa sự kiện là tổng số vé có sẵn để bán tại sự kiện của bạn. Khi bạn đặt sức chứa sự kiện, sự kiện của bạn sẽ bán hết ngay khi bạn bán được số lượng vé đó. Bạn có thể điều chỉnh sức chứa sự kiện của mình để tránh bán quá số lượng.",
     "eventCapacityLabel": "Sức chứa sự kiện",
     "maximumAllow": "Tối đa cho phép: 10000000000",
@@ -390,8 +399,8 @@
   "eventPublish": {
     "almostReady": "Sự kiện của bạn gần như đã sẵn sàng để xuất bản",
     "reviewSettings": "Xem lại cài đặt của bạn và cho mọi người biết về sự kiện của bạn.",
-    "offlineEvent": "Sự kiện ngoại tuyến",
-    "onlineEvent": "Sự kiện trực tuyến",
+    "offlineEvent": "Sự kiện offline",
+    "onlineEvent": "Sự kiện online",
     "free": "Miễn phí",
     "donation": "Quyên góp",
     "preview": "Xem trước",
@@ -646,13 +655,13 @@
     "Camp, Trip, or Retreat": "Trại, Chuyến đi hoặc Chuyến nghỉ dưỡng",
     "Appearance or Signing": "Sự kiện ra mắt hoặc Ký tặng",
     "Music": "Âm nhạc",
-    "Business & Professional": "Kinh doanh & Chuyên nghiệp",
+    "Business & Professional": "Kinh doanh",
     "Food & Drink": "Ăn uống",
     "Community & Culture": "Cộng đồng & Văn hóa",
     "Performing & Visual Arts": "Biểu diễn & Nghệ thuật thị giác",
-    "Film, Media & Entertainment": "Phim, Truyền thông & Giải trí",
+    "Film, Media & Entertainment": "Phim  & Giải trí",
     "Sports & Fitness": "Thể thao & Thể hình",
-    "Health & Wellness": "Sức khỏe & Sức khỏe tốt",
+    "Health & Wellness": "Sức khỏe",
     "Science & Technology": "Khoa học & Công nghệ",
     "Travel & Outdoor": "Du lịch & Ngoài trời",
     "Charity & Causes": "Từ thiện & Các hoạt động xã hội",
@@ -663,7 +672,7 @@
     "Fashion & Beauty": "Thời trang & Làm đẹp",
     "Home & Lifestyle": "Nhà cửa & Lối sống",
     "Auto, Boat & Air": "Ô tô, Thuyền & Hàng không",
-    "Hobbies & Special Interest": "Sở thích & Mối quan tâm đặc biệt",
+    "Hobbies & Special Interest": "Sở thích",
     "Other": "Khác",
     "School Activities": "Hoạt động trường học"
   },
@@ -960,7 +969,7 @@
     "attendeesHosted": "người tham dự đã tổ chức",
     "dateAndTime": "Ngày và Giờ",
     "location": "Địa điểm",
-    "onlineEvent": "Sự kiện trực tuyến",
+    "onlineEvent": "Sự kiện online",
     "viewDetails": "Xem chi tiết",
     "showMap": "Hiển thị bản đồ",
     "refundPolicy": "Chính sách hoàn tiền",
@@ -1171,7 +1180,8 @@
     "orderSummary": "Tóm tắt đơn hàng",
     "total": "Tổng cộng",
 	"enterCode": "Nhập mã khuyến mãi",
-    "selectAtLeastOneTicket": "Vui lòng chọn ít nhất một vé trước khi tiếp tục"
+    "selectAtLeastOneTicket": "Vui lòng chọn ít nhất một vé trước khi tiếp tục",
+    "freeCheckoutSuccess": "Đặt vé thành công"
   },
   "topDestination": {
     "topDestinationsAroundWorld": "Các Điểm Đến Hàng Đầu Trên Thế Giới",
@@ -1183,6 +1193,12 @@
     "United States": "Hoa Kỳ",
     "Thailand": "Thái Lan",
     "Vietnam": "Việt Nam "
+  },
+  "loginDialog": {
+    "title": "Đăng nhập để tiếp tục",
+    "description": "Đăng nhập vào tài khoản của bạn để mua vé, lưu sự kiện, theo dõi người tổ chức và hơn thế nữa.",
+    "cancel": "Hủy",
+    "login": "Đăng nhập"
   },
   "topNav": {
     "likes": "Sự kiện đã lưu",
@@ -1420,5 +1436,12 @@
     "poweredBy": "Được cung cấp bởi",
     "ticketsForEvent": "Vé cho {{eventName}} - Sự kiện Tixery - ",
     "paymentError": "Thanh toán không thành công. Vui lòng thử lại sau vài phút."
+  },
+  "response-code": {
+    "ACLG_001": "Không tìm thấy tài khoản",
+    "ACLG_002": "Tài khoản chưa được xác minh! Vui lòng xác minh tài khoản của bạn",
+    "ACLG_003": "Email bạn dùng để đăng nhập được liên kết với tài khoản Google! Vui lòng sử dụng tài khoản Google để đăng nhập.",
+    "ACLG_004": "Đăng nhập thành công",
+    "ACLG_005": "Email hoặc mật khẩu không hợp lệ"
   }
 }

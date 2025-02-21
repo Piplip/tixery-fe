@@ -85,7 +85,7 @@ function LoginSignUp() {
             setAwaitResponse(false)
             if (res.data.status === 'OK') {
                 setShowSuccessLogin(true)
-                setAlertMsg(res.data.message)
+                setAlertMsg(t(`response-code.${res.data.message}`))
                 resetForm()
                 localStorage.setItem("tk", res.data.data)
                 const role = getUserData("role")
@@ -96,7 +96,7 @@ function LoginSignUp() {
                     redirectLink = '/organizer'
                 setTimeout(() => navigate(redirectLink), 2000)
             } else {
-                setAlertMsg(res.data.message)
+                setAlertMsg(t(`response-code.${res.data.message}`))
             }
         }).catch(() => {
             setAwaitResponse(false)

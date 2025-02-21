@@ -10,6 +10,7 @@ import SportsGymnasticsOutlinedIcon from '@mui/icons-material/SportsGymnasticsOu
 import BeachAccessOutlinedIcon from '@mui/icons-material/BeachAccessOutlined';
 import "../../styles/attendee-hero.css"
 import {useTranslation} from "react-i18next";
+import {useNavigate, useSearchParams} from "react-router-dom";
 
 const images = [
     {
@@ -36,16 +37,18 @@ const images = [
 
 function AttendeeHero() {
     const {t} = useTranslation()
+    const navigate = useNavigate()
+    const searchParams = useSearchParams()
 
     const eventGenres = [
-        { labelKey: 'attendeeHero.music', icon: <MusicNoteOutlinedIcon sx={{ fontSize: '3rem' }} /> },
-        { labelKey: 'attendeeHero.foodAndDrink', icon: <FastfoodOutlinedIcon sx={{ fontSize: '3rem' }} /> },
-        { labelKey: 'attendeeHero.business', icon: <BusinessOutlinedIcon sx={{ fontSize: '3rem' }} /> },
-        { labelKey: 'attendeeHero.health', icon: <HealthAndSafetyOutlinedIcon sx={{ fontSize: '3rem' }} /> },
-        { labelKey: 'attendeeHero.fashion', icon: <DiamondOutlinedIcon sx={{ fontSize: '3rem' }} /> },
-        { labelKey: 'attendeeHero.filmAndMedia', icon: <VideoCallOutlinedIcon sx={{ fontSize: '3rem' }} /> },
-        { labelKey: 'attendeeHero.hobbies', icon: <SportsGymnasticsOutlinedIcon sx={{ fontSize: '3rem' }} /> },
-        { labelKey: 'attendeeHero.travelAndOutdoor', icon: <BeachAccessOutlinedIcon sx={{ fontSize: '3rem' }} /> }
+        { labelKey: 'event-category.Music', icon: <MusicNoteOutlinedIcon sx={{ fontSize: '3rem' }} /> },
+        { labelKey: 'event-category.Food & Drink', icon: <FastfoodOutlinedIcon sx={{ fontSize: '3rem' }} /> },
+        { labelKey: 'event-category.Business & Professional', icon: <BusinessOutlinedIcon sx={{ fontSize: '3rem' }} /> },
+        { labelKey: 'event-category.Health & Wellness', icon: <HealthAndSafetyOutlinedIcon sx={{ fontSize: '3rem' }} /> },
+        { labelKey: 'event-category.Fashion & Beauty', icon: <DiamondOutlinedIcon sx={{ fontSize: '3rem' }} /> },
+        { labelKey: 'event-category.Film, Media & Entertainment', icon: <VideoCallOutlinedIcon sx={{ fontSize: '3rem' }} /> },
+        { labelKey: 'event-category.Hobbies & Special Interest', icon: <SportsGymnasticsOutlinedIcon sx={{ fontSize: '3rem' }} /> },
+        { labelKey: 'event-category.Travel & Outdoor', icon: <BeachAccessOutlinedIcon sx={{ fontSize: '3rem' }} /> }
     ];
 
     return (
@@ -58,7 +61,13 @@ function AttendeeHero() {
             <Stack direction={'row'} justifyContent={'space-between'} flexGrow={1} alignItems={'center'}>
                 {eventGenres.map((genre, index) => {
                     return (
-                        <Stack key={index} className={'attendee-hero__event-genre'}>
+                        <Stack key={index} className={'attendee-hero__event-genre'}
+                               onClick={() => {
+                                   const params = new URLSearchParams(searchParams[0]);
+                                   params.set('category', genre.labelKey);
+                                   navigate(`/events/search?${params.toString()}`);
+                               }}
+                        >
                             <div className={'attendee-hero__event-genre__icon-wrapper'}>
                                 {genre.icon}
                             </div>

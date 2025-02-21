@@ -27,14 +27,14 @@ function OrderCard({order}){
     };
 
     useEffect(() => {
-        if(order?.images){
+        if(order?.images?.length > 0){
             let storageRef = ref(storage, order.images[0])
             getDownloadURL(storageRef)
                 .then(url => {
                     setImg(url)
                 })
-                .catch(() => {
-                    console.log('error')
+                .catch((err) => {
+                    console.log(err)
                 })
         }
     }, [])
@@ -50,12 +50,21 @@ function OrderCard({order}){
 
     return (
         <>
-            <Stack direction={'row'} columnGap={3} onClick={handleOrderClick}>
+            <Stack direction={'row'} columnGap={3} onClick={handleOrderClick}
+                sx={{
+                    transition: 'background-color 0.3s',
+                    padding: '.1rem 1rem',
+                    '&:hover': {
+                        cursor: 'pointer',
+                        backgroundColor: 'rgb(245,245,245)'
+                    }
+                }}
+            >
                 <Stack sx={{ textAlign: 'center' }}>
                     <p style={{ fontSize: '.9rem', color: 'darkblue' }}>{order?.start_time && dayjs(order.start_time).format("MMM").toUpperCase()}</p>
                     <p style={{ fontSize: '1.5rem' }}>{order?.start_time && dayjs(order.start_time).format("DD").toUpperCase()}</p>
                 </Stack>
-                <Stack minWidth={'20rem'} width={'20rem'} height={'12.5rem'} sx={{ backgroundColor: 'rgb(245,245,245)' }}>
+                <Stack minWidth={'17.5rem'} width={'17.5rem'} height={'10rem'} sx={{ backgroundColor: 'rgb(245,245,245)' }}>
                     <img
                         src={img}
                         alt={t('orderCard.eventImage')}
@@ -68,7 +77,7 @@ function OrderCard({order}){
                     />
                 </Stack>
                 <Stack rowGap={.5}>
-                    <Typography fontWeight={'bold'} fontSize={'1.75rem'}>{order?.name}</Typography>
+                    <Typography fontWeight={'bold'} fontSize={'1.5rem'}>{order?.name}</Typography>
                     <Typography variant={'body2'}>{dayjs(order?.start_time).format("ddd, MMM DD, YYYY HH:mm Z")}</Typography>
                     <Typography variant={'body2'}>{t('orderCard.orderPlaced')} #{order?.order_id} {t('orderCard.on')} {dayjs(order?.created_at).format("DD/MM/YYYY HH:mm")}</Typography>
                     {order?.location?.location === 'Online' &&

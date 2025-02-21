@@ -17,7 +17,7 @@ import accountAxios from "../../config/axiosConfig.js";
 import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {getStorage} from "firebase/storage";
-import {fetchImage, transformNumber} from "../../common/Utilities.js";
+import {checkLoggedIn, fetchImage, transformNumber} from "../../common/Utilities.js";
 import MoreRelatedByOrganizer from "./MoreRelatedByOrganizer.jsx";
 import ShareDialog from "./ShareDialog.jsx";
 import {Accordion, AccordionDetails, AccordionSummary, Card, CardContent} from "@mui/joy";
@@ -154,8 +154,8 @@ function EventView(){
                     }
                 </div>
                 <div className={'event-view__content'}>
-                    <TicketPanel tickets={loaderData.tickets} eventEndTime={loaderData.end_time} image={heroImage}
-                                 eventStartTime={loaderData.start_time} eventName={loaderData.name}
+                    <TicketPanel tickets={loaderData?.tickets} eventEndTime={loaderData.end_time} image={heroImage}
+                                 eventStartTime={loaderData.start_time} eventName={loaderData.name} isLoggedIn={checkLoggedIn()}
                     />
                     <Stack style={{ width: '60%' }} rowGap={6}>
                         <div>
@@ -168,7 +168,7 @@ function EventView(){
                                     className={'event-view__actions'}
                                     direction={'row'}
                                     columnGap={2}>
-                                    <LikeEvent event={loaderData} imageUrl={heroImage} />
+                                    {loaderData && <LikeEvent event={loaderData} imageUrl={heroImage} />}
                                     <ShareDialog link={"foo"} />
                                 </Stack>
                             </Stack>

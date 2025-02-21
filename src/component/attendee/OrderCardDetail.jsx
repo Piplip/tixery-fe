@@ -88,6 +88,7 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
             });
     }
 
+    console.log(ticketInfo)
     return (
         <Dialog fullScreen open={open} onClose={handleClose} sx={{zIndex: 10000000}}>
             <Stack sx={{ padding: '2rem 5rem' }} rowGap={2}>
@@ -146,15 +147,13 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                                             }
                                             <p style={{ color: '#2a2a38', fontFamily: 'Raleway', fontSize: 16, wordWrap: 'break-word', textAlign: 'center' }}>
                                                 {item?.name} x{item?.quantity}</p>
-                                            {item?.price &&
                                                 <div style={{
                                                     alignSelf: 'center', fontSize: '2.5rem', fontWeight: 'bold', background: 'linear-gradient(90deg, #4CAF50, #81C784)',
                                                     WebkitBackgroundClip: 'text', color: 'transparent', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
                                                     paddingInline: '20px', borderRadius: '10px', display: 'inline-block'
                                                 }}>
-                                                    {formatCurrency(item?.price, item?.currency)}
+                                                    {item?.price === 0 ? 'Free' : formatCurrency(item?.price, item?.currency)}
                                                 </div>
-                                            }
                                         </Stack>
                                         <Stack rowGap={1.5}>
                                             <MuiButton color={'error'} variant={'contained'} sx={{ width: '100%' }}
@@ -180,7 +179,7 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                             )
                         })}
                     </div>
-                    <Stack flexGrow={1} rowGap={2} fontFamily={'Roboto Slab'} sx={{ transform: `translateX(-${90 * (ticketInfo?.length - 1)}%)` }}>
+                    <Stack flexGrow={1} rowGap={2} fontFamily={'Roboto Slab'} sx={{ transform: `translateX(-${80 * (ticketInfo?.length - 1)}%)` }}>
                         <Typography fontWeight={'bold'} fontSize={30}>{order.name}</Typography>
                         <hr />
                         <Typography variant={'h5'}>{t('attendeeOrderCardDetail.contactInformation')}</Typography>
@@ -196,7 +195,9 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                         <p className={'order-detail-content'}>{ticketInfo[selectedTicket]?.quantity}</p>
                         <p className={'order-detail-title'}>{t('attendeeOrderCardDetail.totalCost')}</p>
                         <p className={'order-detail-content'}>
-                            {ticketInfo[selectedTicket]?.currency && formatCurrency(ticketInfo[selectedTicket]?.price, ticketInfo[selectedTicket]?.currency)}
+                            {ticketInfo[selectedTicket]?.price === 0 ?
+                                'Free' :
+                                ticketInfo[selectedTicket]?.currency &&    formatCurrency(ticketInfo[selectedTicket]?.price, ticketInfo[selectedTicket]?.currency)}
                         </p>
                     </Stack>
                 </Stack>

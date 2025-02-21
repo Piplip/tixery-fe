@@ -90,8 +90,8 @@ function OnlineEventPage({preview}){
                     );
                 case 'live':
                     return (
-                        <Stack direction={'row'} columnGap={2}>
-                            <div key={index} className="online-event__live">
+                        <Stack direction={'row'} columnGap={2} key={index}>
+                            <div className="online-event__live">
                                 <Stack direction={'row'} alignItems={'center'} columnGap={1}>
                                     <h3>{item.content.title}</h3>
                                     <div style={{
