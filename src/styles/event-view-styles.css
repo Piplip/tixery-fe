@@ -1,261 +1,513 @@
-.event-view{
+.event-view {
     display: flex;
     flex-direction: column;
     align-items: center;
     row-gap: 3rem;
     font-family: "Nunito", sans-serif;
+    padding: 0 1rem; /* Add some padding to the sides for smaller screens */
 }
-.event-view__hero{
-    margin-top: 6rem;
+
+.event-view__hero {
+    margin-top: 3rem; /* Reduced margin-top for smaller screens */
     width: 100%;
     display: flex;
     justify-content: center;
-    height: 70dvh;
+    height: 50vh; /* Reduced height for smaller screens */
     align-items: flex-end;
 }
-.event-view__hero > div{
+
+.event-view__hero > div {
     height: 95%;
-    width: 80%;
+    width: 100%; /* Make the hero div full width */
     background-repeat: no-repeat;
     display: flex;
     justify-content: center;
     background-size: cover;
-    border-radius: 2rem;
+    border-radius: 1rem; /* Reduced border radius for smaller screens */
     overflow: hidden;
 }
-.event-view__hero img{
+
+.event-view__hero img {
     height: 100%;
-    scale: 1.3;
-    max-width: 60%;
+    scale: 1.1;
+    max-width: 80%;
+    object-fit: contain;
 }
-.event-view__content{
-    width: 80%;
+
+.event-view__content {
+    width: 100%; /* Make the content full width */
     position: relative;
     margin-block: 2rem;
     overflow: hidden;
 }
-.event-view__date{
-    font-size: 1.25rem;
+
+.event-view__main-content {
+    width: 100%; /* Stack takes full width */
+}
+
+.event-view__date {
+    font-size: 1rem; /* Reduced font size for smaller screens */
     color: #344c50;
     font-family: Arial, sans-serif;
+    text-transform: capitalize;
 }
-.event-view__title{
-    font-size: 3.25rem;
+
+.event-view__title {
+    font-size: 2rem; /* Reduced font size for smaller screens */
     font-family: "Gill Sans MT", sans-serif;
     font-weight: bold;
 }
-.event-view__summary{
-    font-size: 1rem;
+
+.event-view__summary {
+    font-size: 0.9rem; /* Reduced font size for smaller screens */
     color: #2c313d;
     font-family: "Microsoft Tai Le", sans-serif;
     word-wrap: break-word;
 }
-.event-view__organizer{
+
+.event-view__organizer {
     background-color: #f8f8f8;
-    padding: 1rem 1.5rem;
+    padding: 0.75rem 1rem; /* Reduced padding for smaller screens */
     align-items: center;
 }
-.event-view__organizer-stats{
+
+.event-view__organizer-stats {
     display: flex;
     align-items: center;
-    column-gap: .5rem;
+    column-gap: 0.5rem;
 }
-.event-view__details-heading, .event-view__location-heading, .event-view__about-heading, .event-view__organizer-title, .event-view__refund-policy-heading, .event-view__faqs-heading{
-    font-size: 1.5rem;
+
+.event-view__details-heading,
+.event-view__location-heading,
+.event-view__about-heading,
+.event-view__organizer-title,
+.event-view__refund-policy-heading,
+.event-view__faqs-heading {
+    font-size: 1.2rem; /* Reduced font size for smaller screens */
     color: #bd1c1c;
-    font-family: "Microsoft Tai Le", sans-serif;
+    font-family: "Nunito", sans-serif;
 }
-.event-view__location-map, .event-view__details-date, .event-view__registration-price{
+
+.event-view__location-map,
+.event-view__details-date,
+.event-view__registration-price {
     display: flex;
     align-items: center;
-    column-gap: .5rem;
+    column-gap: 0.5rem;
 }
-.event-view__registration-price{
+
+.event-view__registration-price {
     text-transform: capitalize;
     color: #2c313d;
     font-size: 1rem;
 }
-.event-view__location-map{
+
+.event-view__location-map {
     color: #3b82f6;
     cursor: pointer;
 }
-.event-view__organizer-overview{
+
+.event-view__organizer-overview {
     background-color: #f8f8f8;
-    padding: 1rem 1.5rem;
+    padding: 0.75rem 1rem; /* Reduced padding for smaller screens */
 }
-.event-view__organizer-name{
-    font-size: 1.2rem;
+
+.event-view__organizer-name {
+    font-size: 1rem; /* Reduced font size for smaller screens */
     font-family: "Microsoft Tai Le", sans-serif;
     width: fit-content;
 }
-.event-view__organizer-buttons > button{
-    padding: .5rem 1rem;
+
+.event-view__organizer-buttons > button {
+    padding: 0.3rem 0.6rem; /* Reduced padding for smaller screens */
     border: none;
-    border-radius: .25rem;
+    border-radius: 0.25rem;
     cursor: pointer;
 }
-.event-view__organizer > button{
-    padding: .5rem 1rem;
+
+.event-view__organizer > button {
+    padding: 0.3rem 0.6rem; /* Reduced padding for smaller screens */
     border: none;
-    border-radius: .25rem;
+    border-radius: 0.25rem;
     cursor: pointer;
     background-color: #3b82f6;
     color: white;
 }
-.event-view__organizer-description{
+
+.event-view__organizer-description {
     font-family: "Microsoft Tai Le", sans-serif;
     color: #2c313d;
 }
-.event-view__organizer-stats{
+
+.event-view__organizer-stats {
     background-color: #ff8787;
     width: fit-content;
-    padding: .1rem .5rem;
-    border-radius: .5rem;
-    margin-top: .25rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 0.5rem;
+    margin-top: 0.25rem;
 }
-.event-view__registration{
-    width: 22.5rem;
-    position: absolute;
-    /*left: 100%;*/
+
+.event-view__registration {
+    width: 100%; /* Make registration full width on smaller screens */
+    position: relative;
     top: 0;
     right: 0;
+    margin-top: 1rem; /* Add some margin for spacing */
 }
-.event-view__registration-details{
+
+.event-view__registration-details {
     border: 3px solid #500744;
-    padding: 1.05rem;
+    padding: 0.75rem; /* Reduced padding for smaller screens */
     border-radius: 1rem;
     font-family: "Microsoft Tai Le", sans-serif;
-    font-size: 1.15rem;
+    font-size: 1rem; /* Reduced font size for smaller screens */
     word-wrap: break-word;
 }
-.event-view__registration{
+
+.event-view__registration {
     background-color: rgb(250, 250, 250);
-    padding: 1.5rem;
+    padding: 1rem; /* Reduced padding for smaller screens */
     border: 1px solid #d7d7d7;
-    border-radius: .5rem;
+    border-radius: 0.5rem;
 }
-.event-view__quantity-button{
+
+.event-view__quantity-button {
     cursor: pointer;
     background-color: #2f6cc5;
     color: white;
-    font-size: 1.75rem;
+    font-size: 1.5rem; /* Reduced font size for smaller screens */
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    border-radius: .5rem;
+    width: 1.75rem; /* Reduced width for smaller screens */
+    height: 1.75rem; /* Reduced height for smaller screens */
+    border-radius: 0.5rem;
     user-select: none;
 }
-.event-view__quantity-button.disabled{
+
+.event-view__quantity-button.disabled {
     background-color: #d7d7d7;
     color: #a7a7a7;
 }
-.event-view__registration-button{
+
+.event-view__registration-button {
     background-color: #d00d0d;
     color: white;
-    padding: .5rem 1rem;
+    padding: 0.4rem 0.8rem; /* Reduced padding for smaller screens */
     border: none;
-    border-radius: .25rem;
+    border-radius: 0.25rem;
     cursor: pointer;
-    font-size: 1.15rem;
+    font-size: 1rem; /* Reduced font size for smaller screens */
     font-weight: bold;
 }
-.event-view__registration-button:hover{
+
+.event-view__registration-button:hover {
     background-color: #bb0303;
 }
-.event-view__report{
-    column-gap: .5rem;
-    padding: .5rem 1rem;
+
+.event-view__report {
+    column-gap: 0.5rem;
+    padding: 0.5rem 1rem;
     margin-top: 1rem;
-    border-radius: .5rem;
+    border-radius: 0.5rem;
 }
-.event-view__report:hover{
+
+.event-view__report:hover {
     background-color: #f8f8f8;
     cursor: pointer;
 }
-.event-view__social-links .MuiSvgIcon-root:hover{
+
+.event-view__social-links .MuiSvgIcon-root:hover {
     color: black;
 }
-.event-view__sale-ending{
-    column-gap: .25rem;
-    font-size: .9rem;
+
+.event-view__sale-ending {
+    column-gap: 0.25rem;
+    font-size: 0.8rem; /* Reduced font size for smaller screens */
     display: flex;
     align-items: center;
     align-self: flex-end;
     background-color: #f8ff9e;
     color: #e51010;
-    padding: .5rem .75rem;
+    padding: 0.4rem 0.6rem; /* Reduced padding for smaller screens */
     font-weight: bold;
-    border-radius: .5rem;
+    border-radius: 0.5rem;
     font-family: "Roboto Slab", sans-serif;
 }
-.event-view__tag{
+
+.event-view__tag {
     background-color: #f8f8f8;
-    padding: .5rem 1.25rem;
+    padding: 0.4rem 1rem; /* Reduced padding for smaller screens */
     border-radius: 1rem;
-    font-size: .8rem;
+    font-size: 0.7rem; /* Reduced font size for smaller screens */
     font-family: Arial, sans-serif;
     cursor: pointer;
     color: #4f4242;
 }
-.event-view__tag:hover{
+
+.event-view__tag:hover {
     background-color: #e8e8e8;
 }
-.ended-notify{
+
+.ended-notify {
     background-color: #d9d9d9;
     color: #1d1d1e;
-    padding: .75rem 1rem;
-    font-size: 1rem;
+    padding: 0.6rem 0.8rem; /* Reduced padding for smaller screens */
+    font-size: 0.9rem; /* Reduced font size for smaller screens */
     font-weight: bold;
     font-family: "Microsoft Tai Le", sans-serif;
     position: absolute;
-    top: 4rem;
+    top: 3rem; /* Reduced top value for smaller screens */
     width: 100%;
+    text-align: center; /* Center the text */
 }
-.view-more-btn{
+
+.view-more-btn {
     background-color: #b92020;
     color: white;
-    padding: .5rem 1rem;
+    padding: 0.4rem 0.8rem; /* Reduced padding for smaller screens */
     border: none;
-    border-radius: .25rem;
+    border-radius: 0.25rem;
     cursor: pointer;
-    font-size: 1.15rem;
+    font-size: 1rem; /* Reduced font size for smaller screens */
     font-weight: bold;
 }
-.event-view__view-detail-btn{
+
+.event-view__view-detail-btn {
     background-color: transparent;
-    padding: .5rem 2rem;
-    border-radius: .25rem;
+    padding: 0.4rem 1.5rem; /* Reduced padding for smaller screens */
+    border-radius: 0.25rem;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 0.9rem; /* Reduced font size for smaller screens */
     font-weight: bold;
 }
-.event-view__about-duration{
+
+.event-view__about-duration {
     font-family: "Microsoft Tai Le", sans-serif;
     color: #2c313d;
-    font-size: 1.1rem;
-    > .MuiSvgIcon-root{
-        font-size: 2rem;
+    font-size: 1rem; /* Reduced font size for smaller screens */
+
+    > .MuiSvgIcon-root {
+        font-size: 1.5rem; /* Reduced font size for smaller screens */
     }
 }
-.order-summary{
+
+.order-summary {
     font-family: "Nunito", sans-serif;
-    max-width: 30%;
+    max-width: 100%;
 }
-.billed-item:not(:last-child){
+
+.billed-item:not(:last-child) {
     border-bottom: 1px solid #d7d7d7;
-    padding-bottom: .25rem;
-    margin-bottom: .25rem;
+    padding-bottom: 0.25rem;
+    margin-bottom: 0.25rem;
 }
-.event-view__faq-question{
-    padding: .5rem 1rem;
+
+.event-view__hero-image {
+    object-fit: cover;
 }
+
+.event-view__faq-question {
+    padding: 0.4rem 0.8rem; /* Reduced padding for smaller screens */
+}
+
 .event-view__faq-answer {
     background-color: rgba(239, 239, 239, 0.38);
-    padding: .5rem 1rem;
+    padding: 0.4rem 0.8rem; /* Reduced padding for smaller screens */
+    border-radius: 0.5rem;
+}
+
+.event-state {
+    padding: 0.4rem 0.8rem; /* Reduced padding for smaller screens */
+    border-radius: 0.5rem;
+    font-size: 0.9rem; /* Reduced font size for smaller screens */
+    color: #2c313d;
+    width: fit-content;
+    font-family: 'Roboto Slab', serif;
+    font-weight: 00;
+}
+
+.event-state.new {
+    background-color: #f8ff9e;
+}
+
+.event-view__other-events {
+    padding-inline: 5%;
+    background-color: #ececec;
+    padding-block: 1rem 2rem;
+    margin-block: 2rem;
+}
+
+/* Media Queries */
+@media (min-width: 768px) {
+    .event-view__main-content .event-view__registration{
+        display: none;
+    }
+
+    .event-view__hero {
+        margin-top: 6rem;
+        height: 70vh;
+    }
+
+    .event-view__hero > div {
+        width: 80%;
+        border-radius: 2rem;
+    }
+
+    .event-view__hero img {
+        scale: 1.3;
+        max-width: 60%;
+    }
+
+    .event-view__content {
+        width: 80%;
+    }
+
+    .event-view__date {
+        font-size: 1.25rem;
+    }
+
+    .event-view__title {
+        font-size: 3.25rem;
+    }
+
+    .event-view__summary {
+        font-size: 1rem;
+    }
+
+    .event-view__details-heading,
+    .event-view__location-heading,
+    .event-view__about-heading,
+    .event-view__organizer-title,
+    .event-view__refund-policy-heading,
+    .event-view__faqs-heading {
+        font-size: 1.5rem;
+    }
+
+    .event-view__organizer-name {
+        font-size: 1.2rem;
+    }
+
+    .event-view__registration {
+        width: 22.5rem;
+    }
+
+    .event-view__registration-details {
+        font-size: 1.15rem;
+    }
+
+    .event-view__quantity-button {
+        font-size: 1.75rem;
+        width: 2rem;
+        height: 2rem;
+    }
+
+    .event-view__registration-button {
+        font-size: 1.15rem;
+    }
+
+    .event-view__sale-ending {
+        font-size: 0.9rem;
+    }
+
+    .event-view__tag {
+        font-size: 0.8rem;
+    }
+
+    .ended-notify {
+        font-size: 1rem;
+        top: 4rem;
+    }
+
+    .event-view__view-detail-btn {
+        font-size: 1rem;
+    }
+
+    .event-view__about-duration {
+        font-size: 1.1rem;
+
+        > .MuiSvgIcon-root {
+            font-size: 2rem;
+        }
+    }
+}
+
+/* Larger screens */
+@media (min-width: 1200px) {
+    .event-view {
+        padding: 0;
+    }
+
+    .event-view__hero img {
+        scale: 1.3;
+        max-width: 60%;
+    }
+
+    .order-summary {
+        max-width: 30%;
+    }
+}
+
+.event-view__main-content .event-view__registration {
+    display: flex;
+    width: 40rem;
+    height: fit-content;
+    background-color: rgb(250, 250, 250);
+    padding: 1.5rem;
+    border: 1px solid #d7d7d7;
     border-radius: .5rem;
 }
-.occurrence{
 
+/* Drawer Styles */
+.event-view__ticket-drawer .MuiDrawer-paper {
+    height: auto;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+}
+
+.event-view__ticket-drawer-content {
+    padding: 1rem;
+}
+
+.event-view__open-ticket-drawer-button {
+    display: none;
+}
+
+/* Media Queries */
+@media (max-width: 767px) {
+    .event-view__main-content .event-view__registration{
+        display: none;
+    }
+
+    .event-view__open-ticket-drawer-button{
+        display: inline-block;
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+}
+
+/* Larger screens */
+@media (min-width: 1200px) {
+    .event-view {
+        padding: 0;
+    }
+
+    .event-view__hero img {
+        scale: 1.3;
+        max-width: 60%;
+    }
+
+    .order-summary {
+        max-width: 30%;
+    }
 }

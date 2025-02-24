@@ -27,6 +27,7 @@ import {Table} from "@mui/joy";
 import dayjs from "dayjs";
 import OrderCardDetail from "./OrderCardDetail.jsx";
 import {useTranslation} from "react-i18next";
+import CouponGeneratorDialog from "../shared/CouponGeneratorDialog.jsx";
 
 function OrderManagement(){
     const [searchParams, setSearchParams] = useSearchParams();
@@ -39,6 +40,7 @@ function OrderManagement(){
         info: {},
         order: {}
     });
+    const [openGenerate, setOpenGenerate] = useState(false)
     const {t} = useTranslation()
 
     const handleFilterChange = useCallback((query, by, range) => {
@@ -82,6 +84,8 @@ function OrderManagement(){
             });
     }
 
+    console.log(orders)
+
     return (
         <Stack sx={{ padding: '5rem 2rem' }} rowGap={2}>
             {openOrderDetail && <OrderCardDetail open={openOrderDetail} handleClose={() => setOpenOrderDetail(false)} data={orderDetail} />}
@@ -90,7 +94,7 @@ function OrderManagement(){
             </Typography>
             <Typography mb={2} fontFamily={'Raleway'}>
                 {t('orderManagement.description')}
-                <Link to="#" sx={{ ml: 0.5, textDecoration: "none", color: "#1a73e8" }}>{t('orderManagement.ordersReport')}</Link>.
+                <Link to="#" className={'link'}>{t('orderManagement.ordersReport')}</Link>.
             </Typography>
             <Stack rowGap={2}>
                 <Stack direction={'row'} columnGap={1}>
@@ -126,7 +130,7 @@ function OrderManagement(){
                         <TableHead>
                             <TableRow>
                                 <TableCell sx={{ width: '7%' }}>{t('orderManagement.orderID')}</TableCell>
-                                <TableCell sx={{ width: '7%' }}>{t('orderManagement.status')}</TableCell>
+                                <TableCell sx={{ width: '9%' }}>{t('orderManagement.status')}</TableCell>
                                 <TableCell sx={{ width: '7%' }}>{t('orderManagement.amount')}</TableCell>
                                 <TableCell sx={{ width: '22.5%' }}>{t('orderManagement.eventName')}</TableCell>
                                 <TableCell sx={{ width: '22.5%' }}>{t('orderManagement.ticket')}</TableCell>
@@ -150,7 +154,10 @@ function OrderManagement(){
                                     <TableRow key={index}>
                                         <TableCell>{order.order_id}</TableCell>
                                         <TableCell>{t(`orderManagement.order-status.${order.status.toLowerCase()}`)}</TableCell>
-                                        <TableCell>{formatCurrency(order.amount / 100, order.currency)}</TableCell>
+                                        <TableCell>
+                                            {order.amount === null ? t('free')
+                                                : order?.currency && formatCurrency(order.amount / 100, order.currency)}
+                                        </TableCell>
                                         <TableCell>{order.name}</TableCell>
                                         <TableCell sx={{ wordWrap: 'break-word' }}>
                                             {order.tickets.map(ticket => (
@@ -175,12 +182,18 @@ function OrderManagement(){
                     </Table>
                 </TableContainer>
             </Stack>
-            <Stack direction={'row'} alignItems={'center'} columnGap={.5}>
-                <HelpOutlineOutlinedIcon sx={{ fontSize: 16 }} /> {t('orderManagement.learnMore')}
-                <Link to="help" style={{ display: 'flex', alignItems: 'center', columnGap: 3 }}>
-                    {t('orderManagement.managingOrders')} <LaunchOutlinedIcon sx={{ fontSize: 16 }} />
-                </Link>
+            <Stack direction={'row'} justifyContent={'space-between'}>
+                <Stack direction={'row'} alignItems={'center'} columnGap={.5}>
+                    <HelpOutlineOutlinedIcon sx={{ fontSize: 16 }} /> {t('orderManagement.learnMore')}
+                    <Link to="help" style={{ display: 'flex', alignItems: 'center', columnGap: 3 }}>
+                        {t('orderManagement.managingOrders')} <LaunchOutlinedIcon sx={{ fontSize: 16 }} />
+                    </Link>
+                </Stack>
+                <div onClick={() => setOpenGenerate(true)} className={'link'}>
+                    Generate promo codes
+                </div>
             </Stack>
+            <CouponGeneratorDialog open={openGenerate} onClose={() => setOpenGenerate(false)} />
         </Stack>
     );
 }

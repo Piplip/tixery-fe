@@ -7,7 +7,7 @@ import {
     Stack,
     Typography
 } from "@mui/material";
-import {getUserData} from "../../common/Utilities.js";
+import {collectData, getUserData} from "../../common/Utilities.js";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import GooglePayIcon from "../../../public/assets/google-pay.png"
 import StripeIcon from "../../../public/assets/stripe.png"
@@ -49,6 +49,7 @@ function PaymentCheckout({total, currency, eventName, eventID, tickets, quantiti
 
     function handleStripePayment(){
         setIsLoading(true)
+        collectData(eventID, 'purchase', total)
         accountAxiosWithToken.post(`/notification/preferences/update?pid=${getUserData('profileID')}&role=${getUserData('role')}`, preferences)
             .catch(error => console.log(error))
         eventAxiosWithToken.post('/payment/stripe/checkout', {

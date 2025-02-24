@@ -196,7 +196,7 @@
   },
   "mediaUploader": {
     "carousel": "Carousel",
-    "uploadPhotosVideos": "Upload <br/>Photos & Videos",
+    "uploadPhotosVideos": "Upload Photos & Videos",
     "uploadImages": "Upload Images",
     "imageDescription": "Drag and drop your images here, or click to browse. Recommended: JPG, PNG (max 5MB each).",
     "dragDropImages": "Drag and drop images here, or click to upload",
@@ -448,6 +448,7 @@
     "increaseVisibility": "Add this event to a collection to increase visibility",
     "developSafetyPlan": "Develop a safety plan for your event"
   },
+  "free": "Free",
   "event-category": {
     "Classical": "Classical",
     "Country": "Country",
@@ -953,6 +954,8 @@
     "noEventsFound": "No events found"
   },
   "eventView": {
+    "hideDetails": "Hide details",
+    "newEvent": "Just Added",
     "contact": "Contact",
     "eventEnded": "This event has ended",
     "heroImage": "img",
@@ -1178,6 +1181,8 @@
     "checkout": "Checkout"
   },
   "eventRegistration": {
+    "totalTicketPrice": "Total ticket price",
+    "discount": "Discount",
     "startsOn": "Starts on",
     "promoCode": "Promo code",
     "apply": "Apply",
@@ -1436,6 +1441,11 @@
     "ACLG_002": "Account is not verified! Please verify your account",
     "ACLG_003": "The email you use to login is associated to google login! Please use it to log into your account",
     "ACLG_004": "Login successfully",
-    "ACLG_005": "Invalid email or password"
+    "ACLG_005": "Invalid email or password",
+    "ESCP_001": "Invalid discount code",
+    "ESCP_002": "Discount code has expired",
+    "ESCP_003": "Discount code has been used",
+    "ESCP_004": "Activate all codes successfully",
+    "ESDS_001": "Event deleted successfully"
   }
 }

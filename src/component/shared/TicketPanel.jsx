@@ -22,7 +22,7 @@ import {Divider, Modal, ModalDialog, Slider} from "@mui/joy";
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import PaymentCheckout from "../attendee/PaymentCheckout.jsx";
 import {useTranslation} from "react-i18next";
-import {checkLoggedIn, getUserData} from "../../common/Utilities.js";
+import {checkLoggedIn, collectData, getUserData} from "../../common/Utilities.js";
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 
 TicketPanel.propTypes = {
@@ -38,6 +38,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
     const [totalPrice, setTotalPrice] = useState(0)
     const [step, setStep] = useState(1)
     const [expandedTickets, setExpandedTickets] = useState({});
+    const [coupon, setCoupon] = useState('');
     const [prices, setPrices] = useState(
         tickets && tickets?.map((ticket) => ticket.price || 0) || []
     );
@@ -47,6 +48,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
     const [loginDialogOpen, setLoginDialogOpen] = useState(false);
     const {t} = useTranslation()
     const [isLoading, setIsLoading] = useState(false);
+    const [appliedCoupon, setAppliedCoupon] = useState({});
 
     const toggleTicketInfo = (index) => {
         setExpandedTickets((prevState) => ({
@@ -187,7 +189,10 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
                     if(!checkLoggedIn()) {
                         setLoginDialogOpen(true)
                     }
-                    else setOpen(true)
+                    else {
+                        collectData(tickets[0].event_id, 'view-tickets', null, tickets[0].organizer_id)
+                        setOpen(true)
+                    }
                 }}>
                     {t('ticketPanel.checkout')} {totalPrice > 0 ? `- $${Math.round((totalPrice + totalDonationPrice) * 100) / 100}` : ''}
                 </button>
@@ -228,19 +233,35 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
             alert(t('eventRegistration.selectAtLeastOneTicket'));
             return;
         }
+        collectData(tickets[0].event_id, 'check-out', null, tickets[0].organizer_id)
         if(totalPrice === 0){
             handleFreeCheckout()
             setOpen(false)
+            collectData(tickets[0].event_id, 'purchased', 0, tickets[0].organizer_id)
             alert(t('eventRegistration.freeCheckoutSuccess'));
             return;
         }
         setStep(2)
     }
 
+    function handleCoupon(){
+        eventAxiosWithToken.post(`/coupon/use?coupon=${coupon}&pid=${getUserData('profileID')}`)
+            .then(r => {
+                console.log(r.data)
+                if(r.data.status === 'OK'){
+                    setAppliedCoupon(r.data.data)
+                }
+                else {
+                    alert(t(`response-code.${r.data.message}`))
+                }
+            })
+            .catch(err => console.log(err))
+    }
+
     return (
         <Stack className={'event-view__registration'} rowGap={2}>
             <Modal open={open} onClose={() => setOpen(false)} sx={{ zIndex: 100000000 }}>
-                <ModalDialog size={"md"} sx={{ minWidth: '80%', height: '95dvh' }}>
+                <ModalDialog size={"md"} sx={{ minWidth: '90%', height: '95dvh' }}>
                     {isLoading && <LinearProgress  sx={{height: ',5rem'}}/>}
                     <IconButton sx={{ width: 'fit-content', marginLeft: 2, position: 'absolute' }}
                                 onClick={() => {
@@ -260,14 +281,19 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
                                     <Typography variant={'caption'}>{t('eventRegistration.startsOn')} {dayjs(eventStartTime).format("ddd, DD MMM YYYY HH:mm [GMT]Z")}</Typography>
                                 </Stack>
                                 <Stack rowGap={2} flexGrow={1} overflow={'auto'} paddingBlock={1}>
-                                    <TextField
+                                    <TextField value={coupon} onChange={(e) => {
+                                        setCoupon(e.target.value)
+                                        setAppliedCoupon({})
+                                    }}
                                         placeholder={t('eventRegistration.enterCode')}
                                         fullWidth
                                         variant={'outlined'}
                                         label={t('eventRegistration.promoCode')}
                                         focused
                                         InputProps={{
-                                            endAdornment: <Button sx={{width: '6.5rem'}}>{t('eventRegistration.apply')}</Button>
+                                            endAdornment: <Button sx={{width: '6.5rem'}}
+                                                onClick={handleCoupon}
+                                            >{t('eventRegistration.apply')}</Button>
                                         }}
                                     />
                                     {tickets && tickets.map((ticket, index) => {
@@ -338,7 +364,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
                             </Stack>
                             :
                             <PaymentCheckout
-                                total={totalPrice}
+                                total={totalPrice - (appliedCoupon?.amount ? totalPrice * appliedCoupon.amount / 100 : 0)}
                                 currency={tickets[0]?.currency?.currency}
                                 eventName={eventName}
                                 eventID={tickets[0]?.event_id}
@@ -347,7 +373,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
                             />
                         }
                         <Stack rowGap={2} className={'order-summary'}>
-                            <Stack style={{ width: '20rem', height: '10rem', backgroundColor: '#e5e5e5' }} justifyContent={'center'} alignItems={'center'}>
+                            <Stack style={{ width: '25rem', height: '10rem', backgroundColor: '#e5e5e5' }} justifyContent={'center'} alignItems={'center'}>
                                 <img src={image} alt={eventName} height={'100%'} />
                             </Stack>
                             <Stack paddingInline={2}>
@@ -365,9 +391,33 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
                                         }
                                     })}
                                 </Stack>
-                                <Stack direction={'row'} justifyContent={'space-between'} borderTop={'2px solid'} paddingTop={.5}>
-                                    <Typography variant={'h6'} fontWeight={'bold'}>{t('eventRegistration.total')}</Typography>
-                                    <Typography variant={'h6'} fontWeight={'bold'}>{tickets && tickets[0]?.currency.symbol}{Math.round((totalPrice + totalDonationPrice) * 100) / 100}</Typography>
+                                <Stack borderTop={'1px solid'} paddingTop={.5}>
+                                    <Stack direction={'row'} justifyContent={'space-between'}>
+                                        <Typography variant={'body1'} fontWeight={'bold'}>
+                                            {appliedCoupon?.amount ? t('eventRegistration.totalTicketPrice') : t('eventRegistration.total')}
+                                        </Typography>
+                                        <Typography variant={'body1'} fontWeight={'bold'}>{tickets && tickets[0]?.currency.symbol}{Math.round((totalPrice + totalDonationPrice) * 100) / 100}</Typography>
+                                    </Stack>
+                                    {appliedCoupon?.amount &&
+                                        <>
+                                            <Stack direction={'row'} justifyContent={'space-between'}>
+                                                <Typography variant={'body1'} fontWeight={'bold'}>{t('eventRegistration.discount')}</Typography>
+                                                <Typography variant={'body1'} fontWeight={'bold'} sx={{color: '#13ee00'}}>
+                                                    {appliedCoupon.type === 'percentage' ?
+                                                    `${appliedCoupon.amount}%` : `${tickets && tickets[0]?.currency.symbol}${appliedCoupon.amount}`} = {tickets && tickets[0]?.currency.symbol}
+                                                    {Math.round((totalPrice + totalDonationPrice) * appliedCoupon.amount / 100 * 100) / 100}
+                                                </Typography>
+                                            </Stack>
+                                            <hr style={{marginBlock: 5}}/>
+                                            <Stack direction={'row'} justifyContent={'space-between'}>
+                                                <Typography variant={'body1'} fontWeight={'bold'}>{t('eventRegistration.total')}</Typography>
+                                                <Typography variant={'body1'} fontWeight={'bold'}>
+                                                    {tickets && tickets[0]?.currency.symbol}
+                                                    {Math.round((totalPrice + totalDonationPrice) * (1 - appliedCoupon.amount / 100) * 100) / 100}
+                                                </Typography>
+                                            </Stack>
+                                        </>
+                                    }
                                 </Stack>
                             </Stack>
                         </Stack>

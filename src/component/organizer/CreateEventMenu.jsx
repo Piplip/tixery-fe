@@ -4,7 +4,7 @@ import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
 import {useState} from "react";
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import {getUserData} from "../../common/Utilities.js";
-import {useLocation, useNavigate} from "react-router-dom";
+import {Link, useLocation, useNavigate} from "react-router-dom";
 import "../../styles/create-event-menu-styles.css"
 import {useTranslation} from "react-i18next";
 
@@ -46,7 +46,9 @@ function CreateEventMenu(){
                 <AutoFixHighIcon />
                 <Typography variant={'h5'}>{t('create_with_ai')}</Typography>
                 <Typography variant={'body2'}>{t('create_with_ai_description')}</Typography>
-                <button>{t('create_event_button')}</button>
+                <Link to={'/event/create/auto'}>
+                    <button>{t('create_event_button')}</button>
+                </Link>
             </div>
         </Stack>
     );

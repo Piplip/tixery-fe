@@ -41,14 +41,14 @@ function AttendeeHero() {
     const searchParams = useSearchParams()
 
     const eventGenres = [
-        { labelKey: 'event-category.Music', icon: <MusicNoteOutlinedIcon sx={{ fontSize: '3rem' }} /> },
-        { labelKey: 'event-category.Food & Drink', icon: <FastfoodOutlinedIcon sx={{ fontSize: '3rem' }} /> },
-        { labelKey: 'event-category.Business & Professional', icon: <BusinessOutlinedIcon sx={{ fontSize: '3rem' }} /> },
-        { labelKey: 'event-category.Health & Wellness', icon: <HealthAndSafetyOutlinedIcon sx={{ fontSize: '3rem' }} /> },
-        { labelKey: 'event-category.Fashion & Beauty', icon: <DiamondOutlinedIcon sx={{ fontSize: '3rem' }} /> },
-        { labelKey: 'event-category.Film, Media & Entertainment', icon: <VideoCallOutlinedIcon sx={{ fontSize: '3rem' }} /> },
-        { labelKey: 'event-category.Hobbies & Special Interest', icon: <SportsGymnasticsOutlinedIcon sx={{ fontSize: '3rem' }} /> },
-        { labelKey: 'event-category.Travel & Outdoor', icon: <BeachAccessOutlinedIcon sx={{ fontSize: '3rem' }} /> }
+        { labelKey: 'Music', icon: <MusicNoteOutlinedIcon sx={{ fontSize: '3rem' }} /> },
+        { labelKey: 'Food & Drink', icon: <FastfoodOutlinedIcon sx={{ fontSize: '3rem' }} /> },
+        { labelKey: 'Business & Professional', icon: <BusinessOutlinedIcon sx={{ fontSize: '3rem' }} /> },
+        { labelKey: 'Health & Wellness', icon: <HealthAndSafetyOutlinedIcon sx={{ fontSize: '3rem' }} /> },
+        { labelKey: 'Fashion & Beauty', icon: <DiamondOutlinedIcon sx={{ fontSize: '3rem' }} /> },
+        { labelKey: 'Film, Media & Entertainment', icon: <VideoCallOutlinedIcon sx={{ fontSize: '3rem' }} /> },
+        { labelKey: 'Hobbies & Special Interest', icon: <SportsGymnasticsOutlinedIcon sx={{ fontSize: '3rem' }} /> },
+        { labelKey: 'Travel & Outdoor', icon: <BeachAccessOutlinedIcon sx={{ fontSize: '3rem' }} /> }
     ];
 
     return (
@@ -71,7 +71,7 @@ function AttendeeHero() {
                             <div className={'attendee-hero__event-genre__icon-wrapper'}>
                                 {genre.icon}
                             </div>
-                            <p>{t(genre.labelKey)}</p>
+                            <p>{t(`event-category.${genre.labelKey}`)}</p>
                         </Stack>
                     )
                 })}

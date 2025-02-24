@@ -4,7 +4,6 @@ import {
     Card,
     CardContent,
     Dialog, DialogActions, DialogContent,
-    Link,
     Paper,
     Stack,
     Table,
@@ -22,6 +21,7 @@ import dayjs from "dayjs";
 import {formatCurrency} from "../../common/Utilities.js";
 import "../../styles/organizer-order-card-detail-styles.css"
 import {useTranslation} from "react-i18next";
+import {Link} from "react-router-dom";
 
 OrderCardDetail.propTypes = {
     open: PropTypes.bool.isRequired,
@@ -105,7 +105,8 @@ function OrderCardDetail({open, handleClose, data}){
                                 <Grid item xs={12} sm={3}>
                                     <Typography variant="h6">
                                         {t('orderCardDetail.total')}:{' '}
-                                        {data.order.amount &&
+                                        {
+                                            data.order?.amount === null ? t('free') :
                                             data.order.currency &&
                                             formatCurrency(data.order.amount / 100, data.order.currency)}
                                     </Typography>
@@ -117,7 +118,7 @@ function OrderCardDetail({open, handleClose, data}){
                     <Card className="order-details__card order-details__event">
                         <CardContent className="order-details__event-content">
                             <Typography variant="h6" gutterBottom>
-                                <Link href={orderData.event.link} underline="hover">
+                                <Link to={`/events/${data.order.event_id}`} target={'_blank'} className={'link'}>
                                     {data.order.name}
                                 </Link>
                             </Typography>
@@ -153,8 +154,11 @@ function OrderCardDetail({open, handleClose, data}){
                                             {t('orderCardDetail.ticketName')}: {ticket.name}
                                         </Typography>
                                         <Typography variant="body2">{t('orderCardDetail.quantity')}: {ticket.quantity}</Typography>
-                                        <Typography variant="body2">{t('orderCardDetail.price')}: {ticket.price}</Typography>
-                                        <Typography variant="body2">{t('orderCardDetail.subtotal')}: {ticket.subtotal}</Typography>
+                                        <Typography variant="body2">{t('orderCardDetail.price')}:{ticket?.price === 0 ? t('free') : ticket?.currency &&
+                                            formatCurrency(ticket?.price, ticket.currency)}
+                                        </Typography>
+                                        <Typography variant="body2">{t('orderCardDetail.subtotal')}: {ticket?.price === 0 ? ticket.price : ticket?.currency
+                                            && formatCurrency(ticket.price * ticket.quantity, ticket.currency.currency)}</Typography>
                                     </Box>
                                 ))
                             ) : (
@@ -162,7 +166,6 @@ function OrderCardDetail({open, handleClose, data}){
                                     <Table
                                         size="small"
                                         className="order-details__ticket-table"
-                                        /* Key for truncation: fixed table layout */
                                         style={{ tableLayout: 'fixed', width: '100%' }}
                                     >
                                         <TableHead>
@@ -185,12 +188,12 @@ function OrderCardDetail({open, handleClose, data}){
                                                     </TableCell>
                                                     <TableCell>{ticket.quantity}</TableCell>
                                                     <TableCell>
-                                                        {ticket?.price &&
+                                                        {ticket.price === 0 ? t('free') :
                                                             ticket?.currency &&
                                                             formatCurrency(ticket.price, ticket.currency.currency)}
                                                     </TableCell>
                                                     <TableCell>
-                                                        {ticket?.price &&
+                                                        {ticket?.price === 0 ? ticket.price :
                                                             ticket?.currency &&
                                                             formatCurrency(
                                                                 ticket.price * ticket.quantity,
@@ -225,7 +228,11 @@ function OrderCardDetail({open, handleClose, data}){
                                 {t('orderCardDetail.paymentDelivery')}
                             </Typography>
                             <Typography variant="body1">
-                                {t('orderCardDetail.paymentMethod')}: <span style={{textTransform: 'capitalize'}}>{data.order.payment_method}</span>
+                                {data.order.payment_method &&
+                                    <>
+                                        {t('orderCardDetail.paymentMethod')}: <span style={{textTransform: 'capitalize'}}>{data.order.payment_method}</span>
+                                    </>
+                                }
                             </Typography>
                             <Typography variant="body1">{t('orderCardDetail.deliveryMethod')}: e-Ticket</Typography>
                         </CardContent>

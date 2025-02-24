@@ -31,7 +31,7 @@ function MoreRelatedByOrganizer({id, name, customURL, profileID}) {
 
     return (
         relateEvents.length !== 0 &&
-            <Stack rowGap={2}>
+            <Stack rowGap={2} paddingBlock={2}>
                 <Typography variant="h5" fontWeight={'bold'}>{t(`more-event`, {name: name})}</Typography>
                 <Stack direction={'row'} rowGap={3} sx={{flexWrap: 'wrap'}}>
                     {relateEvents.map((event, index) => {

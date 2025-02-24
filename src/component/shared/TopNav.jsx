@@ -1,7 +1,7 @@
 import Logo from "../../../public/assets/logo.svg"
 import {Stack} from "@mui/material";
 import "../../styles/top-nav-styles.css"
-import {Link} from "react-router-dom";
+import {Link, useLocation} from "react-router-dom";
 import {hasRole, getUserData} from "../../common/Utilities.js";
 import LoggedInUserNav from "./LoggedInUserNav.jsx";
 import * as PropsType from "prop-types";
@@ -19,6 +19,7 @@ function TopNav({isLoggedIn, enableScrollEffect}){
     const [isVisible, setIsVisible] = useState(true);
     const [lastScrollPos, setLastScrollPos] = useState(0);
     const {t} = useTranslation()
+    const location = useLocation()
 
     const navLinks = [
         { nameKey: 'topNav.likes', link: '/favorites', shouldRender: (isLoggedIn) => isLoggedIn && hasRole(['attendee']) },
@@ -49,13 +50,13 @@ function TopNav({isLoggedIn, enableScrollEffect}){
     }, [enableScrollEffect, lastScrollPos]);
 
     return (
-        <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}
+        <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'} rowGap={2}
                className={`top-nav-container ${isVisible ? 'visible' : 'hidden'}`}
         >
             <Link to={homeLocation}>
                 <img src={Logo} alt="logo" width={'100px'} />
             </Link>
-            <TopNavSearchBar />
+            {!location.pathname.includes('preview') && <TopNavSearchBar />}
             <Stack direction={'row'} className={'top-nav-container__nav-links-container'} columnGap={'1rem'}>
                 {navLinks.map((item, index) => {
                     if (!item.shouldRender(isLoggedIn)) return null;

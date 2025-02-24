@@ -25,9 +25,9 @@ function EventSearch() {
         { value: 'tomorrow', label: t('eventSearch.tomorrow') },
         { value: 'weekend', label: t('eventSearch.weekend') },
         { value: 'week', label: t('eventSearch.week') },
-        { value: 'next-week', label: t('eventSearch.nextWeek') },
-        { value: 'month', label: t('eventSearch.thisMonth') },
-        { value: 'next-month', label: t('eventSearch.nextMonth') }
+        { value: 'nextWeek', label: t('eventSearch.nextWeek') },
+        { value: 'thisMonth', label: t('eventSearch.thisMonth') },
+        { value: 'nextMonth', label: t('eventSearch.nextMonth') }
     ];
 
     const [filters, setFilters] = useState({
@@ -71,7 +71,7 @@ function EventSearch() {
                     setTimeout(() => {
                         setIsLoading(false)
                         setEvents(r.data);
-                    }, 500)
+                    }, 300)
                 }
             })
             .catch(err => console.log(err));
@@ -114,14 +114,22 @@ function EventSearch() {
                 newFilters[type] = '';
                 newFilters["sub_category"] = '';
             }
-            else newFilters[type] = '';
+            else {
+                newFilters[type] = '';
+                if(type === 'category')
+                    newFilters["sub_category"] = '';
+            }
 
             const validFilters = Object.fromEntries(
-                Object.entries(newFilters).filter(([key, val]) => (key === 'categories' || key === 'subCategories' ? val.length > 0 : key !== 'online' && key !== 'followed' && val !== null && val !== '' && val !== undefined))
+                Object.entries(newFilters).filter(([key, val]) => (key === 'category' || key === 'sub_category'
+                    ? val.length > 0 : key !== 'online' && key !== 'followed' && val !== null && val !== '' && val !== undefined))
             );
 
             const searchParams = new URLSearchParams(location.search);
             searchParams.delete(type);
+            if(type === 'category'){
+                searchParams.delete('sub_category');
+            }
 
             Object.entries(validFilters).forEach(([key, val]) => {
                 searchParams.set(key, val);
@@ -143,8 +151,8 @@ function EventSearch() {
         });
 
         const searchParams = new URLSearchParams(location.search);
-        searchParams.delete('categories');
-        searchParams.delete('subCategories');
+        searchParams.delete('category');
+        searchParams.delete('sub_category');
         searchParams.delete('date');
         searchParams.delete('price');
         searchParams.delete('followed');
@@ -229,7 +237,7 @@ function EventSearch() {
             </Stack>
             <Stack className={'event-search__result'} rowGap={2}>
                 <p className={'event-search-result__tittle'}>{t('eventSearch.searchResult')} ({events?.length})</p>
-                {(filters.category.length > 0 || filters.date || filters.price || filters.language) && (
+                {(filters.category?.length > 0 || filters.date || filters.price || filters.language) && (
                     <Stack direction={'row'}>
                         <Stack direction={'row'} spacing={1} mb={2} alignItems={'center'}>
                             <Typography style={{ textTransform: 'none' }} variant={'body1'}>{t('eventSearch.filtersApplied')}</Typography>

@@ -639,7 +639,7 @@
     "Seminar or Talk": "Hội thảo hoặc Buổi nói chuyện",
     "Tradeshow, Consumer Show, or Expo": "Triển lãm thương mại, Triển lãm tiêu dùng hoặc Hội chợ triển lãm",
     "Convention": "Hội nghị chuyên đề",
-    "Festival or Fair": "Lễ hội hoặc Hội chợ",
+    "Festival or Fair": "Lễ hội, Hội chợ",
     "Concert or Performance": "Buổi hòa nhạc hoặc Biểu diễn",
     "Screening": "Buổi chiếu phim",
     "Dinner or Gala": "Bữa tối hoặc Tiệc chiêu đãi",
@@ -676,6 +676,7 @@
     "Other": "Khác",
     "School Activities": "Hoạt động trường học"
   },
+  "free": "Miễn phí",
   "organizerCollectInfo": {
     "provideOrgInfo": "Để sử dụng đầy đủ các chức năng của hệ thống, hãy thêm thông tin về bạn",
     "profile": "Profile",
@@ -959,6 +960,8 @@
     "nextMonth": "tháng tới"
   },
   "eventView": {
+    "hideDetails": "Ẩn chi tiết",
+    "newEvent": "Sự kiện mới",
     "eventEnded": "Sự kiện này đã kết thúc",
     "heroImage": "hình ảnh",
     "avatar": "ảnh đại diện",
@@ -1171,6 +1174,8 @@
     "checkout": "Thanh toán"
   },
   "eventRegistration": {
+    "totalTicketPrice": "Tổng giá vé",
+    "discount": "Mã khuyến mãi",
     "startsOn": "Bắt đầu vào",
     "promoCode": "Mã khuyến mãi",
     "apply": "Áp dụng",
@@ -1178,7 +1183,7 @@
     "salesEndAt": "Kết thúc bán vào",
     "checkout": "Thanh toán",
     "orderSummary": "Tóm tắt đơn hàng",
-    "total": "Tổng cộng",
+    "total": "Tổng",
 	"enterCode": "Nhập mã khuyến mãi",
     "selectAtLeastOneTicket": "Vui lòng chọn ít nhất một vé trước khi tiếp tục",
     "freeCheckoutSuccess": "Đặt vé thành công"
@@ -1216,8 +1221,8 @@
     "recentSearches": "Tìm kiếm gần đây",
     "noRecentSearches": "Không có tìm kiếm gần đây",
     "chooseLocation": "Chọn một vị trí",
-    "useCurrentLocation": "Sử dụng vị trí hiện tại của tôi",
-    "browseOnlineEvents": "Duyệt các sự kiện trực tuyến"
+    "useCurrentLocation": "Sử dụng vị trí hiện tại",
+    "browseOnlineEvents": "Duyệt các sự kiện online"
   },
   "trendingSearches": {
     "trendsIn": "Xu hướng ở",
@@ -1442,6 +1447,11 @@
     "ACLG_002": "Tài khoản chưa được xác minh! Vui lòng xác minh tài khoản của bạn",
     "ACLG_003": "Email bạn dùng để đăng nhập được liên kết với tài khoản Google! Vui lòng sử dụng tài khoản Google để đăng nhập.",
     "ACLG_004": "Đăng nhập thành công",
-    "ACLG_005": "Email hoặc mật khẩu không hợp lệ"
+    "ACLG_005": "Email hoặc mật khẩu không hợp lệ",
+    "ESCP_001": "Mã khuyến mãi không hợp lệ",
+    "ESCP_002": "Mã khuyến mãi đã hết hạn",
+    "ESCP_003": "Mã khuyến mãi đã được sử dụng",
+    "ESCP_004": "Kích hoạt mã khuyến mãi thành công",
+    "ESDS_001": "Đã xóa"
   }
 }

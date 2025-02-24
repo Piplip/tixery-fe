@@ -1,0 +1,175 @@
+.create-event {
+    width: 100%;
+    max-width: 750px; /* Increased max-width */
+    margin: 0 auto;
+    padding: 4rem 2rem 6rem; /* Increased padding */
+    background: #ffffff;
+    border-radius: 12px; /* Rounded corners */
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08); /* Subtle shadow */
+    font-family: 'Nunito', sans-serif;
+}
+
+.create-event__title {
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+    font-size: 2rem; /* Larger title */
+    color: #1a1a1a; /* Darker text */
+    line-height: 1.2;
+}
+
+.create-event__description {
+    color: #666; /* Softer text color */
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.create-event__form {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem; /* Increased vertical spacing */
+}
+
+.create-event__section {
+    padding: 1.5rem;
+    background: #f8f9fa; /* Light background for sections */
+    border-radius: 8px;
+    border: 1px solid #eee; /* Subtle border */
+}
+
+.create-event__section-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: #2d3436;
+    margin-bottom: 0.75rem;
+}
+
+.create-event__section-description {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+}
+
+.create-event__row {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+/* Form field enhancements */
+.create-event__field .MuiOutlinedInput-root {
+    border-radius: 8px; /* Rounded inputs */
+}
+
+.create-event__field .MuiInputLabel-root {
+    color: #666; /* Label color */
+    font-size: 0.9rem;
+}
+
+.create-event__field .MuiOutlinedInput-input {
+    padding: 12px 14px;
+    font-size: 0.95rem;
+}
+
+/* Date/time picker consistency */
+.create-event__field--date .MuiOutlinedInput-root,
+.create-event__field--time .MuiOutlinedInput-root {
+    width: 100%;
+}
+
+/* Tabs styling */
+.create-event__location-section .MuiTabs-root {
+    margin: 1rem 0;
+}
+
+.create-event__location-section .MuiTab-root {
+    text-transform: none;
+    font-weight: 500;
+    min-width: 120px;
+}
+
+.create-event__location-section .Mui-selected {
+    color: #1976d2; /* Primary color */
+}
+
+/* Suggested locations dropdown */
+.create-event__suggested-location {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 0.5rem;
+    z-index: 10000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.create-event__suggested-location p {
+    padding: 8px 12px;
+    margin: 0;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.create-event__suggested-location p:hover {
+    background: #f5f5f5;
+}
+
+/* Map container styling */
+.create-event__field--map {
+    margin: 1.5rem 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #eee;
+}
+
+/* Switch section styling */
+.create-event__reserve-seating {
+    background: #fff;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-top: 1.5rem;
+    border: 1px solid #eee;
+}
+
+/* Button styling */
+.create-event__actions .MuiButton-root {
+    text-transform: none;
+    padding: 8px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.create-event__actions .MuiButton-containedPrimary {
+    background: #1976d2;
+    box-shadow: none;
+}
+
+.create-event__actions .MuiButton-containedPrimary:hover {
+    background: #1565c0;
+    box-shadow: 0 2px 6px rgba(25, 118, 210, 0.3);
+}
+
+@media (max-width: 768px) {
+    .create-event__row {
+        flex-direction: column;
+    }
+
+    .create-event__section {
+        padding: 1rem;
+    }
+
+    .create-event__title {
+        font-size: 1.75rem;
+    }
+}
+
+img[alt="logo"] {
+    z-index: 1000;
+    mix-blend-mode: multiply;
+}

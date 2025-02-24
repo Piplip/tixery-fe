@@ -9,7 +9,7 @@ import {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
 import ShareDialog from "./ShareDialog.jsx";
 import LikeEvent from "./LikeEvent.jsx";
-import {formatCurrency} from "../../common/Utilities.js";
+import {collectData, formatCurrency} from "../../common/Utilities.js";
 import {useTranslation} from "react-i18next";
 
 EventCard.propTypes = {
@@ -85,7 +85,10 @@ function EventCard ({ event, organizer, id, customURL, horizontal, showAction = 
                     style={!horizontal ? {textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap'} : {}}
                 >{event.location.location}</p>}
                 <Link to={`/o/${customURL || id}`} className="event-card__organizer" target={'_blank'}
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                          collectData(event.event_id, 'view-organizer', null, id)
+                          e.stopPropagation()
+                      }}
                 >
                     <p className="event-card__organizer">{organizer}</p>
                 </Link>

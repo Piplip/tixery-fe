@@ -47,6 +47,8 @@ import OnlineEventPage from "./component/attendee/OnlineEventPage.jsx";
 import AttendeeInterest from "./component/attendee/AttendeeInterest.jsx";
 import OrderManagement from "./component/organizer/OrderManagement.jsx";
 import "./config/i18nConfig.js";
+import CreateEventWithAI from "./component/organizer/CreateEventWithAI.jsx";
+import AIEventPreview from "./component/organizer/AIEventPreview.jsx";
 
 configureDayjs()
 
@@ -138,6 +140,26 @@ function App() {
             children: [
                 {index: true, element: <OrganizerOverview />}
             ]
+        },
+        {
+            path: 'event/create/auto',
+            element: <CreateEventWithAI />
+        },
+        {
+            path: 'create/auto/:id/preview',
+            element: <AIEventPreview />,
+            hydrateFallbackElement: <LoadingFallback />,
+            loader: async ({ params }) => {
+                const searchParams = new URLSearchParams({
+                    eid: params.id,
+                    is_organizer: true
+                })
+                if(checkLoggedIn()){
+                    searchParams.append('pid', getUserData('profileID'))
+                }
+                const response = await eventAxiosWithToken.get(`/get/specific?${searchParams}`);
+                return response.data;
+            }
         },
         {
             path: '/organizer',

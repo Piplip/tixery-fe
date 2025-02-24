@@ -203,7 +203,7 @@ function OrganizerEvent() {
     function handleDelete() {
         eventAxiosWithToken.post(`delete?eid=${currentSelectedEvent}`)
             .then(r => {
-                setAlert(r.data.message);
+                setAlert(t(`response-code.${r.data.message}`));
                 const newEvents = [...events];
                 const newPastEvents = [...pastEvents];
                 const index = newEvents.findIndex(event => event.event_id === currentSelectedEvent);

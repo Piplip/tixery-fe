@@ -1,5 +1,5 @@
 import "../../styles/event-view-styles.css"
-import {Avatar, Box, Skeleton, Stack, Typography} from "@mui/material";
+import {Avatar, Box, Button, Drawer, Skeleton, Stack, Typography} from "@mui/material";
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import EventIcon from '@mui/icons-material/Event';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
@@ -10,14 +10,14 @@ import XIcon from '@mui/icons-material/X';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import LanguageIcon from '@mui/icons-material/Language';
 import FlagIcon from '@mui/icons-material/Flag';
-import {Link, useLoaderData} from "react-router-dom";
+import {Link, useLoaderData, useLocation, useNavigate} from "react-router-dom";
 import dayjs from "dayjs";
 import {lazy, useEffect, useRef, useState} from "react";
 import accountAxios from "../../config/axiosConfig.js";
 import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {getStorage} from "firebase/storage";
-import {checkLoggedIn, fetchImage, transformNumber} from "../../common/Utilities.js";
+import {checkLoggedIn, collectData, fetchImage, transformNumber} from "../../common/Utilities.js";
 import MoreRelatedByOrganizer from "./MoreRelatedByOrganizer.jsx";
 import ShareDialog from "./ShareDialog.jsx";
 import {Accordion, AccordionDetails, AccordionSummary, Card, CardContent} from "@mui/joy";
@@ -26,25 +26,37 @@ import Map from "./Map.jsx";
 import LikeEvent from "./LikeEvent.jsx";
 import FollowOrganizer from "./FollowOrganizer.jsx";
 import {useTranslation} from "react-i18next";
+import PropTypes from "prop-types";
+import duration from "dayjs/plugin/duration";
+
+dayjs.extend(duration);
 
 const OtherEvents = lazy(() => import('./OtherEvents.jsx'));
 
 initializeApp(firebaseConfig);
 const storage = getStorage()
 
-function EventView(){
-    const loaderData = useLoaderData();
+EventView.propTypes = {
+    data: PropTypes.object
+}
+
+function EventView({data}){
+    const location = useLocation()
+    const navigate = useNavigate()
+    const loaderData = useLoaderData()
+    const eventData = location.pathname.includes("preview") ? data : loaderData;
     const [profile, setProfile] = useState({})
     const [heroImage, setHeroImage] = useState()
     const [viewDetail, setViewDetail] = useState(false)
     const [showMapDetail, setShowMapDetail] = useState(false)
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const isProfileLoaded = useRef(false)
     const {t} = useTranslation()
 
     useEffect(() => {
-        if (loaderData.profile_id && !isProfileLoaded.current) {
+        if (eventData.profile_id && !isProfileLoaded.current) {
             isProfileLoaded.current = true;
-            accountAxios.get(`/organizer/profile/get?pid=${loaderData.profile_id}`)
+            accountAxios.get(`/organizer/profile/get?pid=${eventData.profile_id}`)
                 .then(async (response) => {
                     const profileData = { ...response.data };
                     profileData.profile_image_url = await fetchImage(storage, response.data.profile_image_url);
@@ -52,12 +64,12 @@ function EventView(){
                 })
                 .catch((error) => console.error("Error loading profile:", error));
         }
-    }, [loaderData.profile_id]);
+    }, [eventData.profile_id]);
 
     useEffect(() => {
-        if (loaderData.images && loaderData.images.length > 0) {
+        if (eventData.images && eventData.images.length > 0) {
             try {
-                fetchImage(storage, loaderData.images[0])
+                fetchImage(storage, eventData.images[0])
                     .then((imageUrl) => setHeroImage(imageUrl))
             } catch (error) {
                 console.log(error)
@@ -66,12 +78,20 @@ function EventView(){
         else setHeroImage("https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F936315053%2F558993483103%2F1%2Foriginal.20250115-135317?crop=focalpoint&fit=crop&auto=format%2Ccompress&q=75&sharp=10&fp-x=0.5&fp-y=0.5&s=3a03308f50db1e157ca93403975dcc59")
     }, []);
 
+    const toggleDrawer = (open) => (event) => {
+        if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+            return;
+        }
+
+        setIsDrawerOpen(open);
+    };
+
     const renderOccurrences = () => {
         return (
             <Stack spacing={2}>
-                {loaderData.occurrences.map((occurrence, index) => {
-                    const tickets = loaderData.tickets.filter(ticket =>
-                        loaderData.ticketOccurrences.some(
+                {eventData.occurrences.map((occurrence, index) => {
+                    const tickets = eventData.tickets.filter(ticket =>
+                        eventData.ticketOccurrences.some(
                             to =>
                                 to.occurrence_id === occurrence.occurrence_id &&
                                 to.ticket_type_id === ticket.ticket_type_id
@@ -119,9 +139,19 @@ function EventView(){
         );
     };
 
+    const RenderEventState = () => {
+        if(eventData.created_at && dayjs(eventData.created_at).isSame(dayjs().subtract(1, 'date'), 'day')){
+            return (
+                <div className={'event-state new'}>
+                    {t('eventView.newEvent')}
+                </div>
+            )
+        }
+    }
+
     return (
         <>
-            {dayjs(loaderData.end_time).isBefore(dayjs()) &&
+            {dayjs(eventData.end_time).isBefore(dayjs()) &&
                 <div className={'ended-notify'}>
                     {t('eventView.eventEnded')}
                 </div>
@@ -154,66 +184,77 @@ function EventView(){
                     }
                 </div>
                 <div className={'event-view__content'}>
-                    <TicketPanel tickets={loaderData?.tickets} eventEndTime={loaderData.end_time} image={heroImage}
-                                 eventStartTime={loaderData.start_time} eventName={loaderData.name} isLoggedIn={checkLoggedIn()}
-                    />
-                    <Stack style={{ width: '60%' }} rowGap={6}>
-                        <div>
-                            <Stack
-                                className={'event-view__info-bar'}
-                                direction={'row'}
-                                justifyContent={'space-between'}>
-                                <p className={'event-view__date'}>{dayjs(loaderData.start_time).format("dddd, DD MMMM YYYY")}</p>
+                    <Stack className={'event-view__main-content'} rowGap={6}>
+                        <Stack direction={'row'} justifyContent={'space-between'} columnGap={5}>
+                            <Stack rowGap={3}>
+                                <RenderEventState />
                                 <Stack
-                                    className={'event-view__actions'}
-                                    direction={'row'}
-                                    columnGap={2}>
-                                    {loaderData && <LikeEvent event={loaderData} imageUrl={heroImage} />}
-                                    <ShareDialog link={"foo"} />
-                                </Stack>
-                            </Stack>
-                            <Stack className={'event-view__description'} rowGap={3}>
-                                <p className={'event-view__title'}>{loaderData.name}</p>
-                                <p className={'event-view__summary'}>
-                                    {loaderData.short_description}
-                                </p>
-                                <Stack
-                                    className={'event-view__organizer'}
+                                    className={'event-view__info-bar'}
                                     direction={'row'}
                                     justifyContent={'space-between'}>
-                                    <Stack columnGap={2} alignItems={'center'}
-                                           className={'event-view__organizer-details'}
-                                           direction={'row'}>
-                                        <Avatar src={profile.profile_image_url}
-                                                className={'event-view__organizer-avatar'}
-                                                alt={t('eventView.avatar')} />
-                                        <Stack>
-                                            <p className={'event-view__organizer-name'}>
-                                                {t('eventView.by')} <Link to={`/o/${profile.custom_url || profile.profile_id}`}>
-                                                <b>{profile.profile_name}</b>
-                                            </Link> · {transformNumber(profile.total_followers)} {t('eventView.followers')}
-                                            </p>
-                                            <div className={'event-view__organizer-stats'}>
-                                                {profile.total_event_hosted ? <p><b>{profile.total_event_hosted}</b> {t('eventView.eventsHosted')}</p>
-                                                    : <p><b>{profile.total_attendee_hosted}</b> {t('eventView.attendeesHosted')}</p>
-                                                } <ShowChartIcon />
-                                            </div>
-                                        </Stack>
+                                    <p className={'event-view__date'}>{dayjs(eventData.start_time).format("dddd, DD MMMM YYYY")}</p>
+                                    <Stack
+                                        className={'event-view__actions'}
+                                        direction={'row'}
+                                        columnGap={2}>
+                                        {eventData && <LikeEvent event={eventData} imageUrl={heroImage} />}
+                                        <ShareDialog link={"foo"} />
                                     </Stack>
-                                    <FollowOrganizer profileImage={profile.profile_image_url} organizerID={loaderData.profile_id} organizerName={profile.profile_name} />
+                                </Stack>
+                                <Stack className={'event-view__description'} rowGap={3}>
+                                    <p className={'event-view__title'}>{eventData.name}</p>
+                                    <p className={'event-view__summary'}>
+                                        {eventData.short_description}
+                                    </p>
+                                    <Stack
+                                        className={'event-view__organizer'}
+                                        direction={'row'}
+                                        justifyContent={'space-between'}>
+                                        <Stack columnGap={2} alignItems={'center'}
+                                               className={'event-view__organizer-details'}
+                                               direction={'row'}>
+                                            <Avatar src={profile.profile_image_url}
+                                                    className={'event-view__organizer-avatar'}
+                                                    alt={t('eventView.avatar')} />
+                                            <Stack>
+                                                <p className={'event-view__organizer-name'}>
+                                                    {t('eventView.by')}
+                                                    <b onClick={() => {
+                                                        collectData(eventData.event_id, 'view-organizer', null, profile.profile_id)
+                                                        navigate(`/o/${profile.custom_url || profile.profile_id}`)
+                                                    }}
+                                                    >{profile.profile_name}</b> · {transformNumber(profile.total_followers)} {t('eventView.followers')}
+                                                </p>
+                                                <div className={'event-view__organizer-stats'}>
+                                                    {profile.total_event_hosted ? <p><b>{profile.total_event_hosted}</b> {t('eventView.eventsHosted')}</p>
+                                                        : <p><b>{profile.total_attendee_hosted}</b> {t('eventView.attendeesHosted')}</p>
+                                                    } <ShowChartIcon />
+                                                </div>
+                                            </Stack>
+                                        </Stack>
+                                        <FollowOrganizer profileImage={profile.profile_image_url} organizerID={eventData.profile_id} organizerName={profile.profile_name} />
+                                    </Stack>
+                                </Stack>
+                                <Stack justifyContent={'center'} alignItems={'center'}>
+                                    <button className={'event-view__view-detail-btn'} onClick={() => setViewDetail(prev => !prev)}>
+                                        {viewDetail ? t('eventView.hideDetails') : t('eventView.viewAllDetails')}
+                                    </button>
                                 </Stack>
                             </Stack>
-                        </div>
-                        {viewDetail ?
+                            <TicketPanel tickets={eventData?.tickets} eventEndTime={eventData.end_time} image={heroImage}
+                                         eventStartTime={eventData.start_time} eventName={eventData.name} isLoggedIn={checkLoggedIn()}
+                            />
+                        </Stack>
+                        {viewDetail &&
                             <>
                                 <Stack className={'event-view__details'} rowGap={1}>
                                     <p className={'event-view__details-heading'}>{t('eventView.dateAndTime')}</p>
-                                    {loaderData.is_recurring ?
+                                    {eventData.is_recurring ?
                                         renderOccurrences()
                                         :
                                         <div className={'event-view__details-date'}>
-                                            <EventIcon sx={{ fontSize: 32 }} /> {dayjs(loaderData.start_time).format("dddd, DD MMMM")} · {dayjs(loaderData.start_time).format("HH:mm")} - {dayjs(loaderData.end_time).format("HH:mm")}
-                                            {` GMT+${loaderData.timezone}`}
+                                            <EventIcon sx={{ fontSize: 32 }} /> {dayjs(eventData.start_time).format("dddd, DD MMMM")} · {dayjs(eventData.start_time).format("HH:mm")} - {dayjs(eventData.end_time).format("HH:mm")}
+                                            {` GMT+${eventData.timezone}`}
                                         </div>
                                     }
                                 </Stack>
@@ -225,39 +266,39 @@ function EventView(){
                                         <LocationOnIcon sx={{ fontSize: 32 }} className={'event-view__location-icon'} />
                                         <Stack rowGap={.5}>
                                             <p className={'event-view__location-name'}>
-                                                {loaderData.location.name}
+                                                {eventData.location.name}
                                             </p>
                                             <Stack className={'event-view__location-address'} rowGap={1}>
-                                                {loaderData?.location?.locationType === 'online' ?
+                                                {eventData?.location?.locationType === 'online' ?
                                                     <>
                                                         <p>{t('eventView.onlineEvent')}</p>
-                                                        {loaderData?.location.access !== 'holder' &&
-                                                            <Link to={`/online/${loaderData.event_id}`} className={'link'} target={'_blank'}>
+                                                        {eventData?.location.access !== 'holder' &&
+                                                            <Link to={`/online/${eventData.event_id}`} className={'link'} target={'_blank'}>
                                                                 {t('eventView.viewDetails')}
                                                             </Link>
                                                         }
                                                     </>
                                                     :
                                                     <>
-                                                        {loaderData.location.location.replace(new RegExp(loaderData.location.name + ', ', 'g'), '')}
+                                                        {eventData.location.location.replace(new RegExp(eventData.location.name + ', ', 'g'), '')}
                                                         <div className={'event-view__location-map'} onClick={() => setShowMapDetail(prev => !prev)}>
                                                             {t('eventView.showMap')} {showMapDetail ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
                                                         </div>
                                                     </>
                                                 }
                                             </Stack>
-                                            {showMapDetail && <Map latitude={loaderData.location.lat} longitude={loaderData.location.lon}
-                                                                   locationName={loaderData.location.name}
+                                            {showMapDetail && <Map latitude={eventData.location.lat} longitude={eventData.location.lon}
+                                                                   locationName={eventData.location.name}
                                             />}
                                         </Stack>
                                     </Stack>
                                 </Stack>
-                                {loaderData?.refund_policy &&
+                                {eventData?.refund_policy &&
                                     <Stack className={'event-view__refund-policy'} rowGap={1}>
                                         <p className={'event-view__refund-policy-heading'}>{t('eventView.refundPolicy')}</p>
                                         <div>
-                                            {loaderData.refund_policy.allowRefund ?
-                                                <Typography variant={'body1'}>{t('eventView.refundsUpTo')} <b>{loaderData.refund_policy.daysForRefund} {t('eventView.daysBeforeEvent')}</b></Typography>
+                                            {eventData.refund_policy.allowRefund ?
+                                                <Typography variant={'body1'}>{t('eventView.refundsUpTo')} <b>{eventData.refund_policy.daysForRefund} {t('eventView.daysBeforeEvent')}</b></Typography>
                                                 :
                                                 t('eventView.noRefunds')
                                             }
@@ -269,44 +310,49 @@ function EventView(){
                                     <Stack alignItems={'center'} columnGap={1}
                                            className={'event-view__about-duration'}
                                            direction={'row'}>
-                                        <TimelapseIcon /> <p>{t('eventView.eventLasts')} <b>{dayjs(loaderData.end_time).diff(loaderData.start_time, 'hour', true)} {t('eventView.hours')}</b></p>
+                                        <TimelapseIcon />
+                                        <p>{t('eventView.eventLasts')} <b>{dayjs(eventData.end_time).diff(eventData.start_time, 'hour', false)} {t('eventView.hours')}</b></p>
                                     </Stack>
-                                    <div className={'render-html'} dangerouslySetInnerHTML={{ __html: loaderData.full_description }}></div>
+                                    <div className={'render-html'} dangerouslySetInnerHTML={{ __html: eventData.full_description }}></div>
                                 </Stack>
-                                {loaderData.tags &&
+                                {(eventData.tags || eventData.category || eventData.sub_category || eventData.event_type) &&
                                     <Stack rowGap={1}>
                                         <p className={'event-view__about-heading'}>{t('eventView.tags')}</p>
-                                        <Stack direction={'row'} columnGap={1}>
-                                            {loaderData.event_type &&
+                                        <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+                                            {eventData.event_type &&
                                                 <div className={'event-view__tag'}>
-                                                    {loaderData.event_type}
+                                                    {t(`event-category.${eventData.event_type}`)}
                                                 </div>
                                             }
-                                            {loaderData.category &&
-                                                <div className={'event-view__tag'}>
-                                                    {loaderData.category}
-                                                </div>
+                                            {eventData.category &&
+                                                <Link to={`/events/search?category=${eventData.category}`}>
+                                                    <div className={'event-view__tag'}>
+                                                        {t(`event-category.${eventData.category}`)}
+                                                    </div>
+                                                </Link>
                                             }
-                                            {loaderData.sub_category &&
-                                                <div className={'event-view__tag'}>
-                                                    {loaderData.sub_category}
-                                                </div>
+                                            {eventData.sub_category &&
+                                                <Link to={`/events/search?category=${eventData.category}&sub_category=${eventData.sub_category}`}>
+                                                    <div className={'event-view__tag'}>
+                                                        {t(`event-category.${eventData.sub_category}`)}
+                                                    </div>
+                                                </Link>
                                             }
-                                            {loaderData.tags.map((tag, index) => {
+                                            {eventData?.tags?.length > 0 && eventData.tags.map((tag, index) => {
                                                 return (
                                                     <div key={index} className={'event-view__tag'}>
-                                                        #{tag}
+                                                        #{tag.trim()}
                                                     </div>
                                                 )
                                             })}
                                         </Stack>
                                     </Stack>
                                 }
-                                {loaderData?.faq.length !== 0 &&
+                                {eventData?.faq &&
                                     <Stack className={'event-view__faqs'} rowGap={1}>
                                         <p className={'event-view__faqs-heading'}>{t('eventView.faqs')}</p>
                                         <Stack rowGap={1}>
-                                            {loaderData.faq.map((faq, index) => (
+                                            {eventData.faq.map((faq, index) => (
                                                 <Accordion key={index} sx={{ borderBottom: '1px solid', paddingBottom: 1 }}>
                                                     <AccordionSummary>
                                                         <Typography className={'event-view__faq-question'} fontSize={'.95rem'}>
@@ -337,11 +383,14 @@ function EventView(){
                                                         className={'event-view__organizer-avatar'}
                                                         alt={t('eventView.avatar')} />
                                                 <Stack rowGap={.25}>
-                                                    <Link to={`/o/${profile.custom_url || profile.profile_id}`}>
-                                                        <p className={'event-view__organizer-name'}>
-                                                            <b>{profile.profile_name}</b>
-                                                        </p>
-                                                    </Link>
+                                                    <p className={'event-view__organizer-name'}
+                                                        onClick={() => {
+                                                            collectData(eventData.event_id, 'view-organizer', null, profile.profile_id)
+                                                            navigate(`/o/${profile.custom_url || profile.profile_id}`)
+                                                        }}
+                                                    >
+                                                        <b>{profile.profile_name}</b>
+                                                    </p>
                                                     <p className={'event-view__organizer-followers'}>
                                                         <b>{transformNumber(profile.total_followers)}</b> {t('eventView.followers')}
                                                     </p>
@@ -364,7 +413,7 @@ function EventView(){
                                                 <button className={'event-view__contact-button'}>
                                                     {t('eventView.contact')}
                                                 </button>
-                                                <FollowOrganizer profileImage={profile.profile_image_url} organizerID={loaderData.profile_id} organizerName={profile.profile_name} />
+                                                <FollowOrganizer profileImage={profile.profile_image_url} organizerID={eventData.profile_id} organizerName={profile.profile_name} />
                                             </Stack>
                                         </Stack>
                                         <p className={'event-view__organizer-description'}>
@@ -392,23 +441,38 @@ function EventView(){
                                     </Stack>
                                 </Stack>
                             </>
-                            :
-                            <Stack justifyContent={'center'} alignItems={'center'}>
-                                <button className={'event-view__view-detail-btn'} onClick={() => setViewDetail(true)}>
-                                    {t('eventView.viewAllDetails')}
-                                </button>
-                            </Stack>
                         }
-                        {loaderData.event_id && profile.profile_id &&
-                            <MoreRelatedByOrganizer id={loaderData.event_id} name={profile.profile_name} customURL={profile.custom_url}
+                        {eventData.event_id && profile.profile_id &&
+                            <MoreRelatedByOrganizer id={eventData.event_id} name={profile.profile_name} customURL={profile.custom_url}
                                                     profileID={profile.profile_id} />
                         }
                     </Stack>
                 </div>
+                <button onClick={toggleDrawer(true)} className="event-view__open-ticket-drawer-button">
+                    {t('eventView.showTickets')}
+                </button>
             </div>
-            <div style={{ paddingInline: '10%', backgroundColor: '#ececec', paddingBlock: '1rem 2rem', marginBlock: '2rem' }}>
+            <div className={'event-view__other-events'}>
                 <OtherEvents />
             </div>
+            <Drawer
+                anchor={'bottom'}
+                open={isDrawerOpen}
+                onClose={toggleDrawer(false)}
+                className="event-view__ticket-drawer"
+            >
+                <div className="event-view__ticket-drawer-content">
+                    <TicketPanel
+                        tickets={eventData?.tickets}
+                        eventEndTime={eventData.end_time}
+                        image={heroImage}
+                        eventStartTime={eventData.start_time}
+                        eventName={eventData.name}
+                        isLoggedIn={checkLoggedIn()}
+                    />
+                    <Button onClick={toggleDrawer(false)}>Close</Button>
+                </div>
+            </Drawer>
         </>
     );
 }

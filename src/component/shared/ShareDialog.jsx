@@ -8,6 +8,7 @@ import XIcon from '@mui/icons-material/X';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import PropTypes from "prop-types";
 import {useTranslation} from "react-i18next";
+import {collectData} from "../../common/Utilities.js";
 
 const prefix = "http://localhost:5173/events/"
 
@@ -28,6 +29,8 @@ const ShareDialog = ({ eventID }) => {
                 setCopyTooltip(t('shareDialog.copyFailed'));
                 setTimeout(() => setCopyTooltip(t('shareDialog.copyToClipboard')), 2000);
             });
+
+        collectData(eventID, 'share')
     };
 
     return (

@@ -1,6 +1,6 @@
 import {jwtDecode} from "jwt-decode";
 import {getDownloadURL, ref} from "firebase/storage";
-import {rootAxios} from "../config/axiosConfig.js";
+import {eventAxiosWithToken, rootAxios} from "../config/axiosConfig.js";
 import cookie from "react-cookies";
 import {GoogleGenerativeAI} from "@google/generative-ai";
 import dayjs from "dayjs";
@@ -23,10 +23,11 @@ export function getUserData(key){
     return decoded[key];
 }
 
-export function generateFileName() {
+export function generateFileName(len) {
+    const _len = len || 20;
     let seed = "abcdefghijklmnopqrstuvwxyz1234567890"
     let result = ''
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < _len; i++) {
         result += seed[Math.floor(Math.random() * seed.length)]
     }
     return result
@@ -134,4 +135,18 @@ export function configureDayjs() {
     updateDayjsLocale();
 
     i18n.on('languageChanged', updateDayjsLocale);
+}
+
+export function collectData(eventID, type, strength, organizerID){
+    if(!checkLoggedIn())
+        return;
+
+    eventAxiosWithToken.post('/attendee/interaction', {
+        profileID: getUserData('profileID'),
+        eventID,
+        type,
+        strength,
+        organizerID
+    })
+        .catch(err => console.log(err))
 }
