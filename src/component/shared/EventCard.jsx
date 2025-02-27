@@ -65,6 +65,7 @@ function EventCard ({ event, organizer, id, customURL, horizontal, showAction = 
 
     return (
         <Stack className="event-card" onClick={() => {
+            collectData(event.event_id, 'view-event')
             window.open(`/events/${event.event_id}`, '_blank')
         }}
                flexDirection={horizontal ? 'row' : 'column'} style={horizontal ? {width: 'clamp(45rem, 100%, 50rem)'} : {width: 'clamp(18rem, 100%, 22rem)'}}
@@ -84,7 +85,7 @@ function EventCard ({ event, organizer, id, customURL, horizontal, showAction = 
                 {renderAddress && <p className={'event-card__address'}
                     style={!horizontal ? {textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap'} : {}}
                 >{event.location.location}</p>}
-                <Link to={`/o/${customURL || id}`} className="event-card__organizer" target={'_blank'}
+                <Link to={`/o/${customURL || id}`} className="event-card__organizer"
                       onClick={(e) => {
                           collectData(event.event_id, 'view-organizer', null, id)
                           e.stopPropagation()

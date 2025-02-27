@@ -6,6 +6,7 @@ import Grid from "@mui/material/Grid2";
 import EventCard from "./EventCard.jsx";
 import EventFetching from "./EventFetching.jsx";
 import {useTranslation} from "react-i18next";
+import {getUserData} from "../../common/Utilities.js";
 
 const fetchType = {
     cost: {
@@ -47,6 +48,9 @@ function EventSuggestion({type, value, lat, lon}){
             setIsLoading(true)
             const payload = {
                 lat: lat, lon: lon, val: value
+            }
+            if(type === 'self'){
+                payload['pid'] = getUserData('profileID')
             }
             eventAxios.get(fetchType[type]?.path + '?' + new URLSearchParams(payload))
                 .then(response => {

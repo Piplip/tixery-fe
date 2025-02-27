@@ -14,6 +14,7 @@ import {eventAxios} from "../../config/axiosConfig.js";
 import {Categories} from "../../common/Data.js";
 import EventFetching from "./EventFetching.jsx";
 import {useTranslation} from "react-i18next";
+import {getCookie} from "../../common/Utilities.js";
 
 function EventSearch() {
     const location = useLocation()
@@ -31,6 +32,7 @@ function EventSearch() {
     ];
 
     const [filters, setFilters] = useState({
+        q: '',
         category: '',
         "sub_category": '',
         date: '',
@@ -50,6 +52,7 @@ function EventSearch() {
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         setFilters({
+            q: params.get('q') || '',
             category: params.get('category') || '',
             sub_category: params.get('sub_category') || '',
             date: params.get('date') || '',
@@ -60,18 +63,27 @@ function EventSearch() {
     }, [location.search]);
 
     useEffect(() => {
-        setIsLoading(true)
+        setIsLoading(true);
         let isCancelled = false;
-        const params = new URLSearchParams(location.search);
-        const payload = Object.fromEntries(params.entries());
-        eventAxios.post(`/search?${new URLSearchParams(payload)}`,
+        const rawParams = {
+            ...filters,
+            lat: getCookie('user-location').lat,
+            lon: getCookie('user-location').lon
+        };
+
+        const filteredParams = Object.fromEntries(
+            Object.entries(rawParams).filter(([, value]) => value !== null && value !== undefined && value !== '')
+        );
+
+        const params = new URLSearchParams(filteredParams);
+        eventAxios.post(`/search?${params.toString()}`,
             filters.followed ? sessionStorage.getItem('followed-organizer') : null)
             .then(r => {
                 if (!isCancelled) {
                     setTimeout(() => {
-                        setIsLoading(false)
+                        setIsLoading(false);
                         setEvents(r.data);
-                    }, 300)
+                    }, 300);
                 }
             })
             .catch(err => console.log(err));

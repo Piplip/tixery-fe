@@ -17,7 +17,7 @@ function PopularEvents(){
                 })
                 .catch(err => console.log(err))
         }
-    }, [events]);
+    }, []);
 
     return (
         <Stack sx={{ width: '100%' }} rowGap={3}>

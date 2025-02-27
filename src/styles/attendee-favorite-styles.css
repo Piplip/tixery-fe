@@ -1,9 +1,10 @@
 .attendee-favorite-f, .attendee-favorite{
     font-family: "Roboto", sans-serif;
-}
-.attendee-favorite-f{
     display: flex;
     flex-direction: column;
+    row-gap: 1rem;
+}
+.attendee-favorite-f{
     row-gap: 2rem;
     padding: 7.5rem 15%;
     background: radial-gradient(#000000 2px, transparent 2px), radial-gradient(#000000 2px, rgba(243, 243, 243, 0.64) 2px);
@@ -11,15 +12,10 @@
     background-position: 0 0,40px 40px;
 }
 .attendee-favorite-sub{
+    justify-content: center;
     flex-wrap: wrap;
-    > * {
-        width: 50%;
-    }
 }
 .attendee-favorite-sub-f{
     align-self: center;
     align-items: center;
-    > * {
-        width: 100%;
-    }
 }

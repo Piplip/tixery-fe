@@ -138,7 +138,7 @@ export function configureDayjs() {
 }
 
 export function collectData(eventID, type, strength, organizerID){
-    if(!checkLoggedIn())
+    if(!checkLoggedIn() || getUserData('role') === 'host')
         return;
 
     eventAxiosWithToken.post('/attendee/interaction', {
