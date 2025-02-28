@@ -18,7 +18,7 @@ function OrganizerNavBar(){
         { label: t('organizerNavBar.events'), icon: <EventIcon />, to: 'events' },
         { label: t('organizerNavBar.orders'), icon: <FilterFramesIcon />, to: 'order-management' },
         { label: t('organizerNavBar.marketing'), icon: <VolumeDownIcon />, to: 'marketing' },
-        { label: t('organizerNavBar.reporting'), icon: <SignalCellularAltIcon />, to: 'reporting' },
+        { label: t('organizerNavBar.reporting'), icon: <SignalCellularAltIcon />, to: 'report' },
         { label: t('organizerNavBar.finance'), icon: <AccountBalanceIcon />, to: 'finance' },
         { label: t('organizerNavBar.organizations'), icon: <SettingsIcon />, to: 'u' },
     ];

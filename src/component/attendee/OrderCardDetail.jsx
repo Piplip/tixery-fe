@@ -88,7 +88,6 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
             });
     }
 
-    console.log(ticketInfo)
     return (
         <Dialog fullScreen open={open} onClose={handleClose} sx={{zIndex: 10000000}}>
             <Stack sx={{ padding: '2rem 5rem' }} rowGap={2}>
@@ -161,7 +160,9 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                                             >
                                                 {isLoading ? t('attendeeOrderCardDetail.generating') : t('attendeeOrderCardDetail.downloadTicket')}
                                             </MuiButton>
-                                            <MuiButton variant={'outlined'} onClick={() => setOpen(true)}>{t('attendeeOrderCardDetail.cancelOrder')}</MuiButton>
+                                            {item?.end_time && dayjs(item.end_time).isBefore(dayjs()) &&
+                                                <MuiButton variant={'outlined'} onClick={() => setOpen(true)}>{t('attendeeOrderCardDetail.cancelOrder')}</MuiButton>
+                                            }
                                             {item?.refund_policy?.allowRefund &&
                                                 <Stack sx={{ backgroundColor: '#e8e8e8', padding: '.5rem .75rem' }}>
                                                     <b>{t('attendeeOrderCardDetail.refundPolicy')}</b>

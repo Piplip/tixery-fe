@@ -57,7 +57,7 @@ function TopNav({isLoggedIn, enableScrollEffect}){
                 <img src={Logo} alt="logo" width={'100px'} />
             </Link>
             {!location.pathname.includes('preview') && <TopNavSearchBar />}
-            <Stack direction={'row'} className={'top-nav-container__nav-links-container'} columnGap={'1rem'}>
+            <Stack direction={'row'} className={'top-nav-container__nav-links-container'}>
                 {navLinks.map((item, index) => {
                     if (!item.shouldRender(isLoggedIn)) return null;
                     return (

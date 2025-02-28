@@ -106,14 +106,9 @@
     opacity: 1;
 }
 
-/* Nav links container */
-.top-nav-container__nav-links-container {
-    gap: 1rem;
-}
-
 /* Nav links */
 .top-nav-container__nav-links-container__link {
-    padding: 0.5rem 1rem;
+    padding: 0.5rem;
     border-radius: 10px;
     text-decoration: none;
     color: inherit;

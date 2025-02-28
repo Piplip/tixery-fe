@@ -62,6 +62,7 @@ function OtherEvents() {
     const isScrollable = events?.length * cardWidth > (containerRef.current?.offsetWidth || 0);
 
     return (
+        events?.length > 0 &&
         <Stack rowGap={{ xs: 2, md: 3 }}>
             <Stack
                 direction={{ xs: 'column', sm: 'row' }}
@@ -72,22 +73,24 @@ function OtherEvents() {
                 <Typography variant="h5" fontWeight="bold" fontSize={{ xs: '1.25rem', md: '1.5rem' }}>
                     {t('otherEvents')}
                 </Typography>
-                <Stack direction="row" gap={1}>
-                    <IconButton
-                        onClick={handlePrev}
-                        disabled={scrollPosition === 0}
-                        size={isSmallScreen ? 'small' : 'medium'}
-                    >
-                        <ArrowBackIcon fontSize={isSmallScreen ? 'small' : 'medium'} />
-                    </IconButton>
-                    <IconButton
-                        onClick={handleNext}
-                        disabled={!isScrollable || (containerRef.current && scrollPosition >= containerRef.current.scrollWidth - containerRef.current.offsetWidth)}
-                        size={isSmallScreen ? 'small' : 'medium'}
-                    >
-                        <ArrowForwardIcon fontSize={isSmallScreen ? 'small' : 'medium'} />
-                    </IconButton>
-                </Stack>
+                {events.length > 4 &&
+                    <Stack direction="row" gap={1}>
+                        <IconButton
+                            onClick={handlePrev}
+                            disabled={scrollPosition === 0}
+                            size={isSmallScreen ? 'small' : 'medium'}
+                        >
+                            <ArrowBackIcon fontSize={isSmallScreen ? 'small' : 'medium'} />
+                        </IconButton>
+                        <IconButton
+                            onClick={handleNext}
+                            disabled={!isScrollable || (containerRef.current && scrollPosition >= containerRef.current.scrollWidth - containerRef.current.offsetWidth)}
+                            size={isSmallScreen ? 'small' : 'medium'}
+                        >
+                            <ArrowForwardIcon fontSize={isSmallScreen ? 'small' : 'medium'} />
+                        </IconButton>
+                    </Stack>
+                }
             </Stack>
 
             <div
@@ -124,6 +127,6 @@ function OtherEvents() {
                 ))}
             </div>
         </Stack>
-    );
+    )
 }
 export default OtherEvents;

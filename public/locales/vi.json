@@ -965,7 +965,7 @@
     "eventEnded": "Sự kiện này đã kết thúc",
     "heroImage": "hình ảnh",
     "avatar": "ảnh đại diện",
-    "by": "Bởi",
+    "by": "Bởi ",
 	"contact": "Liên hệ",
     "followers": "người theo dõi",
     "eventsHosted": "sự kiện đã tổ chức",
@@ -1206,7 +1206,7 @@
     "login": "Đăng nhập"
   },
   "topNav": {
-    "likes": "Sự kiện đã lưu",
+    "likes": "Sự kiện đã thích",
     "tickets": "Vé",
     "createEvents": "Tạo sự kiện",
     "forSupplier": "Dành cho nhà cung cấp",
@@ -1339,10 +1339,10 @@
     }
   },
   "attendeeOrders": {
-    "orders": "Đơn hàng",
-    "noUpcomingOrders": "Không có đơn hàng",
-    "seePastOrders": "Xem đơn hàng đã qua",
-    "pastOrders": "Đơn hàng đã qua"
+    "orders": "Đơn đặt vé",
+    "noUpcomingOrders": "Không có đơn đặt vé",
+    "seePastOrders": "Xem đơn cũ",
+    "pastOrders": "Đơn đặt vé cũ"
   },
   "attendeePassword": {
     "yourPassword": "Mật khẩu của bạn",
@@ -1453,5 +1453,6 @@
     "ESCP_003": "Mã khuyến mãi đã được sử dụng",
     "ESCP_004": "Kích hoạt mã khuyến mãi thành công",
     "ESDS_001": "Đã xóa"
-  }
+  },
+  "search-this-area": "Tìm kiếm trong khu vực này"
 }

@@ -960,7 +960,7 @@
     "eventEnded": "This event has ended",
     "heroImage": "img",
     "avatar": "avatar",
-    "by": "By",
+    "by": "By ",
     "followers": "followers",
     "eventsHosted": "events hosted",
     "attendeesHosted": "attendees hosted",
@@ -1447,5 +1447,6 @@
     "ESCP_003": "Discount code has been used",
     "ESCP_004": "Activate all codes successfully",
     "ESDS_001": "Event deleted successfully"
-  }
+  },
+  "search-this-area": "Search this area"
 }

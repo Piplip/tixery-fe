@@ -24,6 +24,7 @@ import PaymentCheckout from "../attendee/PaymentCheckout.jsx";
 import {useTranslation} from "react-i18next";
 import {checkLoggedIn, collectData, getUserData} from "../../common/Utilities.js";
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
+import {Link, useNavigate} from "react-router-dom";
 
 TicketPanel.propTypes = {
     tickets: PropTypes.array,
@@ -49,6 +50,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
     const {t} = useTranslation()
     const [isLoading, setIsLoading] = useState(false);
     const [appliedCoupon, setAppliedCoupon] = useState({});
+    const navigate = useNavigate()
 
     const toggleTicketInfo = (index) => {
         setExpandedTickets((prevState) => ({
@@ -124,7 +126,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
             return (
                 <Stack rowGap={2}>
                     <Typography variant={'h6'} textAlign={'center'}>{t('ticketPanel.eventEnded')}</Typography>
-                    <button className={'view-more-btn'}>
+                    <button className={'view-more-btn'} onClick={() => navigate(`/events/search`)}>
                         {t('ticketPanel.viewMoreEvents')}
                     </button>
                 </Stack>

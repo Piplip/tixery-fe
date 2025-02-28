@@ -1,0 +1,39 @@
+.organizer-report {
+    padding: 5rem 1rem 1rem 1rem;
+    display: flex;
+    flex-direction: column;
+    row-gap: 1rem;
+}
+
+.organizer-report__title {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.organizer-report__filters {
+    padding: 15px;
+}
+
+.organizer-report__summary {
+
+}
+
+.organizer-report__card {
+    text-align: center;
+}
+
+.organizer-report__charts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.organizer-report__chart-card {
+    flex: 1 1 45%;
+    padding: 15px;
+}
+
+.organizer-report__chart-title {
+    margin-bottom: 10px;
+    text-align: center;
+}

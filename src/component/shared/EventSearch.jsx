@@ -1,7 +1,7 @@
 import {useLocation, useNavigate} from "react-router-dom";
 import "../../styles/event-search-styles.css"
 import EventCard from "./EventCard.jsx";
-import {Checkbox, FormControlLabel, Stack, Typography} from "@mui/material";
+import {Checkbox, Dialog, DialogContent, FormControlLabel, IconButton, Stack, Typography} from "@mui/material";
 import {Accordion, AccordionDetails, AccordionGroup, AccordionSummary} from "@mui/joy";
 import RadioGroup from '@mui/material/RadioGroup';
 import Chip from '@mui/material/Chip';
@@ -15,11 +15,15 @@ import {Categories} from "../../common/Data.js";
 import EventFetching from "./EventFetching.jsx";
 import {useTranslation} from "react-i18next";
 import {getCookie} from "../../common/Utilities.js";
+import MapIcon from '@mui/icons-material/Map';
+import Map from "../shared/Map.jsx"
+import EventSuggestion from "./EventSuggestion.jsx";
 
 function EventSearch() {
     const location = useLocation()
     const navigate = useNavigate()
     const {t} = useTranslation()
+    const [openMapFilter, setOpenMapFilter] = useState(false)
 
     const dates = [
         { value: 'today', label: t('eventSearch.today') },
@@ -173,6 +177,22 @@ function EventSearch() {
         navigate({ search: searchParams.toString().toLowerCase() });
     };
 
+    function getMapSearchEvents(northEast, southWest){
+        const params = new URLSearchParams({
+            northeast_lat: northEast.lat,
+            northeast_lon: northEast.lng,
+            southwest_lat: southWest.lat,
+            southwest_lon: southWest.lng
+        });
+
+        eventAxios.get(`/events/bounds?${params.toString()}`)
+            .then(r => {
+                setEvents(r.data);
+                setOpenMapFilter(false)
+            })
+            .catch(err => console.log(err));
+    }
+
     return (
         <Stack className={'event-search'} direction={'row'}>
             <Stack className={'event-search__filter'} rowGap={1}>
@@ -277,11 +297,29 @@ function EventSearch() {
                         </Grid>
                     </>
                 }
+                {events.length === 0 &&
+                    <EventSuggestion type={'self'} lat={getCookie('user-location').lat} lon={getCookie('user-location').lon} />
+                }
                 <Stack marginBlock={5} rowGap={5} sx={{ width: '100%' }}>
                     <TrendingSearches />
                     <PopularEvents />
                 </Stack>
             </Stack>
+            <IconButton sx={{position: 'fixed', right: '1rem', bottom: '1rem', backgroundColor: '#f8f8f8',
+                '&:hover': {backgroundColor: '#e3e3e3'}
+            }}
+                        onClick={() => setOpenMapFilter(true)}>
+                <MapIcon sx={{fontSize: '2rem'}}/>
+            </IconButton>
+            <Dialog open={openMapFilter} onClose={() => setOpenMapFilter(false)} maxWidth={'md'} fullWidth>
+                <DialogContent>
+                    <Stack sx={{position: 'relative'}}>
+                        <Map latitude={getCookie('user-location').lat} longitude={getCookie('user-location').lon}
+                            showSearch={true} handleSearch={getMapSearchEvents}
+                        />
+                    </Stack>
+                </DialogContent>
+            </Dialog>
         </Stack>
     );
 }

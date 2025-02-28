@@ -49,8 +49,12 @@ import OrderManagement from "./component/organizer/OrderManagement.jsx";
 import "./config/i18nConfig.js";
 import CreateEventWithAI from "./component/organizer/CreateEventWithAI.jsx";
 import AIEventPreview from "./component/organizer/AIEventPreview.jsx";
+import OrganizerReport from "./component/organizer/OrganizerReport.jsx";
+import dayjs from "dayjs";
 
 configureDayjs()
+
+dayjs().tz(Intl.DateTimeFormat().resolvedOptions().timeZone)
 
 function App() {
     const routers = createBrowserRouter([
@@ -197,6 +201,17 @@ function App() {
                 {
                     path: 'events', element: <OrganizerEvent />,
                     loader: () => eventAxiosWithToken.get(`/get?uid=${getUserData("userID")}&tz=${(Math.round(new Date().getTimezoneOffset()) / -60)}`)
+                },
+                {
+                    path: 'report', element: <OrganizerReport />,
+                    loader: () => {
+                        const params = new URLSearchParams({
+                            uid: getUserData("userID"),
+                            start: dayjs().subtract(1, 'month').format("YYYY-MM-DDTHH:mm:ssZ"),
+                            end: dayjs().add(1, 'day').format("YYYY-MM-DDTHH:mm:ssZ")
+                        })
+                        return eventAxiosWithToken.get(`/organizer/report?${params.toString()}`)
+                    }
                 },
                 {
                     path: 'events/:id',

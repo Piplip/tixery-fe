@@ -45,6 +45,10 @@
     width: 100%; /* Stack takes full width */
 }
 
+.event-view__organizer-info{
+    width: 60%;
+}
+
 .event-view__date {
     font-size: 1rem; /* Reduced font size for smaller screens */
     color: #344c50;
@@ -83,7 +87,7 @@
 .event-view__organizer-title,
 .event-view__refund-policy-heading,
 .event-view__faqs-heading {
-    font-size: 1.2rem; /* Reduced font size for smaller screens */
+    font-size: 1.2rem;
     color: #bd1c1c;
     font-family: "Nunito", sans-serif;
 }
@@ -94,6 +98,7 @@
     display: flex;
     align-items: center;
     column-gap: 0.5rem;
+    text-transform: capitalize;
 }
 
 .event-view__registration-price {
@@ -237,9 +242,9 @@
 
 .event-view__tag {
     background-color: #f8f8f8;
-    padding: 0.4rem 1rem; /* Reduced padding for smaller screens */
+    padding: 0.4rem 1rem;
     border-radius: 1rem;
-    font-size: 0.7rem; /* Reduced font size for smaller screens */
+    font-size: 0.7rem;
     font-family: Arial, sans-serif;
     cursor: pointer;
     color: #4f4242;
@@ -411,7 +416,7 @@
     }
 
     .event-view__tag {
-        font-size: 0.8rem;
+        font-size: 0.9rem;
     }
 
     .ended-notify {
