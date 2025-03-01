@@ -28,6 +28,7 @@ import FollowOrganizer from "./FollowOrganizer.jsx";
 import {useTranslation} from "react-i18next";
 import PropTypes from "prop-types";
 import duration from "dayjs/plugin/duration";
+import ReportEvent from "../attendee/ReportEvent.jsx";
 
 dayjs.extend(duration);
 
@@ -147,6 +148,13 @@ function EventView({data}){
                 </div>
             )
         }
+        else if(eventData.end_time && dayjs(eventData.end_time).isBefore(dayjs())){
+            return (
+                <div className={'event-state ended'}>
+                    {t('eventView.eventEnded')}
+                </div>
+            )
+        }
     }
 
     return (
@@ -186,7 +194,7 @@ function EventView({data}){
                 <div className={'event-view__content'}>
                     <Stack className={'event-view__main-content'} rowGap={6}>
                         <Stack direction={'row'} justifyContent={'space-between'} columnGap={5}>
-                            <Stack rowGap={3}>
+                            <Stack rowGap={3} className={'event-view__basic-info'}>
                                 <RenderEventState />
                                 <Stack
                                     className={'event-view__info-bar'}
@@ -436,7 +444,8 @@ function EventView({data}){
                                         <Stack alignSelf={'center'}
                                                className={'event-view__report'}
                                                direction={'row'}>
-                                            <FlagIcon /> {t('eventView.reportThisEvent')}
+                                            <FlagIcon />
+                                            <ReportEvent eventID={eventData.event_id} />
                                         </Stack>
                                     </Stack>
                                 </Stack>
@@ -470,7 +479,7 @@ function EventView({data}){
                         eventName={eventData.name}
                         isLoggedIn={checkLoggedIn()}
                     />
-                    <Button onClick={toggleDrawer(false)}>Close</Button>
+                    <Button onClick={toggleDrawer(false)}>{t('eventView.close')}</Button>
                 </div>
             </Drawer>
         </>

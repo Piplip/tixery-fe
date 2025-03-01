@@ -17,6 +17,7 @@ import {QRCodeSVG} from 'qrcode.react';
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import "../../styles/order-card-detail-styles.css"
 import {useTranslation} from "react-i18next";
+import ReportEvent from "./ReportEvent.jsx";
 
 OrderCardDetail.propTypes = {
     open: PropTypes.bool.isRequired,
@@ -88,6 +89,8 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
             });
     }
 
+    console.log(order)
+
     return (
         <Dialog fullScreen open={open} onClose={handleClose} sx={{zIndex: 10000000}}>
             <Stack sx={{ padding: '2rem 5rem' }} rowGap={2}>
@@ -155,25 +158,29 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                                                 </div>
                                         </Stack>
                                         <Stack rowGap={1.5}>
-                                            <MuiButton color={'error'} variant={'contained'} sx={{ width: '100%' }}
-                                                    onClick={() => handleDownloadTicket(index)}
-                                            >
-                                                {isLoading ? t('attendeeOrderCardDetail.generating') : t('attendeeOrderCardDetail.downloadTicket')}
-                                            </MuiButton>
-                                            {item?.end_time && dayjs(item.end_time).isBefore(dayjs()) &&
-                                                <MuiButton variant={'outlined'} onClick={() => setOpen(true)}>{t('attendeeOrderCardDetail.cancelOrder')}</MuiButton>
-                                            }
-                                            {item?.refund_policy?.allowRefund &&
-                                                <Stack sx={{ backgroundColor: '#e8e8e8', padding: '.5rem .75rem' }}>
-                                                    <b>{t('attendeeOrderCardDetail.refundPolicy')}</b>
-                                                    <p>{t('attendeeOrderCardDetail.refundsUpTo')} <b>{item?.refund_policy?.daysForRefund} {t('attendeeOrderCardDetail.daysBeforeEvent')}</b></p>
-                                                </Stack>
+                                            {order?.end_time && dayjs(order.end_time).isAfter(dayjs()) &&
+                                                <>
+                                                    <MuiButton color={'error'} variant={'contained'} sx={{ width: '100%' }}
+                                                               onClick={() => handleDownloadTicket(index)}
+                                                    >
+                                                        {isLoading ? t('attendeeOrderCardDetail.generating') : t('attendeeOrderCardDetail.downloadTicket')}
+                                                    </MuiButton>
+                                                    <MuiButton variant={'outlined'} onClick={() => setOpen(true)}>{t('attendeeOrderCardDetail.cancelOrder')}</MuiButton>
+                                                    {item?.refund_policy?.allowRefund &&
+                                                        <Stack sx={{ backgroundColor: '#e8e8e8', padding: '.5rem .75rem' }}>
+                                                            <b>{t('attendeeOrderCardDetail.refundPolicy')}</b>
+                                                            <p>{t('attendeeOrderCardDetail.refundsUpTo')} <b>{item?.refund_policy?.daysForRefund} {t('attendeeOrderCardDetail.daysBeforeEvent')}</b></p>
+                                                        </Stack>
+                                                    }
+                                                </>
                                             }
                                         </Stack>
                                         <p className={'link'} style={{ alignSelf: 'center', marginBlock: 10 }}>{t('attendeeOrderCardDetail.contactOrganizer')}</p>
                                         <Stack fontSize={14} borderTop={'1px solid'} paddingTop={2.5}>
                                             <p>{t('attendeeOrderCardDetail.order')} <b>#{order.order_id}</b> {t('attendeeOrderCardDetail.on')} {dayjs(order.created_at).format('HH:mm DD, MMM YYYY')}</p>
-                                            <p className={'link'}>{t('attendeeOrderCardDetail.reportThisEvent')}</p>
+                                            {order?.end_time && dayjs(order.end_time).isAfter(dayjs()) &&
+                                                <ReportEvent eventID={order.event_id}/>
+                                            }
                                         </Stack>
                                     </Stack>
                                 </Stack>

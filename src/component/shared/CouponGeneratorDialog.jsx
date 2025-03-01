@@ -30,6 +30,7 @@ import PropTypes from "prop-types";
 import { saveAs } from 'file-saver';
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import dayjs from "dayjs";
+import {useTranslation} from "react-i18next";
 
 CouponGeneratorDialog.propTypes = {
     open: PropTypes.bool,
@@ -49,6 +50,7 @@ function CouponGeneratorDialog ({ open, onClose }) {
     const [snackbarOpen, setSnackbarOpen] = useState({
         open: false, msg: ''
     });
+    const {t} = useTranslation()
 
     const generateCoupons = () => {
         const coupons = [];
@@ -74,7 +76,7 @@ function CouponGeneratorDialog ({ open, onClose }) {
 
     const handleCopy = (code) => {
         navigator.clipboard.writeText(code);
-        setSnackbarOpen({ open: true, msg: 'Coupon code copied to clipboard' });
+        setSnackbarOpen({ open: true, msg: t('generateCouponsDialog.copied') });
     };
 
     const exportToCSV = () => {
@@ -105,7 +107,7 @@ function CouponGeneratorDialog ({ open, onClose }) {
         eventAxiosWithToken.post('/coupon/activate', generatedCoupons)
             .then(r => {
                 setIsLoading(false)
-                setSnackbarOpen({ open: true, msg: r.data.message});
+                setSnackbarOpen({ open: true, msg: t(`response-code.${r.data.message}`)});
             })
             .catch(err => {
                 setIsLoading(false)
@@ -114,13 +116,13 @@ function CouponGeneratorDialog ({ open, onClose }) {
     }
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth sx={{zIndex: 1000}}>
+        <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth sx={{ zIndex: 1000 }}>
             <DialogTitle>
-                Generate Coupons
+                {t('generateCouponsDialog.generateCoupons')}
                 <IconButton onClick={onClose} sx={{ position: 'absolute', right: 8, top: 8 }}>
                     <CloseIcon />
                 </IconButton>
-                {isLoading && <LinearProgress sx={{height: 5}}/>}
+                {isLoading && <LinearProgress sx={{ height: 5 }} />}
             </DialogTitle>
 
             <DialogContent dividers>
@@ -128,13 +130,13 @@ function CouponGeneratorDialog ({ open, onClose }) {
                     <Stack direction={'row'} columnGap={1.5}>
                         <FormControl fullWidth>
                             <TextField
-                                label="Code Length"
+                                label={t('generateCouponsDialog.codeLength')}
                                 value={codeLength}
                                 slotProps={{
                                     input: {
                                         readOnly: true,
                                         endAdornment: (
-                                            <Tooltip title="Recommended length: 8-12 characters">
+                                            <Tooltip title={t('generateCouponsDialog.codeLengthTooltip')}>
                                                 <HelpOutline fontSize="small" />
                                             </Tooltip>
                                         ),
@@ -150,24 +152,24 @@ function CouponGeneratorDialog ({ open, onClose }) {
                             />
                         </FormControl>
                         <TextField
-                            label="Total Quantity"
+                            label={t('generateCouponsDialog.totalQuantity')}
                             type="number"
                             fullWidth
                             value={quantity}
                             onChange={(e) => setQuantity(e.target.value)}
                             slotProps={{
                                 input: {
-                                    inputProps: {min: 1},
+                                    inputProps: { min: 1 },
                                     endAdornment: (
-                                        <Tooltip title="Number of unique coupons to generate">
-                                            <HelpOutline fontSize="small"/>
+                                        <Tooltip title={t('generateCouponsDialog.totalQuantityTooltip')}>
+                                            <HelpOutline fontSize="small" />
                                         </Tooltip>
                                     )
                                 }
                             }}
                         />
                         <TextField
-                            label="Quantity available for each coupon"
+                            label={t('generateCouponsDialog.quantityPerCoupon')}
                             type="number"
                             fullWidth
                             value={couponQuantity}
@@ -176,8 +178,8 @@ function CouponGeneratorDialog ({ open, onClose }) {
                     </Stack>
 
                     <Stack direction={'row'} columnGap={1.5}>
-                        <DatePicker sx={{width: '50%'}} format={"DD/MM/YYYY"} disablePast
-                                    label="Valid From"
+                        <DatePicker sx={{ width: '50%' }} format={"DD/MM/YYYY"} disablePast
+                                    label={t('generateCouponsDialog.validFrom')}
                                     value={validFrom}
                                     onChange={(newValue) => setValidFrom(newValue)}
                                     renderInput={(params) => (
@@ -188,7 +190,7 @@ function CouponGeneratorDialog ({ open, onClose }) {
                                                 input: {
                                                     ...params.InputProps,
                                                     endAdornment: (
-                                                        <Tooltip title="Start date for coupon validity">
+                                                        <Tooltip title={t('generateCouponsDialog.validFromTooltip')}>
                                                             <HelpOutline fontSize="small" />
                                                         </Tooltip>
                                                     ),
@@ -198,8 +200,8 @@ function CouponGeneratorDialog ({ open, onClose }) {
                                     )}
                         />
 
-                        <DatePicker sx={{width: '50%'}} format={"DD/MM/YYYY"} disablePast
-                                    label="Valid To"
+                        <DatePicker sx={{ width: '50%' }} format={"DD/MM/YYYY"} disablePast
+                                    label={t('generateCouponsDialog.validTo')}
                                     value={validTo}
                                     onChange={(newValue) => setValidTo(newValue)}
                                     renderInput={(params) => (
@@ -210,7 +212,7 @@ function CouponGeneratorDialog ({ open, onClose }) {
                                                 input: {
                                                     ...params.InputProps,
                                                     endAdornment: (
-                                                        <Tooltip title="Expiration date for coupon validity">
+                                                        <Tooltip title={t('generateCouponsDialog.validToTooltip')}>
                                                             <HelpOutline fontSize="small" />
                                                         </Tooltip>
                                                     ),
@@ -223,19 +225,19 @@ function CouponGeneratorDialog ({ open, onClose }) {
 
                     <Stack direction={'row'} columnGap={1.5}>
                         <FormControl fullWidth>
-                            <InputLabel>Coupon Type</InputLabel>
+                            <InputLabel>{t('generateCouponsDialog.couponType')}</InputLabel>
                             <Select
                                 value={couponType}
-                                label="Coupon Type"
+                                label={t('generateCouponsDialog.couponType')}
                                 onChange={(e) => setCouponType(e.target.value)}
                             >
-                                <MenuItem value="percentage">Percentage</MenuItem>
-                                <MenuItem value="fixed">Fixed Amount</MenuItem>
+                                <MenuItem value="percentage">{t('generateCouponsDialog.percentage')}</MenuItem>
+                                <MenuItem value="fixed">{t('generateCouponsDialog.fixedAmount')}</MenuItem>
                             </Select>
                         </FormControl>
 
                         <TextField
-                            label="Discount Amount"
+                            label={t('generateCouponsDialog.discountAmount')}
                             type="number"
                             fullWidth
                             value={discountAmount}
@@ -248,9 +250,9 @@ function CouponGeneratorDialog ({ open, onClose }) {
                                                 {couponType === 'percentage' ? '%' : '$'}
                                             </InputAdornment>
                                             <Tooltip title={
-                                                couponType === 'randomize'
-                                                    ? 'Random discounts between 5% to 50%'
-                                                    : `Enter ${couponType} discount value`
+                                                couponType === 'percentage'
+                                                    ? t('generateCouponsDialog.randomDiscounts')
+                                                    : t('generateCouponsDialog.enterDiscountValue', { couponType })
                                             }>
                                                 <HelpOutline fontSize="small" />
                                             </Tooltip>
@@ -265,17 +267,17 @@ function CouponGeneratorDialog ({ open, onClose }) {
                         />
                     </Stack>
                 </Stack>
-                <Card variant="outlined" sx={{marginBlock: 2}}>
+                <Card variant="outlined" sx={{ marginBlock: 2 }}>
                     <CardContent>
                         <Typography variant="h6" gutterBottom>
-                            💡 Generation Tips
+                            {t('generateCouponsDialog.generationTips')}
                         </Typography>
                         <Divider sx={{ mb: 2 }} />
                         <ul style={{ paddingLeft: 16, margin: 0 }}>
-                            <li><Typography>Use longer codes for higher security</Typography></li>
-                            <li><Typography>Limit quantity based on your distribution plan</Typography></li>
-                            <li><Typography>Set expiration dates to encourage urgency</Typography></li>
-                            <li><Typography>Test coupons before mass distribution</Typography></li>
+                            <li><Typography>{t('generateCouponsDialog.tipLongerCodes')}</Typography></li>
+                            <li><Typography>{t('generateCouponsDialog.tipLimitQuantity')}</Typography></li>
+                            <li><Typography>{t('generateCouponsDialog.tipSetExpiration')}</Typography></li>
+                            <li><Typography>{t('generateCouponsDialog.tipTestCoupons')}</Typography></li>
                         </ul>
                     </CardContent>
                 </Card>
@@ -283,7 +285,7 @@ function CouponGeneratorDialog ({ open, onClose }) {
                 {generatedCoupons.length > 0 &&
                     <Stack rowGap={1}>
                         <Typography variant="h6">
-                            Generated Coupons ({generatedCoupons.length})
+                            {t('generateCouponsDialog.generatedCoupons')} ({generatedCoupons.length})
                         </Typography>
                         <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
                             {generatedCoupons.map((coupon, index) => (
@@ -301,34 +303,34 @@ function CouponGeneratorDialog ({ open, onClose }) {
             </DialogContent>
 
             <DialogActions>
-                <Button onClick={onClose} color={'error'}>Cancel</Button>
+                <Button onClick={onClose} color={'error'}>{t('generateCouponsDialog.cancel')}</Button>
                 <Button
                     variant="contained"
                     onClick={generateCoupons}
                     disabled={!validFrom || !validTo}
                 >
-                    Generate
-                </Button>
-                <Button
-                    variant={'contained'}
-                    onClick={activateCoupon}
-                    disabled={generatedCoupons.length === 0}
-                >
-                    Activate all coupon
+                    {t('generateCouponsDialog.generate')}
                 </Button>
                 <Button color={'secondary'}
-                    variant="contained"
-                    onClick={exportToCSV}
-                    disabled={generatedCoupons.length === 0}
+                        variant="contained"
+                        onClick={activateCoupon}
+                        disabled={generatedCoupons.length === 0}
                 >
-                    Export to CSV
+                    {t('generateCouponsDialog.activateAll')}
                 </Button>
                 <Button color={'secondary'}
-                    variant="contained"
-                    onClick={exportToJSON}
-                    disabled={generatedCoupons.length === 0}
+                        variant="contained"
+                        onClick={exportToCSV}
+                        disabled={generatedCoupons.length === 0}
                 >
-                    Export to JSON
+                    {t('generateCouponsDialog.exportToCSV')}
+                </Button>
+                <Button color={'secondary'}
+                        variant="contained"
+                        onClick={exportToJSON}
+                        disabled={generatedCoupons.length === 0}
+                >
+                    {t('generateCouponsDialog.exportToJSON')}
                 </Button>
             </DialogActions>
 

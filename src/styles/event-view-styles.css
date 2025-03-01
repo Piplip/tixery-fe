@@ -46,7 +46,7 @@
 }
 
 .event-view__organizer-info{
-    width: 60%;
+    width: max(60%, 40rem);
 }
 
 .event-view__date {
@@ -57,13 +57,13 @@
 }
 
 .event-view__title {
-    font-size: 2rem; /* Reduced font size for smaller screens */
+    font-size: 2rem;
     font-family: "Gill Sans MT", sans-serif;
     font-weight: bold;
 }
 
 .event-view__summary {
-    font-size: 0.9rem; /* Reduced font size for smaller screens */
+    font-size: 0.9rem;
     color: #2c313d;
     font-family: "Microsoft Tai Le", sans-serif;
     word-wrap: break-word;
@@ -71,7 +71,7 @@
 
 .event-view__organizer {
     background-color: #f8f8f8;
-    padding: 0.75rem 1rem; /* Reduced padding for smaller screens */
+    padding: 0.75rem 1rem;
     align-items: center;
 }
 
@@ -114,7 +114,7 @@
 
 .event-view__organizer-overview {
     background-color: #f8f8f8;
-    padding: 0.75rem 1rem; /* Reduced padding for smaller screens */
+    padding: 0.75rem 1rem;
 }
 
 .event-view__organizer-name {
@@ -336,6 +336,10 @@
     background-color: #f8ff9e;
 }
 
+.event-state.ended {
+    background-color: #d9d9d9;
+}
+
 .event-view__other-events {
     padding-inline: 5%;
     background-color: #ececec;
@@ -482,6 +486,14 @@
 
 /* Media Queries */
 @media (max-width: 767px) {
+    .event-view__basic-info{
+        width: 100%;
+    }
+
+    .event-view__organizer-info{
+        width: 100%;
+    }
+
     .event-view__main-content .event-view__registration{
         display: none;
     }

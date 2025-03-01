@@ -190,7 +190,7 @@ function OrderManagement(){
                     </Link>
                 </Stack>
                 <div onClick={() => setOpenGenerate(true)} className={'link'}>
-                    Generate promo codes
+                    {t('orderManagement.generateCoupon')}
                 </div>
             </Stack>
             <CouponGeneratorDialog open={openGenerate} onClose={() => setOpenGenerate(false)} />

@@ -81,6 +81,7 @@ function App() {
                         })
                         if(checkLoggedIn()){
                             searchParams.append('pid', getUserData('profileID'))
+                            searchParams.append("tz", new Date().getTimezoneOffset() / -60)
                         }
                         const response = await eventAxiosWithToken.get(`/get/specific?${searchParams}`);
                         return response.data;
@@ -204,13 +205,14 @@ function App() {
                 },
                 {
                     path: 'report', element: <OrganizerReport />,
-                    loader: () => {
+                    loader: async () => {
                         const params = new URLSearchParams({
                             uid: getUserData("userID"),
-                            start: dayjs().subtract(1, 'month').format("YYYY-MM-DDTHH:mm:ssZ"),
-                            end: dayjs().add(1, 'day').format("YYYY-MM-DDTHH:mm:ssZ")
+                            start: dayjs().subtract(1, 'week').format("YYYY-MM-DDTHH:mm:ssZ"),
+                            end: dayjs().format("YYYY-MM-DDTHH:mm:ssZ")
                         })
-                        return eventAxiosWithToken.get(`/organizer/report?${params.toString()}`)
+                        const data = await eventAxiosWithToken.get(`/organizer/report?${params.toString()}`)
+                        return data.data.data
                     }
                 },
                 {
