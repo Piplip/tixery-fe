@@ -31,6 +31,7 @@ import { saveAs } from 'file-saver';
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import dayjs from "dayjs";
 import {useTranslation} from "react-i18next";
+import {getUserData} from "../../common/Utilities.js";
 
 CouponGeneratorDialog.propTypes = {
     open: PropTypes.bool,
@@ -104,7 +105,7 @@ function CouponGeneratorDialog ({ open, onClose }) {
 
     function activateCoupon(){
         setIsLoading(true)
-        eventAxiosWithToken.post('/coupon/activate', generatedCoupons)
+        eventAxiosWithToken.post(`/coupon/activate?pid=${getUserData('profileID')}`, generatedCoupons)
             .then(r => {
                 setIsLoading(false)
                 setSnackbarOpen({ open: true, msg: t(`response-code.${r.data.message}`)});

@@ -26,6 +26,7 @@ import {getStorage, ref, uploadBytes} from "firebase/storage";
 import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {generateFileName, generateGeminiContent, getUserData} from "../../common/Utilities.js";
+import { v4 as uuidv4 } from 'uuid';
 
 const validationSchema = Yup.object().shape({
     title: Yup.string().required('Event title is required'),
@@ -70,7 +71,7 @@ function CreateEventWithAI() {
         onSubmit: (async (values) => {
             setIsLoading(true)
             setCurrentStep('Generating image...')
-            const img = await handleGenerateImage(values.title)
+            const [img, uuid] = await handleGenerateImage(values.title)
 
             setCurrentStep('Generating summary...')
             const summary = await generateGeminiContent(
@@ -125,6 +126,7 @@ function CreateEventWithAI() {
                 eventStartTime: values.eventStartTime.format('HH:mm'),
                 eventEndTime: values.eventEndTime.format('HH:mm'),
                 summary,
+                eventID: uuid,
                 additionalInfo,
                 images: [img],
                 tags: tags.split(','),
@@ -167,12 +169,12 @@ function CreateEventWithAI() {
         );
 
         if (response.status === 200) {
+            const uuid = uuidv4()
             const blob = new Blob([response.data], { type: "image/webp" });
-            const storageRef = ref(storage, `/generated/${generateFileName(30)}.webp`);
+            const storageRef = ref(storage, `/events/${uuid}/${generateFileName(30)}.webp`);
             const uploadData = await uploadBytes(storageRef, blob);
-            console.log(uploadData);
 
-            return uploadData.metadata.fullPath
+            return [uploadData.metadata.fullPath, uuid]
         } else {
             setIsLoading(false)
             throw new Error(`${response.status}: ${response.data.toString()}`);

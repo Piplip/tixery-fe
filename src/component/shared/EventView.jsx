@@ -315,12 +315,14 @@ function EventView({data}){
                                 }
                                 <Stack className={'event-view__about'} rowGap={2}>
                                     <p className={'event-view__about-heading'}>{t('eventView.aboutThisEvent')}</p>
-                                    <Stack alignItems={'center'} columnGap={1}
-                                           className={'event-view__about-duration'}
-                                           direction={'row'}>
-                                        <TimelapseIcon />
-                                        <p>{t('eventView.eventLasts')} <b>{dayjs(eventData.end_time).diff(eventData.start_time, 'hour', false)} {t('eventView.hours')}</b></p>
-                                    </Stack>
+                                    {eventData?.show_end_time &&
+                                        <Stack alignItems={'center'} columnGap={1}
+                                               className={'event-view__about-duration'}
+                                               direction={'row'}>
+                                            <TimelapseIcon />
+                                            <p>{t('eventView.eventLasts')} <b>{dayjs(eventData.end_time).diff(eventData.start_time, 'hour', false)} {t('eventView.hours')}</b></p>
+                                        </Stack>
+                                    }
                                     <div className={'render-html'} dangerouslySetInnerHTML={{ __html: eventData.full_description }}></div>
                                 </Stack>
                                 {(eventData.tags || eventData.category || eventData.sub_category || eventData.event_type) &&

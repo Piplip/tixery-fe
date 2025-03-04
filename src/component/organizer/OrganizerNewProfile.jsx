@@ -2,7 +2,9 @@ import OrganizerProfileForm from "./OrganizerProfileForm.jsx";
 
 function OrganizerNewProfile(){
     return (
-        <OrganizerProfileForm />
+        <div style={{paddingTop: '5rem'}}>
+            <OrganizerProfileForm />
+        </div>
     )
 }
 

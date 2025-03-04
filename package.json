@@ -48,6 +48,7 @@
     "react-router-dom": "^7.0.2",
     "recharts": "^2.15.1",
     "styled-components": "^6.1.13",
+    "uuid": "^11.1.0",
     "yup": "^1.6.1"
   },
   "devDependencies": {
