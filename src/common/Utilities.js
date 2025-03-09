@@ -150,3 +150,14 @@ export function collectData(eventID, type, strength, organizerID){
     })
         .catch(err => console.log(err))
 }
+
+export function extractCity(addressString) {
+    const cityRegex = /([A-Za-z\s]+)(?:,\s*\d{5},)?\s*[A-Za-z\s]+$/;
+    const match = addressString.match(cityRegex);
+
+    if (match && match[1]) {
+        return match[1].trim();
+    } else {
+        return null;
+    }
+}

@@ -39,11 +39,10 @@ function BrowseEvents(){
 
     const debouncedApiCall = useCallback(
         debounce((query) => {
-            if(query !== ''){
+            if(query !== '' && !getCookie('user-location')){
                 nominatimAxios
                     .get(`/search?q=${query}&format=json&limit=3&layer=poi,address`)
                     .then((r) => {
-                        console.log(r.data)
                         setSuggestedLocation(r.data);
                         setShowSuggestion(true);
                     })

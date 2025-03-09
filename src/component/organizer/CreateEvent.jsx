@@ -26,6 +26,7 @@ import {motion} from 'framer-motion';
 import Lottie from 'react-lottie';
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import {useTranslation} from "react-i18next";
+import ShareDialog from "../shared/ShareDialog.jsx";
 
 const checkboxStyle = {
     sx: {
@@ -473,7 +474,7 @@ function CreateEvent() {
                                             <Button variant="contained" color="primary">{t('createEvent.viewEvents')}</Button>
                                         </Link>
                                         <Button variant="contained" color="primary">{t('createEvent.dashboard')}</Button>
-                                        <Button variant="outlined" color="secondary">{t('createEvent.share')}</Button>
+                                        <ShareDialog eventID={location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3]} />
                                     </>
                                 ) : (
                                     <>

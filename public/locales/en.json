@@ -1219,6 +1219,7 @@
     "signUp": "Sign Up"
   },
   "topNavSearchBar": {
+    "findingLocation": "Finding location...",
     "locationServicesError": "Unable to get your location. Please enable location services in your browser.",
     "searchEvents": "Search events",
     "noResultsFound": "No results found",
@@ -1530,5 +1531,33 @@
   "canceled_event": "Canceled Event",
   "request_a_refund": "Request a Refund",
   "copyright_or_trademark_infringement": "Copyright or Trademark Infringement",
-  "report_this_event": "Report this event"
+  "report_this_event": "Report this event",
+  "createEventWithAI": {
+    "createEventWithAI": "Create an event with AI",
+    "aiDescription": "Answer a few questions about your event and our AI creation tool will use internal data to build an event page. You can still create an event without AI.",
+    "eventName": "What’s the name of your event?",
+    "eventNameDescription": "This will be your event’s title. Your title will be used to help create your event’s summary, description, category, and tags – so be specific!",
+    "eventTitle": "Event Title",
+    "eventStartEnd": "When does your event start and end?",
+    "ticketPriceQuestion": "How much do you want to charge for tickets?",
+    "ticketPriceDescription": "Our tool can only generate one General Admission ticket for now. You can edit and add more ticket types later.",
+    "howMuchToCharge": "How much to charge?",
+    "myTicketsAreFree": "My tickets are free",
+    "capacityQuestion": "What's the capacity for your event?",
+    "capacityDescription": "Event capacity is the total number of tickets you're willing to sell.",
+    "capacity": "Capacity",
+    "exit": "Exit",
+    "createEvent": "Create event",
+    "titleRequired": "Title is required",
+    "eventDateRequired": "Event date is required",
+    "eventStartTimeRequired": "Event start time is required",
+    "eventEndTimeRequired": "Event end time is required",
+    "locationRequired": "Location is required",
+    "ticketPriceRequired": "Ticket price is required",
+    "capacityRequired": "Capacity is required"
+  },
+  "lang": {
+    "vi": "Tiếng Việt",
+    "en": "English"
+  }
 }

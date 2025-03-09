@@ -22,7 +22,7 @@ function AttendeeFollowing(){
             accountAxiosWithToken.post('/follow/detail', sessionStorage.getItem('followed-organizer'))
                 .then(async response => {
                     const newData = await Promise.all(response.data.map(async organizer => {
-                        if (organizer.profile_image_url.includes('profile-image')) {
+                        if (organizer.profile_image_url?.includes('profile-image')) {
                             const refImage = ref(storage, organizer.profile_image_url);
                             organizer.profile_image_url = await getDownloadURL(refImage);
                         }

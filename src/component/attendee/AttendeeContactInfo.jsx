@@ -54,7 +54,7 @@ function AttendeeContactInfo() {
         full_name: data?.full_name || '',
         nickname: data?.nickname || '',
         date_of_birth: dayjs(data?.date_of_birth, 'YYYY/MM/DD') || '',
-        gender: data?.gender || '',
+        gender: data?.gender.toLowerCase() || '',
         phone_number: data?.phone_number || '',
         nationality: data?.nationality || 'VN',
     };
@@ -72,7 +72,7 @@ function AttendeeContactInfo() {
             fullName: values.full_name,
             nickname: values.nickname,
             dob: values.date_of_birth.format('DD/MM/YYYY'),
-            gender: values.gender,
+            gender: values.gender.toLowerCase(),
             phone: values.phone_number,
             ppName: values.profile_name,
             ppDescription: values.description,
@@ -100,10 +100,8 @@ function AttendeeContactInfo() {
             <Stack rowGap={3}>
                 <Typography fontSize={'1.6rem'}
                             fontWeight={'bold'}>{t('attendeeContactInfo.profilePicture')}</Typography>
-                {data?.profile_image_url &&
-                    <DragAndDropZone image={data.profile_image_url}
-                                     onFileSelect={(file) => data.profile_image_url = file}/>
-                }
+                <DragAndDropZone image={data?.profile_image_url || null}
+                                 onFileSelect={(file) => data.profile_image_url = file}/>
             </Stack>
             <Stack rowGap={3}>
                 <Typography fontSize={'1.6rem'} fontWeight={'bold'}>{t('attendeeContactInfo.info')}</Typography>

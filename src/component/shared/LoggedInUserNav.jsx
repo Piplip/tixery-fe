@@ -77,11 +77,11 @@ function LoggedInUserNav(){
                         {Languages.map((lang, index) => {
                             return (
                                 <p key={index} onClick={() => {
-                                    i18n.changeLanguage(lang.code);
-                                    localStorage.setItem('locale', lang.code);
+                                    i18n.changeLanguage(lang);
+                                    localStorage.setItem('locale', lang);
                                 }}
-                                   className={i18n.resolvedLanguage === lang.code ? 'selected' : ''}
-                                >{lang.label}</p>
+                                   className={i18n.resolvedLanguage === lang ? 'selected' : ''}
+                                >{t(`lang.${lang}`)}</p>
                             )
                         })}
                     </div>

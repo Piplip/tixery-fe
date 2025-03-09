@@ -28,20 +28,6 @@ import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {generateFileName, generateGeminiContent, getUserData} from "../../common/Utilities.js";
 import { v4 as uuidv4 } from 'uuid';
 
-const validationSchema = Yup.object().shape({
-    title: Yup.string().required('Event title is required'),
-    eventDate: Yup.string().required('Event date is required'),
-    eventStartTime: Yup.string().required('Start time is required'),
-    eventEndTime: Yup.string().required('End time is required')
-        .test('is-greater', 'End time must be greater than start time', function (value) {
-            return dayjs(value).isAfter(dayjs(this.parent.eventStartTime))
-        })
-    ,
-    location: Yup.string().required('Location is required'),
-    ticketPrice: Yup.number().required('Ticket price is required').min(0, 'Ticket price must be at least 0'),
-    capacity: Yup.number().required('Capacity is required').min(1, 'Capacity must be at least 1')
-});
-
 initializeApp(firebaseConfig);
 const storage = getStorage()
 
@@ -54,6 +40,19 @@ function CreateEventWithAI() {
 
     const navigate = useNavigate()
 
+    const validationSchema = Yup.object().shape({
+        title: Yup.string().required(t('createEventWithAI.titleRequired')),
+        eventDate: Yup.string().required(t('createEventWithAI.eventDateRequired')),
+        eventStartTime: Yup.string().required(t('createEventWithAI.eventStartTimeRequired')),
+        eventEndTime: Yup.string().required(t('createEventWithAI.eventEndTimeRequired'))
+            .test('is-greater', t('createEventWithAI.endTimeGreaterThanStartTime'), function (value) {
+                return dayjs(value).isAfter(dayjs(this.parent.eventStartTime))
+            })
+        ,
+        location: Yup.string().required(t('createEventWithAI.locationRequired')),
+        ticketPrice: Yup.number().required(t('createEventWithAI.ticketPriceRequired')).min(0, t('createEventWithAI.ticketPriceAtLeastZero')),
+        capacity: Yup.number().required(t('createEventWithAI.capacityRequired')).min(1, t('createEventWithAI.capacityAtLeastOne'))
+    });
     const formik = useFormik({
         initialValues: {
             title: '',
@@ -215,14 +214,18 @@ function CreateEventWithAI() {
         setShowMap(true)
     };
 
+    const homeLocation = getUserData('role') === 'HOST' ? '/organizer' : '/'
+
     return (
-        <form>
-            <img
-                src="https://firebasestorage.googleapis.com/v0/b/medicare-10c3b.appspot.com/o/assets%2Flogo.svg?alt=media&token=65847a28-8ce8-4a10-a88a-1a0f16c0b41f"
-                alt="logo"
-                style={{ position: 'fixed', top: '1.5rem', left: '1.5rem' }}
-                width="128px"
-            />
+        <form style={{ display: 'flex', justifyContent: 'center' }}>
+            <Link to={homeLocation}>
+                <img
+                    src="https://firebasestorage.googleapis.com/v0/b/medicare-10c3b.appspot.com/o/assets%2Flogo.svg?alt=media&token=65847a28-8ce8-4a10-a88a-1a0f16c0b41f"
+                    alt="logo"
+                    style={{ position: 'fixed', top: '1.5rem', left: '1.5rem' }}
+                    width="128px"
+                />
+            </Link>
 
             <Backdrop
                 sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
@@ -235,12 +238,10 @@ function CreateEventWithAI() {
             </Backdrop>
 
             <Stack className="create-event">
-                {/* Title & Description */}
                 <Stack>
-                    <p className="create-event__title">Create an event with AI</p>
+                    <p className="create-event__title">{t('createEventWithAI.createEventWithAI')}</p>
                     <p className="create-event__description">
-                        Answer a few questions about your event and our AI creation tool will use
-                        internal data to build an event page. You can still create an event without AI.
+                        {t('createEventWithAI.aiDescription')}
                     </p>
                 </Stack>
 
@@ -249,27 +250,27 @@ function CreateEventWithAI() {
 
                     {/* Section: Event Title */}
                     <Stack className="create-event__section">
-                        <p className="create-event__section-title">What’s the name of your event?</p>
+                        <p className="create-event__section-title">{t('createEventWithAI.eventName')}</p>
                         <p className="create-event__section-description">
-                            This will be your event’s title. Your title will be used to help create
-                            your event’s summary, description, category, and tags – so be specific!
+                            {t('createEventWithAI.eventNameDescription')}
                         </p>
                         <TextField
                             name="title"
-                            label="Event Title"
+                            label={t('createEventWithAI.eventTitle')}
                             variant="outlined"
                             required
                             value={formik.values.title}
                             onChange={formik.handleChange}
                             onBlur={formik.handleBlur}
                             error={formik.touched.title && Boolean(formik.errors.title)}
+                            helperText={formik.touched.title && formik.errors.title}
                             className="create-event__field create-event__field--title"
                         />
                     </Stack>
 
                     <Stack className="create-event__section">
                         <p className="create-event__section-title">
-                            When does your event start and end?
+                            {t('createEventWithAI.eventStartEnd')}
                         </p>
                         <Box className="create-event__row">
                             <DatePicker
@@ -287,39 +288,39 @@ function CreateEventWithAI() {
                                 className="create-event__field create-event__field--date"
                             />
                             <TimePicker format={"HH:mm"}
-                                name="eventStartTime"
-                                value={formik.values.eventStartTime}
-                                onChange={(val) => formik.setFieldValue('eventStartTime', val)}
-                                slotProps={{
-                                    textField: {
-                                        onBlur: formik.handleBlur,
-                                        error: formik.touched.eventStartTime && Boolean(formik.errors.eventStartTime),
-                                        helperText: formik.touched.eventStartTime && formik.errors.eventStartTime,
-                                    },
-                                }}
-                                className="create-event__field create-event__field--time"
+                                        name="eventStartTime"
+                                        value={formik.values.eventStartTime}
+                                        onChange={(val) => formik.setFieldValue('eventStartTime', val)}
+                                        slotProps={{
+                                            textField: {
+                                                onBlur: formik.handleBlur,
+                                                error: formik.touched.eventStartTime && Boolean(formik.errors.eventStartTime),
+                                                helperText: formik.touched.eventStartTime && formik.errors.eventStartTime,
+                                            },
+                                        }}
+                                        className="create-event__field create-event__field--time"
                             />
                             <TimePicker format={"HH:mm"}
-                                name="eventEndTime"
-                                value={formik.values.eventEndTime}
-                                onChange={(val) => formik.setFieldValue('eventEndTime', val)}
-                                slotProps={{
-                                    textField: {
-                                        onBlur: formik.handleBlur,
-                                        error: formik.touched.eventEndTime && Boolean(formik.errors.eventEndTime),
-                                        helperText: formik.touched.eventEndTime && formik.errors.eventEndTime,
-                                    },
-                                }}
-                                className="create-event__field create-event__field--time"
+                                        name="eventEndTime"
+                                        value={formik.values.eventEndTime}
+                                        onChange={(val) => formik.setFieldValue('eventEndTime', val)}
+                                        slotProps={{
+                                            textField: {
+                                                onBlur: formik.handleBlur,
+                                                error: formik.touched.eventEndTime && Boolean(formik.errors.eventEndTime),
+                                                helperText: formik.touched.eventEndTime && formik.errors.eventEndTime,
+                                            },
+                                        }}
+                                        className="create-event__field create-event__field--time"
                             />
                         </Box>
                     </Stack>
 
                     {/* Section: Location */}
                     <Stack className="create-event__section create-event__location-section">
-                        <h3 className="create-event__section-title">
+                        <p className="create-event__section-title">
                             {t('dateAndTime.location')}
-                        </h3>
+                        </p>
                         <Tabs
                             value={formik.values.locationType}
                             onChange={(e, newValue) => formik.setFieldValue('locationType', newValue)}
@@ -407,39 +408,38 @@ function CreateEventWithAI() {
                     {/* Section: Ticket Price */}
                     <Stack className="create-event__section">
                         <p className="create-event__section-title">
-                            How much do you want to charge for tickets?
+                            {t('createEventWithAI.ticketPriceQuestion')}
                         </p>
                         <p className="create-event__section-description">
-                            Our tool can only generate one General Admission ticket for now. You
-                            can edit and add more ticket types later.
+                            {t('createEventWithAI.ticketPriceDescription')}
                         </p>
                         <TextField disabled={formik.values.freeTicket}
-                            label="How much to charge?"
-                            variant="outlined"
-                            name="ticketPrice"
-                            value={formik.values.ticketPrice}
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            error={formik.touched.ticketPrice && Boolean(formik.errors.ticketPrice)}
-                            helperText={formik.touched.ticketPrice && formik.errors.ticketPrice}
-                            className="create-event__field create-event__field--price"
+                                   label={t('createEventWithAI.howMuchToCharge')}
+                                   variant="outlined"
+                                   name="ticketPrice"
+                                   value={formik.values.ticketPrice}
+                                   onChange={formik.handleChange}
+                                   onBlur={formik.handleBlur}
+                                   error={formik.touched.ticketPrice && Boolean(formik.errors.ticketPrice)}
+                                   helperText={formik.touched.ticketPrice && formik.errors.ticketPrice}
+                                   className="create-event__field create-event__field--price"
                         />
-                        <FormControlLabel sx={{marginTop: 2, width: 'fit-content'}}
-                            control={<Switch name={'freeTicket'} checked={formik.values.freeTicket} onChange={formik.handleChange}/>}
-                            label={'My tickets are free'}
+                        <FormControlLabel sx={{ marginTop: 2, width: 'fit-content' }}
+                                          control={<Switch name={'freeTicket'} checked={formik.values.freeTicket} onChange={formik.handleChange} />}
+                                          label={t('createEventWithAI.myTicketsAreFree')}
                         />
                     </Stack>
 
                     {/* Section: Capacity */}
                     <Stack className="create-event__section">
                         <p className="create-event__section-title">
-                            What&#39;s the capacity for your event?
+                            {t('createEventWithAI.capacityQuestion')}
                         </p>
                         <p className="create-event__section-description">
-                            Event capacity is the total number of tickets you&#39;re willing to sell.
+                            {t('createEventWithAI.capacityDescription')}
                         </p>
                         <TextField
-                            label="Capacity"
+                            label={t('createEventWithAI.capacity')}
                             variant="outlined"
                             name="capacity"
                             value={formik.values.capacity}
@@ -453,15 +453,19 @@ function CreateEventWithAI() {
                 </div>
             </Stack>
 
-            <Stack sx={{position: 'fixed', bottom: 0, borderTop: '1px solid gray', width: '100%', padding: '.75rem 1rem', zIndex: 1000,
-                backdropFilter: 'blur(5px)', backgroundColor: 'white'}}
+            <Stack sx={{
+                position: 'fixed', bottom: 0, borderTop: '1px solid gray', width: '100%', padding: '.75rem 1rem', zIndex: 1000,
+                backdropFilter: 'blur(5px)', backgroundColor: 'white'
+            }}
                    direction={'row'} columnGap={2}
                    justifyContent={'flex-end'}
             >
                 <Link to={'/organizer'}>
-                    <Button type={'button'}>Exit</Button>
+                    <Button type={'button'}>{t('createEventWithAI.exit')}</Button>
                 </Link>
-                <Button variant={'contained'} type={'submit'} onClick={formik.handleSubmit}>Create event</Button>
+                <Button variant={'contained'} type={'submit'} onClick={formik.handleSubmit}>
+                    {t('createEventWithAI.createEvent')}
+                </Button>
             </Stack>
         </form>
     );

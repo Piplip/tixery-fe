@@ -775,7 +775,7 @@ function RecurringEventSchedule() {
                                 border: "1px solid #E0E0E0",
                                 boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.05)",
                                 backgroundColor: "#FFFFFF",
-                                padding: "16px",
+                                paddingInline: '1rem'
                             }
                         }}
                         value={selectedDate}
@@ -824,7 +824,7 @@ function RecurringEventSchedule() {
             </Stack>
             <Drawer anchor="right" open={openDrawer} onClose={() => setOpenDrawer(false)}>
                 <Stack
-                    paddingBlock="4rem 1rem"
+                    paddingBlock={1}
                     width="30rem"
                     paddingInline={3}
                     rowGap={3}
@@ -976,7 +976,7 @@ function RecurringEventSchedule() {
                                                     fullWidth
                                                 >
                                                     <MenuItem value="Until event ends">
-                                                        {t('eventDatePicker.untilEventEnds')} (10:00 PM)
+                                                        {t('eventDatePicker.untilEventEnds')} {data?.end_time && dayjs(data.end_time).format("HH:mm")}
                                                     </MenuItem>
                                                     <MenuItem value="Custom">{t('eventDatePicker.customDuration')}</MenuItem>
                                                 </Select>
@@ -1059,7 +1059,9 @@ function RecurringEventSchedule() {
                 </Stack>
             </Drawer>
             <Drawer anchor="right" open={openEditDrawer} onClose={() => setOpenEditDrawer(false)}>
-                <Stack width="30rem" rowGap={2} sx={{ fontFamily: "Nunito" }} paddingBlock="5rem 1rem" height={'100%'}>
+                <Stack width="30rem" rowGap={2} sx={{ fontFamily: "Nunito" }}
+                       paddingBlock="1rem"
+                       height={'100%'}>
                     <Stack direction="row" justifyContent="space-between" alignItems="center" paddingInline={3}>
                         {editDateKey && (
                             <Typography fontSize={17} fontWeight="bold">{t('eventDatePicker.editTimeSlots')}</Typography>
@@ -1070,8 +1072,8 @@ function RecurringEventSchedule() {
                     </Stack>
                     <Stack rowGap={3} paddingInline={3} flexGrow={1} sx={{ height: '70%', overflowY: 'auto' }}>
                         <hr />
-                        <Typography fontWeight="bold" fontSize={22}>
-                            {dayjs(editDateKey).format("dddd, MMMM D, YYYY")}
+                        <Typography fontWeight="bold" fontSize={22} sx={{textTransform: 'capitalize'}}>
+                            {dayjs(editDateKey).format("dddd, DD MMMM, YYYY")}
                         </Typography>
                         {editSlots.map((slot, index) => (
                             <Stack direction="row" columnGap={1} key={index} alignItems="center">
@@ -1146,7 +1148,7 @@ function RecurringEventSchedule() {
                     </Stack>
                     <Stack rowGap={3} paddingInline={3} flexGrow={1} sx={{ height: '70%', overflowY: 'auto' }}>
                         <Typography fontWeight="bold" fontSize={22}>
-                            {dayjs(editDateKey).format("dddd, MMMM D, YYYY")}
+                            {dayjs(editDateKey).format("dddd, DD MMMM, YYYY")}
                         </Typography>
                         {events[editDateKey] &&
                             <FormControl>

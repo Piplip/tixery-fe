@@ -227,7 +227,7 @@ function EventView({data}){
                                             <Stack>
                                                 <p className={'event-view__organizer-name'}>
                                                     {t('eventView.by')}
-                                                    <b onClick={() => {
+                                                    <b style={{cursor: 'pointer'}} onClick={() => {
                                                         collectData(eventData.event_id, 'view-organizer', null, profile.profile_id)
                                                         navigate(`/o/${profile.custom_url || profile.profile_id}`)
                                                     }}
@@ -393,7 +393,7 @@ function EventView({data}){
                                                         className={'event-view__organizer-avatar'}
                                                         alt={t('eventView.avatar')} />
                                                 <Stack rowGap={.25}>
-                                                    <p className={'event-view__organizer-name'}
+                                                    <p className={'event-view__organizer-name'} style={{cursor: 'pointer'}}
                                                         onClick={() => {
                                                             collectData(eventData.event_id, 'view-organizer', null, profile.profile_id)
                                                             navigate(`/o/${profile.custom_url || profile.profile_id}`)

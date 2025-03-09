@@ -89,8 +89,8 @@ function ReportEvent({eventID}){
 
     return (
         <>
-            <div onClick={() => setOpen(true)}>
-                {t('report_this_event')} {/* Translated */}
+            <div onClick={() => setOpen(true)} className={'link'} style={{cursor: 'pointer'}}>
+                {t('report_this_event')}
             </div>
             <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} open={openSnackbar} autoHideDuration={6000}
                       onClose={() => setOpenSnackbar(false)}>
@@ -98,7 +98,7 @@ function ReportEvent({eventID}){
                     {t('report_submitted')}
                 </Alert>
             </Snackbar>
-            <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+            <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth sx={{zIndex: 10000000}}>
                 {step === 1 && (
                     <>
                         <DialogTitle>{t('report_this_event')}</DialogTitle>

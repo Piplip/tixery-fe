@@ -46,7 +46,7 @@ function AttendeeHero() {
         { labelKey: 'Business & Professional', icon: <BusinessOutlinedIcon sx={{ fontSize: '3rem' }} /> },
         { labelKey: 'Health & Wellness', icon: <HealthAndSafetyOutlinedIcon sx={{ fontSize: '3rem' }} /> },
         { labelKey: 'Fashion & Beauty', icon: <DiamondOutlinedIcon sx={{ fontSize: '3rem' }} /> },
-        { labelKey: 'Film, Media & Entertainment', icon: <VideoCallOutlinedIcon sx={{ fontSize: '3rem' }} /> },
+        { labelKey: 'Screening', icon: <VideoCallOutlinedIcon sx={{ fontSize: '3rem' }} /> },
         { labelKey: 'Hobbies & Special Interest', icon: <SportsGymnasticsOutlinedIcon sx={{ fontSize: '3rem' }} /> },
         { labelKey: 'Travel & Outdoor', icon: <BeachAccessOutlinedIcon sx={{ fontSize: '3rem' }} /> }
     ];

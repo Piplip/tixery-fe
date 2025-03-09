@@ -476,10 +476,10 @@ function OnlineEventCreatePanel(){
                     </Stack>
                 }
                 <Drawer anchor={'right'} open={openDrawer.open} onClose={() => setOpenDrawer({ type: '', open: false })}>
-                    <Stack paddingTop={'4rem'} width={'25rem'} paddingInline={3} rowGap={3}>
+                    <Stack width={'25rem'} paddingInline={3} rowGap={3} paddingBlock={1}>
                         <Stack>
                             <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'} paddingBlock={'.5rem'}>
-                                <Typography variant={'h5'}>{editEl ? t('onlineEvent.editProperties') : t('onlineEvent.pageSettings')}</Typography>
+                                <Typography variant={'h5'}>{editEl !== null ? t('onlineEvent.editProperties') : t('onlineEvent.pageSettings')}</Typography>
                                 <IconButton onClick={() => setOpenDrawer({ type: '', open: false })}>
                                     <CloseIcon />
                                 </IconButton>
@@ -487,13 +487,7 @@ function OnlineEventCreatePanel(){
                             <hr />
                         </Stack>
                         {openDrawer.type === 'properties' ?
-                            <Stack>
-                                <Stack direction={'row'} justifyContent={'space-between'}>
-                                    <Typography variant="body1" fontWeight="bold" sx={{ mb: 1 }}>
-                                        {t('onlineEvent.ticketAccess')}
-                                    </Typography>
-                                    <Link to="#" sx={{ fontSize: 14 }} className={'link'}>{t('onlineEvent.learnMore')}</Link>
-                                </Stack>
+                            <Stack rowGap={3}>
                                 <FormControl fullWidth>
                                     <InputLabel>{t('onlineEvent.restrictAccess')}</InputLabel>
                                     <Select label="Restrict access to" value={formik.values.elements[editEl]?.access || 'all'}
@@ -504,9 +498,6 @@ function OnlineEventCreatePanel(){
                                         <MenuItem value="all">{t('onlineEvent.allTickets')}</MenuItem>
                                     </Select>
                                 </FormControl>
-                                <Typography variant="body1" fontWeight="bold" sx={{ mt: 3, mb: 1 }}>
-                                    {t('onlineEvent.visibility')}
-                                </Typography>
                                 <FormControl fullWidth>
                                     <InputLabel>{t('onlineEvent.visibility')}</InputLabel>
                                     <Select label={'Visibility'} value={formik.values.elements[editEl]?.visibility || 'visible'}
@@ -519,7 +510,7 @@ function OnlineEventCreatePanel(){
                                         <MenuItem value="custom">{t('onlineEvent.customSchedule')}</MenuItem>
                                     </Select>
                                 </FormControl>
-                                <Typography variant="body1" fontWeight="bold" sx={{ mt: 3 }}>
+                                <Typography variant="body1" fontWeight="bold">
                                     {t('onlineEvent.notificationSettings')}
                                 </Typography>
                                 <FormControlLabel

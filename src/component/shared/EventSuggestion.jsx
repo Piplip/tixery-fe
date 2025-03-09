@@ -91,7 +91,7 @@ function EventSuggestion({type, value, lat, lon}){
                 :
                 events.length !== 0 ?
                     <>
-                        <Grid container spacing={3.25} columns={{ xs: 16 }}>
+                        <Grid container spacing={3.25} columns={{ xs: 12 }}>
                             {events.map((event, index) => (
                                 <Grid item key={index} size={4}>
                                     <EventCard event={event} showAction={true} renderAddress={true} organizer={event.profileName} id={event.profile_id} />

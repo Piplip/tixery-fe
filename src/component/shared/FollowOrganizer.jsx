@@ -20,8 +20,20 @@ function FollowOrganizer({profileImage, organizerID, organizerName}) {
     const {t} = useTranslation()
 
     useEffect(() => {
-        setIsFollow(sessionStorage.getItem('followed-organizer')?.includes(organizerID));
+        setIsFollow(sessionStorage.getItem('followed-organizer')?.includes(organizerID?.toString()));
     }, [organizerID])
+
+    useEffect(() => {
+        let followedOrganizer = JSON.parse(sessionStorage.getItem('followed-organizer')) || [];
+        if (isFollow) {
+            if (!followedOrganizer.includes(organizerID.toString())) {
+                followedOrganizer.push(organizerID.toString());
+            }
+        } else {
+            followedOrganizer = followedOrganizer.filter(id => id !== organizerID.toString());
+        }
+        sessionStorage.setItem('followed-organizer', JSON.stringify(followedOrganizer));
+    }, [isFollow, organizerID]);
 
     const handleClose = () => {
         setOpen(false);
@@ -29,30 +41,19 @@ function FollowOrganizer({profileImage, organizerID, organizerName}) {
 
     const debounceFollow = useCallback(debounce((state) => {
         accountAxiosWithToken.post(`follow?upid=${getUserData("profileID")}&opid=${organizerID}&follow=${state}`)
-            .then(r => {
-                let followedOrganizer = sessionStorage.getItem('followed-organizer')?.split(',')
-                if (state) {
-                    followedOrganizer.push(organizerID.toString())
-                } else {
-                    followedOrganizer = followedOrganizer.filter(id => id !== organizerID.toString())
-                }
-                sessionStorage.setItem('followed-organizer', followedOrganizer)
-            })
-            .catch(err => console.log(err))
-    }, 500), []);
+            .catch(err => console.log(err));
+    }, 500), [organizerID]);
 
     useEffect(() => {
         return () => debounceFollow.cancel();
     }, [debounceFollow]);
 
-
-    function handleFollow(){
-        if(checkLoggedIn()){
-            setIsFollow(prev => !prev)
-            debounceFollow(!isFollow)
-        }
-        else{
-            setOpen(true)
+    function handleFollow() {
+        if (checkLoggedIn()) {
+            setIsFollow(prev => !prev);
+            debounceFollow(!isFollow);
+        } else {
+            setOpen(true);
         }
     }
 

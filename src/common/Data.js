@@ -503,6 +503,5 @@ export const Categories = {
 }
 
 export const Languages = [
-    { code: 'en', label: 'English' },
-    { code: 'vi', label: 'Vietnamese' },
+    'en', 'vi'
 ]

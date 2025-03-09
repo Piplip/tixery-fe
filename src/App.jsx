@@ -30,7 +30,6 @@ import OnlineEventCreatePanel from "./component/organizer/OnlineEventCreatePanel
 import AttendeeFavoriteEvents from "./component/attendee/AttendeeFavoriteEvents.jsx";
 import AttendeeProfile from "./component/attendee/AttendeeProfile.jsx";
 import AttendeeFollowedEvents from "./component/attendee/AttendeeFollowedEvents.jsx";
-import AttendeeAccountManagement from "./component/attendee/AttendeeAccountManagement.jsx";
 import AttendeeContactInfo from "./component/attendee/AttendeeContactInfo.jsx";
 import AttendeeNotificationSetting from "./component/attendee/AttendeeNotificationSetting.jsx";
 import AttendeePassword from "./component/attendee/AttendeePassword.jsx";
@@ -51,6 +50,7 @@ import CreateEventWithAI from "./component/organizer/CreateEventWithAI.jsx";
 import AIEventPreview from "./component/organizer/AIEventPreview.jsx";
 import OrganizerReport from "./component/organizer/OrganizerReport.jsx";
 import dayjs from "dayjs";
+import AttendeeProfileSettings from "./component/template/AttendeeProfileSettings.jsx";
 
 configureDayjs()
 
@@ -102,7 +102,7 @@ function App() {
                 },
                 {
                     path: 'account',
-                    element: <AttendeeAccountManagement />,
+                    element: <AttendeeProfileSettings />,
                     children: [
                         {index: true, element: <AttendeeContactInfo />},
                         {path: 'password/set', element: <AttendeeSetPassword />},

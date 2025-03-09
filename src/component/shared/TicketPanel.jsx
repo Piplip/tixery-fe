@@ -24,7 +24,7 @@ import PaymentCheckout from "../attendee/PaymentCheckout.jsx";
 import {useTranslation} from "react-i18next";
 import {checkLoggedIn, collectData, getUserData} from "../../common/Utilities.js";
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
-import {Link, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 
 TicketPanel.propTypes = {
     tickets: PropTypes.array,
@@ -124,7 +124,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
         if(!tickets) return
         if (dayjs(eventEndTime).isBefore(dayjs())) {
             return (
-                <Stack rowGap={2}>
+                <Stack rowGap={2} className={'event-view__registration-wrapper'}>
                     <Typography variant={'h6'} textAlign={'center'}>{t('ticketPanel.eventEnded')}</Typography>
                     <button className={'view-more-btn'} onClick={() => navigate(`/events/search`)}>
                         {t('ticketPanel.viewMoreEvents')}
@@ -135,14 +135,14 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
 
         if (tickets.length === 0) {
             return (
-                <div>
+                <div className={'event-view__registration-wrapper'}>
                     <Typography variant={'h6'} textAlign={'center'}>{t('ticketPanel.noTicketsAvailable')}</Typography>
                 </div>
             );
         }
 
         return (
-            <>
+            <Stack rowGap={2} className={'event-view__registration-wrapper'}>
                 {tickets.map((ticket, index) => {
                     const isExpanded = expandedTickets[index];
                     const quantity = quantities[index];
@@ -198,7 +198,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
                 }}>
                     {t('ticketPanel.checkout')} {totalPrice > 0 ? `- $${Math.round((totalPrice + totalDonationPrice) * 100) / 100}` : ''}
                 </button>
-            </>
+            </Stack>
         );
     };
 

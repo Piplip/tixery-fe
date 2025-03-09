@@ -82,7 +82,7 @@ function AttendeeProfile(){
                 <Avatar className="attendee-profile__avatar" sx={{ width: '7.5rem', height: '7.5rem' }} src={ppImage} alt={getUserData('fullName')} />
                 <Stack className="attendee-profile__info">
                     <Stack direction={'row'} className="attendee-profile__name">
-                        <p>{getUserData('fullName')}</p>
+                        <p>{getUserData('profileName')}</p>
                         <Link to={'/account'}>
                             <IconButton>
                                 <EditOutlinedIcon className="attendee-profile__edit-icon" />

@@ -9,7 +9,7 @@ import {useLocation, useNavigate} from "react-router-dom";
 import debounce from "lodash.debounce";
 import {eventAxios, eventAxiosWithToken, locationIQAxios} from "../../config/axiosConfig.js";
 import cookie from 'react-cookies'
-import {checkLoggedIn, getUserData, getUserLocation} from "../../common/Utilities.js";
+import {checkLoggedIn, extractCity, getCookie, getUserData, getUserLocation} from "../../common/Utilities.js";
 import ClearIcon from '@mui/icons-material/Clear';
 import {useTranslation} from "react-i18next";
 
@@ -21,7 +21,7 @@ function TopNavSearchBar(){
     const [showRecentSearches, setShowRecentSearches] = useState(false);
     const [searchValue, setSearchValue] = useState(location.search.split('=')[1] || '');
     const [locationValue, setLocationValue] = useState({
-        value: '',
+        value: getCookie('user-location').city
     });
     const [searchHistory, setSearchHistory] = useState([]);
     const [showSnackbar, setShowSnackbar] = useState(false);
@@ -140,7 +140,7 @@ function TopNavSearchBar(){
     }, [debounceSuggestion]);
 
     function handleLocationClick(){
-        setLocationValue({value: "Finding your location..."})
+        setLocationValue({value: t(`topNavSearchBar.findingLocation`)})
         if(navigator.geolocation){
             navigator.geolocation.getCurrentPosition(success, error)
         }
@@ -151,8 +151,7 @@ function TopNavSearchBar(){
         locationIQAxios
             .get(`https://us1.locationiq.com/v1/reverse?key=pk.5429f7b7973cc17a2b1d22ddcb17f2a4&lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`)
             .then(r => {
-                console.log(r.data)
-                cookie.save('user-location', {lat: r.data.lat, lon: r.data.lon}, {path: '/', maxAge: 60 * 60 * 24 * 7})
+                cookie.save('user-location', {lat: r.data.lat, lon: r.data.lon, city: extractCity(r.data.display_name)}, {path: '/', maxAge: 60 * 60 * 24 * 7})
                 setLocationValue({value: r.data.display_name, lat: r.data.lat, lon: r.data.lon})
             })
             .catch(err => console.log(err))

@@ -76,7 +76,7 @@ function DragAndDropZone({onFileSelect, image}) {
             alert(t('dragAndDropZone.invalidImageFile'));
         }
     };
-
+    console.log(previewImage)
     return (
         <div
             className={`drag-and-drop-zone ${isDragging ? "dragging" : ""}`}
@@ -85,7 +85,7 @@ function DragAndDropZone({onFileSelect, image}) {
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
         >
-            {previewImage ? (
+            {previewImage !== null ? (
                 <img src={previewImage} alt={t('dragAndDropZone.preview')} className="drag-and-drop-preview" />
             ) : isDragging ? (
                 <p className="dragging-indicator">{t('dragAndDropZone.dragImageHere')}</p>

@@ -1,17 +1,15 @@
 import {useEffect, useState} from 'react';
-import {Button, Stack, Typography, Snackbar, Alert} from "@mui/material";
-import { Categories } from "../../common/Data.js";
+import {Alert, Button, Snackbar, Stack, Typography} from "@mui/material";
+import {Categories} from "../../common/Data.js";
 import "../../styles/attendee-interest-styles.css";
 import {accountAxiosWithToken} from "../../config/axiosConfig.js";
 import {checkLoggedIn, getUserData} from "../../common/Utilities.js";
-import {useNavigate} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 
 function AttendeeInterest() {
     const [selectedSubCategories, setSelectedSubCategories] = useState([]);
     const [loading, setLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
-    const navigate = useNavigate()
     const {t} = useTranslation()
 
     useEffect(() => {
@@ -42,11 +40,9 @@ function AttendeeInterest() {
     function handleSaveInterests(){
         setLoading(true);
         accountAxiosWithToken.post(`/attendee/interest?udid=${getUserData('userDataID')}`, selectedSubCategories.join(','))
-            .then(r => {
-                console.log(r.data);
+            .then(() => {
                 setSuccessMessage(t('attendeeInterest.preferencesUpdated'));
                 setLoading(false);
-                navigate('/')
             })
             .catch(e => {
                 console.log(e);
