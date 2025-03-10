@@ -39,6 +39,7 @@
     "viewOnline": "View Online Page",
     "edit": "Edit",
     "noEventsFound": "No events found",
+    "dashboard": "Dashboard",
     "status": {
         "draft": "Draft",
         "published": "Published",

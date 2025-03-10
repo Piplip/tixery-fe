@@ -19,7 +19,7 @@ import {DatePicker, TimePicker} from "@mui/x-date-pickers";
 import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {getDownloadURL, getStorage, ref} from "firebase/storage";
-import {Categories} from "../../common/Data.js";
+import {Categories, EventType} from "../../common/Data.js";
 import {useTranslation} from "react-i18next";
 
 const checkboxStyle = {
@@ -44,29 +44,6 @@ const CustomCheckbox = ({checked}) => {
 CustomCheckbox.propTypes = {
     checked: PropTypes.bool,
 }
-
-const EventType = [
-    "Conference",
-    "Seminar or Talk",
-    "Tradeshow, Consumer Show, or Expo",
-    "Convention",
-    "Festival or Fair",
-    "Concert or Performance",
-    "Screening",
-    "Dinner or Gala",
-    "Class, Training, or Workshop",
-    "Meeting or Networking Event",
-    "Party or Social Gathering",
-    "Rally",
-    "Tournament",
-    "Game or Competition",
-    "Race or Endurance Event",
-    "Tour",
-    "Attraction",
-    "Camp, Trip, or Retreat",
-    "Appearance or Signing",
-    "Other"
-]
 
 initializeApp(firebaseConfig);
 const storage = getStorage()

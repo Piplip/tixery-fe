@@ -38,6 +38,7 @@ import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import {useTranslation} from "react-i18next";
+import EventDashboard from "./EventDashboard.jsx";
 
 initializeApp(firebaseConfig);
 const storage = getStorage();
@@ -83,6 +84,7 @@ function OrganizerEvent() {
         profile: "all",
     });
     const [pastEvents, setPastEvents] = useState([]);
+    const [openDashboard, setOpenDashboard] = useState({startTime: null, id: null});
     const [view, setView] = useState('list');
     const navigate = useNavigate();
     const hasGetPast = useRef(false);
@@ -121,10 +123,12 @@ function OrganizerEvent() {
                     const data = r.data.records
                     Promise.all(data.map(async (profile) => {
                         try {
+                            if(!profile[2]?.includes('firebasestorage.googleapis.com'))
+                                return profile;
                             const imgRef = ref(storage, profile[2]);
                             profile[2] = await getDownloadURL(imgRef)
                         } catch (err) {
-                            console.log(err);
+                            console.log(err)
                             return profile;
                         }
                     })).then(() => setProfiles(data));
@@ -293,13 +297,15 @@ function OrganizerEvent() {
                             <p style={{ textTransform: 'uppercase' }}>{t(`event.status.${item?.status}`)}</p>
                             <CustomMenu
                                 options={type === 'past' ? [t('event.view'),  t('event.edit'), t('event.delete')]
-                                    : [t('event.promote'), t('event.view'), ...(item?.location?.locationType === 'online' ? [t('event.viewOnline')] : []), t('event.edit'), t('event.delete')]}
+                                    : [t('event.dashboard'), t('event.promote'), t('event.view'),
+                                        ...(item?.location?.locationType === 'online' ? [t('event.viewOnline')] : []), t('event.edit'), t('event.delete')]}
                                 handlers={
                                     type === 'past' ?
                                         [() => window.open(`../../events/${item.event_id}`, '_blank'), () => navigate(`edit/${item.event_id}`) ,
                                             () => handlePreDelete(item.event_id)]
                                         :
-                                        [null, () => window.open(`../../events/${item.event_id}`, '_blank'),
+                                        [() => setOpenDashboard({startTime: item.start_time, id: item.event_id}), null,
+                                            () => window.open(`../../events/${item.event_id}`, '_blank'),
                                             ...(item?.location?.locationType === 'online' ? [() => window.open(`/online/${item.event_id}`, '_blank')] : []),
                                             () => { navigate(`edit/${item.event_id}`) }, () => handlePreDelete(item.event_id)]
                                 }
@@ -382,6 +388,8 @@ function OrganizerEvent() {
                     </DialogActions>
                 </ModalDialog>
             </Modal>
+            <EventDashboard open={openDashboard.id !== null} setOpen={setOpenDashboard} eventID={openDashboard.id}
+                            startTime={openDashboard.startTime}/>
             <Typography className={'title'}>
                 {t('eventList.title')}
             </Typography>

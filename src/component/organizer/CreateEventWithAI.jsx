@@ -27,9 +27,18 @@ import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {generateFileName, generateGeminiContent, getUserData} from "../../common/Utilities.js";
 import { v4 as uuidv4 } from 'uuid';
+import {Categories, EventType} from "../../common/Data.js";
 
 initializeApp(firebaseConfig);
 const storage = getStorage()
+
+const formatCategories = (categories) => {
+    return Object.entries(categories).map(([category, subCategories]) => {
+        return `${category}: ${subCategories.join(', ')}`;
+    }).join('\n');
+};
+
+const formattedCategories = formatCategories(Categories);
 
 function CreateEventWithAI() {
     const { t } = useTranslation();
@@ -46,13 +55,22 @@ function CreateEventWithAI() {
         eventStartTime: Yup.string().required(t('createEventWithAI.eventStartTimeRequired')),
         eventEndTime: Yup.string().required(t('createEventWithAI.eventEndTimeRequired'))
             .test('is-greater', t('createEventWithAI.endTimeGreaterThanStartTime'), function (value) {
-                return dayjs(value).isAfter(dayjs(this.parent.eventStartTime))
-            })
-        ,
-        location: Yup.string().required(t('createEventWithAI.locationRequired')),
-        ticketPrice: Yup.number().required(t('createEventWithAI.ticketPriceRequired')).min(0, t('createEventWithAI.ticketPriceAtLeastZero')),
+                return dayjs(value).isAfter(dayjs(this.parent.eventStartTime));
+            }),
+        locationType: Yup.string().required(),
+        location: Yup.string().when('locationType', {
+            is: 'venue',
+            then: schema => schema.required(t('createEventWithAI.locationRequired')),
+            otherwise: schema => schema.notRequired()
+        }),
+        ticketPrice: Yup.number().when('freeTicket', {
+            is: false,
+            then: schema => schema.required(t('createEventWithAI.ticketPriceRequired')).min(0, t('createEventWithAI.ticketPriceAtLeastZero')),
+            otherwise: schema => schema.notRequired()
+        }),
         capacity: Yup.number().required(t('createEventWithAI.capacityRequired')).min(1, t('createEventWithAI.capacityAtLeastOne'))
     });
+
     const formik = useFormik({
         initialValues: {
             title: '',
@@ -96,6 +114,22 @@ function CreateEventWithAI() {
                     alert('An error occurred while creating! Please try again.');
                 });
 
+            const eventType = await generateGeminiContent(
+                `event title: ${values.title}, event summary: ${summary}, available event type: ${EventType.toString()}`,
+                'Return the best fit event type base on the event title, summary and available event type. **Return the exact one event type that suitable most. The event type should be one of the available event types.'
+            ).then(r => {
+                return r.response.candidates[0].content.parts[0].text
+            }).catch(err => console.log(err))
+            console.log(eventType)
+
+            const eventSubCategory = await generateGeminiContent(
+                `event title: ${values.title}, event summary: ${summary}, available categories and sub categories: ${formattedCategories}`,
+                'Return the best fit event sub categories based on the event title, summary, and available event type. **Return only the exact one sub category that is most suitable. The event type should be one of the available event categories.'
+            ).then(r => {
+                return r.response.candidates[0].content.parts[0].text;
+            }).catch(err => console.log(err));
+            console.log(eventSubCategory)
+
             setCurrentStep('Generating tags...')
             const tags = await generateGeminiContent(
                 `event title: ${values.title}, event summary: ${summary}`,
@@ -125,6 +159,8 @@ function CreateEventWithAI() {
                 eventStartTime: values.eventStartTime.format('HH:mm'),
                 eventEndTime: values.eventEndTime.format('HH:mm'),
                 summary,
+                type: eventType,
+                subCategory: eventSubCategory,
                 eventID: uuid,
                 additionalInfo,
                 images: [img],
@@ -430,7 +466,6 @@ function CreateEventWithAI() {
                         />
                     </Stack>
 
-                    {/* Section: Capacity */}
                     <Stack className="create-event__section">
                         <p className="create-event__section-title">
                             {t('createEventWithAI.capacityQuestion')}

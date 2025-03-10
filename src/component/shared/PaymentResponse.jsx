@@ -61,7 +61,7 @@ function PaymentResponse(){
                                 {t('paymentResponse.paidAmount')}: <span className="payment-success__amount">{formatCurrency(response.amount / 100, response.currency)}</span>
                             </Typography>
                             <Typography variant="h6">
-                                {t('paymentResponse.paidBy')} <span className="payment-success__method">{getUserData('fullName')}</span>
+                                {t('paymentResponse.paidBy')} <span className="payment-success__method">{getUserData('profileName')}</span>
                             </Typography>
                         </Box>
                         <Link to={`/u/${getUserData('profileID')}`}>

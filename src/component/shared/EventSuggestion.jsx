@@ -35,10 +35,11 @@ EventSuggestion.propTypes = {
     type: PropTypes.string,
     value: PropTypes.any,
     lat: PropTypes.string,
-    lon: PropTypes.string
+    lon: PropTypes.string,
+    maxCols: PropTypes.number
 }
 
-function EventSuggestion({type, value, lat, lon}){
+function EventSuggestion({type, value, lat, lon, maxCols = 4}){
     const [events, setEvents] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const {t} = useTranslation()
@@ -91,7 +92,7 @@ function EventSuggestion({type, value, lat, lon}){
                 :
                 events.length !== 0 ?
                     <>
-                        <Grid container spacing={3.25} columns={{ xs: 12 }}>
+                        <Grid container spacing={3.25} columns={{ xs: 4 * maxCols }}>
                             {events.map((event, index) => (
                                 <Grid item key={index} size={4}>
                                     <EventCard event={event} showAction={true} renderAddress={true} organizer={event.profileName} id={event.profile_id} />

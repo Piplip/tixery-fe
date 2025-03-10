@@ -62,10 +62,14 @@ export function capitalizeFirstLetter(string) {
 
 export async function fetchImage(storage, imagePath) {
     if(!imagePath) return null;
+    if(!imagePath.includes('firebasestorage.googleapis.com')) return imagePath;
     try {
         const imageRef = ref(storage, imagePath);
         return await getDownloadURL(imageRef);
-    } catch (error) { /* empty */ }
+    } catch (error) {
+        console.error('Error fetching image', error);
+        return null;
+    }
 }
 
 export function transformNumber(number){

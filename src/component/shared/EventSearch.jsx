@@ -298,7 +298,7 @@ function EventSearch() {
                     </>
                 }
                 {events.length === 0 &&
-                    <EventSuggestion type={'self'} lat={getCookie('user-location').lat} lon={getCookie('user-location').lon} />
+                    <EventSuggestion type={'self'} lat={getCookie('user-location').lat} lon={getCookie('user-location').lon} maxCols={3}/>
                 }
                 <Stack marginBlock={5} rowGap={5} sx={{ width: '100%' }}>
                     <TrendingSearches />

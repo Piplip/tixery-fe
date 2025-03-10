@@ -21,7 +21,7 @@ function TopNavSearchBar(){
     const [showRecentSearches, setShowRecentSearches] = useState(false);
     const [searchValue, setSearchValue] = useState(location.search.split('=')[1] || '');
     const [locationValue, setLocationValue] = useState({
-        value: getCookie('user-location').city
+        value: getCookie('user-location')?.city
     });
     const [searchHistory, setSearchHistory] = useState([]);
     const [showSnackbar, setShowSnackbar] = useState(false);
