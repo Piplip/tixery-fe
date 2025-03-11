@@ -56,7 +56,7 @@ function EventDashboard({open = false, setOpen, eventID, startTime}){
     const handleCopyLink = () => {
         const eventLink = `http://localhost:5173/events/${eventID}`;
         navigator.clipboard.writeText(eventLink).then(() => {
-            alert('Event link copied to clipboard');
+            alert(t('eventDashboard.linkCopied'));
         }).catch(err => {
             console.error('Failed to copy: ', err);
         });
@@ -66,7 +66,7 @@ function EventDashboard({open = false, setOpen, eventID, startTime}){
         <Dialog open={open} onClose={() => setOpen({startTime: null, id: null})} maxWidth="lg" fullWidth>
             <DialogTitle>
                 <Typography fontSize={40} fontFamily={'Roboto Slab'} fontWeight="bold">
-                    Event Dashboard
+                    {t('eventDashboard.title')}
                 </Typography>
                 <IconButton
                     onClick={() => setOpen({startTime: null, id: null})}
@@ -92,7 +92,7 @@ function EventDashboard({open = false, setOpen, eventID, startTime}){
                         <Stack direction={'row'} justifyContent={'space-between'} style={{backgroundColor: '#f3f3f3'}} alignItems={'center'} padding={'.5rem 1rem'}>
                             <Stack direction={'row'} columnGap={2}>
                                 <Typography variant="body2">
-                                    Event link
+                                    {t('eventDashboard.eventLink')}
                                 </Typography>
                                 <Typography variant="body2">
                                     http://localhost:5173/events/{eventID}
@@ -100,28 +100,28 @@ function EventDashboard({open = false, setOpen, eventID, startTime}){
                             </Stack>
                             <Stack direction={'row'} columnGap={2}>
                                 <Button startIcon={<ContentCopyIcon />} className={'dashboard__copy-button'}
-                                    sx={{
-                                        backgroundColor: 'white',
-                                        color: 'black',
-                                        padding: '.25rem 1rem',
-                                        fontSize: 11
-                                    }}
+                                        sx={{
+                                            backgroundColor: 'white',
+                                            color: 'black',
+                                            padding: '.25rem 1rem',
+                                            fontSize: 11
+                                        }}
                                         onClick={handleCopyLink}
                                 >
-                                    Copy link
+                                    {t('eventDashboard.copyLink')}
                                 </Button>
                                 <ShareDialog eventID={eventID} />
                             </Stack>
                         </Stack>
                         <Stack direction={'row'} columnGap={2}>
                             <div className={'event-dashboard-stats'}>
-                                <Typography variant="body2">Tickets Sold</Typography>
+                                <Typography variant="body2">{t('eventDashboard.ticketsSold')}</Typography>
                                 <Typography variant="h3">
                                     {stats?.ticketSales ? stats.ticketSales.reduce((acc, curr) => acc + curr.sold_quantity, 0) : '--'}
                                 </Typography>
                             </div>
                             <div className={'event-dashboard-stats'}>
-                                <Typography variant="body2">Page Views</Typography>
+                                <Typography variant="body2">{t('eventDashboard.pageViews')}</Typography>
                                 <Typography variant="h3">
                                     {stats?.totalViews || 0}
                                 </Typography>
@@ -130,17 +130,17 @@ function EventDashboard({open = false, setOpen, eventID, startTime}){
                     </Stack>
                     <Stack>
                         <Typography variant="h6" mb={1}>
-                            Sales by Ticket Type
+                            {t('eventDashboard.salesByTicketType')}
                         </Typography>
                         <TableContainer component={Paper} sx={{ mb: 2 }}>
                             <Table>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>Ticket Type</TableCell>
-                                        <TableCell>Sold</TableCell>
-                                        <TableCell>Price per ticket</TableCell>
-                                        <TableCell>Sales start time</TableCell>
-                                        <TableCell>Sales end time</TableCell>
+                                        <TableCell>{t('eventDashboard.ticketType')}</TableCell>
+                                        <TableCell>{t('eventDashboard.sold')}</TableCell>
+                                        <TableCell>{t('eventDashboard.pricePerTicket')}</TableCell>
+                                        <TableCell>{t('eventDashboard.salesStartTime')}</TableCell>
+                                        <TableCell>{t('eventDashboard.salesEndTime')}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -154,12 +154,12 @@ function EventDashboard({open = false, setOpen, eventID, startTime}){
                                                 <TableCell>{dayjs(ticket.sale_end_time).format("HH:mm DD/MM/YYYY")}</TableCell>
                                             </TableRow>
                                         ))
-                                            :
+                                        :
                                         <TableRow>
                                             <TableCell colSpan={5} align="center">
                                                 <div className="organizer-report__chart-fallback">
                                                     <Alert severity="info">
-                                                        No ticket types has been created for this event yet
+                                                        {t('eventDashboard.noTicketTypes')}
                                                     </Alert>
                                                 </div>
                                             </TableCell>
@@ -169,17 +169,17 @@ function EventDashboard({open = false, setOpen, eventID, startTime}){
                             </Table>
                         </TableContainer>
                         <Typography variant="h6" mb={1}>
-                            Recent Orders
+                            {t('eventDashboard.recentOrders')}
                         </Typography>
                         <TableContainer component={Paper}>
                             <Table>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>Order #</TableCell>
-                                        <TableCell>Ticket Type</TableCell>
-                                        <TableCell>Total Price</TableCell>
-                                        <TableCell>Status</TableCell>
-                                        <TableCell>Date</TableCell>
+                                        <TableCell>{t('eventDashboard.orderNumber')}</TableCell>
+                                        <TableCell>{t('eventDashboard.ticketType')}</TableCell>
+                                        <TableCell>{t('eventDashboard.totalPrice')}</TableCell>
+                                        <TableCell>{t('eventDashboard.status')}</TableCell>
+                                        <TableCell>{t('eventDashboard.date')}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -195,7 +195,7 @@ function EventDashboard({open = false, setOpen, eventID, startTime}){
                                                     ))}
                                                 </TableCell>
                                                 <TableCell>{formatCurrency(order.amount / 100, order.currency)}</TableCell>
-                                                <TableCell style={{textTransform:'uppercase'}}>{order.status}</TableCell>
+                                                <TableCell style={{textTransform:'uppercase'}}>{t(`orderStatus.${order.status.toLowerCase()}`)}</TableCell>
                                                 <TableCell>{dayjs(order.created_at).format('DD MMM, YYYY')}</TableCell>
                                             </TableRow>
                                         ))
@@ -204,7 +204,7 @@ function EventDashboard({open = false, setOpen, eventID, startTime}){
                                             <TableCell colSpan={5} align="center">
                                                 <div className="organizer-report__chart-fallback">
                                                     <Alert severity="info">
-                                                        No orders have been placed for this event yet
+                                                        {t('eventDashboard.noOrders')}
                                                     </Alert>
                                                 </div>
                                             </TableCell>

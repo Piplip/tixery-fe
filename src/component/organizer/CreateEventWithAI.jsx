@@ -9,9 +9,10 @@ import {
     Switch,
     Tab,
     Tabs,
+    Dialog,
     TextField,
     CircularProgress,
-    Typography
+    Typography, DialogTitle, DialogContent, DialogContentText, DialogActions
 } from "@mui/material";
 import {useTranslation} from "react-i18next";
 import debounce from "lodash.debounce";
@@ -46,6 +47,16 @@ function CreateEventWithAI() {
     const [showMap, setShowMap] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [currentStep, setCurrentStep] = useState('')
+
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const [confirmationCallback, setConfirmationCallback] = useState(null);
+
+    const handleConfirmation = (continueProcess) => {
+        setShowConfirmation(false);
+        if (continueProcess && confirmationCallback) {
+            confirmationCallback();
+        }
+    };
 
     const navigate = useNavigate()
 
@@ -86,11 +97,27 @@ function CreateEventWithAI() {
         },
         validationSchema: validationSchema,
         onSubmit: (async (values) => {
-            setIsLoading(true)
-            setCurrentStep('Generating image...')
-            const [img, uuid] = await handleGenerateImage(values.title)
+            setIsLoading(true);
+            let imgData;
+            if(!confirmationCallback){
+                setCurrentStep(t('createEventWithAI.generatingImage'));
+                try {
+                    imgData = await handleGenerateImage(values.title);
+                } catch (err) {
+                    setIsLoading(false);
+                    alert(t('createEventWithAI.creationError'));
+                    return;
+                }
 
-            setCurrentStep('Generating summary...')
+                if (!imgData || imgData.length < 2) {
+                    setIsLoading(false);
+                    setShowConfirmation(true);
+                    setConfirmationCallback(() => () => formik.handleSubmit());
+                    return;
+                }
+            }
+
+            setCurrentStep(t('createEventWithAI.generatingSummary'));
             const summary = await generateGeminiContent(
                 values.title,
                 `Write a short description with the given event name. It should be no longer than 500 characters. The description should be engaging and informative. If the given name is just a random string, return an alert to notify that the name is not descriptive enough. Grab people's attention with a short description about your event. Attendees will see this at the top of your event page.  **The response language should match the dominant language of the entire prompt.**  If the prompt contains multiple languages, prioritize the language with the highest percentage of text.`
@@ -99,10 +126,10 @@ function CreateEventWithAI() {
             })
                 .catch(() => {
                     setIsLoading(false)
-                    alert('An error occurred while creating! Please try again.')
+                    alert(t('createEventWithAI.creationError'))
                 })
 
-            setCurrentStep('Generating additional info...')
+            setCurrentStep(t('createEventWithAI.generatingInfo'));
             const additionalInfo = await generateGeminiContent(
                 `event title: ${values.title}, event summary: ${summary}`,
                 `Write a detailed description with the given event name and summary.  Return ONLY the HTML content for the description, suitable for inserting directly into a webpage's body. Do not include html, head, body, or any other wrapper tags.  Style the HTML using inline CSS. The description should be engaging and informative, grabbing people's attention. Attendees will see this at the top of your event page.  Keep it concise and no longer than 1000 characters. **The response language should match the dominant language of the entire prompt.** If the prompt contains multiple languages, prioritize the language with the highest percentage of text.  Provide richer styling than the example provided, including more diverse CSS properties.`
@@ -111,7 +138,7 @@ function CreateEventWithAI() {
             })
                 .catch(() => {
                     setIsLoading(false);
-                    alert('An error occurred while creating! Please try again.');
+                    alert(t('createEventWithAI.creationError'));
                 });
 
             const eventType = await generateGeminiContent(
@@ -128,9 +155,8 @@ function CreateEventWithAI() {
             ).then(r => {
                 return r.response.candidates[0].content.parts[0].text;
             }).catch(err => console.log(err));
-            console.log(eventSubCategory)
 
-            setCurrentStep('Generating tags...')
+            setCurrentStep(t('createEventWithAI.generatingTags'));
             const tags = await generateGeminiContent(
                 `event title: ${values.title}, event summary: ${summary}`,
                 'Generate tags for the event. You should generate tags in a string, separated by comma (do not append # before each tag), tags should not contain white space, and 10 tags is maximum allow. Tags are words or phrases that describe the event. They help attendees find your event when they search on Eventbrite. Tags should be separated by commas. **The response language should match the dominant language of the entire prompt.** If the prompt contains multiple languages, prioritize the language with the highest percentage of text.'
@@ -139,10 +165,10 @@ function CreateEventWithAI() {
             })
                 .catch(() => {
                     setIsLoading(false)
-                    alert('An error occurred while creating! Please try again.')
+                    alert(t('createEventWithAI.creationError'))
                 })
 
-            setCurrentStep('Creating event...')
+            setCurrentStep(t('createEventWithAI.creatingEvent'));
             const params = new URLSearchParams({
                 pid: getUserData('profileID'), uid: getUserData("userID")
             });
@@ -161,21 +187,20 @@ function CreateEventWithAI() {
                 summary,
                 type: eventType,
                 subCategory: eventSubCategory,
-                eventID: uuid,
+                eventID: imgData && imgData[1] || uuidv4(),
                 additionalInfo,
-                images: [img],
+                images: [imgData && imgData[0]],
                 tags: tags.split(','),
                 timezone: new Date().getTimezoneOffset() / -60
 
             }))
                 .then(r => {
                     setIsLoading(false)
-                    console.log(r.data)
                     navigate(`/create/auto/${r.data.data}/preview`)
                 })
                 .catch(err => {
                     setIsLoading(false)
-                    console.log(err)
+                    alert(t('createEventWithAI.creationError'))
                 })
         })
     });
@@ -189,30 +214,32 @@ function CreateEventWithAI() {
             aspect_ratio: '16:9'
         };
 
-        const response = await rootAxios.post(
-            `https://api.stability.ai/v2beta/stable-image/generate/core`,
-            payload,
-            {
-                validateStatus: undefined,
-                responseType: "arraybuffer",
-                headers: {
-                    Authorization: `Bearer sk-j7cHaXsnnbudaWzfwRPPY8IuWRyD2SRVC6LrbkR0md1mH993`,
-                    Accept: "image/*",
-                    'Content-Type': 'multipart/form-data'
+        try {
+            const response = await rootAxios.post(
+                `https://api.stability.ai/v2beta/stable-image/generate/core`,
+                payload,
+                {
+                    validateStatus: undefined,
+                    responseType: "arraybuffer",
+                    headers: {
+                        Authorization: `Bearer sk-j7cHaXsnnbudaWzfwRPPY8IuWRyD2SRVC6LrbkR0md1mH993`,
+                        Accept: "image/*",
+                        'Content-Type': 'multipart/form-data'
+                    },
                 },
-            },
-        );
+            )
 
-        if (response.status === 200) {
-            const uuid = uuidv4()
-            const blob = new Blob([response.data], { type: "image/webp" });
-            const storageRef = ref(storage, `/events/${uuid}/${generateFileName(30)}.webp`);
-            const uploadData = await uploadBytes(storageRef, blob);
+            if (response.status === 200) {
+                const uuid = uuidv4();
+                const blob = new Blob([response.data], { type: "image/webp" });
+                const storageRef = ref(storage, `/events/${uuid}/${generateFileName(30)}.webp`);
+                const uploadData = await uploadBytes(storageRef, blob);
 
-            return [uploadData.metadata.fullPath, uuid]
-        } else {
-            setIsLoading(false)
-            throw new Error(`${response.status}: ${response.data.toString()}`);
+                return [uploadData.metadata.fullPath, uuid];
+            }
+        } catch (error) {
+            setIsLoading(false);
+            throw error;
         }
     }
 
@@ -502,6 +529,28 @@ function CreateEventWithAI() {
                     {t('createEventWithAI.createEvent')}
                 </Button>
             </Stack>
+            <Dialog
+                open={showConfirmation}
+                onClose={() => {
+                    handleConfirmation(false)
+                    setConfirmationCallback(null)
+                }}
+            >
+                <DialogTitle>{t('createEventWithAI.title')}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        {t('createEventWithAI.message')}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => handleConfirmation(false)} color="primary">
+                        {t('createEventWithAI.no')}
+                    </Button>
+                    <Button onClick={() => handleConfirmation(true)} color="primary" autoFocus>
+                        {t('createEventWithAI.yes')}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </form>
     );
 }

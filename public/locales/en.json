@@ -1555,10 +1555,64 @@
     "eventEndTimeRequired": "Event end time is required",
     "locationRequired": "Location is required",
     "ticketPriceRequired": "Ticket price is required",
-    "capacityRequired": "Capacity is required"
+    "capacityRequired": "Capacity is required",
+    "generatingImage": "Generating image...",
+    "creationError": "An error occurred while creating! Please try again.",
+    "generatingSummary": "Generating summary...",
+    "generatingInfo": "Generating additional info...",
+    "generatingTags": "Generating tags...",
+    "creatingEvent": "Creating event...",
+    "title": "Image Generation Failed",
+    "message": "Image generation failed. Do you want to continue without the image?",
+    "no": "No",
+    "yes": "Yes"
   },
   "lang": {
     "vi": "Tiếng Việt",
     "en": "English"
+  },
+  "eventDashboard": {
+    "title": "Event Dashboard",
+    "eventLink": "Event link",
+    "copyLink": "Copy link",
+    "ticketsSold": "Tickets Sold",
+    "pageViews": "Page Views",
+    "salesByTicketType": "Sales by Ticket Type",
+    "ticketType": "Ticket Type",
+    "sold": "Sold",
+    "pricePerTicket": "Price per ticket",
+    "totalPrice": "Total Price",
+    "salesStartTime": "Sales start time",
+    "salesEndTime": "Sales end time",
+    "recentOrders": "Recent Orders",
+    "orderNumber": "Order #",
+    "status": "Status",
+    "date": "Date",
+    "noTicketTypes": "No ticket types has been created for this event yet",
+    "noOrders": "No orders have been placed for this event yet",
+    "linkCopied": "Event link copied to clipboard"
+  },
+  "orderStatus": {
+    "completed": "Completed",
+    "pending": "Pending",
+    "refunded": "Refunded",
+    "cancelled": "Cancelled"
+  },
+  "aiEventPreview": {
+    "exit": "Exit",
+    "needUpdates": "Need to make some updates ?",
+    "editEvent": "Edit event",
+    "almostReady": "YOUR EVENT IS ALMOST READY!",
+    "reviewEdit": "Review and edit your event to make sure it looks good. Or publish now and let attendees find it.",
+    "weIncluded": "What we included:",
+    "imageSummary": "Image, summary and description",
+    "categoryTags": "Category and tags",
+    "generalAdmission": "General Admission Tickets",
+    "addMore": "Add more to your event:",
+    "eventImagesVideo": "Event images and video",
+    "faqAgenda": "FAQ or Agenda",
+    "ticketsPromo": "Tickets or promo codes",
+    "refundPolicy": "Review your refund policy",
+    "publishNow": "Publish now"
   }
 }

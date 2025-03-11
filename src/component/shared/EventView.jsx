@@ -71,7 +71,9 @@ function EventView({data}){
         if (eventData.images && eventData.images.length > 0) {
             try {
                 fetchImage(storage, eventData.images[0])
-                    .then((imageUrl) => setHeroImage(imageUrl))
+                    .then((imageUrl) => {
+                        setHeroImage(imageUrl)
+                    })
             } catch (error) {
                 console.log(error)
             }

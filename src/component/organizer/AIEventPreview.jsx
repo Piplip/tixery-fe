@@ -12,21 +12,23 @@ import {useState} from "react";
 import {Card, CardContent} from "@mui/joy";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import {useTranslation} from "react-i18next";
 
 function AIEventPreview(){
     const data = useLoaderData()
     const [viewMode, setViewMode] = useState('pc')
     const [expanded, setExpanded] = useState(true)
     const location = useLocation()
+    const {t} = useTranslation()
 
     return (
-        <Stack className={'ai-event-preview__wrapper'} sx={{width: '85%', marginInline: 'auto'}} rowGap={2}>
+        <Stack className={'ai-event-preview__wrapper'} sx={{ width: viewMode === 'pc' ? '85%' : '30%', marginInline: 'auto' }} rowGap={2}>
             <Stack>
                 <Stack direction={'row'} justifyContent={'space-between'} borderBottom={'1px solid'} paddingBottom={1} paddingInline={'1rem'}>
                     <Stack direction={'row'} alignItems={'center'}>
                         <KeyboardArrowLeftIcon />
                         <Link to={'/organizer/events'} className={'link'}>
-                            <p>Exit</p>
+                            <p>{t('aiEventPreview.exit')}</p>
                         </Link>
                     </Stack>
                     <Stack direction={'row'} alignItems={'center'}>
@@ -40,46 +42,46 @@ function AIEventPreview(){
                         </ToggleButtonGroup>
                     </Stack>
                 </Stack>
-                <p style={{backgroundColor: '#efefef', padding: '.75rem 1rem'}}>
-                    Need to make some updates ? <Link className={'link'}
-                                                      to={`/organizer/events/edit/${location.pathname.split('/')[3]}`}>Edit event</Link>
+                <p style={{ backgroundColor: '#efefef', padding: '.75rem 1rem' }}>
+                    {t('aiEventPreview.needUpdates')} <Link className={'link'}
+                                                            to={`/organizer/events/edit/${location.pathname.split('/')[3]}`}>{t('aiEventPreview.editEvent')}</Link>
                 </p>
             </Stack>
             <Stack className={'ai-event-preview'}>
-                <TopNav isLoggedIn={checkLoggedIn()}/>
+                <TopNav isLoggedIn={checkLoggedIn()} />
                 <div>
-                    <EventView data={data}/>
+                    <EventView data={data} />
                 </div>
                 <RootFooter />
             </Stack>
-            <Card className="event-ready-card" sx={{position: 'fixed', right: '1rem', bottom: '1rem', backgroundColor: '#f3f3f3'}}>
-                <CardContent className="event-ready-card__content" sx={{padding: '0 1rem 1rem'}}>
-                    <IconButton onClick={() => setExpanded(prev => !prev)} sx={{alignSelf: 'flex-end', backgroundColor: '#d7d7d7'}}>
+            <Card className="event-ready-card" sx={{ position: 'fixed', right: '1rem', bottom: '1rem', backgroundColor: '#f3f3f3' }}>
+                <CardContent className="event-ready-card__content" sx={{ padding: '0 1rem 1rem' }}>
+                    <IconButton onClick={() => setExpanded(prev => !prev)} sx={{ alignSelf: 'flex-end', backgroundColor: '#d7d7d7' }}>
                         {expanded ? <KeyboardArrowDownIcon /> : <KeyboardArrowUpIcon />}
                     </IconButton>
                     <Collapse in={expanded}>
-                        <h2 className="event-ready-card__title">YOUR EVENT IS ALMOST READY!</h2>
+                        <h2 className="event-ready-card__title">{t('aiEventPreview.almostReady')}</h2>
                         <p className="event-ready-card__subtitle">
-                            Review and edit your event to make sure it looks good. Or publish now and let attendees find it.
+                            {t('aiEventPreview.reviewEdit')}
                         </p>
 
                         <div className="event-ready-card__sections">
                             <div className="event-ready-card__section">
-                                <h4 className="event-ready-card__section-title">What we included:</h4>
+                                <h4 className="event-ready-card__section-title">{t('aiEventPreview.weIncluded')}</h4>
                                 <ul className="event-ready-card__list">
-                                    <li>✔ Image, summary and description</li>
-                                    <li>✔ Category and tags</li>
-                                    <li>✔ General Admission Tickets</li>
+                                    <li>✔ {t('aiEventPreview.imageSummary')}</li>
+                                    <li>✔ {t('aiEventPreview.categoryTags')}</li>
+                                    <li>✔ {t('aiEventPreview.generalAdmission')}</li>
                                 </ul>
                             </div>
 
                             <div className="event-ready-card__section">
-                                <h4 className="event-ready-card__section-title">Add more to your event:</h4>
+                                <h4 className="event-ready-card__section-title">{t('aiEventPreview.addMore')}</h4>
                                 <ul className="event-ready-card__list event-ready-card__list--add">
-                                    <li>➕ Event images and video</li>
-                                    <li>➕ FAQ or Agenda</li>
-                                    <li>➕ Tickets or promo codes</li>
-                                    <li>➕ Review your refund policy</li>
+                                    <li>➕ {t('aiEventPreview.eventImagesVideo')}</li>
+                                    <li>➕ {t('aiEventPreview.faqAgenda')}</li>
+                                    <li>➕ {t('aiEventPreview.ticketsPromo')}</li>
+                                    <li>➕ {t('aiEventPreview.refundPolicy')}</li>
                                 </ul>
                             </div>
                         </div>
@@ -87,12 +89,12 @@ function AIEventPreview(){
                     <div className="event-ready-card__buttons">
                         <Link to={`/organizer/events/edit/${location.pathname.split('/')[3]}/publish`}>
                             <Button variant="contained" className="event-ready-card__button event-ready-card__button--publish">
-                                Publish now
+                                {t('aiEventPreview.publishNow')}
                             </Button>
                         </Link>
                         <Link to={`/organizer/events/edit/${location.pathname.split('/')[3]}`}>
                             <Button variant="outlined" className="event-ready-card__button">
-                                Edit event
+                                {t('aiEventPreview.editEvent')}
                             </Button>
                         </Link>
                     </div>
