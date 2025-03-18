@@ -1,9 +1,9 @@
 import'../../styles/select-role-styles.css'
-import Logo from "../../../public/assets/logo.svg"
+import Logo from "../../assets/logo.svg"
 import {Stack} from "@mui/material";
-import EventOrganizer from "../../../public/assets/event-organizer.png"
-import Attendee from "../../../public/assets/event-attendee.png"
-import Vendor from "../../../public/assets/vendor-supplier.png"
+import EventOrganizer from "../../assets/event-organizer.png"
+import Attendee from "../../assets/event-attendee.png"
+import Vendor from "../../assets/vendor-supplier.png"
 import {Link, useLocation, useNavigate} from "react-router-dom";
 import accountAxios from "../../config/axiosConfig.js";
 import {getCookie} from "../../common/Utilities.js";

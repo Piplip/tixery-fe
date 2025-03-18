@@ -1,5 +1,5 @@
 import "../../styles/loading-fallback-styles.css"
-import Logo from "../../../public/assets/logo.svg"
+import Logo from "../../assets/logo.svg"
 import {useTranslation} from "react-i18next";
 
 function LoadingFallback() {

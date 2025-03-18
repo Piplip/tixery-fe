@@ -223,6 +223,7 @@
     "suggestSummary": "Suggest summary"
   },
   "dateAndTime": {
+    "reserveSeatingAlert": "Reserve seating is not available for recurring events.",
     "title": "Date and Location",
     "eventType": "Type of event",
     "singleEvent": "Single event",
@@ -332,6 +333,9 @@
     "allChangesSaved": "All changes saved"
   },
   "ticket": {
+    "noMapsFound": "No venue maps found for this address",
+    "createMapPrompt": "Create a venue map to get started.",
+    "createButton": "Create venue map",
     "freeDescription": "Create a free ticket for your event.",
     "paidDescription": "Sell tickets to your event and start making money.",
     "donationDescription": "Let attendees choose how much they want to pay for a ticket.",

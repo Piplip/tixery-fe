@@ -1,8 +1,8 @@
 import "../../styles/organizer-create-tickets-styles.css"
-import {Alert, Checkbox, MenuItem, Snackbar, Stack, TextField, Typography} from "@mui/material";
+import {Alert, Button, Checkbox, MenuItem, Snackbar, Stack, TextField, Typography} from "@mui/material";
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import FreeIcon from "../../../public/assets/free-icon.png"
+import FreeIcon from "../../assets/free-icon.png"
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {useCallback, useContext, useEffect, useState} from "react";
 import * as Yup from "yup";
@@ -20,6 +20,7 @@ import "../../styles/organizer-create-ticket-styles.scss"
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import CurrencySelect from "../shared/CurrencySelect.jsx";
 import {useTranslation} from "react-i18next";
+import LayersClearIcon from '@mui/icons-material/LayersClear';
 
 const ticketVisibility = [
     {label: 'Visible', value: 'visible'},
@@ -76,6 +77,7 @@ function OrganizerCreateTicket() {
             const basePath = location.pathname.split('/tickets')[0];
             navigate(basePath);
         }
+        setCurrentStep(1)
     }, [location, navigate, setCurrentStep, setAlert, t, validate]);
 
     useEffect(() => {
@@ -371,56 +373,75 @@ function OrganizerCreateTicket() {
                     {snackbarMessage}
                 </Alert>
             </Snackbar>
-            <p className={'organizer-create-ticket__title'}>{t('ticket.createTickets')}</p>
-            <p>{t('ticket.chooseTicketType')}</p>
-            {data.tickets && data.tickets.length !== 0 ?
-                <div className="tickets-section">
-                    <div className="tickets-section__header">
-                        <nav className="tickets-section__tabs">
-                            {tabs.map((tab) => (
-                                <NavLink
-                                    key={tab.label}
-                                    to={tab.to}
-                                    className={({isActive}) => `tickets-section__tab ${isActive ? 'tickets-section__tab-active' : ''}`}
-                                >
-                                    {tab.label}
-                                </NavLink>
-                            ))}
-                        </nav>
-                    </div>
-                    <div className="tickets-section__content">
-                        <Outlet context={{
-                            handleTypeSelect: handleTypeSelect,
-                            setOpenDetail: setOpenDetail,
-                            setEditTicket: setEditTicket
-                        }}/>
-                    </div>
-                </div>
-                :
-                <Stack className={'organizer-create-ticket__ticket-types'} rowGap={1}>
-                    {ticketTypes.map((ticketType, index) => (
-                        <Stack key={index} className={'organizer-create-ticket__ticket-type'} flexDirection={'row'}
-                               onClick={() => handleTypeSelect(ticketType.name)}
-                        >
-                            <Stack direction={'row'} columnGap={2} alignItems={'center'}>
-                                {ticketType.name === 'free' ?
-                                    <img style={{
-                                        backgroundColor: 'rgba(245,245,245,0.46)',
-                                        width: '3.5rem',
-                                        height: '3.5rem',
-                                        padding: '.25rem'
-                                    }}
-                                         src={ticketType.icon} alt={t(`ticket.${ticketType.name}`)}/>
-                                    : ticketType.icon}
-                                <Stack rowGap={1}>
-                                    <p className={'ticket-type__title'}>{t(`ticket.${ticketType.name}`)}</p>
-                                    <p className={'ticket-type__description'}>{ticketType.description}</p>
-                                </Stack>
-                            </Stack>
-                            <KeyboardArrowRightIcon/>
-                        </Stack>
-                    ))}
+            {!data.reserveSeating ?
+                <Stack alignItems={'center'} rowGap={2}>
+                    <LayersClearIcon sx={{ fontSize: '7.5rem', color: '#000000', backgroundColor: '#e3e3e3', p: 1, borderRadius: '50%' }} />
+                    <Stack alignItems={'center'}>
+                        <Typography variant={'h5'} fontWeight={'bold'}>
+                            {t('ticket.noMapsFound')}
+                        </Typography>
+                        <Typography variant={'body1'}>
+                            {t('ticket.createMapPrompt')}
+                        </Typography>
+                    </Stack>
+                    <Button variant={'contained'} onClick={() => navigate(`/create/seat-map?eid=${location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3]}`)}>
+                        {t('ticket.createButton')}
+                    </Button>
                 </Stack>
+                :
+                <>
+                    <p className={'organizer-create-ticket__title'}>{t('ticket.createTickets')}</p>
+                    <p>{t('ticket.chooseTicketType')}</p>
+                    {data.tickets && data.tickets.length !== 0 ?
+                        <div className="tickets-section">
+                            <div className="tickets-section__header">
+                                <nav className="tickets-section__tabs">
+                                    {tabs.map((tab) => (
+                                        <NavLink
+                                            key={tab.label}
+                                            to={tab.to}
+                                            className={({isActive}) => `tickets-section__tab ${isActive ? 'tickets-section__tab-active' : ''}`}
+                                        >
+                                            {tab.label}
+                                        </NavLink>
+                                    ))}
+                                </nav>
+                            </div>
+                            <div className="tickets-section__content">
+                                <Outlet context={{
+                                    handleTypeSelect: handleTypeSelect,
+                                    setOpenDetail: setOpenDetail,
+                                    setEditTicket: setEditTicket
+                                }}/>
+                            </div>
+                        </div>
+                        :
+                        <Stack className={'organizer-create-ticket__ticket-types'} rowGap={1}>
+                            {ticketTypes.map((ticketType, index) => (
+                                <Stack key={index} className={'organizer-create-ticket__ticket-type'} flexDirection={'row'}
+                                       onClick={() => handleTypeSelect(ticketType.name)}
+                                >
+                                    <Stack direction={'row'} columnGap={2} alignItems={'center'}>
+                                        {ticketType.name === 'free' ?
+                                            <img style={{
+                                                backgroundColor: 'rgba(245,245,245,0.46)',
+                                                width: '3.5rem',
+                                                height: '3.5rem',
+                                                padding: '.25rem'
+                                            }}
+                                                 src={ticketType.icon} alt={t(`ticket.${ticketType.name}`)}/>
+                                            : ticketType.icon}
+                                        <Stack rowGap={1}>
+                                            <p className={'ticket-type__title'}>{t(`ticket.${ticketType.name}`)}</p>
+                                            <p className={'ticket-type__description'}>{ticketType.description}</p>
+                                        </Stack>
+                                    </Stack>
+                                    <KeyboardArrowRightIcon/>
+                                </Stack>
+                            ))}
+                        </Stack>
+                    }
+                </>
             }
             <form onSubmit={formik.handleSubmit}>
                 <Stack className={'organizer-create-ticket__detail'} sx={{display: openDetail.open ? 'flex' : 'none'}}>

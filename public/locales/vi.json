@@ -223,6 +223,7 @@
     "suggestSummary": "Gợi ý tóm tắt"
   },
   "dateAndTime": {
+    "reserveSeatingAlert": "Tùy chọn chỗ ngồi được đặt trước không khả dụng cho sự kiện đinh kỳ",
     "title": "Ngày và Địa điểm",
     "eventType": "Loại sự kiện",
     "singleEvent": "Sự kiện một lần",
@@ -332,6 +333,9 @@
     "allChangesSaved": "Đã lưu tất cả thay đổi"
   },
   "ticket": {
+    "noMapsFound": "Không tìm thấy sơ đồ địa điểm cho địa chỉ này",
+    "createMapPrompt": "Tạo sơ đồ địa điểm để bắt đầu.",
+    "createButton": "Tạo sơ đồ địa điểm",
     "freeDescription": "Tạo vé miễn phí cho sự kiện của bạn.",
     "paidDescription": "Bán vé cho sự kiện của bạn và bắt đầu kiếm tiền.",
     "donationDescription": "Cho phép người tham dự chọn số tiền họ muốn trả cho vé.",

@@ -9,6 +9,7 @@
     font-family: "Roboto Slab", sans-serif;
     font-size: .9rem;
     transition: transform 0.3s ease, opacity 0.3s ease;
+    container-type: inline-size;
 }
 .top-nav-container.hidden {
     transform: translateY(-100%);
@@ -140,7 +141,21 @@
     }
 }
 
+@container (width < 600px) {
+    .top-nav-container {
+        padding: 10px 1rem;
+        font-size: 0.8rem;
+    }
+}
+
 @media (max-width: 768px) {
+    .top-nav-container {
+        padding: 10px 0.5rem;
+        font-size: 0.7rem;
+    }
+}
+
+@container (width < 768px) {
     .top-nav-container {
         padding: 10px 0.5rem;
         font-size: 0.7rem;

@@ -22,7 +22,7 @@ function AIEventPreview(){
     const {t} = useTranslation()
 
     return (
-        <Stack className={'ai-event-preview__wrapper'} sx={{ width: viewMode === 'pc' ? '85%' : '30%', marginInline: 'auto' }} rowGap={2}>
+        <Stack className={'ai-event-preview__wrapper'} sx={{ width: viewMode === 'pc' ? '85%' : '35%', marginInline: 'auto' }} rowGap={2}>
             <Stack>
                 <Stack direction={'row'} justifyContent={'space-between'} borderBottom={'1px solid'} paddingBottom={1} paddingInline={'1rem'}>
                     <Stack direction={'row'} alignItems={'center'}>

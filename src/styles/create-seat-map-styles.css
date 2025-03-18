@@ -1,0 +1,71 @@
+.create-seat-map__canvas{
+    width: 100%;
+    height: 100%;
+    border: 1px solid #000000;
+}
+.create-seat-map__tools{
+    background-color: #f1f1f1;
+    padding: 10px;
+}
+.create-seat-map__tool-options{
+    row-gap: .5rem;
+}
+.create-seat-map__zoom{
+    position: absolute;
+    bottom: 10px;
+    left: 20px;
+}
+.create-seat-map__add-tier-btn{
+    width: 100%;
+    background-color: white;
+    border: 1px solid #000000;
+    padding: 10px;
+}
+.create-seat-map__add-tier-btn:hover{
+    background-color: #f1f1f1;
+}
+.tier__color, .palette__color{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+}
+.palette__color{
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    transition: transform .15s;
+    border: none;
+    outline: none;
+}
+.tier__color .MuiSvgIcon-root{
+    display: none;
+}
+.tier__color:hover{
+    .MuiSvgIcon-root{
+        display: block;
+    }
+}
+.create-seat-map__tier{
+    background-color: #f1f4ff;
+    padding: .75rem;
+    border-radius: 5px;
+    width: 100%;
+    position: relative;
+}
+.palette__color:hover{
+    transform: scale(1.2);
+}
+.tier__input{
+    font-size: 1.1rem;
+    width: fit-content;
+    max-width: 60%;
+}
+.tier__input:hover{
+    border-bottom: 1px solid #000000;
+}
+.tier__delete-btn{
+    position: absolute;
+    right: 3rem;
+}

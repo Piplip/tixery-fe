@@ -29,6 +29,7 @@ import {useTranslation} from "react-i18next";
 import PropTypes from "prop-types";
 import duration from "dayjs/plugin/duration";
 import ReportEvent from "../attendee/ReportEvent.jsx";
+import VideoThumbnail from "../../assets/video-thumbnail.webp"
 
 dayjs.extend(duration);
 
@@ -47,10 +48,12 @@ function EventView({data}){
     const loaderData = useLoaderData()
     const eventData = location.pathname.includes("preview") ? data : loaderData;
     const [profile, setProfile] = useState({})
-    const [heroImage, setHeroImage] = useState()
     const [viewDetail, setViewDetail] = useState(false)
     const [showMapDetail, setShowMapDetail] = useState(false)
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [selectedMedia, setSelectedMedia] = useState({src: null, type: ''});
+    const [videos, setVideos] = useState([])
+    const [images, setImages] = useState([])
     const isProfileLoaded = useRef(false)
     const {t} = useTranslation()
 
@@ -66,20 +69,37 @@ function EventView({data}){
                 .catch((error) => console.error("Error loading profile:", error));
         }
     }, [eventData.profile_id]);
-
+    console.log(eventData.images)
+    console.log(eventData.videos)
     useEffect(() => {
-        if (eventData.images && eventData.images.length > 0) {
-            try {
-                fetchImage(storage, eventData.images[0])
-                    .then((imageUrl) => {
-                        setHeroImage(imageUrl)
-                    })
-            } catch (error) {
-                console.log(error)
-            }
+        if ((eventData.images && eventData.images.length > 0 && eventData.images[0] !== null) || (eventData.videos && eventData.videos.length > 0)) {
+            const fetchMedia = async () => {
+                const videoUrls = new Set();
+                const imageUrls = new Set();
+
+                if (eventData.videos?.length > 0) {
+                    for (const video of eventData.videos) {
+                        const videoUrl = await fetchImage(storage, video);
+                        videoUrls.add(videoUrl);
+                    }
+                }
+
+                if (eventData.images?.length > 0 && eventData.images[0] !== null) {
+                    for (const image of eventData.images) {
+                        const imageUrl = await fetchImage(storage, image);
+                        imageUrls.add(imageUrl);
+                    }
+                }
+
+                setVideos(Array.from(videoUrls));
+                setImages(Array.from(imageUrls));
+            };
+
+            fetchMedia().catch(console.error);
+        } else {
+            setImages(["https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F936315053%2F558993483103%2F1%2Foriginal.20250115-135317?crop=focalpoint&fit=crop&auto=format%2Ccompress&q=75&sharp=10&fp-x=0.5&fp-y=0.5&s=3a03308f50db1e157ca93403975dcc59"]);
         }
-        else setHeroImage("https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F936315053%2F558993483103%2F1%2Foriginal.20250115-135317?crop=focalpoint&fit=crop&auto=format%2Ccompress&q=75&sharp=10&fp-x=0.5&fp-y=0.5&s=3a03308f50db1e157ca93403975dcc59")
-    }, []);
+    }, [eventData.images, eventData.videos]);
 
     const toggleDrawer = (open) => (event) => {
         if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -159,6 +179,50 @@ function EventView({data}){
         }
     }
 
+    const handleMediaClick = (media, type) => {
+        setSelectedMedia({src: media, type: type});
+    };
+
+    const closeSelectedMedia = () => {
+        setSelectedMedia(null);
+    };
+
+    const renderMediaItems = () => {
+        return (
+            <div className="media-container">
+                {videos?.length > 0 && videos.map((video, index) => (
+                    <div key={index} className="media-item" onClick={() => handleMediaClick(video, 'video')}>
+                        <video src={video} width="100%" height="100%" poster={VideoThumbnail}>
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                ))}
+                {images?.length > 0 && images.map((image, index) => (
+                    image !== 'https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F936315053%2F558993483103%2F1%2Foriginal.20250115-135317?crop=focalpoint&fit=crop&auto=format%2Ccompress&q=75&sharp=10&fp-x=0.5&fp-y=0.5&s=3a03308f50db1e157ca93403975dcc59' &&
+                    <div key={index} className="media-item" onClick={() => handleMediaClick(image, 'image')}>
+                        <img src={image} alt={`media-${index}`} width="100%" height="100%" />
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
+    const renderSelectedMedia = () => {
+        if (!selectedMedia?.src) return null;
+
+        return (
+            <div className="selected-media-overlay" onClick={closeSelectedMedia}>
+                {selectedMedia.type === 'video' ? (
+                    <video src={selectedMedia.src} controls autoPlay width="90%" height="90%">
+                        Your browser does not support the video tag.
+                    </video>
+                ) : (
+                    <img src={selectedMedia.src} alt="selected-media" className="selected-media" />
+                )}
+            </div>
+        );
+    };
+
     return (
         <>
             {dayjs(eventData.end_time).isBefore(dayjs()) &&
@@ -166,12 +230,13 @@ function EventView({data}){
                     {t('eventView.eventEnded')}
                 </div>
             }
+            {renderSelectedMedia()}
             <div className={'event-view'}>
                 <div className={'event-view__hero'}>
-                    {heroImage ?
+                    {images.length > 0 ?
                         <div
                             className={'event-view__hero-background'}
-                            style={{ backgroundImage: `url(${heroImage})` }}>
+                            style={{ backgroundImage: `url(${images[0]})` }}>
                             <Stack
                                 className={'event-view__hero-stack'}
                                 style={{ width: '100%', backdropFilter: 'blur(30px)' }}
@@ -180,7 +245,7 @@ function EventView({data}){
                                 <img
                                     className={'event-view__hero-image'}
                                     alt={t('eventView.heroImage')}
-                                    src={heroImage}
+                                    src={images[0]}
                                 />
                             </Stack>
                         </div>
@@ -207,7 +272,7 @@ function EventView({data}){
                                         className={'event-view__actions'}
                                         direction={'row'}
                                         columnGap={2}>
-                                        {eventData && <LikeEvent event={eventData} imageUrl={heroImage} />}
+                                        {eventData && <LikeEvent event={eventData} imageUrl={images[0]} />}
                                         <ShareDialog link={"foo"} />
                                     </Stack>
                                 </Stack>
@@ -244,6 +309,9 @@ function EventView({data}){
                                         </Stack>
                                         <FollowOrganizer profileImage={profile.profile_image_url} organizerID={eventData.profile_id} organizerName={profile.profile_name} />
                                     </Stack>
+                                    <Stack>
+                                        {renderMediaItems()}
+                                    </Stack>
                                 </Stack>
                                 <Stack justifyContent={'center'} alignItems={'center'}>
                                     <button className={'event-view__view-detail-btn'} onClick={() => setViewDetail(prev => !prev)}>
@@ -251,7 +319,7 @@ function EventView({data}){
                                     </button>
                                 </Stack>
                             </Stack>
-                            <TicketPanel tickets={eventData?.tickets} eventEndTime={eventData.end_time} image={heroImage}
+                            <TicketPanel tickets={eventData?.tickets} eventEndTime={eventData.end_time} image={images[0]}
                                          eventStartTime={eventData.start_time} eventName={eventData.name} isLoggedIn={checkLoggedIn()}
                             />
                         </Stack>
@@ -331,19 +399,19 @@ function EventView({data}){
                                     <Stack rowGap={1}>
                                         <p className={'event-view__about-heading'}>{t('eventView.tags')}</p>
                                         <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-                                            {eventData.event_type &&
+                                            {eventData.event_type && eventData.event_type !== 'Other' &&
                                                 <div className={'event-view__tag'}>
                                                     {t(`event-category.${eventData.event_type}`)}
                                                 </div>
                                             }
-                                            {eventData.category &&
+                                            {eventData.category && eventData.category !== 'Other' &&
                                                 <Link to={`/events/search?category=${eventData.category}`}>
                                                     <div className={'event-view__tag'}>
                                                         {t(`event-category.${eventData.category}`)}
                                                     </div>
                                                 </Link>
                                             }
-                                            {eventData.sub_category &&
+                                            {eventData.sub_category && eventData.sub_category !== 'Other' &&
                                                 <Link to={`/events/search?category=${eventData.category}&sub_category=${eventData.sub_category}`}>
                                                     <div className={'event-view__tag'}>
                                                         {t(`event-category.${eventData.sub_category}`)}
@@ -478,7 +546,7 @@ function EventView({data}){
                     <TicketPanel
                         tickets={eventData?.tickets}
                         eventEndTime={eventData.end_time}
-                        image={heroImage}
+                        image={images[0]}
                         eventStartTime={eventData.start_time}
                         eventName={eventData.name}
                         isLoggedIn={checkLoggedIn()}

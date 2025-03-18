@@ -148,7 +148,6 @@ function DateAndLocationForm(){
                 nominatimAxios
                     .get(`/search?q=${query}&format=json&limit=3&layer=poi,address`)
                     .then((r) => {
-                        console.log(r.data)
                         setSuggestedLocation(r.data);
                         setShowSuggestion(true);
                     })
@@ -201,6 +200,9 @@ function DateAndLocationForm(){
                         <CustomCheckbox checked={data.eventType === 'single' || data.eventType === undefined} />
                     </Button>
                     <Button onClick={() => {
+                        if(data.reserveSeating) {
+                            alert(t('dateAndTime.reserveSeatingAlert'))
+                        }
                         setData(prev => ({ ...prev, eventType: 'recurring' }))
                         setHasUnsavedChanges(true)
                     }} sx={{ border: '1px solid #bebebe' }}

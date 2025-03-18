@@ -55,6 +55,7 @@ import AdminTemplate from "./component/template/AdminTemplate.jsx";
 import OverviewDashboard from "./component/admin/OverviewDashboard.jsx";
 import LogManagement from "./component/admin/LogManagement.jsx";
 import ServiceDashboard from "./component/admin/ServiceDashboard.jsx";
+import CreateSeatMap from "./component/organizer/CreateSeatMap.jsx";
 
 configureDayjs()
 
@@ -170,6 +171,7 @@ function App() {
                 return response.data;
             }
         },
+        {path: 'create/seat-map', element: <CreateSeatMap />},
         {
             path: '/organizer',
             element: <OrganizerTemplate />,

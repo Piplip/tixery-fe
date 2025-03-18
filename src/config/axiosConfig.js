@@ -1,8 +1,33 @@
 import axios from "axios";
 import {getCookie} from "../common/Utilities.js";
 
-export const rootAxios = axios.create({
+export const rootAxios = axios.create({})
 
+export const configAxios = axios.create({
+    baseURL: 'http://localhost:8888',
+    timeout: 10000,
+    withCredentials: true,
+    headers: {
+        'Content-Type': 'application/json',
+    }
+})
+
+export const registryAxios = axios.create({
+    baseURL: 'http://localhost:8761',
+    timeout: 10000,
+    withCredentials: true,
+    headers: {
+        'Content-Type': 'application/json',
+    }
+})
+
+export const gatewayAxios = axios.create({
+    baseURL: 'http://localhost:4001',
+    timeout: 10000,
+    withCredentials: true,
+    headers: {
+        'Content-Type': 'application/json',
+    }
 })
 
 const accountAxios = axios.create({
