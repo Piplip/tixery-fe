@@ -13,7 +13,6 @@
 .create-seat-map__zoom{
     position: absolute;
     bottom: 10px;
-    left: 20px;
 }
 .create-seat-map__add-tier-btn{
     width: 100%;

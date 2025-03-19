@@ -37,6 +37,7 @@ import SeatMap from "./SeatMap.jsx";
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import CheckIcon from '@mui/icons-material/Check';
+import AddIcon from '@mui/icons-material/Add';
 
 const tools = [
     {icon: <ViewModuleIcon sx={{fontSize: 30}}/>, label: 'Seats', tooltip: 'Add a seat section', type: 'seats'},
@@ -104,7 +105,7 @@ function CreateSeatMap(){
     const [offset, setOffset] = useState({ x: 0, y: 0 });
     const [center, setCenter] = useState({ x: 0, y: 0 });
     const [tier, setTier] = useState([]);
-    const [togglePallete, setTogglePallete] = useState([]);
+    const [togglePalette, setTogglePalette] = useState([]);
 
     const addCanvasObject = (objectType, properties) => {
         const centerPosition = {x: 0, y: 0};
@@ -159,7 +160,7 @@ function CreateSeatMap(){
         enableReinitialize: true,
         validationSchema: getValidationSchema(selectedTool),
         onSubmit: (values) => {
-            const objectId = addCanvasObject(selectedTool, values[selectedTool]);
+            addCanvasObject(selectedTool, values[selectedTool]);
             formik.resetForm();
             setSelectedTool(null);
         },
@@ -373,7 +374,44 @@ function CreateSeatMap(){
                 assignedSeats: 0
             }
         ]))
-        setTogglePallete(prev => ([...prev, false]))
+        setTogglePalette(prev => ([...prev, false]))
+    }
+
+    function assignTier(tierIndex) {
+        if (selectedObject.length === 0) return;
+        console.log(selectedObject)
+        setTier(prev => {
+            const updatedTiers = [...prev];
+            const currentTier = updatedTiers[tierIndex];
+
+            updatedTiers.forEach((tier, idx) => {
+                if (idx !== tierIndex && Array.isArray(tier.assignedSeats)) {
+                    tier.assignedSeats = tier.assignedSeats.filter(
+                        seatId => !selectedObject.includes(seatId)
+                    );
+                }
+            });
+
+            const currentAssignedSeats = Array.isArray(currentTier.assignedSeats)
+                ? currentTier.assignedSeats
+                : [];
+
+            const updatedAssignedSeats = selectedObject.reduce((acc, seatId) => {
+                if (currentAssignedSeats.includes(seatId)) {
+                    return acc.filter(id => id !== seatId);
+                }
+                return [...acc, seatId];
+            }, currentAssignedSeats);
+
+            updatedTiers[tierIndex] = {
+                ...currentTier,
+                assignedSeats: updatedAssignedSeats
+            };
+
+            return updatedTiers;
+        });
+
+        setSelectedObject([])
     }
 
     return (
@@ -385,14 +423,21 @@ function CreateSeatMap(){
                             PTE Roadshow 2025 (Can Tho)
                         </Typography>
                         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                            <Tabs value={view} onChange={(e, newValue) => setView(newValue)}>
+                            <Tabs value={view} onChange={(e, newValue) => {
+                                setView(newValue)
+                                if(newValue === 'tier') {
+                                    setSelectedTool(null)
+                                }
+                            }}>
                                 <Tab label="Map" value={'map'}/>
                                 {canvasObjects.length === 0 ?
                                     <Tooltip title={'Once you have created your map you will be able to create and assign tiers'}>
-                                        <Tab label="Tiers" value={'tier'} disabled />
+                                        <span>
+                                            <Tab label="Tiers" value={'tier'} disabled/>
+                                        </span>
                                     </Tooltip>
                                     :
-                                    <Tab label="Tiers" value={'tier'}/>
+                                    <Tab label="Tiers" value={'tier'} />
                                 }
                             </Tabs>
                         </Box>
@@ -484,12 +529,16 @@ function CreateSeatMap(){
                                         <Stack className={'create-seat-map__tier'} key={index} rowGap={1}>
                                             <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'} style={{position: 'relative'}}>
                                                 <Stack direction={'row'} columnGap={2} alignItems={'center'}>
-                                                    <div className={'tier__color'} style={{backgroundColor: item.color}}
-                                                         onClick={() => {
-                                                             setTogglePallete(prev => prev.map((_, i) => i === index ? !prev[i] : prev[i]))
-                                                         }}
-                                                    >
-                                                        <EditIcon sx={{color: 'white'}}/>
+                                                    <div className={'tier__color'} style={{backgroundColor: item.color}}>
+                                                        {selectedObject.length > 0 ?
+                                                            <AddIcon sx={{color: 'white', fontSize: 24}} onClick={() => assignTier(index)}/>
+                                                            :
+                                                            <EditIcon sx={{color: 'white'}}
+                                                                      onClick={() => {
+                                                                          setTogglePalette(prev => prev.map((_, i) => i === index ? !prev[i] : prev[i]))
+                                                                      }}
+                                                            />
+                                                        }
                                                     </div>
                                                     <Stack sx={{width: 'fit-content'}}>
                                                         <input type={'text'} value={item.name} className={'tier__input'}
@@ -498,20 +547,20 @@ function CreateSeatMap(){
                                                             }}
                                                         />
                                                         <Typography variant={'body2'} sx={{color: 'gray'}}>
-                                                            {item.assignedSeats} seats
+                                                            {item.assignedSeats.length} seats
                                                         </Typography>
                                                     </Stack>
                                                 </Stack>
                                                 <Tooltip title={'Delete'} placement={'left'}>
                                                     <IconButton className={'tier__delete-btn'} onClick={() => {
                                                         setTier(prev => prev.filter(t => t.id !== item.id))
-                                                        setTogglePallete(prev => prev.filter((_, i) => i !== index))
+                                                        setTogglePalette(prev => prev.filter((_, i) => i !== index))
                                                     }}>
                                                         <DeleteOutlineIcon />
                                                     </IconButton>
                                                 </Tooltip>
                                             </Stack>
-                                            {togglePallete[index] &&
+                                            {togglePalette[index] &&
                                                 <>
                                                     <Divider />
                                                     <Stack direction={'row'} justifyContent={'space-between'} gap={1}
@@ -549,6 +598,10 @@ function CreateSeatMap(){
                     <Divider sx={{ marginBlock: 2 }} />
 
                    {selectedTool && RenderToolOption()}
+
+                    <Typography variant="body2" sx={{ mb: 1 }} className={'create-seat-map__zoom'}>
+                        Zoom: {Math.round(zoom * 100)}%
+                    </Typography>
                 </Box>
                 <Box
                     sx={{
@@ -559,7 +612,7 @@ function CreateSeatMap(){
                     }}
                 >
                     <SeatMap data={canvasObjects} setData={setCanvasObjects} selectedObject={selectedObject} setSelectedObject={setSelectedObject}
-                             setCenter={setCenter} view={view}
+                             setCenter={setCenter} view={view} tierData={tier}
                              zoom={zoom} setZoom={setZoom} offset={offset} setOffset={setOffset}
                     />
                 </Box>
