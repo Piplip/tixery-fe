@@ -13,7 +13,7 @@ import {
     Tooltip,
     Typography
 } from "@mui/material";
-import {useEffect, useState} from "react";
+import {Fragment, useEffect, useState} from "react";
 import CloseIcon from '@mui/icons-material/Close';
 import {Divider} from "@mui/joy";
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
@@ -38,6 +38,8 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import CheckIcon from '@mui/icons-material/Check';
 import AddIcon from '@mui/icons-material/Add';
+import { Slider } from "@mui/material";
+import {getContrastColor} from "../../common/Utilities.js";
 
 const tools = [
     {icon: <ViewModuleIcon sx={{fontSize: 30}}/>, label: 'Seats', tooltip: 'Add a seat section', type: 'seats'},
@@ -52,16 +54,17 @@ const getValidationSchema = (selectedTool) => {
             return Yup.object().shape({
                 seats: Yup.object().shape({
                     sectionName: Yup.string().required('Section Name is required'),
-                    rows: Yup.string().required('Rows are required'),
-                    seats: Yup.string().required('Seats are required'),
+                    rows: Yup.number().typeError("Rows should be a number")
+                        .required('Rows are required'),
+                    seats: Yup.number().typeError("Seats should be a number").required('Seats are required'),
                 })
             });
         case 'table':
             return Yup.object().shape({
                 table: Yup.object().shape({
                     tableName: Yup.string().required('Table Name is required'),
-                    seats: Yup.string().required('Seats are required'),
-                    endSeats: Yup.number().required("End Seats are required")
+                    seats: Yup.number().typeError("Seats should be a number").required('Seats are required'),
+                    endSeats: Yup.number().typeError("End seats should be a number").required("End Seats are required")
                 })
             });
         case 'object':
@@ -81,7 +84,7 @@ const getValidationSchema = (selectedTool) => {
     }
 };
 
-const TIER_PALLETE = [
+const TIER_PALETTE = [
     '#FF0000',
     '#00FF00',
     '#0000FF',
@@ -101,6 +104,7 @@ function CreateSeatMap(){
     const [canvasObjects, setCanvasObjects] = useState([]);
     const [selectedObject, setSelectedObject] = useState([]);
     const [capacity, setCapacity] = useState(0);
+    const [totalAssignedSeats, setTotalAssignedSeats] = useState(0);
     const [zoom, setZoom] = useState(1.5);
     const [offset, setOffset] = useState({ x: 0, y: 0 });
     const [center, setCenter] = useState({ x: 0, y: 0 });
@@ -115,6 +119,7 @@ function CreateSeatMap(){
             type: objectType,
             position: centerPosition,
             properties: properties,
+            rotation: 0,
             created: new Date().toISOString()
         };
 
@@ -133,32 +138,34 @@ function CreateSeatMap(){
     };
 
     useEffect(() => {
-        if(canvasObjects.length === 0)
-            return
+        if(canvasObjects.length === 0) {
+            setCapacity(0);
+            return;
+        }
 
         const total = canvasObjects.reduce((acc, obj) => {
             switch (obj.type) {
                 case 'seats':
-                    return acc + parseInt(obj.properties.rows) * parseInt(obj.properties.seats);
+                    return acc + (parseInt(obj.properties.rows) * parseInt(obj.properties.seats));
                 case 'table':
                     return acc + parseInt(obj.properties.seats);
                 default:
                     return acc;
             }
-        }, 0)
+        }, 0);
 
         setCapacity(total);
     }, [canvasObjects]);
 
     const formik = useFormik({
         initialValues: {
-            seats: { sectionName: '', rows: 5, seats: 10 },
-            table: { tableName: '', style: 'square', endSeats: 2, seats: 8 },
-            object: { shape: 'square', label: 'Stage', icon: 'stage' },
-            text: { text: '', size: 3 }
+            seats: { sectionName: '', rows: '5', seats: '10' },
+            table: { tableName: '', style: 'square', endSeats: '2', seats: '8' },
+            object: { objectName: '', shape: 'square', label: 'Stage', icon: 'stage' },
+            text: { text: '', size: '1' }
         },
-        enableReinitialize: true,
         validationSchema: getValidationSchema(selectedTool),
+        enableReinitialize: true,
         onSubmit: (values) => {
             addCanvasObject(selectedTool, values[selectedTool]);
             formik.resetForm();
@@ -167,17 +174,23 @@ function CreateSeatMap(){
     });
 
     useEffect(() => {
-        formik.setErrors({});
-        formik.setTouched({});
-        formik.setValues({
-            seats: { sectionName: '', rows: 5, seats: 10 },
-            table: { tableName: '', style: 'square', endSeats: 2, seats: 8 },
-            object: { objectName: '', shape: 'square', label: 'Stage', icon: 'stage' },
-            text: { text: '', size: 1 }
-        });
-    }, [selectedTool]);
+        if (selectedObject.length === 1) {
+            const foundObject = canvasObjects.find(obj => obj.id === selectedObject[0]);
+            if (foundObject) {
+                formik.setErrors({})
+                const currentProps = formik.values[foundObject.type];
+                if (JSON.stringify(currentProps) !== JSON.stringify(foundObject.properties)) {
+                    const newValues = {
+                        ...formik.values,
+                        [foundObject.type]: { ...foundObject.properties }
+                    };
+                    formik.setValues(newValues, false);
+                }
+            }
+        }
+    }, [selectedObject, canvasObjects]);
 
-    const RenderToolOption = () => {
+    const RenderToolOption = (selectedTool, type = 'create') => {
         let Option;
         switch (selectedTool) {
             case 'seats':
@@ -346,21 +359,23 @@ function CreateSeatMap(){
             <form onSubmit={formik.handleSubmit}>
                 <Stack rowGap={3}>
                     {Option}
-                    <Stack direction={'row'} columnGap={1} alignSelf={'center'}>
-                        <Button type={'button'} variant="outlined" color="secondary" onClick={() => setSelectedTool(null)}>
-                            Cancel
-                        </Button>
-                        <Button type={'submit'} variant="contained" color="primary" disabled={!formik.isValid}>
-                            Create
-                        </Button>
-                    </Stack>
+                    {type === 'create' &&
+                        <Stack direction={'row'} columnGap={1} alignSelf={'center'}>
+                            <Button type={'button'} variant="outlined" color="secondary" onClick={() => setSelectedTool(null)}>
+                                Cancel
+                            </Button>
+                            <Button type={'submit'} variant="contained" color="primary" disabled={!formik.isValid}>
+                                Create
+                            </Button>
+                        </Stack>
+                    }
                 </Stack>
             </form>
         );
     };
 
     function getTierColor(){
-        const remainColor = TIER_PALLETE.filter(color => !tier.map(t => t.color).includes(color))
+        const remainColor = TIER_PALETTE.filter(color => !tier.map(t => t.color).includes(color))
         return remainColor[Math.floor(Math.random() * remainColor.length)]
     }
 
@@ -379,16 +394,35 @@ function CreateSeatMap(){
 
     function assignTier(tierIndex) {
         if (selectedObject.length === 0) return;
-        console.log(selectedObject)
+
         setTier(prev => {
             const updatedTiers = [...prev];
             const currentTier = updatedTiers[tierIndex];
 
+            let removedSeatsCount = 0;
             updatedTiers.forEach((tier, idx) => {
                 if (idx !== tierIndex && Array.isArray(tier.assignedSeats)) {
+                    const beforeCount = tier.assignedSeats.reduce((count, id) => {
+                        if (id.includes('_')) {
+                            return count + 1;
+                        }
+                        const tableObj = canvasObjects.find(obj => obj.id === id && obj.type === 'table');
+                        return count + (tableObj ? parseInt(tableObj.properties.seats) : 0);
+                    }, 0);
+
                     tier.assignedSeats = tier.assignedSeats.filter(
                         seatId => !selectedObject.includes(seatId)
                     );
+
+                    const afterCount = tier.assignedSeats.reduce((count, id) => {
+                        if (id.includes('_')) {
+                            return count + 1;
+                        }
+                        const tableObj = canvasObjects.find(obj => obj.id === id && obj.type === 'table');
+                        return count + (tableObj ? parseInt(tableObj.properties.seats) : 0);
+                    }, 0);
+
+                    removedSeatsCount += beforeCount - afterCount;
                 }
             });
 
@@ -408,11 +442,126 @@ function CreateSeatMap(){
                 assignedSeats: updatedAssignedSeats
             };
 
+            const netChange = updatedAssignedSeats.reduce((count, id) => {
+                if (!currentAssignedSeats.includes(id)) {
+                    if (id.includes('_')) {
+                        return count + 1;
+                    }
+                    const tableObj = canvasObjects.find(obj => obj.id === id && obj.type === 'table');
+                    return count + (tableObj ? parseInt(tableObj.properties.seats) : 0);
+                }
+                return count;
+            }, 0);
+
+            setTotalAssignedSeats(prev => prev - removedSeatsCount + netChange);
+
             return updatedTiers;
         });
 
         setSelectedObject([])
     }
+
+    function deleteTier(tierIndex) {
+        setTier(prev => {
+            const tierToDelete = prev[tierIndex];
+            if (tierToDelete && Array.isArray(tierToDelete.assignedSeats)) {
+                const seatsToRemove = tierToDelete.assignedSeats.reduce((count, id) => {
+                    if (id.includes('_')) {
+                        return count + 1;
+                    }
+                    const tableObj = canvasObjects.find(obj => obj.id === id && obj.type === 'table');
+                    return count + (tableObj ? parseInt(tableObj.properties.seats) : 0);
+                }, 0);
+                setTotalAssignedSeats(prev => prev - seatsToRemove);
+            }
+            return prev.filter((_, index) => index !== tierIndex);
+        });
+        setTogglePalette(prev => prev.filter((_, index) => index !== tierIndex));
+    }
+
+    const RenderSelectedObjectOption = () => {
+        if (selectedObject.length === 0) return null;
+
+        return selectedObject.map((objectId, index) => {
+            const foundObject = canvasObjects.find(obj => obj.id === objectId);
+            if (!foundObject) return null;
+
+            return (
+                <Fragment key={index}>
+                    {index !== selectedObject.length && <Divider />}
+                    <Stack>
+                        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
+                            <Typography variant="subtitle1">
+                                {foundObject.type.charAt(0).toUpperCase() + foundObject.type.slice(1)}
+                            </Typography>
+                            <IconButton size="small" onClick={() => setSelectedObject([])}>
+                                <CloseIcon fontSize="small"/>
+                            </IconButton>
+                        </Stack>
+                        {RenderToolOption(foundObject.type, 'edit')}
+                        <Typography variant="body2" mt={2}>Rotation: {Math.round(foundObject.rotation * 100) / 100 || 0}°</Typography>
+                        <Stack direction="row" spacing={2} alignItems="center">
+                            <Typography>0°</Typography>
+                            <Slider
+                                value={Math.round(foundObject.rotation * 100) / 100 || 0}
+                                onChange={(e, newValue) => {
+                                    setCanvasObjects(prev =>
+                                        prev.map(obj =>
+                                            obj.id === foundObject.id
+                                                ? {...obj, rotation: newValue}
+                                                : obj
+                                        )
+                                    );
+                                }}
+                                min={0}
+                                max={360}
+                                valueLabelDisplay="auto"
+                            />
+                            <Typography>360°</Typography>
+                        </Stack>
+                        <Button variant={'contained'} sx={{mt: 1}}
+                                onClick={handleChangeSelectedObjects}
+                        >Change</Button>
+                    </Stack>
+                </Fragment>
+            );
+        })
+    }
+
+    function handleChangeSelectedObjects(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        if (selectedObject.length === 0) return;
+
+        const updates = selectedObject.map(objectId => {
+            const obj = canvasObjects.find(o => o.id === objectId);
+            return {
+                ...obj,
+                properties: formik.values[obj.type]
+            };
+        });
+
+        setCanvasObjects(prev => prev.map(obj =>
+            updates.find(u => u.id === obj.id) || obj
+        ));
+    }
+
+    const handleToolClick = (toolType) => {
+        setSelectedObject([]);
+        setSelectedTool(toolType);
+
+        formik.resetForm({
+            values: {
+                seats: { sectionName: '', rows: '5', seats: '10' },
+                table: { tableName: '', style: 'square', endSeats: '2', seats: '8' },
+                object: { objectName: '', shape: 'square', label: 'Stage', icon: 'stage' },
+                text: { text: '', size: 3 }
+            }
+        });
+    };
 
     return (
         <Box display="flex" flexDirection="column" height="100dvh">
@@ -469,10 +618,10 @@ function CreateSeatMap(){
                     {view === 'map' ?
                         <>
                             <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
-                                <Typography variant="subtitle1" fontWeight="bold" mb={1}>
+                                <Typography variant="subtitle1" fontWeight="bold">
                                     Capacity
                                 </Typography>
-                                <p>{capacity}</p>
+                                <p className={'create-seat-map__capacity'}>{capacity}</p>
                             </Stack>
 
                             <Divider sx={{ mb: 2 }} />
@@ -484,9 +633,7 @@ function CreateSeatMap(){
                                             alignItems={'center'}
                                             onMouseEnter={() => setHoveredTool(index)}
                                             onMouseLeave={() => setHoveredTool(null)}
-                                            onClick={() => {
-                                                setSelectedTool(tool.type)
-                                            }}
+                                            onClick={() => handleToolClick(tool.type)}
                                         >
                                             {hoveredTool === index ? <ControlPointOutlinedIcon sx={{fontSize: 30}}/> : tool.icon}
                                             <Typography variant="body2" color="textSecondary">
@@ -496,6 +643,15 @@ function CreateSeatMap(){
                                     </Tooltip>
                                 ))}
                             </Stack>
+
+                            {selectedObject.length > 0 && (
+                                <>
+                                    <Divider sx={{ mb: 2 }} />
+                                    <Stack rowGap={2}>
+                                        <RenderSelectedObjectOption />
+                                    </Stack>
+                                </>
+                            )}
                         </>
                         :
                         <Stack rowGap={1}>
@@ -519,7 +675,7 @@ function CreateSeatMap(){
                                     Seats assigned
                                 </Typography>
                                 <Typography variant={'body1'}>
-                                    0 / {capacity}
+                                    {totalAssignedSeats} / {capacity}
                                 </Typography>
                             </Stack>
                             <button className={'create-seat-map__add-tier-btn'} onClick={addTier}>Add tier</button>
@@ -531,9 +687,9 @@ function CreateSeatMap(){
                                                 <Stack direction={'row'} columnGap={2} alignItems={'center'}>
                                                     <div className={'tier__color'} style={{backgroundColor: item.color}}>
                                                         {selectedObject.length > 0 ?
-                                                            <AddIcon sx={{color: 'white', fontSize: 24}} onClick={() => assignTier(index)}/>
+                                                            <AddIcon sx={{color: getContrastColor(item.color), fontSize: 24}} onClick={() => assignTier(index)}/>
                                                             :
-                                                            <EditIcon sx={{color: 'white'}}
+                                                            <EditIcon sx={{color: getContrastColor(item.color)}}
                                                                       onClick={() => {
                                                                           setTogglePalette(prev => prev.map((_, i) => i === index ? !prev[i] : prev[i]))
                                                                       }}
@@ -547,15 +703,24 @@ function CreateSeatMap(){
                                                             }}
                                                         />
                                                         <Typography variant={'body2'} sx={{color: 'gray'}}>
-                                                            {item.assignedSeats.length} seats
+                                                            {item.assignedSeats?.length > 0 ?
+                                                                item.assignedSeats.reduce((count, id) => {
+                                                                    if (id.includes('_')) {
+                                                                        return count + 1;
+                                                                    }
+                                                                    const tableObj = canvasObjects.find(obj => obj.id === id && obj.type === 'table');
+                                                                    return count + (tableObj ? parseInt(tableObj.properties.seats) : 0);
+                                                                    },
+                                                                0)
+                                                                :
+                                                                0
+                                                            }
+                                                            {` seats`}
                                                         </Typography>
                                                     </Stack>
                                                 </Stack>
                                                 <Tooltip title={'Delete'} placement={'left'}>
-                                                    <IconButton className={'tier__delete-btn'} onClick={() => {
-                                                        setTier(prev => prev.filter(t => t.id !== item.id))
-                                                        setTogglePalette(prev => prev.filter((_, i) => i !== index))
-                                                    }}>
+                                                    <IconButton className={'tier__delete-btn'} onClick={() => deleteTier(index)}>
                                                         <DeleteOutlineIcon />
                                                     </IconButton>
                                                 </Tooltip>
@@ -565,7 +730,7 @@ function CreateSeatMap(){
                                                     <Divider />
                                                     <Stack direction={'row'} justifyContent={'space-between'} gap={1}
                                                            flexWrap={'wrap'}>
-                                                        {TIER_PALLETE.map((color, i) => (
+                                                        {TIER_PALETTE.map((color, i) => (
                                                             <div key={i} className={'palette__color'}
                                                                  style={{backgroundColor: color}}
                                                                  onClick={() => {
@@ -597,7 +762,7 @@ function CreateSeatMap(){
 
                     <Divider sx={{ marginBlock: 2 }} />
 
-                   {selectedTool && RenderToolOption()}
+                   {selectedTool && RenderToolOption(selectedTool)}
 
                     <Typography variant="body2" sx={{ mb: 1 }} className={'create-seat-map__zoom'}>
                         Zoom: {Math.round(zoom * 100)}%
@@ -612,7 +777,7 @@ function CreateSeatMap(){
                     }}
                 >
                     <SeatMap data={canvasObjects} setData={setCanvasObjects} selectedObject={selectedObject} setSelectedObject={setSelectedObject}
-                             setCenter={setCenter} view={view} tierData={tier}
+                             setCenter={setCenter} view={view} tierData={tier} setSelectedTool={setSelectedTool}
                              zoom={zoom} setZoom={setZoom} offset={offset} setOffset={setOffset}
                     />
                 </Box>

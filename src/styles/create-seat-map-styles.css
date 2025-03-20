@@ -68,3 +68,7 @@
     position: absolute;
     right: 3rem;
 }
+.create-seat-map__capacity{
+    font-size: 1.5rem;
+    font-family: 'Nunito', sans-serif;
+}
