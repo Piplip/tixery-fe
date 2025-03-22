@@ -2,6 +2,11 @@ import React, {useEffect, useRef, useState} from "react"
 import {Button, Stack} from "@mui/material";
 import PropTypes from "prop-types";
 import {getContrastColor} from "../../common/Utilities.js"
+import {initializeApp} from "firebase/app";
+import {firebaseConfig} from "../../config/firebaseConfig.js";
+import {getBytes, getStorage, ref} from "firebase/storage";
+import {useLocation} from "react-router-dom";
+import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 
 SeatMap.propTypes = {
     data: PropTypes.array.isRequired,
@@ -15,7 +20,10 @@ SeatMap.propTypes = {
     setOffset: PropTypes.func.isRequired,
     view: PropTypes.string.isRequired,
     tierData: PropTypes.array,
-    setSelectedTool: PropTypes.func
+    setTier: PropTypes.func,
+    setSelectedTool: PropTypes.func,
+    setSeatMapData: PropTypes.func,
+    setAssignedSeat: PropTypes.func,
 };
 
 const SEAT_SIZE = 18;
@@ -31,7 +39,11 @@ const TABLE_SEAT_RADIUS = 10;
 const SEAT_DIAMETER = TABLE_SEAT_RADIUS * 2;
 const TABLE_MARGIN = 5;
 
-function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, zoom, setZoom, offset, setOffset, view, tierData, setSelectedTool}){
+initializeApp(firebaseConfig);
+const storage = getStorage()
+
+function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, zoom, setZoom, offset, setOffset, view,
+                     tierData, setTier, setSelectedTool, setSeatMapData, setAssignedSeat}){
     const canvasRef = useRef(null);
     const [isDragging, setIsDragging] = useState(false);
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -41,6 +53,68 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
     const [hoveredObject, setHoveredObject] = useState(null);
     const [isRotating, setIsRotating] = useState(false);
     const lastPointerWorldPosRef = useRef(null);
+    const location = useLocation()
+    const isFetched = useRef(false)
+
+    useEffect(() => {
+        const searchParams = new URLSearchParams(location.search.substring(1));
+        const mapID = searchParams.get('mid');
+
+        if (mapID && !isFetched.current) {
+            eventAxiosWithToken.get(`/seat-map/data?mid=${mapID}`)
+                .then(r => {
+                    const data = r.data.data;
+                    const seatMapPath = data.map_url;
+
+                    setSeatMapData({
+                        eventName: data.eventName,
+                        name: data.name,
+                        mapURL: seatMapPath,
+                        share: data.is_public
+                    });
+
+                    if (seatMapPath) {
+                        const mapRef = ref(storage, seatMapPath);
+                        return getBytes(mapRef)
+                            .then(bytes => {
+                                const decoder = new TextDecoder('utf-8');
+                                const jsonStr = decoder.decode(bytes);
+                                const jsonData = JSON.parse(jsonStr);
+                                console.log(jsonData)
+                                if(jsonData.totalAssignedSeats){
+                                    setAssignedSeat(parseInt(jsonData.totalAssignedSeats))
+                                }
+
+                                if (jsonData.canvasObjects && Array.isArray(jsonData.canvasObjects)) {
+                                    setData(jsonData.canvasObjects);
+                                }
+
+                                if (jsonData.tierData && Array.isArray(jsonData.tierData)) {
+                                    const updatedTierData = jsonData.tierData.map((tier, index) => {
+                                        const dbTierID = data.tierIDs && index < data.tierIDs.length
+                                            ? data.tierIDs[index]
+                                            : null;
+
+                                        return {
+                                            ...tier,
+                                            dbTierID: dbTierID
+                                        };
+                                    });
+
+                                    setTier(updatedTierData);
+                                }
+                                isFetched.current = true
+                            })
+                            .catch(err => {
+                                console.error("Error parsing seat map file:", err);
+                            });
+                    }
+                })
+                .catch(err => {
+                    console.error("Error loading seat map data from API:", err);
+                });
+        }
+    }, [location.search, setData, setTier, setSeatMapData]);
 
     const drawGrid = (ctx, zoom, offset) => {
         const width = ctx.canvas.width / (window.devicePixelRatio || 1);
@@ -171,12 +245,8 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
         );
 
         const tableColor = assignedTier ? assignedTier.color : '#f5f5f5';
-        const textColor = assignedTier ? getContrastColor(assignedTier.color) : '#000';
-
-        ctx.save();
-        ctx.fillStyle = tableColor;
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 2;
+        const seatColor = assignedTier ? assignedTier.color : '#dadada';
+        const textColor = getContrastColor(tableColor);
 
         if (style === 'square') {
             const seatCount = parseInt(seats, 10);
@@ -218,7 +288,7 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
             const leftSeats = remaining > 0 ? Math.ceil(remaining / 2) : 0;
             const rightSeats = remaining > 0 ? Math.floor(remaining / 2) : 0;
 
-            ctx.fillStyle = textColor;
+            ctx.fillStyle = seatColor;
 
             if (effectiveEndSeats > 0) {
                 for (let i = 0; i < effectiveEndSeats; i++) {
@@ -267,15 +337,15 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
                     ctx.stroke();
                 }
             }
-        }
-        else if (style === 'circle') {
+        } else if (style === 'circle') {
+
             ctx.beginPath();
             ctx.arc(0, 0, tableRadius, 0, Math.PI * 2);
             ctx.fill();
             ctx.stroke();
 
             if (seats) {
-                ctx.fillStyle = textColor;
+                ctx.fillStyle = seatColor;
 
                 const seatCount = parseInt(seats, 10);
                 const seatRadius = 10;
@@ -319,7 +389,8 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
         );
 
         const backgroundColor = assignedTier ? assignedTier.color : '#f6f6f6';
-        const textColor = assignedTier ? getContrastColor(assignedTier.color) : '#000';
+        const textColor = getContrastColor(backgroundColor);
+        ctx.fillStyle = backgroundColor;
         ctx.lineWidth = 2;
 
         if (shape === 'line') {
@@ -364,7 +435,6 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
 
         let startY = -totalHeight / 2;
 
-        ctx.fillStyle = backgroundColor;
         textLines.forEach(line => {
             ctx.font = line.font;
             const lineY = startY + line.size / 2;

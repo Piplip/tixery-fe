@@ -121,11 +121,11 @@ function LoginSignUp() {
     }
 
     function handleGoogleLogin() {
-        window.location.href = 'http://localhost:10000/accounts/oauth2/authorization/google'
+        window.location.href = 'http://localhost:10001/accounts/oauth2/authorization/google'
     }
 
     function handleFacebookLogin() {
-        window.location.href = 'http://localhost:10000/accounts/oauth2/authorization/facebook'
+        window.location.href = 'http://localhost:10001/accounts/oauth2/authorization/facebook'
     }
 
     return (

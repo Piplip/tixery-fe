@@ -8,7 +8,7 @@ import {useCallback, useContext, useEffect, useState} from "react";
 import * as Yup from "yup";
 import {useFormik} from "formik";
 import {DatePicker, TimePicker} from "@mui/x-date-pickers";
-import {Accordion, AccordionDetails, AccordionGroup, AccordionSummary} from "@mui/joy";
+import {Accordion, AccordionDetails, AccordionGroup, AccordionSummary, Card, CardActions, CardContent} from "@mui/joy";
 import TextAreaWithLimit from "../shared/TextAreaWithLimit.jsx";
 import Dropdown from "@mui/joy/Dropdown";
 import MenuButton from "@mui/joy/MenuButton";
@@ -21,6 +21,9 @@ import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import CurrencySelect from "../shared/CurrencySelect.jsx";
 import {useTranslation} from "react-i18next";
 import LayersClearIcon from '@mui/icons-material/LayersClear';
+import {getUserData} from "../../common/Utilities.js";
+import Grid from "@mui/material/Grid2";
+import {alpha} from "@mui/material/styles";
 
 const ticketVisibility = [
     {label: 'Visible', value: 'visible'},
@@ -33,7 +36,7 @@ function OrganizerCreateTicket() {
     const {t} = useTranslation()
     const [open, setOpen] = useState(false)
     const {data, setData, setHasUnsavedChanges} = useContext(EventContext)
-    const {validate, setAlert, setCurrentStep} = useOutletContext()
+    const {validate, setAlert, setCurrentStep, maxStep} = useOutletContext()
     const [openDetail, setOpenDetail] = useState({
         type: null, open: false
     });
@@ -42,12 +45,14 @@ function OrganizerCreateTicket() {
     const [editTicket, setEditTicket] = useState(null)
     const [showSnackbar, setShowSnackbar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
+    const [seatMap, setSeatMap] = useState([]);
+    const [tiers, setTiers] = useState(null)
+    const [selectedSeatMap, setSelectedSeatMap] = useState(null)
 
     const tabs = [
         { label: t('ticket.admission'), to: '' },
         { label: t('ticket.addOns'), to: 'add-ons' },
         { label: t('ticket.promotions'), to: 'promotions' },
-        { label: t('ticket.holds'), to: 'holds' },
         { label: t('ticket.settings'), to: 'settings' },
     ];
 
@@ -70,6 +75,25 @@ function OrganizerCreateTicket() {
     ];
 
     useEffect(() => {
+        if(location.search.includes('ref=seat-map')){
+            setCurrentStep(3)
+            maxStep.current = 3
+        }
+    }, []);
+
+    useEffect(() => {
+        if (data.reserveSeating && seatMap.length === 0) {
+            eventAxiosWithToken
+                .get(`/seat-map?eid=${location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3]}&pid=${getUserData('profileID')}`)
+                .then(r => {
+                    setSeatMap(r.data);
+                })
+                .catch(err => console.log(err));
+        }
+    }, [data.reserveSeating]);
+
+    useEffect(() => {
+        if(location.search.includes('ref=seat-map')) return
         const msg = validate(0)
         if (typeof msg === 'string' && location.pathname.includes('tickets')) {
             setCurrentStep(0)
@@ -77,42 +101,71 @@ function OrganizerCreateTicket() {
             const basePath = location.pathname.split('/tickets')[0];
             navigate(basePath);
         }
-        setCurrentStep(1)
     }, [location, navigate, setCurrentStep, setAlert, t, validate]);
 
     useEffect(() => {
         if (editTicket !== null && editTicket !== undefined) {
+            const ticket = data.tickets[editTicket];
+
+            const tierPricesArray = [];
+            const tierCurrenciesArray = [];
+
+            if (ticket.tierData && ticket.tierData.length > 0 && tiers) {
+                tiers.forEach((tier) => {
+                    const tierPrice = ticket.tierData.find(td => td.tierID === tier.seat_tier_id);
+
+                    if (tierPrice) {
+                        const tierIndex = tiers.findIndex(t => t.seat_tier_id === tier.seat_tier_id);
+                        if (tierIndex !== -1) {
+                            tierPricesArray[tierIndex] = tierPrice.price;
+
+                            tierCurrenciesArray[tierIndex] = {
+                                currency: tierPrice.currency || ticket.currency || 'USD',
+                                sign: tierPrice.currencySymbol || ticket.currencySymbol || '$',
+                                label: tierPrice.currencyFullForm || ticket.currencyFullForm || 'United States Dollar'
+                            };
+                        }
+                    }
+                });
+            }
+
             setInitialValues({
-                ticketID: data.tickets[editTicket].ticketID,
-                ticketName: data.tickets[editTicket].ticketName,
-                quantity: data.tickets[editTicket].quantity,
-                price: data.tickets[editTicket].price,
-                startDate: data.tickets[editTicket].startDate ? dayjs(data.tickets[editTicket].startDate, 'DD/MM/YYYY') : null,
-                endDate: data.tickets[editTicket].endDate ? dayjs(data.tickets[editTicket].endDate, 'DD/MM/YYYY') : null,
-                startTime: data.tickets[editTicket].startTime ? dayjs(data.tickets[editTicket].startTime, 'HH:mm') : null,
-                endTime: data.tickets[editTicket].endTime ? dayjs(data.tickets[editTicket].endTime, 'HH:mm') : null,
-                minPerOrder: data.tickets[editTicket].minPerOrder,
-                maxPerOrder: data.tickets[editTicket].maxPerOrder,
-                visibility: ticketVisibility.findIndex(v => v.value === data.tickets[editTicket].visibility),
-                description: data.tickets[editTicket].description,
-                visibleStartDate: data.tickets[editTicket].visibleStartDate ? dayjs(data.tickets[editTicket].visibleStartDate, 'DD/MM/YYYY') : null,
-                visibleEndDate: data.tickets[editTicket].visibleEndDate ? dayjs(data.tickets[editTicket].visibleEndDate, 'DD/MM/YYYY') : null,
-                visibleStartTime: data.tickets[editTicket].visibleStartTime ? dayjs(data.tickets[editTicket].visibleStartTime, 'HH:mm') : null,
-                visibleEndTime: data.tickets[editTicket].visibleEndTime ? dayjs(data.tickets[editTicket].visibleEndTime, 'HH:mm') : null,
-                absorbFee: data.tickets[editTicket].absorbFee,
-                currency: data.tickets[editTicket]?.currency
+                ticketID: ticket.ticketID,
+                ticketName: ticket.ticketName,
+                quantity: ticket.quantity,
+                price: ticket.price,
+                startDate: ticket.startDate ? dayjs(ticket.startDate, 'DD/MM/YYYY') : null,
+                endDate: ticket.endDate ? dayjs(ticket.endDate, 'DD/MM/YYYY') : null,
+                startTime: ticket.startTime ? dayjs(ticket.startTime, 'HH:mm') : null,
+                endTime: ticket.endTime ? dayjs(ticket.endTime, 'HH:mm') : null,
+                minPerOrder: ticket.minPerOrder,
+                maxPerOrder: ticket.maxPerOrder,
+                visibility: ticketVisibility.findIndex(v => v.value === ticket.visibility),
+                description: ticket.description,
+                visibleStartDate: ticket.visibleStartDate ? dayjs(ticket.visibleStartDate, 'DD/MM/YYYY') : null,
+                visibleEndDate: ticket.visibleEndDate ? dayjs(ticket.visibleEndDate, 'DD/MM/YYYY') : null,
+                visibleStartTime: ticket.visibleStartTime ? dayjs(ticket.visibleStartTime, 'HH:mm') : null,
+                visibleEndTime: ticket.visibleEndTime ? dayjs(ticket.visibleEndTime, 'HH:mm') : null,
+                absorbFee: ticket.absorbFee,
+                currency: ticket.currency || 'USD',
+                sign: ticket.currencySymbol || '$',
+                label: ticket.currencyFullForm || 'United States Dollar',
+                tierPrices: tierPricesArray,
+                tierCurrencies: tierCurrenciesArray
             });
+
+            setOpenDetail({type: ticket.ticketType, open: true});
         } else {
             setInitialValues({
                 ticketName: "",
                 quantity: '',
                 price: '',
-                startDate: null,
-                endDate: null,
-                startTime: null,
-                endTime: null,
-                minPerOrder: '',
-                maxPerOrder: '',
+                startDate: dayjs().add(1, 'month'),
+                endDate: dayjs().add(2, 'month'),
+                startTime: dayjs(),
+                endTime: dayjs().add(1, 'hour'),
+                minPerOrder: '1',
+                maxPerOrder: '1',
                 visibility: 0,
                 description: '',
                 visibleStartDate: null,
@@ -121,9 +174,13 @@ function OrganizerCreateTicket() {
                 visibleEndTime: null,
                 absorbFee: false,
                 currency: 'USD',
+                sign: '$',
+                label: 'United States Dollar',
+                tierPrices: [],
+                tierCurrencies: []
             });
         }
-    }, [data.tickets, editTicket]);
+    }, [editTicket]);
 
     const handleOpenChange = useCallback((event, isOpen) => {
         setOpen(isOpen);
@@ -134,21 +191,18 @@ function OrganizerCreateTicket() {
             .required("Ticket name is required.")
             .max(50, "Ticket name type cannot exceed 50 characters."),
         quantity: Yup.number()
-            .moreThan(1, "Quantity must be greater than 1.")
-            .typeError("Quantity must be a number.")
-            .required("Quantity is required."),
+            .test('quantity-validation', '', function(value) {
+                if (tiers && tiers.length) return true;
+                return value > 0 || this.createError({ message: 'Quantity must be greater than 0' });
+            })
+            .typeError("Quantity must be a number."),
         price: Yup.mixed().nullable()
-            .test(
-                'is-valid-price',
-                'Price must be a valid number.',
-                function () {
-                    if (openDetail.type === 'free' || openDetail.type === 'donation') {
-                        return true;
-                    } else {
-                        return this.parent.price > 0 && this.parent.price !== undefined;
-                    }
-                }
-            ),
+            .test('price-validation', '', function(value) {
+                if (tiers && tiers.length) return true;
+                const {type} = this.parent;
+                if (type === 'free' || type === 'donation') return true;
+                return value > 0 || this.createError({ message: 'Price must be greater than 0' });
+            }),
         startDate: Yup.date()
             .required('Start date is required')
             .typeError('Start date must be a valid date')
@@ -261,8 +315,8 @@ function OrganizerCreateTicket() {
         endDate: null,
         startTime: null,
         endTime: null,
-        minPerOrder: 1,
-        maxPerOrder: 1,
+        minPerOrder: '1',
+        maxPerOrder: '1',
         visibility: 0,
         description: '',
         visibleStartDate: null,
@@ -285,52 +339,151 @@ function OrganizerCreateTicket() {
             let newData = transformData(values);
 
             if (editTicket !== null) {
-                newCapacity = Number(newCapacity + values.quantity - data.tickets[editTicket].quantity);
-                eventAxiosWithToken.put(`/tickets/update?tid=${values.ticketID}&timezone=${data.timezone}`, newData)
-                    .then(() => {
-                        const updatedTickets = [...data.tickets];
-                        updatedTickets[editTicket] = newData;
-                        setData({...data, tickets: updatedTickets, capacity: newCapacity});
-                        setHasUnsavedChanges(true);
+                if (tiers && data.reserveSeating) {
+                    const oldTicket = data.tickets[editTicket];
+                    const ticketIDs = Array.isArray(oldTicket.ticketID) ? oldTicket.ticketID : [oldTicket.ticketID];
+
+                    const params = new URLSearchParams({
+                        eid: location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3],
+                        timezone: data.timezone
+                    });
+
+                    eventAxiosWithToken.post(`/tickets/tier/update?${params}`, {
+                        ticketIDs: ticketIDs,
+                        ticketData: newData
                     })
-                    .catch(err => console.log(err));
+                        .then(r => {
+                            if (r.data.data) {
+                                newData = {
+                                    ...newData,
+                                    ticketID: r.data.data
+                                };
+
+                                const updatedTickets = [...data.tickets];
+                                updatedTickets[editTicket] = newData;
+
+                                setData(prev => ({
+                                    ...prev,
+                                    tickets: updatedTickets
+                                }));
+
+                                setShowSnackbar(true);
+                                setSnackbarMessage('Ticket updated successfully');
+                                setHasUnsavedChanges(true);
+                            }
+                        })
+                        .catch(err => console.log(err));
+                }
+                else{
+                    newCapacity = Number(newCapacity + values.quantity - data.tickets[editTicket].quantity);
+                    eventAxiosWithToken.put(`/tickets/update?tid=${values.ticketID}&timezone=${data.timezone}`, newData)
+                        .then(() => {
+                            const updatedTickets = [...data.tickets];
+                            updatedTickets[editTicket] = newData;
+                            setData({...data, tickets: updatedTickets, capacity: newCapacity});
+
+                            setShowSnackbar(true);
+                            setSnackbarMessage('Ticket updated successfully');
+                            setHasUnsavedChanges(true);
+                        })
+                        .catch(err => console.log(err));
+                }
             } else {
                 newCapacity = Number(newCapacity + values.quantity)
                 const params = new URLSearchParams({
                     eid: location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3],
                     timezone: data.timezone
                 });
+
                 if (data.eventType === 'recurring') {
                     params.append("is_recurring", "true");
                     newData = {...newData, occurrence: JSON.parse(sessionStorage.getItem('occurrence-ids'))};
                 }
-                eventAxiosWithToken.post(`/tickets/add?${params}`, newData)
-                    .then(r => {
-                        newData = {...newData, ticketID: r.data.data};
-                        setData(prev => ({
-                            ...prev,
-                            tickets: prev.tickets ? prev.tickets.concat(newData) : [newData],
-                            capacity: newCapacity
-                        }));
-                        setHasUnsavedChanges(true);
-                        if (data.eventType === 'recurring') {
-                            setShowSnackbar(true);
-                            setSnackbarMessage('Your ticket was created and will appear on all time slots.');
-                        }
-                    })
-                    .catch(err => console.log(err));
+
+                if(tiers && data.reserveSeating) {
+                    eventAxiosWithToken.post(`/tickets/tier/add?${params}`, newData)
+                        .then(r => {
+                            if (Array.isArray(r.data.data)) {
+                                newData = {
+                                    ...newData,
+                                    ticketID: r.data.data
+                                };
+
+                                setData(prev => ({
+                                    ...prev,
+                                    tickets: prev.tickets ? prev.tickets.concat(newData) : [newData],
+                                }));
+                            } else {
+                                newData = {...newData, ticketID: r.data.data};
+                                setData(prev => ({
+                                    ...prev,
+                                    tickets: prev.tickets ? prev.tickets.concat(newData) : [newData],
+                                }));
+                            }
+
+                            setSnackbarMessage('Create ticket successfully')
+                            setHasUnsavedChanges(true);
+                        })
+                        .catch(err => console.log(err));
+                }
+                else{
+                    eventAxiosWithToken.post(`/tickets/add?${params}`, newData)
+                        .then(r => {
+                            newData = {...newData, ticketID: r.data.data};
+                            setData(prev => ({
+                                ...prev,
+                                tickets: prev.tickets ? prev.tickets.concat(newData) : [newData],
+                                capacity: newCapacity
+                            }));
+                            setHasUnsavedChanges(true);
+                            if (data.eventType === 'recurring') {
+                                setShowSnackbar(true);
+                                setSnackbarMessage('Your ticket was created and will appear on all time slots.');
+                            }
+                        })
+                        .catch(err => console.log(err));
+                }
             }
             formik.resetForm();
         },
     });
 
     function transformData(data) {
+        if (tiers) {
+            const validTierPrices = data.tierPrices.map((price, index) => ({
+                price: price,
+                tierID: tiers[index].seat_tier_id,
+                currency: data.tierCurrencies?.[index]?.currency,
+                currencySymbol: data.tierCurrencies?.[index]?.sign,
+                currencyFullForm: data.tierCurrencies?.[index]?.label
+            })).filter(tier => tier.price !== null && tier.price !== undefined && tier.price !== '');
+
+            return {
+                ticketID: data.ticketID,
+                ticketType: openDetail.type,
+                ticketName: data.ticketName,
+                startDate: data.startDate.format('DD/MM/YYYY'),
+                endDate: data.endDate.format('DD/MM/YYYY'),
+                startTime: data.startTime.format('HH:mm'),
+                endTime: data.endTime.format('HH:mm'),
+                description: data.description,
+                visibility: ticketVisibility[data.visibility].value,
+                visibleStartDate: data.visibleStartDate ? data.visibleStartDate.format('DD/MM/YYYY') : null,
+                visibleEndDate: data.visibleEndDate ? data.visibleEndDate.format('DD/MM/YYYY') : null,
+                visibleStartTime: data.visibleStartTime ? data.visibleStartTime.format('HH:mm') : null,
+                visibleEndTime: data.visibleEndTime ? data.visibleEndTime.format('HH:mm') : null,
+                minPerOrder: data.minPerOrder,
+                maxPerOrder: data.maxPerOrder ? data.maxPerOrder : 100,
+                tierData: validTierPrices
+            };
+        }
+
         return {
             ticketID: data.ticketID,
             ticketType: openDetail.type,
             ticketName: data.ticketName,
             quantity: data.quantity,
-            price: openDetail.type === 'Free' ? 'free' : openDetail.type === 'Donation' ? 'donation' : data.price,
+            price: openDetail.type === 'free' ? 'free' : openDetail.type === 'donation' ? 'donation' : data.price,
             startDate: data.startDate.format('DD/MM/YYYY'),
             endDate: data.endDate.format('DD/MM/YYYY'),
             startTime: data.startTime.format('HH:mm'),
@@ -343,11 +496,11 @@ function OrganizerCreateTicket() {
             visibleEndTime: data.visibleEndTime ? data.visibleEndTime.format('HH:mm') : null,
             minPerOrder: data.minPerOrder,
             maxPerOrder: data.maxPerOrder ? data.maxPerOrder : 100,
-            absorbFee: openDetail.type === 'Donation' ? data.absorbFee : null,
+            absorbFee: openDetail.type === 'donation' ? data.absorbFee : null,
             currency: data.currency,
             currencySymbol: data.sign,
             currencyFullForm: data.label
-        }
+        };
     }
 
     function handleTypeSelect(type) {
@@ -359,6 +512,20 @@ function OrganizerCreateTicket() {
         } else formik.setFieldValue('price', '');
         setOpenDetail({type: type, open: true});
     }
+
+    const ownerMaps = seatMap.filter(map => map.owner_id == getUserData("profileID"));
+    const otherMaps = seatMap.filter(map => map.owner_id != getUserData("profileID"));
+
+    const handleSelect = (mapId) => {
+        const selectedSeatMap = seatMap.find(map => map.map_id === mapId)
+        setSelectedSeatMap(selectedSeatMap)
+        setData(prev => ({...prev, mapURL: selectedSeatMap.map_url}))
+        eventAxiosWithToken.get(`/seat-map/tiers?smid=${mapId}`)
+            .then(r => {
+                setTiers(r.data)
+            })
+            .catch(err => console.log(err))
+    };
 
     return (
         <Stack className={'organizer-create-ticket'} rowGap={2}>
@@ -373,26 +540,16 @@ function OrganizerCreateTicket() {
                     {snackbarMessage}
                 </Alert>
             </Snackbar>
-            {!data.reserveSeating ?
-                <Stack alignItems={'center'} rowGap={2}>
-                    <LayersClearIcon sx={{ fontSize: '7.5rem', color: '#000000', backgroundColor: '#e3e3e3', p: 1, borderRadius: '50%' }} />
-                    <Stack alignItems={'center'}>
-                        <Typography variant={'h5'} fontWeight={'bold'}>
-                            {t('ticket.noMapsFound')}
-                        </Typography>
-                        <Typography variant={'body1'}>
-                            {t('ticket.createMapPrompt')}
-                        </Typography>
-                    </Stack>
-                    <Button variant={'contained'} onClick={() => navigate(`/create/seat-map?eid=${location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3]}`)}>
-                        {t('ticket.createButton')}
-                    </Button>
-                </Stack>
-                :
-                <>
-                    <p className={'organizer-create-ticket__title'}>{t('ticket.createTickets')}</p>
-                    <p>{t('ticket.chooseTicketType')}</p>
-                    {data.tickets && data.tickets.length !== 0 ?
+            <Stack>
+                {(data.tickets && data.tickets.length !== 0 && !data.reserveSeating || tiers) ?
+                    <>
+                        {!!tiers &&
+                            <div className={'link'} style={{marginBottom: '1rem'}}
+                                onClick={() => setTiers(null)}
+                            >
+                                Back to map selection
+                            </div>
+                        }
                         <div className="tickets-section">
                             <div className="tickets-section__header">
                                 <nav className="tickets-section__tabs">
@@ -411,52 +568,216 @@ function OrganizerCreateTicket() {
                                 <Outlet context={{
                                     handleTypeSelect: handleTypeSelect,
                                     setOpenDetail: setOpenDetail,
-                                    setEditTicket: setEditTicket
+                                    setEditTicket: setEditTicket,
+                                    seatMap: selectedSeatMap,
+                                    tiers
                                 }}/>
                             </div>
                         </div>
-                        :
-                        <Stack className={'organizer-create-ticket__ticket-types'} rowGap={1}>
-                            {ticketTypes.map((ticketType, index) => (
-                                <Stack key={index} className={'organizer-create-ticket__ticket-type'} flexDirection={'row'}
-                                       onClick={() => handleTypeSelect(ticketType.name)}
-                                >
-                                    <Stack direction={'row'} columnGap={2} alignItems={'center'}>
-                                        {ticketType.name === 'free' ?
-                                            <img style={{
-                                                backgroundColor: 'rgba(245,245,245,0.46)',
-                                                width: '3.5rem',
-                                                height: '3.5rem',
-                                                padding: '.25rem'
+                    </>
+                    :
+                    data.reserveSeating ?
+                        seatMap.length > 0 ?
+                            <Stack spacing={2} sx={{minWidth: '35rem'}}>
+                                <Typography variant="h4"
+                                            gutterBottom
+                                            sx={{ fontWeight: 'bold', color: '#333', textAlign: 'center' }}>
+                                    Select a Seat Map
+                                </Typography>
+
+                                <Typography variant="h5" gutterBottom
+                                            sx={{
+                                                borderBottom: '2px solid #007aa2',
+                                                paddingBottom: '4px',
+                                                color: '#007aa2',
+                                                marginLeft: 2,
                                             }}
-                                                 src={ticketType.icon} alt={t(`ticket.${ticketType.name}`)}/>
-                                            : ticketType.icon}
-                                        <Stack rowGap={1}>
-                                            <p className={'ticket-type__title'}>{t(`ticket.${ticketType.name}`)}</p>
-                                            <p className={'ticket-type__description'}>{ticketType.description}</p>
-                                        </Stack>
-                                    </Stack>
-                                    <KeyboardArrowRightIcon/>
+                                >
+                                    Your Maps
+                                </Typography>
+                                <Grid container spacing={2}>
+                                    {ownerMaps.map((map) => (
+                                        <Grid item xs={12} sm={6} md={4} key={map.map_id}>
+                                            <Card
+                                                variant="outlined"
+                                                sx={{
+                                                    minWidth: '40rem',
+                                                    width: '100%',
+                                                    borderRadius: '12px',
+                                                    border: '2px solid transparent',
+                                                    background: 'linear-gradient(135deg, #f5f7fa, #c3cfe2)',
+                                                    transition: 'all 0.3s ease-in-out',
+                                                    '&:hover': {
+                                                        border: '2px solid #007aa2',
+                                                        backgroundColor: '#e0f7fa',
+                                                        boxShadow: 6,
+                                                    },
+                                                    cursor: 'pointer',
+                                                }}
+                                                onClick={() => handleSelect(map.map_id)}
+                                            >
+                                                <CardContent>
+                                                    <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'} columnGap={5}>
+                                                        <Typography variant="h6" sx={{ color: '#007aa2', fontWeight: 'bold' }}>{map.name}</Typography>
+                                                        <Typography variant="body1">
+                                                            Created at: {dayjs(map.created_at).format("HH:mm DD/MM/YYYY")} (Last changes: {dayjs(map.updated_at).fromNow()})
+                                                        </Typography>
+                                                    </Stack>
+                                                </CardContent>
+                                                <CardActions>
+                                                    <Button size="small" variant="contained" fullWidth
+                                                            sx={{
+                                                                backgroundColor: '#fff',
+                                                                color: '#007aa2',
+                                                                textTransform: 'none',
+                                                                fontWeight: 'bold',
+                                                                padding: '4px 12px',
+                                                                boxShadow: 'none',
+                                                                '&:hover': { backgroundColor: '#e0f7fa' },
+                                                            }}
+                                                    >
+                                                        Select
+                                                    </Button>
+                                                    <Button fullWidth size="small" variant={'contained'}
+                                                            onClick={() =>
+                                                                navigate(`/create/seat-map?eid=${location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3]}&mid=${map.map_id}`)}>
+                                                        Edit
+                                                    </Button>
+                                                </CardActions>
+                                            </Card>
+                                        </Grid>
+                                    ))}
+                                </Grid>
+
+                                {otherMaps.length > 0 &&
+                                    <>
+                                        <Typography variant="h5" gutterBottom
+                                                    sx={{
+                                                        marginTop: 3,
+                                                        borderBottom: '2px solid #d32f2f',
+                                                        paddingBottom: '4px',
+                                                        color: '#d32f2f',
+                                                        marginLeft: 2,
+                                                    }}
+                                        >
+                                            Other Maps
+                                        </Typography>
+                                        <Grid container spacing={2}>
+                                            {otherMaps.map((map) => (
+                                                <Grid item xs={12} sm={6} md={4} key={map.map_id}>
+                                                    <Card
+                                                        variant="outlined"
+                                                        sx={{
+                                                            borderRadius: '12px',
+                                                            border: '2px solid transparent',
+                                                            background: 'linear-gradient(135deg, #fdfbfb, #ebedee)',
+                                                            transition: 'all 0.3s ease-in-out',
+                                                            '&:hover': {
+                                                                border: '2px solid #d32f2f',
+                                                                backgroundColor: '#fce4ec',
+                                                                boxShadow: 6,
+                                                            },
+                                                            cursor: 'pointer',
+                                                        }}
+                                                        onClick={() => handleSelect(map.map_id)}
+                                                    >
+                                                        <CardContent>
+                                                            <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
+                                                                <Typography variant="h6" sx={{ color: '#007aa2', fontWeight: 'bold' }}>{map.name}</Typography>
+                                                                <Typography variant="body1">
+                                                                    Created at: {dayjs(map.created_at).format("HH:mm DD/MM/YYYY")}
+                                                                    (Last changes: {dayjs(map.updated_at).fromNow()})
+                                                                </Typography>
+                                                            </Stack>
+                                                        </CardContent>
+                                                        <CardActions>
+                                                            <Button size="small" variant="contained" fullWidth
+                                                                    sx={{
+                                                                        backgroundColor: '#fff',
+                                                                        color: '#007aa2',
+                                                                        textTransform: 'none',
+                                                                        fontWeight: 'bold',
+                                                                        padding: '4px 12px',
+                                                                        boxShadow: 'none',
+                                                                        '&:hover': { backgroundColor: '#e0f7fa' },
+                                                                    }}
+                                                            >
+                                                                Select
+                                                            </Button>
+                                                            <Button fullWidth size="small" onClick={() => navigate(`/create/seat-map?eid=${map.map_id}`)}
+                                                                    variant={'contained'}>
+                                                                Edit
+                                                            </Button>
+                                                        </CardActions>
+                                                    </Card>
+                                                </Grid>
+                                            ))}
+                                        </Grid>
+                                    </>
+                                }
+                            </Stack>
+                            :
+                            <Stack alignItems={'center'} rowGap={2}>
+                                <LayersClearIcon sx={{ fontSize: '7.5rem', color: '#000000', backgroundColor: '#e3e3e3', p: 1, borderRadius: '50%' }} />
+                                <Stack alignItems={'center'}>
+                                    <Typography variant={'h5'} fontWeight={'bold'}>
+                                        {t('ticket.noMapsFound')}
+                                    </Typography>
+                                    <Typography variant={'body1'}>
+                                        {t('ticket.createMapPrompt')}
+                                    </Typography>
                                 </Stack>
-                            ))}
-                        </Stack>
-                    }
-                </>
-            }
+                                <Button variant={'contained'} onClick={() => navigate(`/create/seat-map?eid=${location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3]}`)}>
+                                    {t('ticket.createButton')}
+                                </Button>
+                            </Stack>
+                        :
+                        <>
+                            <p className={'organizer-create-ticket__title'}>{t('ticket.createTickets')}</p>
+                            <p>{t('ticket.chooseTicketType')}</p>
+                            <Stack className={'organizer-create-ticket__ticket-types'} rowGap={1}>
+                                {ticketTypes.map((ticketType, index) => (
+                                    <Stack key={index} className={'organizer-create-ticket__ticket-type'} flexDirection={'row'}
+                                           onClick={() => handleTypeSelect(ticketType.name)}
+                                    >
+                                        <Stack direction={'row'} columnGap={2} alignItems={'center'}>
+                                            {ticketType.name === 'free' ?
+                                                <img style={{
+                                                    backgroundColor: 'rgba(245,245,245,0.46)',
+                                                    width: '3.5rem',
+                                                    height: '3.5rem',
+                                                    padding: '.25rem'
+                                                }}
+                                                     src={ticketType.icon} alt={t(`ticket.${ticketType.name}`)}/>
+                                                : ticketType.icon}
+                                            <Stack rowGap={1}>
+                                                <p className={'ticket-type__title'}>{t(`ticket.${ticketType.name}`)}</p>
+                                                <p className={'ticket-type__description'}>{ticketType.description}</p>
+                                            </Stack>
+                                        </Stack>
+                                        <KeyboardArrowRightIcon/>
+                                    </Stack>
+                                ))}
+                            </Stack>
+                        </>
+                }
+            </Stack>
             <form onSubmit={formik.handleSubmit}>
                 <Stack className={'organizer-create-ticket__detail'} sx={{display: openDetail.open ? 'flex' : 'none'}}>
                     <p>{t('ticket.addTickets')}</p>
                     <Stack className={'organizer-detail__main'} rowGap={2}>
-                        <Stack direction={'row'} justifyContent={'space-between'}>
-                            {['paid', 'free', 'donation'].map((type, index) => (
-                                <div key={index}
-                                     className={`organizer-ticket-detail__ticket-type ${openDetail.type === type ? 'ticket-type-active' : ''}`}
-                                     onClick={() => handleTypeSelect(type)}
-                                >
-                                    {t(`ticket.${type}`)}
-                                </div>
-                            ))}
-                        </Stack>
+                        {!tiers &&
+                            <Stack direction={'row'} justifyContent={'space-between'}>
+                                {['paid', 'free', 'donation'].map((type, index) => (
+                                    <div key={index}
+                                         className={`organizer-ticket-detail__ticket-type ${openDetail.type === type ? 'ticket-type-active' : ''}`}
+                                         onClick={() => handleTypeSelect(type)}
+                                    >
+                                        {t(`ticket.${type}`)}
+                                    </div>
+                                ))}
+                            </Stack>
+                        }
                         <TextField name={'ticketName'} label={t('ticket.ticketNameLabel')} variant={'outlined'}
                                    fullWidth
                                    value={formik.values.ticketName} focused
@@ -464,31 +785,82 @@ function OrganizerCreateTicket() {
                                    error={formik.touched.ticketName && Boolean(formik.errors.ticketName)}
                                    helperText={formik.touched.ticketName && formik.errors.ticketName}
                         />
-                        <TextField name={'quantity'} label={t('ticket.availableQuantityLabel')} variant={'outlined'}
-                                   fullWidth
-                                   value={formik.values.quantity} focused
-                                   onChange={formik.handleChange} onBlur={formik.handleBlur}
-                                   error={formik.touched.quantity && Boolean(formik.errors.quantity)}
-                                   helperText={formik.touched.quantity && formik.errors.quantity}
-                        />
                         <Stack direction={'row'} columnGap={1}>
-                            {openDetail.type === 'paid' &&
-                                <CurrencySelect value={formik.values.currency} customHandleChange={
-                                    (value, sign, label) => {
-                                        formik.setFieldValue('currency', value)
-                                        formik.setFieldValue('sign', sign)
-                                        formik.setFieldValue('label', label)
+                            {tiers ?
+                                <Stack spacing={2} sx={{ width: '100%' }}>
+                                    <Typography variant="subtitle1" fontWeight="bold">
+                                        Set prices for each tier
+                                    </Typography>
+                                    {tiers.map((tier, index) => (
+                                        <Stack
+                                            key={index}
+                                            direction="row"
+                                            spacing={2}
+                                            alignItems="center"
+                                            sx={{
+                                                borderRadius: '8px',
+                                                paddingBlock: 1,
+                                                paddingLeft: 1,
+                                                border: '1px solid #e0e0e0',
+                                                borderLeft: `4px solid ${tier.tier_color}`,
+                                                backgroundColor: alpha(tier.tier_color, 0.05)
+                                            }}
+                                        >
+                                            <Stack direction="row" spacing={1} alignItems="center">
+                                                <CurrencySelect
+                                                    value={formik.values.tierCurrencies?.[index]?.currency || 'USD'}
+                                                    customHandleChange={(value, sign, label) => {
+                                                        formik.setFieldValue(`tierCurrencies.${index}.currency`, value);
+                                                        formik.setFieldValue(`tierCurrencies.${index}.sign`, sign);
+                                                        formik.setFieldValue(`tierCurrencies.${index}.label`, label);
+                                                    }}
+                                                />
+                                                <TextField
+                                                    name={`tierPrices.${index}`}
+                                                    label={`Price for ${tier.name}`}
+                                                    variant="outlined"
+                                                    value={formik.values.tierPrices?.[index] || ''}
+                                                    placeholder="0.00"
+                                                    focused
+                                                    disabled={openDetail.type === 'donation' || openDetail.type === 'free'}
+                                                    onChange={(e) => {formik.setFieldValue(`tierPrices.${index}`, e.target.value);}}
+                                                    onBlur={formik.handleBlur}
+                                                    error={formik.touched.tierPrices?.[index] && Boolean(formik.errors.tierPrices?.[index])}
+                                                    helperText={formik.touched.tierPrices?.[index] && formik.errors.tierPrices?.[index]}
+                                                    sx={{ flexGrow: 1}}
+                                                />
+                                            </Stack>
+                                        </Stack>
+                                    ))}
+                                </Stack>
+                                :
+                                <>
+                                    <TextField name={'quantity'} label={t('ticket.availableQuantityLabel')} variant={'outlined'}
+                                               fullWidth
+                                               value={formik.values.quantity} focused
+                                               onChange={formik.handleChange} onBlur={formik.handleBlur}
+                                               error={formik.touched.quantity && Boolean(formik.errors.quantity)}
+                                               helperText={formik.touched.quantity && formik.errors.quantity}
+                                    />
+                                    {openDetail.type === 'paid' &&
+                                        <CurrencySelect value={formik.values.currency} customHandleChange={
+                                            (value, sign, label) => {
+                                                formik.setFieldValue('currency', value)
+                                                formik.setFieldValue('sign', sign)
+                                                formik.setFieldValue('label', label)
+                                            }
+                                        }/>
                                     }
-                                }/>
+                                    <TextField name={'price'} label={t('ticket.priceLabel')} variant={'outlined'} fullWidth
+                                               value={openDetail.type === 'free' ? t('ticket.free') : openDetail.type === 'donation' ? t('ticket.donation') : formik.values.price}
+                                               placeholder={'0.00'} focused
+                                               disabled={openDetail.type === 'donation' || openDetail.type === 'free'}
+                                               onChange={formik.handleChange} onBlur={formik.handleBlur}
+                                               error={formik.touched.price && Boolean(formik.errors.price)}
+                                               helperText={formik.touched.price && formik.errors.price}
+                                    />
+                                </>
                             }
-                            <TextField name={'price'} label={t('ticket.priceLabel')} variant={'outlined'} fullWidth
-                                       value={openDetail.type === 'free' ? t('ticket.free') : openDetail.type === 'donation' ? t('ticket.donation') : formik.values.price}
-                                       placeholder={'0.00'} focused
-                                       disabled={openDetail.type === 'donation' || openDetail.type === 'free'}
-                                       onChange={formik.handleChange} onBlur={formik.handleBlur}
-                                       error={formik.touched.price && Boolean(formik.errors.price)}
-                                       helperText={formik.touched.price && formik.errors.price}
-                            />
                         </Stack>
                         {openDetail.type === 'Donation' &&
                             <Stack direction={'row'} alignItems={'center'} marginBlock={'0 .5rem'}>
@@ -645,19 +1017,31 @@ function OrganizerCreateTicket() {
                                         <Stack rowGap={1}>
                                             <p>{t('ticket.ticketsPerOrder')}</p>
                                             <Stack direction={'row'} columnGap={1}>
-                                                <TextField name={'minPerOrder'} label={t('ticket.minQuantityLabel')}
-                                                           variant={'outlined'} fullWidth
-                                                           value={formik.values.minPerOrder} focused
-                                                           onChange={formik.handleChange} onBlur={formik.handleBlur}
-                                                           error={formik.touched.minPerOrder && Boolean(formik.errors.minPerOrder)}
-                                                           helperText={formik.touched.minPerOrder && formik.errors.minPerOrder}
+                                                <TextField
+                                                    key={`min-${formik.values.minPerOrder}`}
+                                                    name={'minPerOrder'}
+                                                    label={t('ticket.minQuantityLabel')}
+                                                    variant={'outlined'}
+                                                    fullWidth
+                                                    value={formik.values.minPerOrder}
+                                                    focused
+                                                    onChange={formik.handleChange}
+                                                    onBlur={formik.handleBlur}
+                                                    error={formik.touched.minPerOrder && Boolean(formik.errors.minPerOrder)}
+                                                    helperText={formik.touched.minPerOrder && formik.errors.minPerOrder}
                                                 />
-                                                <TextField name={'maxPerOrder'} label={t('ticket.maxQuantityLabel')}
-                                                           variant={'outlined'} fullWidth
-                                                           value={formik.values.maxPerOrder} focused
-                                                           onChange={formik.handleChange} onBlur={formik.handleBlur}
-                                                           error={formik.touched.maxPerOrder && Boolean(formik.errors.maxPerOrder)}
-                                                           helperText={formik.touched.maxPerOrder && formik.errors.maxPerOrder}
+                                                <TextField
+                                                    key={`max-${formik.values.maxPerOrder}`}
+                                                    name={'maxPerOrder'}
+                                                    label={t('ticket.maxQuantityLabel')}
+                                                    variant={'outlined'}
+                                                    fullWidth
+                                                    value={formik.values.maxPerOrder}
+                                                    focused
+                                                    onChange={formik.handleChange}
+                                                    onBlur={formik.handleBlur}
+                                                    error={formik.touched.maxPerOrder && Boolean(formik.errors.maxPerOrder)}
+                                                    helperText={formik.touched.maxPerOrder && formik.errors.maxPerOrder}
                                                 />
                                             </Stack>
                                         </Stack>

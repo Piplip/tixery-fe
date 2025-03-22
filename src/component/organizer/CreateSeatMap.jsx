@@ -1,8 +1,16 @@
 import {
-    AppBar,
+    AppBar, Backdrop,
     Box,
     Button,
+    Checkbox,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    FormControlLabel,
     IconButton,
+    Slider,
     Stack,
     Tab,
     Tabs,
@@ -11,7 +19,8 @@ import {
     ToggleButtonGroup,
     Toolbar,
     Tooltip,
-    Typography
+    Typography,
+    CircularProgress
 } from "@mui/material";
 import {Fragment, useEffect, useState} from "react";
 import CloseIcon from '@mui/icons-material/Close';
@@ -38,8 +47,12 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import CheckIcon from '@mui/icons-material/Check';
 import AddIcon from '@mui/icons-material/Add';
-import { Slider } from "@mui/material";
-import {getContrastColor} from "../../common/Utilities.js";
+import {generateFileName, getContrastColor, getUserData} from "../../common/Utilities.js";
+import {initializeApp} from "firebase/app";
+import {firebaseConfig} from "../../config/firebaseConfig.js";
+import {getStorage, ref, uploadBytes} from "firebase/storage";
+import {eventAxiosWithToken} from "../../config/axiosConfig.js";
+import {useLocation, useNavigate} from "react-router-dom";
 
 const tools = [
     {icon: <ViewModuleIcon sx={{fontSize: 30}}/>, label: 'Seats', tooltip: 'Add a seat section', type: 'seats'},
@@ -97,6 +110,9 @@ const TIER_PALETTE = [
     '#000080',
 ]
 
+initializeApp(firebaseConfig);
+const storage = getStorage()
+
 function CreateSeatMap(){
     const [view, setView] = useState('map');
     const [hoveredTool, setHoveredTool] = useState(null);
@@ -110,6 +126,11 @@ function CreateSeatMap(){
     const [center, setCenter] = useState({ x: 0, y: 0 });
     const [tier, setTier] = useState([]);
     const [togglePalette, setTogglePalette] = useState([]);
+    const [openSaveDialog, setOpenSaveDialog] = useState(false);
+    const [seatMapSavePreferences, setSeatMapSavePreferences] = useState({name: '', share: false});
+    const [isLoading, setIsLoading] = useState(false)
+    const location = useLocation()
+    const navigate = useNavigate()
 
     const addCanvasObject = (objectType, properties) => {
         const centerPosition = {x: 0, y: 0};
@@ -162,7 +183,7 @@ function CreateSeatMap(){
             seats: { sectionName: '', rows: '5', seats: '10' },
             table: { tableName: '', style: 'square', endSeats: '2', seats: '8' },
             object: { objectName: '', shape: 'square', label: 'Stage', icon: 'stage' },
-            text: { text: '', size: '1' }
+            text: { text: '', size: 3 }
         },
         validationSchema: getValidationSchema(selectedTool),
         enableReinitialize: true,
@@ -464,6 +485,17 @@ function CreateSeatMap(){
     function deleteTier(tierIndex) {
         setTier(prev => {
             const tierToDelete = prev[tierIndex];
+
+            if (tierToDelete && tierToDelete.dbTierID) {
+                const mapID = new URLSearchParams(location.search).get('mid');
+                if (mapID) {
+                    eventAxiosWithToken.delete(`/seat-map/tier?mid=${mapID}&tid=${tierToDelete.dbTierID}`)
+                        .catch(error => {
+                            console.error("Error deleting tier from database:", error);
+                        });
+                }
+            }
+
             if (tierToDelete && Array.isArray(tierToDelete.assignedSeats)) {
                 const seatsToRemove = tierToDelete.assignedSeats.reduce((count, id) => {
                     if (id.includes('_')) {
@@ -474,8 +506,10 @@ function CreateSeatMap(){
                 }, 0);
                 setTotalAssignedSeats(prev => prev - seatsToRemove);
             }
+
             return prev.filter((_, index) => index !== tierIndex);
         });
+
         setTogglePalette(prev => prev.filter((_, index) => index !== tierIndex));
     }
 
@@ -563,13 +597,189 @@ function CreateSeatMap(){
         });
     };
 
+    const gatherCanvasData = (canvasObjects, tierData) => {
+        const seatIDs = [];
+
+        canvasObjects.forEach(obj => {
+            if (obj.type === 'seats') {
+                const rows = parseInt(obj.properties.rows);
+                const seats = parseInt(obj.properties.seats);
+
+                for (let r = 0; r < rows; r++) {
+                    for (let s = 0; s < seats; s++) {
+                        const seatId = `${obj.id}_${r}_${s}`;
+                        seatIDs.push(seatId);
+                    }
+                }
+            } else if (obj.type === 'table' || obj.type === 'object') {
+                seatIDs.push(obj.id);
+            }
+        });
+
+        return {
+            totalAssignedSeats,
+            seatIDs,
+            canvasObjects: canvasObjects.map(obj => ({
+                id: obj.id,
+                type: obj.type,
+                position: obj.position,
+                properties: obj.properties,
+                rotation: obj.rotation,
+                created: obj.created
+            })),
+            tierData: tierData.map(tier => {
+                const tierData = {
+                    dbTierID: tier.dbTierID,
+                    id: tier.id,
+                    name: tier.name,
+                    color: tier.color,
+                    assignedSeats: tier.assignedSeats
+                }
+                if (tier.perks) {
+                    tierData.perks = tier.perks;
+                }
+                return tierData;
+            })
+        };
+    };
+
+    const saveCanvasDataToFirebaseStorage = async (canvasObjects, tierData, storagePath) => {
+        const data = gatherCanvasData(canvasObjects, tierData);
+        const json = JSON.stringify(data);
+        const blob = new Blob([json], { type: 'application/json' });
+        const storageRef = ref(storage, storagePath);
+
+        try {
+            await uploadBytes(storageRef, blob);
+            return storagePath;
+        } catch (error) {
+            console.error("Error uploading file: ", error);
+            throw error;
+        }
+    };
+
+    const gatherSeatMapData = (canvasObjects, tierData, mapUrl, ownerId, name, isPublic) => {
+        return {
+            ownerID: ownerId,
+            name: name,
+            mapURL: mapUrl,
+            isPublic: isPublic,
+            capacity: capacity,
+            tiers: tierData.map(tier => {
+                const tierData = {
+                    tierID: tier.dbTierID,
+                    name: tier.name,
+                    color: tier.color,
+                    totalAssignedSeats: Array.isArray(tier.assignedSeats) ? tier.assignedSeats.length : 0
+                };
+                if (tier.perks) {
+                    tierData.perks = tier.perks;
+                }
+                return tierData;
+            })
+        };
+    };
+
+    async function handleSaveSeatMap() {
+        try {
+            setOpenSaveDialog(false);
+            setIsLoading(true);
+
+            const eventID = new URLSearchParams(location.search).get('eid');
+            const mapID = new URLSearchParams(location.search).get('mid');
+
+            let storageRef;
+            let fileName;
+
+            if (seatMapSavePreferences.mapURL) {
+                storageRef = seatMapSavePreferences.mapURL;
+                fileName = storageRef.split('/').pop();
+            } else {
+                fileName = `canvasData_${Date.now()}.json`;
+                storageRef = `seat-map/${fileName}`;
+            }
+
+            const seatMapData = gatherSeatMapData(
+                canvasObjects,
+                tier,
+                storageRef,
+                getUserData('profileID'),
+                seatMapSavePreferences.name,
+                seatMapSavePreferences.share
+            );
+
+            let response;
+            if (mapID) {
+                response = await eventAxiosWithToken.put(`/create/seatmap?mid=${mapID}`, seatMapData);
+            } else {
+                response = await eventAxiosWithToken.post(`/create/seatmap?eid=${eventID}`, seatMapData);
+            }
+
+            if (response.data.status === 'OK') {
+                const updatedTiers = tier.map((tierItem, index) => ({
+                    ...tierItem,
+                    dbTierID: response.data.data[index] || null
+                }));
+
+                await saveCanvasDataToFirebaseStorage(canvasObjects, updatedTiers, storageRef);
+
+                navigate(`/organizer/events/edit/${eventID}/tickets?ref=seat-map`);
+            } else {
+                setIsLoading(false);
+                console.error("Invalid response format when saving seat map");
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.error("Error saving seat map:", error);
+        }
+    }
+
     return (
         <Box display="flex" flexDirection="column" height="100dvh">
+            <Backdrop
+                sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+                open={isLoading}
+                onClick={() => setIsLoading(false)}
+            >
+                <Stack alignItems={'center'} rowGap={2}>
+                    <CircularProgress color="inherit" />
+                    <Typography variant={'h5'}>
+                        Saving seat map...
+                    </Typography>
+                </Stack>
+            </Backdrop>
+            <Dialog maxWidth={'sm'} fullWidth open={openSaveDialog} onClose={() => setOpenSaveDialog(false)}>
+                <DialogTitle>SAVE SEAT MAP</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Enter a name for your seat map
+                    </DialogContentText>
+                    <TextField
+                        value={seatMapSavePreferences.name}
+                        onChange={(e) => setSeatMapSavePreferences(prev => ({...prev, name: e.target.value}))}
+                        autoFocus
+                        required
+                        margin="dense"
+                        label="Seat map name"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                    />
+                    <FormControlLabel control={<Checkbox checked={seatMapSavePreferences.share}
+                                                         onChange={(event) =>
+                                                             setSeatMapSavePreferences(prev => ({...prev, share: event.target.checked}))}/>}
+                                      label="Share seat map for this venue" />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenSaveDialog(false)}>Cancel</Button>
+                    <Button variant={'contained'} onClick={handleSaveSeatMap} disabled={seatMapSavePreferences.name === ''}>Save</Button>
+                </DialogActions>
+            </Dialog>
             <AppBar position="static" color="default" elevation={1}>
                 <Toolbar sx={{ justifyContent: 'space-between' }}>
                     <Stack>
                         <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                            PTE Roadshow 2025 (Can Tho)
+                            {seatMapSavePreferences.eventName || 'Create Seat Map'}
                         </Typography>
                         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                             <Tabs value={view} onChange={(e, newValue) => {
@@ -592,10 +802,14 @@ function CreateSeatMap(){
                         </Box>
                     </Stack>
                     <Stack direction={'row'} columnGap={1}>
-                        <Button variant="contained" color="primary">
+                        <Button variant="contained" color="primary" onClick={() => setOpenSaveDialog(true)}>
                             Save
                         </Button>
-                        <IconButton color="inherit">
+                        <IconButton color="inherit" onClick={() => {
+                                const eventID = new URLSearchParams(location.search).get('eid')
+                                navigate(`/organizer/events/edit/${eventID}/tickets?ref=seat-map`)}
+                            }
+                        >
                             <CloseIcon />
                         </IconButton>
                     </Stack>
@@ -777,8 +991,9 @@ function CreateSeatMap(){
                     }}
                 >
                     <SeatMap data={canvasObjects} setData={setCanvasObjects} selectedObject={selectedObject} setSelectedObject={setSelectedObject}
-                             setCenter={setCenter} view={view} tierData={tier} setSelectedTool={setSelectedTool}
-                             zoom={zoom} setZoom={setZoom} offset={offset} setOffset={setOffset}
+                             setCenter={setCenter} view={view} tierData={tier} setTier={setTier} setSelectedTool={setSelectedTool}
+                             zoom={zoom} setZoom={setZoom} offset={offset} setOffset={setOffset} setSeatMapData={setSeatMapSavePreferences}
+                            setAssignedSeat={setTotalAssignedSeats}
                     />
                 </Box>
             </Stack>

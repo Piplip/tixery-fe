@@ -87,23 +87,62 @@ function CreateEvent() {
 
     useEffect(() => {
         let loaderData = loader ? loader.data : undefined
-        console.log(loaderData)
         let newEventData
+
         if(loaderData !== undefined){
-            newEventData = {
-                eventTitle: loaderData.name,
-                summary: loaderData.short_description,
-                eventType: loaderData.is_recurring ? 'recurring' : 'single',
-                eventDate: dayjs(loaderData.start_time),
-                eventStartTime: dayjs(loaderData.start_time),
-                eventEndTime: dayjs(loaderData.end_time),
-                displayEndTime: loaderData.show_end_time,
-                timezone: loaderData.timezone || 7,
-                language: loaderData.language,
-                faqs: loaderData.faq,
-                tickets: loaderData?.tickets?.map((ticket) => ({
+            let processedTickets = [];
+
+            if(loaderData.tickets && loaderData.reserveSeating) {
+                const ticketGroups = new Map();
+
+                loaderData.tickets.forEach(ticket => {
+                    const ticketKey = `${ticket.name}_${ticket.sale_start_time}_${ticket.sale_end_time}_${ticket.ticket_type}`;
+
+                    if (!ticketGroups.has(ticketKey)) {
+                        ticketGroups.set(ticketKey, {
+                            ticketID: [],
+                            ticketType: ticket.ticket_type,
+                            ticketName: ticket.name,
+                            startDate: dayjs(ticket.sale_start_time).format("DD/MM/YYYY"),
+                            endDate: dayjs(ticket.sale_end_time).format("DD/MM/YYYY"),
+                            startTime: dayjs(ticket.sale_start_time).format("HH:mm"),
+                            endTime: dayjs(ticket.sale_end_time).format("HH:mm"),
+                            description: ticket.description,
+                            visibility: ticket.status,
+                            visibleStartDate: ticket.vis_start_time ? dayjs(ticket.vis_start_time).format("DD/MM/YYYY") : null,
+                            visibleEndDate: ticket.vis_end_time ? dayjs(ticket.vis_end_time).format("DD/MM/YYYY") : null,
+                            visibleStartTime: ticket.vis_start_time ? dayjs(ticket.vis_start_time).format("HH:mm") : null,
+                            visibleEndTime: ticket.vis_end_time ? dayjs(ticket.vis_end_time).format("HH:mm") : null,
+                            minPerOrder: ticket.min_per_order,
+                            maxPerOrder: ticket.max_per_order,
+                            currency: ticket?.currency?.currency || 'USD',
+                            currencySymbol: ticket?.currency?.symbol || '$',
+                            currencyFullForm: ticket?.currency?.fullForm || 'United States Dollar',
+                            tierData: []
+                        });
+                    }
+
+                    const group = ticketGroups.get(ticketKey);
+
+                    group.ticketID.push(ticket.ticket_type_id);
+
+                    if (ticket.seat_tier_id) {
+                        group.tierData.push({
+                            price: ticket.price.toString(),
+                            tierID: ticket.seat_tier_id,
+                            currency: ticket?.currency?.currency || 'USD',
+                            currencySymbol: ticket?.currency?.symbol || '$',
+                            currencyFullForm: ticket?.currency?.fullForm || 'United States Dollar'
+                        });
+                    }
+                });
+
+                processedTickets = Array.from(ticketGroups.values());
+            }
+
+            else{
+                processedTickets = loaderData?.tickets?.map((ticket) => ({
                     ticketID: ticket.ticket_type_id,
-                    type: ticket.ticket_type,
                     ticketName: ticket.name,
                     ticketType: ticket.ticket_type,
                     quantity: ticket.quantity,
@@ -115,14 +154,30 @@ function CreateEvent() {
                     endTime: dayjs(ticket.sale_end_time).format("HH:mm"),
                     description: ticket.description,
                     visibility: ticket.status,
-                    visibleStartDate: ticket.vis_start_time ? dayjs(ticket.vis_start_time) : null,
-                    visibleStartTime: ticket.vis_start_time ? dayjs(ticket.vis_start_time) : null,
-                    visibleEndDate: ticket.vis_end_time ? dayjs(ticket.vis_end_time) : null,
-                    visibleEndTime: ticket.vis_end_time ? dayjs(ticket.vis_end_time) : null,
+                    visibleStartDate: ticket.vis_start_time ? dayjs(ticket.vis_start_time).format("DD/MM/YYYY") : null,
+                    visibleStartTime: ticket.vis_start_time ? dayjs(ticket.vis_start_time).format("HH:mm") : null,
+                    visibleEndDate: ticket.vis_end_time ? dayjs(ticket.vis_end_time).format("DD/MM/YYYY") : null,
+                    visibleEndTime: ticket.vis_end_time ? dayjs(ticket.vis_end_time).format("HH:mm") : null,
                     maxPerOrder: ticket.max_per_order,
                     minPerOrder: ticket.min_per_order,
-                    currency: ticket?.currency?.currency || 'USD'
-                })),
+                    currency: ticket?.currency?.currency || 'USD',
+                    currencySymbol: ticket?.currency?.symbol || '$',
+                    currencyFullForm: ticket?.currency?.fullForm || 'United States Dollar'
+                }));
+            }
+
+            newEventData = {
+                eventTitle: loaderData.name,
+                summary: loaderData.short_description,
+                eventType: loaderData.is_recurring ? 'recurring' : 'single',
+                eventDate: dayjs(loaderData.start_time),
+                eventStartTime: dayjs(loaderData.start_time),
+                eventEndTime: dayjs(loaderData.end_time),
+                displayEndTime: loaderData.show_end_time,
+                timezone: loaderData.timezone || 7,
+                language: loaderData.language,
+                faqs: loaderData.faq,
+                tickets: processedTickets,
                 eventVisibility: 'public',
                 allowRefund: loaderData?.refund_policy?.allowRefund || false,
                 daysForRefund: loaderData?.refund_policy?.daysForRefund || 7,
@@ -133,8 +188,10 @@ function CreateEvent() {
                 subCategory: loaderData.sub_category,
                 capacity: loaderData.capacity || 100,
                 tags: loaderData.tags ? loaderData.tags.join(',') : '',
-                additionalInfo: loaderData.full_description
+                additionalInfo: loaderData.full_description,
+                reserveSeating: loaderData.reserveSeating || false
             }
+
             if (loaderData.is_recurring === true) {
                 const events = {};
                 const occurrenceTickets = {};
@@ -192,7 +249,6 @@ function CreateEvent() {
                     location: loaderData?.location?.location,
                     lat: loaderData?.location?.lat,
                     lon: loaderData?.location?.lon,
-                    reserveSeating: loaderData.location ? loaderData.location.reserveSeating : false,
                     locationType: 'venue',
                 }
             }
@@ -229,7 +285,7 @@ function CreateEvent() {
         if (newEventData.eventType === 'recurring') {
             initialMaxStep = 3;
         }
-        if (newEventData.tickets && newEventData.tickets.length > 0 && newEventData.capacity > 0) {
+        if (newEventData.tickets && newEventData.tickets.length > 0 && newEventData.capacity > 0 || newEventData.reserveSeating) {
             initialMaxStep = 4;
         }
         if ((newEventData.publishType === 'now' || (newEventData.publishType === 'schedule' && newEventData.publishDate && newEventData.publishTime)) && newEventData.type) {
@@ -541,7 +597,7 @@ function CreateEvent() {
             </div>
             <div className={'create-events__main'}>
                 <EventContext.Provider value={{ data: eventData, setData: setEventData, setHasUnsavedChanges }}>
-                    <Outlet context={{ validate: validateStep, setAlert: setAlert, setCurrentStep: setCurrentStep }} />
+                    <Outlet context={{ validate: validateStep, setAlert: setAlert, setCurrentStep: setCurrentStep, maxStep }} />
                 </EventContext.Provider>
             </div>
             <button className={'create-events-main__continue-btn'}
