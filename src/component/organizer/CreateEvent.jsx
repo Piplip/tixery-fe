@@ -27,6 +27,9 @@ import Lottie from 'react-lottie';
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import {useTranslation} from "react-i18next";
 import ShareDialog from "../shared/ShareDialog.jsx";
+import {initializeApp} from "firebase/app";
+import {firebaseConfig} from "../../config/firebaseConfig.js";
+import {getBytes, getStorage, ref} from "firebase/storage";
 
 const checkboxStyle = {
     sx: {
@@ -51,6 +54,9 @@ CustomCheckbox.propTypes = {
     checked: PropTypes.bool,
     completed: PropTypes.bool
 }
+
+initializeApp(firebaseConfig);
+const storage = getStorage()
 
 const defaultOptions = {
     loop: false,
@@ -190,6 +196,13 @@ function CreateEvent() {
                 tags: loaderData.tags ? loaderData.tags.join(',') : '',
                 additionalInfo: loaderData.full_description,
                 reserveSeating: loaderData.reserveSeating || false
+            }
+
+            if(loaderData.map_id){
+                newEventData = {
+                    ...newEventData,
+                    mapURL: loaderData.map_url,
+                }
             }
 
             if (loaderData.is_recurring === true) {
@@ -388,7 +401,7 @@ function CreateEvent() {
         navigate(steps[index].to)
     }
 
-    function handleSave(){
+    async function handleSave(){
         setIsLoading(true)
         let payload;
         switch (currentStep) {
@@ -428,16 +441,35 @@ function CreateEvent() {
                 break;
             }
             case 4: {
+                let tierData
+                if(eventData.mapURL){
+                    const mapRef = ref(storage, eventData.mapURL);
+                    tierData = await getBytes(mapRef)
+                        .then(bytes => {
+                            const decoder = new TextDecoder('utf-8');
+                            const jsonStr = decoder.decode(bytes);
+                            const jsonData = JSON.parse(jsonStr);
+
+                            if (jsonData.tierData && Array.isArray(jsonData.tierData)) {
+                                return jsonData.tierData
+                            }
+                        })
+                        .catch(err => {
+                            console.error("Error parsing seat map file:", err);
+                        });
+                }
+
                 payload = {
                     type: eventData.type, category: eventData.category, subCategory: eventData.subCategory,
                     tags: eventData?.tags ? eventData.tags.split(',') : null, eventVisibility: eventData.eventVisibility,
                     allowRefund: eventData.allowRefund, daysForRefund: eventData.daysForRefund, automatedRefund: eventData.automatedRefund,
                     publishType: eventData.publishType, publishDate: eventData.publishDate, publishTime: eventData.publishTime,
-                    timezone: eventData.timezone, capacity: eventData.capacity
+                    timezone: eventData.timezone, capacity: eventData.capacity, reserveSeating: eventData.reserveSeating, tierData
                 }
                 break;
             }
         }
+
         eventAxiosWithToken.post(`/create?step=${currentStep}&eid=${location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3]}`, payload)
             .then(r => {
                 if(r.data.status === 'OK'){
@@ -458,7 +490,11 @@ function CreateEvent() {
                     }
                 }
             })
-            .catch(err => console.log(err))
+            .catch(err => {
+                setAlert("An error occurred while saving the event. Please try again.")
+                setIsLoading(false)
+                console.log(err)
+            })
     }
 
     const formatPublishDate = (date, time) => {
@@ -523,7 +559,7 @@ function CreateEvent() {
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: 0.3, duration: 0.5 }}
                         >
-                            <Stack direction="row" spacing={2} justifyContent="center">
+                            <Stack direction="row" spacing={2} justifyContent="center" alignItems="center">
                                 {isLive ? (
                                     <>
                                         <Link to={'../events'}>

@@ -19,10 +19,10 @@ function PaymentResponse(){
     useEffect(() => {
         if(!processed.current){
             processed.current = true
-            const url = `/payment/${initialType === 'success' ? 'stripe/success' : 'stripe/failure'}?order-id=${new URLSearchParams(location.search).get('orderID')}&pid=${getUserData('profileID')}`
+            const params = new URLSearchParams(location.search)
+            const url = `/payment/${initialType === 'success' ? 'stripe/success' : 'stripe/failure'}?order-id=${params.get('orderID')}&reserve=${params.get("reserve") || false}&pid=${getUserData('profileID')}`
             eventAxiosWithToken.post(url)
                 .then(r => {
-                    console.log(r.data)
                     setIsLoading(false)
                     setResponse(r.data)
                 })

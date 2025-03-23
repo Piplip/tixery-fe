@@ -56,6 +56,7 @@ import OverviewDashboard from "./component/admin/OverviewDashboard.jsx";
 import LogManagement from "./component/admin/LogManagement.jsx";
 import ServiceDashboard from "./component/admin/ServiceDashboard.jsx";
 import CreateSeatMap from "./component/organizer/CreateSeatMap.jsx";
+import {AlertProvider} from "./component/shared/AlertProvider.jsx";
 
 configureDayjs()
 
@@ -292,7 +293,9 @@ function App() {
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <RouterProvider router={routers} />
+            <AlertProvider>
+                <RouterProvider router={routers} />
+            </AlertProvider>
         </LocalizationProvider>
     )
 }

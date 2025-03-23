@@ -16,9 +16,9 @@ function BrowseEvents(){
     const [suggestedLocation, setSuggestedLocation] = useState([]);
     const [showSuggestion, setShowSuggestion] = useState(false);
     const [location, setLocation] = useState({
-        location:  getCookie("user-location").city,
-        lat:  getCookie("user-location").lat,
-        lon: getCookie("user-location").lon,
+        location:  getCookie("user-location")?.city || '',
+        lat:  getCookie("user-location")?.lat || null,
+        lon: getCookie("user-location")?.lon || null,
     })
 
     const genres = [

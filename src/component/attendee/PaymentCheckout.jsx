@@ -20,6 +20,7 @@ import PropTypes from "prop-types";
 import {Link} from "react-router-dom";
 import dayjs from "dayjs";
 import {useTranslation} from "react-i18next";
+import {useAlert} from "../../custom-hooks/useAlert.js";
 
 PaymentCheckout.propTypes = {
     total: PropTypes.number,
@@ -27,13 +28,15 @@ PaymentCheckout.propTypes = {
     eventName: PropTypes.string,
     eventID: PropTypes.string,
     tickets: PropTypes.array,
-    quantities: PropTypes.object
+    quantities: PropTypes.object,
+    tierTicketIDs: PropTypes.array
 }
 
-function PaymentCheckout({total, currency, eventName, eventID, tickets, quantities}){
+function PaymentCheckout({total, currency, eventName, eventID, tickets, quantities, tierTicketIDs}){
     const [isLoading, setIsLoading] = useState(false);
     const [selectedMethod, setSelectedMethod] = useState('credit-card');
     const {t} = useTranslation()
+    const {showError} = useAlert()
 
     const [preferences, setPreferences] = useState({
         organizer_pay_update: true,
@@ -52,7 +55,8 @@ function PaymentCheckout({total, currency, eventName, eventID, tickets, quantiti
         collectData(eventID, 'purchase', total)
         accountAxiosWithToken.post(`/notification/preferences/update?pid=${getUserData('profileID')}&role=${getUserData('role')}`, preferences)
             .catch(error => console.log(error))
-        eventAxiosWithToken.post('/payment/stripe/checkout', {
+
+        let payload = {
             amount: total*100,
             email: getUserData('sub'),
             currency: currency,
@@ -68,7 +72,14 @@ function PaymentCheckout({total, currency, eventName, eventID, tickets, quantiti
                     quantity: quantities[tickets.indexOf(ticket)],
                     price: ticket.price * quantities[tickets.indexOf(ticket)]
                 }))
-        }).then(response => {
+        }
+        const isReserve = tierTicketIDs && tierTicketIDs.length > 0
+
+        if(isReserve){
+            payload = {...payload, tierTicketIDs: tierTicketIDs}
+        }
+
+        eventAxiosWithToken.post(`/payment/stripe/checkout?reserve=${isReserve}`, payload).then(response => {
             if(response.data.status === 'success'){
                 window.location.href = response.data.sessionURL
             }
@@ -78,7 +89,7 @@ function PaymentCheckout({total, currency, eventName, eventID, tickets, quantiti
             }
         }).catch(error => {
             setIsLoading(false)
-            alert(t('paymentCheckout.paymentError'));
+            showError(t('paymentCheckout.paymentError'));
         })
     }
 

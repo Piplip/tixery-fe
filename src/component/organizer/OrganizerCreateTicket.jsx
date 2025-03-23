@@ -452,6 +452,7 @@ function OrganizerCreateTicket() {
         if (tiers) {
             const validTierPrices = data.tierPrices.map((price, index) => ({
                 price: price,
+                totalAssignedSeats: tiers[index].assignedseats,
                 tierID: tiers[index].seat_tier_id,
                 currency: data.tierCurrencies?.[index]?.currency,
                 currencySymbol: data.tierCurrencies?.[index]?.sign,
@@ -473,7 +474,7 @@ function OrganizerCreateTicket() {
                 visibleStartTime: data.visibleStartTime ? data.visibleStartTime.format('HH:mm') : null,
                 visibleEndTime: data.visibleEndTime ? data.visibleEndTime.format('HH:mm') : null,
                 minPerOrder: data.minPerOrder,
-                maxPerOrder: data.maxPerOrder ? data.maxPerOrder : 100,
+                maxPerOrder: data.maxPerOrder ? data.maxPerOrder : 1,
                 tierData: validTierPrices
             };
         }
@@ -785,6 +786,15 @@ function OrganizerCreateTicket() {
                                    error={formik.touched.ticketName && Boolean(formik.errors.ticketName)}
                                    helperText={formik.touched.ticketName && formik.errors.ticketName}
                         />
+                        {!tiers &&
+                            <TextField name={'quantity'} label={t('ticket.availableQuantityLabel')} variant={'outlined'}
+                                       fullWidth
+                                       value={formik.values.quantity} focused
+                                       onChange={formik.handleChange} onBlur={formik.handleBlur}
+                                       error={formik.touched.quantity && Boolean(formik.errors.quantity)}
+                                       helperText={formik.touched.quantity && formik.errors.quantity}
+                            />
+                        }
                         <Stack direction={'row'} columnGap={1}>
                             {tiers ?
                                 <Stack spacing={2} sx={{ width: '100%' }}>
@@ -835,13 +845,6 @@ function OrganizerCreateTicket() {
                                 </Stack>
                                 :
                                 <>
-                                    <TextField name={'quantity'} label={t('ticket.availableQuantityLabel')} variant={'outlined'}
-                                               fullWidth
-                                               value={formik.values.quantity} focused
-                                               onChange={formik.handleChange} onBlur={formik.handleBlur}
-                                               error={formik.touched.quantity && Boolean(formik.errors.quantity)}
-                                               helperText={formik.touched.quantity && formik.errors.quantity}
-                                    />
                                     {openDetail.type === 'paid' &&
                                         <CurrencySelect value={formik.values.currency} customHandleChange={
                                             (value, sign, label) => {

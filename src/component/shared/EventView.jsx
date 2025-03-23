@@ -69,8 +69,7 @@ function EventView({data}){
                 .catch((error) => console.error("Error loading profile:", error));
         }
     }, [eventData.profile_id]);
-    console.log(eventData.images)
-    console.log(eventData.videos)
+
     useEffect(() => {
         if ((eventData.images && eventData.images.length > 0 && eventData.images[0] !== null) || (eventData.videos && eventData.videos.length > 0)) {
             const fetchMedia = async () => {
@@ -259,9 +258,9 @@ function EventView({data}){
                     }
                 </div>
                 <div className={'event-view__content'}>
-                    <Stack className={'event-view__main-content'} rowGap={6}>
-                        <Stack direction={'row'} justifyContent={'space-between'} columnGap={5}>
-                            <Stack rowGap={3} className={'event-view__basic-info'}>
+                    <Stack className={'event-view__main-content'} rowGap={6} flexGrow={1}>
+                        <Stack direction={'row'} justifyContent={'space-between'} columnGap={5} sx={{width: '100%'}}>
+                            <Stack rowGap={3} className={'event-view__basic-info'}  sx={{width: '100%'}}>
                                 <RenderEventState />
                                 <Stack
                                     className={'event-view__info-bar'}
@@ -319,7 +318,8 @@ function EventView({data}){
                                     </button>
                                 </Stack>
                             </Stack>
-                            <TicketPanel tickets={eventData?.tickets} eventEndTime={eventData.end_time} image={images[0]}
+                            <TicketPanel tickets={eventData?.tickets} eventEndTime={eventData.end_time} image={images[0]} eventID={eventData.event_id}
+                                         isReserveSeating={eventData?.reserveSeating} mapURL={eventData.map_url}
                                          eventStartTime={eventData.start_time} eventName={eventData.name} isLoggedIn={checkLoggedIn()}
                             />
                         </Stack>
@@ -544,6 +544,9 @@ function EventView({data}){
             >
                 <div className="event-view__ticket-drawer-content">
                     <TicketPanel
+                        eventID={eventData.event_id}
+                        isReserveSeating={eventData?.reserveSeating}
+                        mapURL={eventData.map_url}
                         tickets={eventData?.tickets}
                         eventEndTime={eventData.end_time}
                         image={images[0]}

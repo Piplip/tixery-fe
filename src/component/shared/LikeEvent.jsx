@@ -141,7 +141,8 @@ function LikeEvent({imageUrl, event}){
                     </Stack>
                 </DialogContent>
             </Dialog>
-            <Tooltip className={'event-view__action event-view__action--like'} title={t('saveEventDialog.likeEventTooltip', {liked: liked})}>
+            <Tooltip className={'event-view__action event-view__action--like'}
+                     title={liked ? t('saveEventDialog.unlikeEvent') : t('saveEventDialog.likeEvent')}>
                 <FavoriteBorderIcon className={liked ? 'liked-event' : ''} sx={liked ? { color: 'red' } : {}} onClick={e => {
                     handleLikeEvent();
                     e.stopPropagation();

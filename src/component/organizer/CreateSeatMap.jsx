@@ -1,8 +1,10 @@
 import {
-    AppBar, Backdrop,
+    AppBar,
+    Backdrop,
     Box,
     Button,
     Checkbox,
+    CircularProgress,
     Dialog,
     DialogActions,
     DialogContent,
@@ -19,8 +21,7 @@ import {
     ToggleButtonGroup,
     Toolbar,
     Tooltip,
-    Typography,
-    CircularProgress
+    Typography
 } from "@mui/material";
 import {Fragment, useEffect, useState} from "react";
 import CloseIcon from '@mui/icons-material/Close';
@@ -47,7 +48,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import CheckIcon from '@mui/icons-material/Check';
 import AddIcon from '@mui/icons-material/Add';
-import {generateFileName, getContrastColor, getUserData} from "../../common/Utilities.js";
+import {getContrastColor, getUserData} from "../../common/Utilities.js";
 import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {getStorage, ref, uploadBytes} from "firebase/storage";
@@ -664,7 +665,7 @@ function CreateSeatMap(){
             name: name,
             mapURL: mapUrl,
             isPublic: isPublic,
-            capacity: capacity,
+            capacity: totalAssignedSeats,
             tiers: tierData.map(tier => {
                 const tierData = {
                     tierID: tier.dbTierID,

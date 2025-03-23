@@ -1,37 +1,19 @@
-import React, {useEffect, useRef, useState} from "react"
-import {Button, Stack} from "@mui/material";
-import PropTypes from "prop-types";
-import {getContrastColor} from "../../common/Utilities.js"
 import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {getBytes, getStorage, ref} from "firebase/storage";
-import {useLocation} from "react-router-dom";
+import PropTypes from "prop-types";
+import {useEffect, useRef, useState} from "react";
+import {getContrastColor} from "../../common/Utilities.js";
+import {useAlert} from "../../custom-hooks/useAlert.js";
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
+import {CircularProgress} from "@mui/material";
 
-SeatMap.propTypes = {
-    data: PropTypes.array.isRequired,
-    setData: PropTypes.func.isRequired,
-    selectedObject: PropTypes.array,
-    setSelectedObject: PropTypes.func.isRequired,
-    setCenter: PropTypes.func.isRequired,
-    zoom: PropTypes.number.isRequired,
-    setZoom: PropTypes.func.isRequired,
-    offset: PropTypes.object.isRequired,
-    setOffset: PropTypes.func.isRequired,
-    view: PropTypes.string.isRequired,
-    tierData: PropTypes.array,
-    setTier: PropTypes.func,
-    setSelectedTool: PropTypes.func,
-    setSeatMapData: PropTypes.func,
-    setAssignedSeat: PropTypes.func,
-};
+initializeApp(firebaseConfig);
+const storage = getStorage()
 
 const SEAT_SIZE = 18;
 const SEAT_GAP = 5;
 const ROW_LABEL_WIDTH = 25;
-
-const AUTO_PAN_THRESHOLD = 20;
-const AUTO_PAN_SPEED = 10;
 
 const BASE_TABLE_WIDTH = 80;
 const BASE_TABLE_HEIGHT = 80;
@@ -39,123 +21,69 @@ const TABLE_SEAT_RADIUS = 10;
 const SEAT_DIAMETER = TABLE_SEAT_RADIUS * 2;
 const TABLE_MARGIN = 5;
 
-initializeApp(firebaseConfig);
-const storage = getStorage()
+SeatMapView.propTypes = {
+    mapURL: PropTypes.string,
+    selectedObject: PropTypes.array,
+    setSelectedObject: PropTypes.func,
+    eventID: PropTypes.string,
+    data: PropTypes.array,
+    setData: PropTypes.func,
+    tierData: PropTypes.array,
+    setTier: PropTypes.func,
+}
 
-function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, zoom, setZoom, offset, setOffset, view,
-                     tierData, setTier, setSelectedTool, setSeatMapData, setAssignedSeat}){
-    const canvasRef = useRef(null);
+function SeatMapView({eventID, mapURL, selectedObject, setSelectedObject, data, setData, tierData, setTier}){
+    const canvasRef = useRef()
+    const [isInitialized, setIsInitialized] = useState(false);
+    const [hoveredObject, setHoveredObject] = useState(null);
+    const lastPointerWorldPosRef = useRef(null);
+    const [offset, setOffset] = useState({ x: 0, y: 0 });
+    const [zoom, setZoom] = useState(1)
     const [isDragging, setIsDragging] = useState(false);
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-    const [isInitialized, setIsInitialized] = useState(false);
-    const [isDraggingObject, setIsDraggingObject] = useState(false);
-    const [objectDragStart, setObjectDragStart] = useState({ x: 0, y: 0 });
-    const [hoveredObject, setHoveredObject] = useState(null);
-    const [isRotating, setIsRotating] = useState(false);
-    const lastPointerWorldPosRef = useRef(null);
-    const location = useLocation()
-    const isFetched = useRef(false)
+    const { showError } = useAlert();
+    const [ticketStatus, setTicketStatus] = useState({});
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const searchParams = new URLSearchParams(location.search.substring(1));
-        const mapID = searchParams.get('mid');
+        if (!mapURL) return;
 
-        if (mapID && !isFetched.current) {
-            eventAxiosWithToken.get(`/seat-map/data?mid=${mapID}`)
-                .then(r => {
-                    const data = r.data.data;
-                    const seatMapPath = data.map_url;
+        async function getMapData(mapURL){
+            const mapRef = ref(storage, mapURL);
+            return await getBytes(mapRef)
+                .then(bytes => {
+                    const decoder = new TextDecoder('utf-8');
+                    const jsonStr = decoder.decode(bytes);
+                    const jsonData = JSON.parse(jsonStr);
+                    if (jsonData.canvasObjects && Array.isArray(jsonData.canvasObjects)) {
+                        setData(jsonData.canvasObjects);
+                    }
 
-                    setSeatMapData({
-                        eventName: data.eventName,
-                        name: data.name,
-                        mapURL: seatMapPath,
-                        share: data.is_public
-                    });
-
-                    if (seatMapPath) {
-                        const mapRef = ref(storage, seatMapPath);
-                        return getBytes(mapRef)
-                            .then(bytes => {
-                                const decoder = new TextDecoder('utf-8');
-                                const jsonStr = decoder.decode(bytes);
-                                const jsonData = JSON.parse(jsonStr);
-
-                                if(jsonData.totalAssignedSeats){
-                                    setAssignedSeat(parseInt(jsonData.totalAssignedSeats))
-                                }
-
-                                if (jsonData.canvasObjects && Array.isArray(jsonData.canvasObjects)) {
-                                    setData(jsonData.canvasObjects);
-                                }
-
-                                if (jsonData.tierData && Array.isArray(jsonData.tierData)) {
-                                    const updatedTierData = jsonData.tierData.map((tier, index) => {
-                                        const dbTierID = data.tierIDs && index < data.tierIDs.length
-                                            ? data.tierIDs[index]
-                                            : null;
-
-                                        return {
-                                            ...tier,
-                                            dbTierID: dbTierID
-                                        };
-                                    });
-
-                                    setTier(updatedTierData);
-                                }
-                                isFetched.current = true
-                            })
-                            .catch(err => {
-                                console.error("Error parsing seat map file:", err);
-                            });
+                    if (jsonData.tierData && Array.isArray(jsonData.tierData)) {
+                        setTier(jsonData.tierData);
                     }
                 })
                 .catch(err => {
-                    console.error("Error loading seat map data from API:", err);
+                    console.error("Error parsing seat map file:", err);
                 });
         }
-    }, [location.search, setData, setTier, setSeatMapData]);
 
-    const drawGrid = (ctx, zoom, offset) => {
-        const width = ctx.canvas.width / (window.devicePixelRatio || 1);
-        const height = ctx.canvas.height / (window.devicePixelRatio || 1);
-
-        const baseGridSize = 20;
-        let gridSize = baseGridSize * zoom;
-
-        if (zoom < 1) {
-            gridSize = baseGridSize * Math.ceil(1 / zoom);
+        if (mapURL) {
+            getMapData(mapURL)
+            eventAxiosWithToken.get(`/tier-tickets?eid=${eventID}`)
+                .then(r => {
+                    if (r.data && r.data.length > 0) {
+                        const statusMap = {};
+                        r.data.forEach(ticket => {
+                            statusMap[ticket.seat_identifier] = ticket.status;
+                        });
+                        setTicketStatus(statusMap);
+                    }
+                    setTimeout(() => setIsLoading(false), 200)
+                })
+                .catch(err => console.log(err))
         }
-
-        const offsetX = offset.x % gridSize;
-        const offsetY = offset.y % gridSize;
-
-        ctx.clearRect(0, 0, width, height);
-
-        if (gridSize >= 5) {
-            ctx.beginPath();
-            ctx.strokeStyle = '#e0e0e0';
-            ctx.lineWidth = 1;
-
-            for (let x = offsetX; x <= width; x += gridSize) {
-                const roundedX = Math.floor(x) + 0.5;
-                if (roundedX >= 0 && roundedX <= width) {
-                    ctx.moveTo(roundedX, 0);
-                    ctx.lineTo(roundedX, height);
-                }
-            }
-
-            for (let y = offsetY; y <= height; y += gridSize) {
-                const roundedY = Math.floor(y) + 0.5;
-                if (roundedY >= 0 && roundedY <= height) {
-                    ctx.moveTo(0, roundedY);
-                    ctx.lineTo(width, roundedY);
-                }
-            }
-
-            ctx.stroke();
-        }
-    };
+    }, [mapURL]);
 
     const drawSeats = (ctx, properties, hoveredSeat = null, selectedSeats = [], sectionId) => {
         const { sectionName, rows, seats } = properties;
@@ -194,22 +122,60 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
                     tier && Array.isArray(tier.assignedSeats) && tier.assignedSeats.includes(seatId)
                 );
 
-                const baseColor = assignedTier ? assignedTier.color : '#fff';
-                const baseStroke = assignedTier ? assignedTier.color : '#000';
+                const status = ticketStatus[seatId];
+                const isTaken = status === 'sold' || status === 'reserved' || status === 'pending';
+
+                let baseColor, baseStroke;
+
+                if (!assignedTier) {
+                    baseColor = '#e0e0e0';
+                    baseStroke = '#cccccc';
+                } else if (isTaken) {
+                    baseColor = '#a0a0a0';
+                    baseStroke = '#808080';
+                } else {
+                    baseColor = assignedTier.color;
+                    baseStroke = assignedTier.color;
+                }
+
+                const isSelected = selectedSeats.some(seat =>
+                    (typeof seat === 'string' && seat === seatId) ||
+                    (typeof seat === 'object' && seat.id === seatId)
+                );
 
                 if (hoveredSeat && hoveredSeat.row === r && hoveredSeat.seat === s && hoveredSeat.sectionId === sectionId) {
-                    ctx.fillStyle = assignedTier ? assignedTier.color : 'rgba(245,245,245,0.55)';
-                    ctx.strokeStyle = '#31343a';
-                    ctx.lineWidth = 2;
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.arc(x + SEAT_SIZE / 2, y + SEAT_SIZE / 2, SEAT_SIZE / 2 + 2, 0, Math.PI * 2);
-                    ctx.strokeStyle = '#fff';
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
-                    ctx.restore();
+                    if (assignedTier) {
+                        ctx.fillStyle = assignedTier.color;
+                        ctx.strokeStyle = '#31343a';
+                        ctx.lineWidth = 2;
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.arc(x + SEAT_SIZE / 2, y + SEAT_SIZE / 2, SEAT_SIZE / 2 + 2, 0, Math.PI * 2);
+                        ctx.strokeStyle = '#fff';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        ctx.restore();
+                    } else {
+                        ctx.fillStyle = '#e0e0e0';
+                        ctx.strokeStyle = '#cccccc';
+                        ctx.lineWidth = 1;
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.arc(x + SEAT_SIZE / 2, y + SEAT_SIZE / 2, SEAT_SIZE / 2 + 2, 0, Math.PI * 2);
+                        ctx.strokeStyle = '#999';
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                        ctx.restore();
+
+                        ctx.beginPath();
+                        ctx.moveTo(x + 5, y + 5);
+                        ctx.lineTo(x + SEAT_SIZE - 5, y + SEAT_SIZE - 5);
+                        ctx.strokeStyle = '#999';
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
                 }
-                else if (selectedSeats.includes(seatId)) {
+                else if (isSelected) {
                     ctx.fillStyle = baseColor;
                     ctx.strokeStyle = '#000000';
                     ctx.lineWidth = 2.5;
@@ -218,20 +184,43 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
                     ctx.fillStyle = baseColor;
                     ctx.strokeStyle = baseStroke;
                     ctx.lineWidth = 1;
+
+                    if (!assignedTier) {
+                        ctx.fill();
+                        ctx.stroke();
+                        ctx.beginPath();
+                        ctx.moveTo(x + 5, y + 5);
+                        ctx.lineTo(x + SEAT_SIZE - 5, y + SEAT_SIZE - 5);
+                        ctx.strokeStyle = '#999';
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
                 }
 
                 ctx.fill();
                 ctx.stroke();
 
-                ctx.fillStyle = assignedTier ? getContrastColor(assignedTier.color) : '#2a2a2a';
-                ctx.font = assignedTier ? 'bold 9px Arial' : '9px Arial';
+                if (isTaken) {
+                    ctx.beginPath();
+                    ctx.moveTo(x + 5, y + 5);
+                    ctx.lineTo(x + SEAT_SIZE - 5, y + SEAT_SIZE - 5);
+                    ctx.moveTo(x + SEAT_SIZE - 5, y + 5);
+                    ctx.lineTo(x + 5, y + SEAT_SIZE - 5);
+                    ctx.strokeStyle = '#999999';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+                ctx.fillStyle = getContrastColor(baseColor);
+                ctx.font = 'bold 10px Nunito';
                 ctx.textAlign = 'center';
-                ctx.fillText(seatNumber.toString(), x + SEAT_SIZE / 2, y + SEAT_SIZE / 2 + 3);
+                ctx.textBaseline = 'middle';
+                ctx.fillText(seatNumber.toString(), x + SEAT_SIZE / 2, y + SEAT_SIZE / 2 + 1);
             }
 
             ctx.fillStyle = '#000';
             ctx.font = 'bold 12px Arial';
             ctx.textAlign = 'center';
+            ctx.textBaseline = 'alphabetic';
             ctx.fillText(rowLetter, ROW_LABEL_WIDTH + sectionWidth + ROW_LABEL_WIDTH / 2, r * (SEAT_SIZE + SEAT_GAP) + SEAT_SIZE / 2 + 4);
         }
     }
@@ -244,9 +233,29 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
             tier && Array.isArray(tier.assignedSeats) && tier.assignedSeats.includes(tableId)
         );
 
-        const tableColor = assignedTier ? assignedTier.color : '#f5f5f5';
-        const seatColor = assignedTier ? assignedTier.color : '#dadada';
+        const isSelected = selectedObject.some(item =>
+            (typeof item === 'string' && item === tableId) ||
+            (typeof item === 'object' && item.id === tableId)
+        );
+
+        const tableStatus = ticketStatus[tableId];
+        const isTaken = tableStatus === 'sold' || tableStatus === 'reserved' || tableStatus === 'pending';
+
+        let tableColor, seatColor;
+        if (!assignedTier) {
+            tableColor = '#e0e0e0';
+            seatColor = '#d0d0d0';
+        } else if (isTaken) {
+            tableColor = '#a0a0a0';
+            seatColor = '#909090';
+        } else {
+            tableColor = assignedTier.color;
+            seatColor = assignedTier.color;
+        }
+
         const textColor = getContrastColor(tableColor);
+        const isUntiered = !assignedTier;
+        const isUnavailable = isTaken || isUntiered;
 
         if (style === 'square') {
             const seatCount = parseInt(seats, 10);
@@ -267,15 +276,38 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
         }
 
         ctx.save();
-        ctx.fillStyle = tableColor;
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 2;
+        if (isSelected) {
+            ctx.fillStyle = tableColor;
+            ctx.strokeStyle = '#2196f3';
+            ctx.lineWidth = 3;
+
+            ctx.shadowColor = '#2196f3';
+            ctx.shadowBlur = 10;
+        } else {
+            ctx.fillStyle = tableColor;
+            ctx.strokeStyle = isUnavailable ? '#cccccc' : '#000';
+            ctx.lineWidth = isUnavailable ? 1 : 2;
+        }
 
         if (style === 'square') {
             ctx.beginPath();
             ctx.rect(-tableWidth / 2, -tableHeight / 2, tableWidth, tableHeight);
             ctx.fill();
             ctx.stroke();
+
+            if (isUnavailable && !isSelected) {
+                ctx.beginPath();
+                ctx.moveTo(-tableWidth / 2 + 10, -tableHeight / 2 + 10);
+                ctx.lineTo(tableWidth / 2 - 10, tableHeight / 2 - 10);
+                ctx.strokeStyle = '#999';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(tableWidth / 2 - 10, -tableHeight / 2 + 10);
+                ctx.lineTo(-tableWidth / 2 + 10, tableHeight / 2 - 10);
+                ctx.stroke();
+            }
 
             const seatCount = parseInt(seats, 10);
             const seatRadius = 10;
@@ -344,22 +376,41 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
             ctx.fill();
             ctx.stroke();
 
-            if (seats) {
-                ctx.fillStyle = seatColor;
+            if (isUnavailable && !isSelected) {
+                ctx.beginPath();
+                ctx.moveTo(-tableRadius * 0.7, -tableRadius * 0.7);
+                ctx.lineTo(tableRadius * 0.7, tableRadius * 0.7);
+                ctx.strokeStyle = '#999';
+                ctx.lineWidth = 1;
+                ctx.stroke();
 
-                const seatCount = parseInt(seats, 10);
-                const seatRadius = 10;
-                const seatDistance = tableRadius + seatRadius + 5;
-                for (let i = 0; i < seatCount; i++) {
-                    const angle = (i / seatCount) * (Math.PI * 2);
-                    const seatX = seatDistance * Math.cos(angle);
-                    const seatY = seatDistance * Math.sin(angle);
-                    ctx.beginPath();
-                    ctx.arc(seatX, seatY, seatRadius, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.stroke();
-                }
+                ctx.beginPath();
+                ctx.moveTo(tableRadius * 0.7, -tableRadius * 0.7);
+                ctx.lineTo(-tableRadius * 0.7, tableRadius * 0.7);
+                ctx.stroke();
             }
+
+            const seatCount = parseInt(seats, 10);
+            ctx.fillStyle = seatColor;
+
+            for (let i = 0; i < seatCount; i++) {
+                const angle = (i / seatCount) * Math.PI * 2;
+                const x = Math.cos(angle) * (tableRadius + TABLE_SEAT_RADIUS + 5);
+                const y = Math.sin(angle) * (tableRadius + TABLE_SEAT_RADIUS + 5);
+
+                ctx.beginPath();
+                ctx.arc(x, y, TABLE_SEAT_RADIUS, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+            }
+        }
+
+        if (isTaken) {
+            ctx.fillStyle = textColor;
+            ctx.font = 'bold 10px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText("TAKEN", 0, style === 'square' ? tableHeight / 4 : 0);
         }
 
         ctx.fillStyle = textColor;
@@ -460,61 +511,15 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
         ctx.restore();
     };
 
-    const drawRotationHandle = (ctx, obj) => {
-        if (selectedObject.length !== 1 || obj.id !== selectedObject[0]) return;
-
-        const bbox = getBoundingBox(obj);
-        ctx.save();
-        ctx.fillStyle = '#4285F4';
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 1 / zoom;
-        
-        const centerTopX = 0;
-        const centerTopY = bbox.y - 20 / zoom;
-        
-        ctx.beginPath();
-        ctx.arc(centerTopX, centerTopY, 8 / zoom, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(centerTopX, centerTopY);
-        ctx.lineTo(0, bbox.y);
-        ctx.stroke();
-
-        ctx.restore();
-    };
-
-    const isPointInRotationHandle = (point, obj) => {
-        if (!obj) return false;
-
-        const rotation = obj.rotation || 0;
-        const radians = (rotation * Math.PI) / 180;
-        const cos = Math.cos(-radians);
-        const sin = Math.sin(-radians);
-
-        const bbox = getBoundingBox(obj);
-
-        const handleX = 0;
-        const handleY = bbox.y - 20 / zoom;
-
-        const dx = point.x - obj.position.x;
-        const dy = point.y - obj.position.y;
-
-        const localX = dx * cos - dy * sin;
-        const localY = dx * sin + dy * cos;
-
-        const deltaX = localX - handleX;
-        const deltaY = localY - handleY;
-        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-
-        return distance <= 8 / zoom;
-    };
-
     const drawObject = (ctx, obj, zoom, offset) => {
         const { type, position = { x: 0, y: 0 }, properties, rotation = 0 } = obj;
         const isHovered = hoveredObject && hoveredObject.id === obj.id;
-        const isSelected = selectedObject.includes(obj.id);
+
+        const isSelected = selectedObject.some(item =>
+            (typeof item === 'string' && item === obj.id) ||
+            (typeof item === 'object' && item.id === obj.id) ||
+            (typeof item === 'object' && item.section === obj.id)
+        );
 
         ctx.save();
         ctx.translate(offset.x, offset.y);
@@ -523,61 +528,30 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
         ctx.translate(position.x, position.y);
         ctx.rotate(rotation * Math.PI / 180);
 
-        if (view === 'tier') {
-            if (type === 'seats') {
-                const hoveredSeatInfo = hoveredObject?.id === obj.id ? hoveredObject.seatInfo : null;
-                drawSeats(ctx, properties, hoveredSeatInfo, selectedObject, obj.id);
-            }
-            else {
-                if (isHovered && !isSelected) {
-                    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-                    ctx.shadowBlur = 10;
-                }
-                else if (isSelected) {
-                    ctx.shadowColor = '#2196f3';
-                    ctx.shadowBlur = 10;
-                }
-
-                switch(type) {
-                    case 'table':
-                        drawTable(ctx, properties, obj.id);
-                        break;
-                    case 'object':
-                        drawCustomObject(ctx, properties, obj.id);
-                        break;
-                    case 'text':
-                        drawText(ctx, properties);
-                        break;
-                }
-            }
+        if (type === 'seats') {
+            const hoveredSeatInfo = hoveredObject?.id === obj.id ? hoveredObject.seatInfo : null;
+            drawSeats(ctx, properties, hoveredSeatInfo, selectedObject, obj.id);
         }
-
         else {
+            if (isHovered && !isSelected) {
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                ctx.shadowBlur = 10;
+            }
+            else if (isSelected) {
+                ctx.shadowColor = '#2196f3';
+                ctx.shadowBlur = 10;
+            }
+
             switch(type) {
-                case 'seats':
-                    drawSeats(ctx, properties);
-                    break;
                 case 'table':
-                    drawTable(ctx, properties);
+                    drawTable(ctx, properties, obj.id);
                     break;
                 case 'object':
-                    drawCustomObject(ctx, properties);
+                    drawCustomObject(ctx, properties, obj.id);
                     break;
                 case 'text':
                     drawText(ctx, properties);
                     break;
-            }
-
-            if (isSelected && selectedObject.length === 1) {
-                const bbox = getBoundingBox(obj);
-                ctx.strokeStyle = '#f50057';
-                ctx.lineWidth = Math.round(2 / zoom);
-                ctx.setLineDash([5, 5]);
-                ctx.strokeRect(bbox.x, bbox.y, bbox.width, bbox.height);
-            }
-
-            if (isSelected && selectedObject.length === 1) {
-                drawRotationHandle(ctx, obj);
             }
         }
 
@@ -589,23 +563,24 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
         const height = ctx.canvas.height / (window.devicePixelRatio || 1);
 
         ctx.clearRect(0, 0, width, height);
-        drawGrid(ctx, zoom, offset);
+        if(data === null) return;
         data.forEach(obj => {drawObject(ctx, obj, zoom, offset);});
+    };
 
-        if (view === 'map' && selectedObject.length > 1) {
-            const selectedObjs = data.filter(obj => selectedObject.includes(obj.id));
-            const unionBBox = getUnionBoundingBox(selectedObjs);
-            if (unionBBox) {
-                ctx.save();
-                ctx.translate(offset.x, offset.y);
-                ctx.scale(zoom, zoom);
-                ctx.strokeStyle = '#f50057';
-                ctx.lineWidth = Math.round(2 / zoom);
-                ctx.setLineDash([5, 5]);
-                ctx.strokeRect(unionBBox.x, unionBBox.y, unionBBox.width, unionBBox.height);
-                ctx.restore();
-            }
-        }
+    const getTierInfo = (id) => {
+        if (!tierData) return null;
+
+        const tier = tierData.find(tier =>
+            tier && Array.isArray(tier.assignedSeats) &&
+            tier.assignedSeats.includes(id)
+        );
+
+        return tier ? {
+            tierId: tier.id,
+            dbTierId: tier.dbTierID,
+            name: tier.name,
+            color: tier.color
+        } : null;
     };
 
     const calculateCanvasCenter = () => {
@@ -617,12 +592,6 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
 
         return { x: width / 2, y: height / 2 };
     };
-
-    useEffect(() => {
-        if(view === 'tier'){
-            setSelectedObject([])
-        }
-    }, [view]);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -662,7 +631,7 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
     }, [data, zoom, offset, isInitialized, selectedObject, hoveredObject]);
 
     useEffect(() => {
-        if (data.length > 0 && !isInitialized) {
+        if (data && data.length > 0 && !isInitialized) {
             const center = calculateCanvasCenter();
             setOffset({x: center.x, y: center.y});
             setIsInitialized(true);
@@ -703,75 +672,6 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
             canvas.removeEventListener('wheel', handleWheel);
         };
     }, [zoom, offset]);
-
-    useEffect(() => {
-        const updateCenter = () => {
-            const canvas = canvasRef.current;
-            if (!canvas) return;
-
-            const width = canvas.clientWidth;
-            const height = canvas.clientHeight;
-
-            setCenter({ x: width / 2, y: height / 2 });
-        };
-
-        updateCenter();
-        window.addEventListener('resize', updateCenter);
-
-        return () => {
-            window.removeEventListener('resize', updateCenter);
-        };
-    }, [offset, setCenter]);
-
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        const handleMouseDown = (e) => {
-            if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
-                setIsDragging(true);
-                setDragStart({ x: e.clientX, y: e.clientY });
-                canvas.style.cursor = 'grabbing';
-            }
-        };
-
-        const handleMouseMove = (e) => {
-            if (isDragging) {
-                const dx = e.clientX - dragStart.x;
-                const dy = e.clientY - dragStart.y;
-
-                setOffset(prev => ({x: prev.x + dx, y: prev.y + dy}));
-
-                setDragStart({ x: e.clientX, y: e.clientY });
-
-                const ctx = canvas.getContext('2d');
-                renderCanvas(ctx, zoom, offset);
-            }
-        };
-
-        const handleMouseUp = () => {
-            setIsDragging(false);
-            canvas.style.cursor = 'default';
-        };
-
-        canvas.addEventListener('mousedown', handleMouseDown);
-        window.addEventListener('mousemove', handleMouseMove);
-        window.addEventListener('mouseup', handleMouseUp);
-
-        return () => {
-            canvas.removeEventListener('mousedown', handleMouseDown);
-            window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('mouseup', handleMouseUp);
-        };
-    }, [isDragging, dragStart, zoom, offset]);
-
-    const handleZoomIn = () => {
-        setZoom(prevZoom => Math.min(prevZoom + 0.1, 2));
-    };
-
-    const handleZoomOut = () => {
-        setZoom(prevZoom => Math.max(prevZoom - 0.1, 0.5));
-    }
 
     const getBoundingBox = (obj) => {
         const { type, properties } = obj;
@@ -902,48 +802,6 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
         return originalBox;
     };
 
-    const getUnionBoundingBox = (selectedObjs) => {
-        if (!selectedObjs.length) return null;
-
-        let minX = Infinity, minY = Infinity;
-        let maxX = -Infinity, maxY = -Infinity;
-
-        selectedObjs.forEach((obj) => {
-            const bbox = getBoundingBox(obj);
-            const rotation = obj.rotation || 0;
-            const radians = (rotation * Math.PI) / 180;
-            const cos = Math.cos(radians);
-            const sin = Math.sin(radians);
-
-            const corners = [
-                { x: bbox.x, y: bbox.y },
-                { x: bbox.x + bbox.width, y: bbox.y },
-                { x: bbox.x + bbox.width, y: bbox.y + bbox.height },
-                { x: bbox.x, y: bbox.y + bbox.height }
-            ];
-
-            corners.forEach(corner => {
-                const rotatedX = corner.x * cos - corner.y * sin;
-                const rotatedY = corner.x * sin + corner.y * cos;
-
-                const worldX = obj.position.x + rotatedX;
-                const worldY = obj.position.y + rotatedY;
-
-                minX = Math.min(minX, worldX);
-                minY = Math.min(minY, worldY);
-                maxX = Math.max(maxX, worldX);
-                maxY = Math.max(maxY, worldY);
-            });
-        });
-
-        return {
-            x: minX,
-            y: minY,
-            width: maxX - minX,
-            height: maxY - minY
-        };
-    };
-
     const isPointInObject = (point, obj, checkSeat = false) => {
         const rotation = obj.rotation || 0;
         const radians = (rotation * Math.PI) / 180;
@@ -955,7 +813,7 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
         const localX = dx * cos - dy * sin;
         const localY = dx * sin + dy * cos;
 
-        if (obj.type === 'seats' && view === 'tier' && checkSeat) {
+        if (obj.type === 'seats' && checkSeat) {
             const { rows, seats } = obj.properties;
             const rowCount = parseInt(rows);
             const seatCount = parseInt(seats);
@@ -1020,22 +878,6 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
             y: (mouseY - offset.y) / zoom,
         };
 
-        if (selectedObject.length === 1) {
-            const selectedObj = data.find(obj => obj.id === selectedObject[0]);
-            if (selectedObj && isPointInRotationHandle(canvasCoords, selectedObj)) {
-                setIsRotating(true);
-                const dx = canvasCoords.x - selectedObj.position.x;
-                const dy = canvasCoords.y - selectedObj.position.y;
-                const initialAngle = Math.atan2(dy, dx) * 180 / Math.PI;
-                setObjectDragStart({ x: canvasCoords.x, y: canvasCoords.y, initialAngle });
-                return;
-            }
-        }
-
-        if (!e.shiftKey) {
-            setSelectedTool(null);
-        }
-
         if (e.shiftKey) {
             if (e.button === 0 || e.button === 1) {
                 setIsDragging(true);
@@ -1045,85 +887,103 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
             return;
         }
 
-        if (view === 'tier') {
-            for (let i = data.length - 1; i >= 0; i--) {
-                const obj = data[i];
-                const result = isPointInObject(canvasCoords, obj, true);
+        let objectClicked = false;
 
-                if (result.inObject) {
-                    if (obj.type === 'seats' && result.seatInfo) {
-                        const seatId = `${obj.id}_${result.seatInfo.row}_${result.seatInfo.seat}`;
-
-                        setSelectedObject(prev =>
-                            prev.includes(seatId)
-                                ? prev.filter(id => id !== seatId)
-                                : [...prev, seatId]
-                        );
-
-                    } else {
-                        setSelectedObject(prev =>
-                            prev.includes(obj.id)
-                                ? prev.filter(id => id !== obj.id)
-                                : [...prev, obj.id]
-                        );
-                    }
-                    return;
-                }
-            }
-
-            if (!e.ctrlKey && !e.metaKey) {
-                setSelectedObject([]);
-            }
-
-            setIsDraggingObject(false);
-            return;
-        }
-
-        if (selectedObject.length > 0) {
-            const selectedObjs = data.filter(obj => selectedObject.includes(obj.id));
-            let hitAnySelected = false;
-
-            for (const obj of selectedObjs) {
-                if (isPointInObject(canvasCoords, obj).inObject) {
-                    hitAnySelected = true;
-                    break;
-                }
-            }
-
-            if (hitAnySelected) {
-                setIsDraggingObject(true);
-                setObjectDragStart(canvasCoords);
-                return;
-            }
-
-            if (!e.ctrlKey) {
-                setSelectedObject([]);
-                setIsDraggingObject(false);
-            }
-        }
-
-        let hitObject = null;
         for (let i = data.length - 1; i >= 0; i--) {
-            const result = isPointInObject(canvasCoords, data[i]);
+            const obj = data[i];
+            const result = isPointInObject(canvasCoords, obj, true);
+
             if (result.inObject) {
-                hitObject = data[i];
+                objectClicked = true;
+
+                if (obj.type === 'seats' && result.seatInfo) {
+                    const seatId = `${obj.id}_${result.seatInfo.row}_${result.seatInfo.seat}`;
+                    const tierInfo = getTierInfo(seatId);
+
+                    const status = ticketStatus[seatId];
+                    const isTaken = status === 'sold' || status === 'reserved' || status === 'pending';
+
+                    if (isTaken) {
+                        showError('This seat is already taken');
+                        return;
+                    }
+
+                    if (!tierInfo) {
+                        showError('This seat is not available for selection');
+                        return;
+                    }
+
+                    const selectionObj = {
+                        id: seatId,
+                        type: 'seat',
+                        row: result.seatInfo.row,
+                        seat: result.seatInfo.seat,
+                        section: obj.id,
+                        sectionName: obj.properties.sectionName,
+                        rowLetter: String.fromCharCode(65 + result.seatInfo.row),
+                        tierName: tierInfo.name,
+                        tierId: tierInfo.tierId,
+                        dbTierId: tierInfo.dbTierId,
+                        color: tierInfo.color
+                    };
+
+                    setSelectedObject(prev => {
+                        const isAlreadySelected = prev.some(item =>
+                            (typeof item === 'object' && item.id === seatId));
+
+                        if (isAlreadySelected) {
+                            return prev.filter(item =>
+                                !(typeof item === 'object' && item.id === seatId));
+                        } else {
+                            return [...prev, selectionObj];
+                        }
+                    });
+                }
+                else if (obj.type === 'table') {
+                    const tableId = obj.id;
+                    const tierInfo = getTierInfo(tableId);
+
+                    if (!tierInfo) {
+                        showError('This table is not available for selection');
+                        return;
+                    }
+
+                    const status = ticketStatus[tableId];
+                    const isTaken = status === 'sold' || status === 'reserved' || status === 'pending';
+
+                    if (isTaken) {
+                        showError('This table is already taken');
+                        return;
+                    }
+
+                    const selectionObj = {
+                        id: tableId,
+                        type: 'table',
+                        tableName: obj.properties.tableName,
+                        seats: obj.properties.seats,
+                        tierName: tierInfo.name,
+                        tierId: tierInfo.tierId,
+                        dbTierId: tierInfo.dbTierId,
+                        color: tierInfo.color
+                    };
+
+                    setSelectedObject(prev => {
+                        const isAlreadySelected = prev.some(item =>
+                            (typeof item === 'object' && item.id === tableId));
+
+                        if (isAlreadySelected) {
+                            return prev.filter(item =>
+                                !(typeof item === 'object' && item.id === tableId));
+                        } else {
+                            return [...prev, selectionObj];
+                        }
+                    });
+                }
                 break;
             }
         }
 
-        if (hitObject) {
-            if (e.ctrlKey) {
-                setSelectedObject(prev =>
-                    prev.includes(hitObject.id)
-                        ? prev.filter(id => id !== hitObject.id)
-                        : [...prev, hitObject.id]
-                );
-            } else {
-                setSelectedObject([hitObject.id]);
-            }
-            setIsDraggingObject(true);
-            setObjectDragStart(canvasCoords);
-        } else if (!e.ctrlKey) {
+        if (!objectClicked) {
             setSelectedObject([]);
         }
 
@@ -1133,7 +993,7 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
 
     const handleCanvasMouseMove = (e) => {
         const canvas = canvasRef.current;
-        if (!canvas) return;
+        if (!canvas || !data) return;
 
         const rect = canvas.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
@@ -1143,141 +1003,25 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
             y: (mouseY - offset.y) / zoom,
         };
 
-        if (isRotating && selectedObject.length === 1) {
-            const selectedObj = data.find(obj => obj.id === selectedObject[0]);
-            if (selectedObj && objectDragStart) {
-                const dx = currentWorldPos.x - selectedObj.position.x;
-                const dy = currentWorldPos.y - selectedObj.position.y;
-
-                let angle = Math.atan2(dy, dx) * 180 / Math.PI;
-                angle = (angle + 90) % 360;
-                if (angle < 0) angle += 360;
-
-                setData(prev =>
-                    prev.map(obj =>
-                        obj.id === selectedObj.id
-                            ? { ...obj, rotation: angle }
-                            : obj
-                    )
-                );
-
-                const ctx = canvas.getContext('2d');
-                renderCanvas(ctx, zoom, offset);
-                return;
-            }
-        }
-
         if (!lastPointerWorldPosRef.current) {
             lastPointerWorldPosRef.current = currentWorldPos;
         }
 
-        const delta = {
-            x: currentWorldPos.x - lastPointerWorldPosRef.current.x,
-            y: currentWorldPos.y - lastPointerWorldPosRef.current.y,
-        };
-
-        if (view === 'tier') {
-            let newHoveredObject = null;
-            for (let i = data.length - 1; i >= 0; i--) {
-                const obj = data[i];
-                const result = isPointInObject(currentWorldPos, obj, true);
-                if (result.inObject) {
-                    newHoveredObject = {
-                        id: obj.id,
-                        seatInfo: result.seatInfo,
-                    };
-                    break;
-                }
-            }
-            setHoveredObject(newHoveredObject);
-        }
-
-        if (isDraggingObject) {
-            setData(prev =>
-                prev.map(obj => {
-                    if (selectedObject.includes(obj.id)) {
-                        return {
-                            ...obj,
-                            position: {
-                                x: obj.position.x + delta.x,
-                                y: obj.position.y + delta.y,
-                            },
-                        };
-                    }
-                    return obj;
-                })
-            );
-        }
-
-        let panBBox = null;
-        if (selectedObject.length > 1) {
-            const selectedObjs = data.filter(obj => selectedObject.includes(obj.id));
-            panBBox = getUnionBoundingBox(selectedObjs);
-        } else if (selectedObject.length === 1) {
-            const selectedObj = data.find(obj => obj.id === selectedObject[0]);
-            if (selectedObj) {
-                const bbox = getBoundingBox(selectedObj);
-                panBBox = {
-                    x: selectedObj.position.x + bbox.x,
-                    y: selectedObj.position.y + bbox.y,
-                    width: bbox.width,
-                    height: bbox.height,
+        let newHoveredObject = null;
+        for (let i = data.length - 1; i >= 0; i--) {
+            const obj = data[i];
+            const result = isPointInObject(currentWorldPos, obj, true);
+            if (result.inObject) {
+                newHoveredObject = {
+                    id: obj.id,
+                    seatInfo: result.seatInfo,
                 };
+                break;
             }
         }
+        setHoveredObject(newHoveredObject);
 
-        let autoPanDelta = { x: 0, y: 0 };
-        if (panBBox) {
-            const screenX = offset.x + panBBox.x * zoom;
-            const screenY = offset.y + panBBox.y * zoom;
-            const screenWidth = panBBox.width * zoom;
-            const screenHeight = panBBox.height * zoom;
-
-            if (screenX < AUTO_PAN_THRESHOLD) {
-                autoPanDelta.x = AUTO_PAN_SPEED;
-            } else if (screenX + screenWidth > rect.width - AUTO_PAN_THRESHOLD) {
-                autoPanDelta.x = -AUTO_PAN_SPEED;
-            }
-            if (screenY < AUTO_PAN_THRESHOLD) {
-                autoPanDelta.y = AUTO_PAN_SPEED;
-            } else if (screenY + screenHeight > rect.height - AUTO_PAN_THRESHOLD) {
-                autoPanDelta.y = -AUTO_PAN_SPEED;
-            }
-        }
-
-        if (autoPanDelta.x !== 0 || autoPanDelta.y !== 0) {
-            setOffset(prev => ({
-                x: prev.x + autoPanDelta.x,
-                y: prev.y + autoPanDelta.y,
-            }));
-
-            const worldPanDelta = {
-                x: autoPanDelta.x / zoom,
-                y: autoPanDelta.y / zoom,
-            };
-
-            lastPointerWorldPosRef.current = {
-                x: currentWorldPos.x + worldPanDelta.x,
-                y: currentWorldPos.y + worldPanDelta.y,
-            };
-
-            setData(prev =>
-                prev.map(obj => {
-                    if (selectedObject.includes(obj.id)) {
-                        return {
-                            ...obj,
-                            position: {
-                                x: obj.position.x + worldPanDelta.x,
-                                y: obj.position.y + worldPanDelta.y,
-                            },
-                        };
-                    }
-                    return obj;
-                })
-            );
-        } else {
-            lastPointerWorldPosRef.current = currentWorldPos;
-        }
+        lastPointerWorldPosRef.current = currentWorldPos;
 
         requestAnimationFrame(() => {
             const ctx = canvas.getContext('2d');
@@ -1294,57 +1038,83 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
         }
     };
 
-    const handleCanvasMouseUp = () => {
-        setIsDraggingObject(false);
-        setIsRotating(false);
-        setObjectDragStart(null);
-    };
-
-    const handleDeleteSelected = () => {
-        setData(prevData => prevData.filter(obj => !selectedObject.includes(obj.id)));
-        setSelectedObject([]);
-        const canvas = canvasRef.current;
-        if (canvas) {
-            const ctx = canvas.getContext('2d');
-            renderCanvas(ctx, zoom, offset);
-        }
-    };
-
-    useEffect(() => {
-        const handleKeyDown = (e) => {
-            if (e.key === 'Delete') {
-                handleDeleteSelected();
-            }
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [selectedObject, data]);
-
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
         canvas.addEventListener('mousedown', handleCanvasMouseDown);
         window.addEventListener('mousemove', handleCanvasMouseMove);
-        window.addEventListener('mouseup', handleCanvasMouseUp);
         canvas.addEventListener('mouseleave', handleCanvasMouseLeave);
 
         return () => {
             canvas.removeEventListener('mousedown', handleCanvasMouseDown);
             window.removeEventListener('mousemove', handleCanvasMouseMove);
-            window.removeEventListener('mouseup', handleCanvasMouseUp);
             canvas.removeEventListener('mouseleave', handleCanvasMouseLeave);
         };
-    }, [offset, zoom, objectDragStart, isDraggingObject, selectedObject, data, setData, setSelectedObject, hoveredObject, view, tierData]);
+    }, [offset, zoom, selectedObject, data, setData, setSelectedObject, hoveredObject, tierData]);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas || !data) return;
+
+        const handleMouseDown = (e) => {
+            if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
+                setIsDragging(true);
+                setDragStart({ x: e.clientX, y: e.clientY });
+                canvas.style.cursor = 'grabbing';
+            }
+        };
+
+        const handleMouseMove = (e) => {
+            if (isDragging) {
+                const dx = e.clientX - dragStart.x;
+                const dy = e.clientY - dragStart.y;
+
+                setOffset(prev => ({x: prev.x + dx, y: prev.y + dy}));
+                setDragStart({ x: e.clientX, y: e.clientY });
+
+                const ctx = canvas.getContext('2d');
+                renderCanvas(ctx, zoom, offset);
+            }
+        };
+
+        const handleMouseUp = () => {
+            setIsDragging(false);
+            canvas.style.cursor = 'default';
+        };
+
+        canvas.addEventListener('mousedown', handleMouseDown);
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+
+        return () => {
+            canvas.removeEventListener('mousedown', handleMouseDown);
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isDragging, dragStart, zoom, offset, data]);
 
     return (
-        <>
-            <canvas ref={canvasRef} className={'create-seat-map__canvas'}></canvas>
-            <Stack direction={'row'} columnGap={1} position="absolute" bottom={16} right={16}>
-                <Button variant="contained" onClick={handleZoomIn}>Zoom In</Button>
-                <Button variant="contained" onClick={handleZoomOut}>Zoom Out</Button>
-            </Stack>
-        </>
+        <div className="view-seat-map__container" style={{ position: 'relative', width: '100%', height: '100%' }}>
+            <canvas ref={canvasRef} className={'view-seat-map__canvas'}></canvas>
+            {isLoading && (
+                <div className="view-seat-map__loading-overlay" style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: 'rgb(255,255,255)',
+                }}>
+                    <CircularProgress />
+                    <p style={{ marginTop: '20px', fontWeight: 'bold' }}>Loading seat map...</p>
+                </div>
+            )}
+        </div>
     )
 }
 
-export default React.memo(SeatMap);
+export default SeatMapView

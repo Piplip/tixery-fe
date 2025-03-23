@@ -1024,7 +1024,8 @@
     "signInToSave": "Sign in to save this event",
     "eventImageAlt": "foo",
     "signIn": "Sign in",
-    "likeEventTooltip": "{{liked, boolean, true{Unlike} false{Like}}} event",
+    "likeEvent": "Like event",
+    "unlikeEvent": "Unlike event",
     "addedToSaved": "Added to your saved events"
   },
   "loading": "Loading...",

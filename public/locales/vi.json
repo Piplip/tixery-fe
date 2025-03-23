@@ -1030,7 +1030,8 @@
     "signInToSave": "Đăng nhập để lưu sự kiện này",
     "eventImageAlt": "foo",
     "signIn": "Đăng nhập",
-    "likeEventTooltip": "{{liked, boolean, true{Bỏ thích} false{Thích}}} sự kiện",
+    "likeEvent": "Thích sự kiện",
+    "unlikeEvent": "Bỏ thích sự kiện",
     "addedToSaved": "Đã thêm vào sự kiện đã lưu của bạn"
   },
   "loading": "Đang tải...",
