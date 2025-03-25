@@ -7,6 +7,7 @@ import {getContrastColor} from "../../common/Utilities.js";
 import {useAlert} from "../../custom-hooks/useAlert.js";
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import {CircularProgress} from "@mui/material";
+import { Client } from '@stomp/stompjs';
 
 initializeApp(firebaseConfig);
 const storage = getStorage()
@@ -30,9 +31,10 @@ SeatMapView.propTypes = {
     setData: PropTypes.func,
     tierData: PropTypes.array,
     setTier: PropTypes.func,
+    mapID: PropTypes.number,
 }
 
-function SeatMapView({eventID, mapURL, selectedObject, setSelectedObject, data, setData, tierData, setTier}){
+function SeatMapView({eventID, mapURL, selectedObject, setSelectedObject, data, setData, tierData, setTier, mapID}){
     const canvasRef = useRef()
     const [isInitialized, setIsInitialized] = useState(false);
     const [hoveredObject, setHoveredObject] = useState(null);
@@ -44,6 +46,73 @@ function SeatMapView({eventID, mapURL, selectedObject, setSelectedObject, data, 
     const { showError } = useAlert();
     const [ticketStatus, setTicketStatus] = useState({});
     const [isLoading, setIsLoading] = useState(true);
+    const [connectionStatus, setConnectionStatus] = useState('disconnected');
+    const clientRef = useRef(null);
+
+    useEffect(() => {
+        if (!mapID) {
+            console.log("No map ID provided, skipping WebSocket connection");
+            return;
+        }
+
+        const topicName = `/seat-map/${mapID}`;
+        setConnectionStatus('connecting');
+
+        const stompClient = new Client({
+            brokerURL: `ws://localhost:9999/events/ws`,
+            reconnectDelay: 5000,
+
+            onConnect: () => {
+                setConnectionStatus('connected');
+                stompClient.subscribe(topicName, (message) => {
+                    try {
+                        if (message.body) {
+                            const receivedSeatIds = JSON.parse(message.body);
+
+                            if (receivedSeatIds && receivedSeatIds.length > 0) {
+                                setTicketStatus(prevStatus => {
+                                    const updatedStatus = { ...prevStatus };
+                                    receivedSeatIds.forEach(seatID => {
+                                        updatedStatus[seatID] = "reserved";
+                                    });
+                                    return updatedStatus;
+                                });
+                            }
+                        }
+                    } catch (err) {
+                        console.error("Error processing WebSocket message:", err);
+                    }
+                });
+            },
+
+            onStompError: (frame) => {
+                console.error('Broker reported error:', frame.headers['message']);
+                console.error('Additional details:', frame.body);
+                setConnectionStatus('error');
+            },
+
+            onWebSocketError: (event) => {
+                console.error('WebSocket error:', event);
+                setConnectionStatus('error');
+            },
+
+            onWebSocketClose: () => {
+                console.log(`WebSocket connection closed for map ${mapID}`);
+                setConnectionStatus('disconnected');
+            }
+        });
+
+        clientRef.current = stompClient;
+        stompClient.activate();
+
+        return () => {
+            console.log(`Cleaning up WebSocket for map ${mapID}`);
+            if (stompClient.connected) {
+                stompClient.deactivate();
+            }
+            clientRef.current = null;
+        };
+    }, [mapID]);
 
     useEffect(() => {
         if (!mapURL) return;
@@ -144,7 +213,29 @@ function SeatMapView({eventID, mapURL, selectedObject, setSelectedObject, data, 
                 );
 
                 if (hoveredSeat && hoveredSeat.row === r && hoveredSeat.seat === s && hoveredSeat.sectionId === sectionId) {
-                    if (assignedTier) {
+                    if (isTaken) {
+                        ctx.fillStyle = '#a0a0a0';
+                        ctx.strokeStyle = '#31343a';
+                        ctx.lineWidth = 2;
+
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.arc(x + SEAT_SIZE / 2, y + SEAT_SIZE / 2, SEAT_SIZE / 2 + 2, 0, Math.PI * 2);
+                        ctx.strokeStyle = '#ff5151';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        ctx.restore();
+
+                        ctx.beginPath();
+                        ctx.moveTo(x + 5, y + 5);
+                        ctx.lineTo(x + SEAT_SIZE - 5, y + SEAT_SIZE - 5);
+                        ctx.moveTo(x + SEAT_SIZE - 5, y + 5);
+                        ctx.lineTo(x + 5, y + SEAT_SIZE - 5);
+                        ctx.strokeStyle = '#ff5151';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                    }
+                    else if (assignedTier) {
                         ctx.fillStyle = assignedTier.color;
                         ctx.strokeStyle = '#31343a';
                         ctx.lineWidth = 2;
@@ -1050,7 +1141,7 @@ function SeatMapView({eventID, mapURL, selectedObject, setSelectedObject, data, 
             window.removeEventListener('mousemove', handleCanvasMouseMove);
             canvas.removeEventListener('mouseleave', handleCanvasMouseLeave);
         };
-    }, [offset, zoom, selectedObject, data, setData, setSelectedObject, hoveredObject, tierData]);
+    }, [offset, zoom, selectedObject, data, setData, setSelectedObject, hoveredObject, tierData, ticketStatus]);
 
     useEffect(() => {
         const canvas = canvasRef.current;

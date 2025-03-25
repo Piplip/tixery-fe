@@ -50,7 +50,8 @@ function PaymentResponse(){
                         </Box>
 
                         <Typography variant="h5" className="payment-success__title" fontFamily={'Roboto Slab'} fontWeight={500}>
-                            {response?.message || (initialType ? t('paymentResponse.ticketPaymentSuccess') : t('paymentResponse.ticketPaymentFailed'))}
+                            {/*{response?.message || (initialType ? t('paymentResponse.ticketPaymentSuccess') : t('paymentResponse.ticketPaymentFailed'))}*/}
+                            {initialType ? t('paymentResponse.ticketPaymentSuccess') : t('paymentResponse.ticketPaymentFailed')}
                         </Typography>
                         <Typography variant="body1" className="payment-success__transaction">
                             {t('paymentResponse.transactionID')}: {response.sessionID}

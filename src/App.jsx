@@ -51,10 +51,6 @@ import AIEventPreview from "./component/organizer/AIEventPreview.jsx";
 import OrganizerReport from "./component/organizer/OrganizerReport.jsx";
 import dayjs from "dayjs";
 import AttendeeProfileSettings from "./component/template/AttendeeProfileSettings.jsx";
-import AdminTemplate from "./component/template/AdminTemplate.jsx";
-import OverviewDashboard from "./component/admin/OverviewDashboard.jsx";
-import LogManagement from "./component/admin/LogManagement.jsx";
-import ServiceDashboard from "./component/admin/ServiceDashboard.jsx";
 import CreateSeatMap from "./component/organizer/CreateSeatMap.jsx";
 import {AlertProvider} from "./component/shared/AlertProvider.jsx";
 
@@ -278,15 +274,6 @@ function App() {
                         return response.data;
                     },
                 }
-            ]
-        },
-        {
-            path: 'admin',
-            element: <AdminTemplate />,
-            children: [
-                {index: true, element: <OverviewDashboard />},
-                {path: 'logs', element: <LogManagement />},
-                {path: ':name/dashboard', element: <ServiceDashboard />}
             ]
         }
     ])

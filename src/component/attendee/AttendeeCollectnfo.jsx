@@ -58,7 +58,7 @@ function AttendeeCollectnfo() {
             return;
         }
         if (file.size > 5 * 1024 * 1024) {
-            alert('File size exceeds the maximum limit (3MB).');
+            alert(t('attendeeCollectInfo.fileSizeLimit'));
             return;
         }
         const reader = new FileReader();

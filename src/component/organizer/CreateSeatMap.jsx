@@ -54,6 +54,10 @@ import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {getStorage, ref, uploadBytes} from "firebase/storage";
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import {useLocation, useNavigate} from "react-router-dom";
+import Chip from '@mui/material/Chip';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import TierPerksModal from "./TierPerksModal.jsx";
+import {useTranslation} from "react-i18next";
 
 const tools = [
     {icon: <ViewModuleIcon sx={{fontSize: 30}}/>, label: 'Seats', tooltip: 'Add a seat section', type: 'seats'},
@@ -130,8 +134,11 @@ function CreateSeatMap(){
     const [openSaveDialog, setOpenSaveDialog] = useState(false);
     const [seatMapSavePreferences, setSeatMapSavePreferences] = useState({name: '', share: false});
     const [isLoading, setIsLoading] = useState(false)
+    const [perksModalOpen, setPerksModalOpen] = useState(false);
+    const [currentEditTier, setCurrentEditTier] = useState(null);
     const location = useLocation()
     const navigate = useNavigate()
+    const {t} = useTranslation()
 
     const addCanvasObject = (objectType, properties) => {
         const centerPosition = {x: 0, y: 0};
@@ -629,17 +636,14 @@ function CreateSeatMap(){
                 created: obj.created
             })),
             tierData: tierData.map(tier => {
-                const tierData = {
+                return {
                     dbTierID: tier.dbTierID,
                     id: tier.id,
                     name: tier.name,
                     color: tier.color,
-                    assignedSeats: tier.assignedSeats
-                }
-                if (tier.perks) {
-                    tierData.perks = tier.perks;
-                }
-                return tierData;
+                    assignedSeats: tier.assignedSeats,
+                    perks: tier.perks || []
+                };
             })
         };
     };
@@ -667,16 +671,13 @@ function CreateSeatMap(){
             isPublic: isPublic,
             capacity: totalAssignedSeats,
             tiers: tierData.map(tier => {
-                const tierData = {
+                return {
                     tierID: tier.dbTierID,
                     name: tier.name,
                     color: tier.color,
-                    totalAssignedSeats: Array.isArray(tier.assignedSeats) ? tier.assignedSeats.length : 0
+                    totalAssignedSeats: Array.isArray(tier.assignedSeats) ? tier.assignedSeats.length : 0,
+                    perks: tier.perks.join(',') || ''
                 };
-                if (tier.perks) {
-                    tierData.perks = tier.perks;
-                }
-                return tierData;
             })
         };
     };
@@ -735,8 +736,46 @@ function CreateSeatMap(){
         }
     }
 
+    function openPerksModal(tierIndex) {
+        if (tierIndex >= 0 && tierIndex < tier.length) {
+            const tierToEdit = JSON.parse(JSON.stringify(tier[tierIndex]));
+
+            if (!tierToEdit.perks) {
+                tierToEdit.perks = [];
+            }
+
+            setCurrentEditTier(tierToEdit);
+            setPerksModalOpen(true);
+        }
+    }
+
+    function handleSavePerks(updatedPerks) {
+        setTier(prev => {
+            const newTiers = [...prev];
+            const tierIndex = newTiers.findIndex(t => t.id === currentEditTier.id);
+
+            if (tierIndex >= 0) {
+                newTiers[tierIndex] = {
+                    ...newTiers[tierIndex],
+                    perks: Array.isArray(updatedPerks) ? [...updatedPerks] : []
+                };
+            }
+
+            return newTiers;
+        });
+
+        setPerksModalOpen(false);
+        setCurrentEditTier(null);
+    }
+
     return (
         <Box display="flex" flexDirection="column" height="100dvh">
+            <TierPerksModal
+                open={perksModalOpen}
+                onClose={() => setPerksModalOpen(false)}
+                tier={currentEditTier}
+                onSave={handleSavePerks}
+            />
             <Backdrop
                 sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
                 open={isLoading}
@@ -745,15 +784,15 @@ function CreateSeatMap(){
                 <Stack alignItems={'center'} rowGap={2}>
                     <CircularProgress color="inherit" />
                     <Typography variant={'h5'}>
-                        Saving seat map...
+                        {t('createSeatMap.savingSeatMap')}
                     </Typography>
                 </Stack>
             </Backdrop>
             <Dialog maxWidth={'sm'} fullWidth open={openSaveDialog} onClose={() => setOpenSaveDialog(false)}>
-                <DialogTitle>SAVE SEAT MAP</DialogTitle>
+                <DialogTitle>{t('createSeatMap.saveSeatMap')}</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Enter a name for your seat map
+                        {t('createSeatMap.enterSeatMapName')}
                     </DialogContentText>
                     <TextField
                         value={seatMapSavePreferences.name}
@@ -761,7 +800,7 @@ function CreateSeatMap(){
                         autoFocus
                         required
                         margin="dense"
-                        label="Seat map name"
+                        label={t('createSeatMap.seatMapName')}
                         type="text"
                         fullWidth
                         variant="standard"
@@ -769,18 +808,18 @@ function CreateSeatMap(){
                     <FormControlLabel control={<Checkbox checked={seatMapSavePreferences.share}
                                                          onChange={(event) =>
                                                              setSeatMapSavePreferences(prev => ({...prev, share: event.target.checked}))}/>}
-                                      label="Share seat map for this venue" />
+                                      label={t('createSeatMap.shareSeatMap')} />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenSaveDialog(false)}>Cancel</Button>
-                    <Button variant={'contained'} onClick={handleSaveSeatMap} disabled={seatMapSavePreferences.name === ''}>Save</Button>
+                    <Button onClick={() => setOpenSaveDialog(false)}>{t('createSeatMap.cancel')}</Button>
+                    <Button variant={'contained'} onClick={handleSaveSeatMap} disabled={seatMapSavePreferences.name === ''}>{t('createSeatMap.save')}</Button>
                 </DialogActions>
             </Dialog>
             <AppBar position="static" color="default" elevation={1}>
                 <Toolbar sx={{ justifyContent: 'space-between' }}>
                     <Stack>
                         <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                            {seatMapSavePreferences.eventName || 'Create Seat Map'}
+                            {seatMapSavePreferences.eventName || t('createSeatMap.createSeatMap')}
                         </Typography>
                         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                             <Tabs value={view} onChange={(e, newValue) => {
@@ -789,27 +828,27 @@ function CreateSeatMap(){
                                     setSelectedTool(null)
                                 }
                             }}>
-                                <Tab label="Map" value={'map'}/>
+                                <Tab label={t('createSeatMap.map')} value={'map'}/>
                                 {canvasObjects.length === 0 ?
-                                    <Tooltip title={'Once you have created your map you will be able to create and assign tiers'}>
+                                    <Tooltip title={t('createSeatMap.createMapFirst')}>
                                         <span>
-                                            <Tab label="Tiers" value={'tier'} disabled/>
+                                            <Tab label={t('createSeatMap.tiers')} value={'tier'} disabled/>
                                         </span>
                                     </Tooltip>
                                     :
-                                    <Tab label="Tiers" value={'tier'} />
+                                    <Tab label={t('createSeatMap.tiers')} value={'tier'} />
                                 }
                             </Tabs>
                         </Box>
                     </Stack>
                     <Stack direction={'row'} columnGap={1}>
                         <Button variant="contained" color="primary" onClick={() => setOpenSaveDialog(true)}>
-                            Save
+                            {t('createSeatMap.save')}
                         </Button>
                         <IconButton color="inherit" onClick={() => {
-                                const eventID = new URLSearchParams(location.search).get('eid')
-                                navigate(`/organizer/events/edit/${eventID}/tickets?ref=seat-map`)}
-                            }
+                            const eventID = new URLSearchParams(location.search).get('eid')
+                            navigate(`/organizer/events/edit/${eventID}/tickets?ref=seat-map`)}
+                        }
                         >
                             <CloseIcon />
                         </IconButton>
@@ -834,7 +873,7 @@ function CreateSeatMap(){
                         <>
                             <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
                                 <Typography variant="subtitle1" fontWeight="bold">
-                                    Capacity
+                                    {t('createSeatMap.capacity')}
                                 </Typography>
                                 <p className={'create-seat-map__capacity'}>{capacity}</p>
                             </Stack>
@@ -871,15 +910,15 @@ function CreateSeatMap(){
                         :
                         <Stack rowGap={1}>
                             <Typography fontWeight={'bold'} variant={'h5'}>
-                                Tiers
+                                {t('createSeatMap.tiers')}
                             </Typography>
                             <Typography variant={'body1'}>
-                                People tend to use tiers for specific areas like front row, orchestra or balcony.
+                                {t('createSeatMap.tiersDescription')}
                             </Typography>
                             <Divider sx={{ mb: 2 }} />
                             <Stack direction={'row'} justifyContent={'space-between'}>
                                 <Typography variant={'body1'}>
-                                    Tier created
+                                    {t('createSeatMap.tiersCreated')}
                                 </Typography>
                                 <Typography variant={'body1'}>
                                     {tier.length} / 100
@@ -887,13 +926,13 @@ function CreateSeatMap(){
                             </Stack>
                             <Stack direction={'row'} justifyContent={'space-between'}>
                                 <Typography variant={'body1'}>
-                                    Seats assigned
+                                    {t('createSeatMap.seatsAssigned')}
                                 </Typography>
                                 <Typography variant={'body1'}>
                                     {totalAssignedSeats} / {capacity}
                                 </Typography>
                             </Stack>
-                            <button className={'create-seat-map__add-tier-btn'} onClick={addTier}>Add tier</button>
+                            <button className={'create-seat-map__add-tier-btn'} onClick={addTier}>{t('createSeatMap.addTier')}</button>
                             <Stack rowGap={1}>
                                 {tier.map((item, index) => {
                                     return (
@@ -913,32 +952,55 @@ function CreateSeatMap(){
                                                     </div>
                                                     <Stack sx={{width: 'fit-content'}}>
                                                         <input type={'text'} value={item.name} className={'tier__input'}
-                                                            onChange={e => {
-                                                                setTier(prev => prev.map((t, j) => j === index ? {...t, name: e.target.value} : t))
-                                                            }}
+                                                               onChange={e => {
+                                                                   setTier(prev => prev.map((t, j) => j === index ? {...t, name: e.target.value} : t))
+                                                               }}
                                                         />
                                                         <Typography variant={'body2'} sx={{color: 'gray'}}>
                                                             {item.assignedSeats?.length > 0 ?
                                                                 item.assignedSeats.reduce((count, id) => {
-                                                                    if (id.includes('_')) {
-                                                                        return count + 1;
-                                                                    }
-                                                                    const tableObj = canvasObjects.find(obj => obj.id === id && obj.type === 'table');
-                                                                    return count + (tableObj ? parseInt(tableObj.properties.seats) : 0);
+                                                                        if (id.includes('_')) {
+                                                                            return count + 1;
+                                                                        }
+                                                                        const tableObj = canvasObjects.find(obj => obj.id === id && obj.type === 'table');
+                                                                        return count + (tableObj ? parseInt(tableObj.properties.seats) : 0);
                                                                     },
-                                                                0)
+                                                                    0)
                                                                 :
                                                                 0
                                                             }
                                                             {` seats`}
                                                         </Typography>
+
+                                                        {item.perks && item.perks.length > 0 && (
+                                                            <Chip
+                                                                size="small"
+                                                                icon={<EmojiEventsIcon fontSize="small" />}
+                                                                label={`${item.perks.length} ${item.perks.length === 1 ? 'perk' : 'perks'}`}
+                                                                variant="outlined"
+                                                                sx={{ mt: 1 }}
+                                                            />
+                                                        )}
                                                     </Stack>
                                                 </Stack>
-                                                <Tooltip title={'Delete'} placement={'left'}>
-                                                    <IconButton className={'tier__delete-btn'} onClick={() => deleteTier(index)}>
-                                                        <DeleteOutlineIcon />
-                                                    </IconButton>
-                                                </Tooltip>
+                                                <Stack direction="row" spacing={1} className={'tier__delete-btn'} alignItems={'center'}>
+                                                    <Tooltip title={t('createSeatMap.managePerks')}>
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                openPerksModal(index);
+                                                            }}
+                                                        >
+                                                            <EmojiEventsIcon fontSize="small" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    <Tooltip title={t('createSeatMap.delete')} placement={'left'}>
+                                                        <IconButton onClick={() => deleteTier(index)}>
+                                                            <DeleteOutlineIcon />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </Stack>
                                             </Stack>
                                             {togglePalette[index] &&
                                                 <>
@@ -961,9 +1023,9 @@ function CreateSeatMap(){
                                                             </div>
                                                         ))}
                                                         <input type="color" value={'#ffffff'}
-                                                            onChange={(e) => {
-                                                                setTier(prev => prev.map((t, j) => j === index ? {...t, color: e.target.value} : t))
-                                                            }}
+                                                               onChange={(e) => {
+                                                                   setTier(prev => prev.map((t, j) => j === index ? {...t, color: e.target.value} : t))
+                                                               }}
                                                         />
                                                     </Stack>
                                                 </>
@@ -977,10 +1039,10 @@ function CreateSeatMap(){
 
                     <Divider sx={{ marginBlock: 2 }} />
 
-                   {selectedTool && RenderToolOption(selectedTool)}
+                    {selectedTool && RenderToolOption(selectedTool)}
 
                     <Typography variant="body2" sx={{ mb: 1 }} className={'create-seat-map__zoom'}>
-                        Zoom: {Math.round(zoom * 100)}%
+                        {t('createSeatMap.zoom')}: {Math.round(zoom * 100)}%
                     </Typography>
                 </Box>
                 <Box
@@ -994,7 +1056,7 @@ function CreateSeatMap(){
                     <SeatMap data={canvasObjects} setData={setCanvasObjects} selectedObject={selectedObject} setSelectedObject={setSelectedObject}
                              setCenter={setCenter} view={view} tierData={tier} setTier={setTier} setSelectedTool={setSelectedTool}
                              zoom={zoom} setZoom={setZoom} offset={offset} setOffset={setOffset} setSeatMapData={setSeatMapSavePreferences}
-                            setAssignedSeat={setTotalAssignedSeats}
+                             setAssignedSeat={setTotalAssignedSeats}
                     />
                 </Box>
             </Stack>

@@ -526,5 +526,5 @@ export const EventType = [
 ]
 
 export const Languages = [
-    'en', 'vi'
+    'en', 'vi', 'ko', 'zh', 'ja'
 ]

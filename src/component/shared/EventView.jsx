@@ -192,7 +192,7 @@ function EventView({data}){
                 {videos?.length > 0 && videos.map((video, index) => (
                     <div key={index} className="media-item" onClick={() => handleMediaClick(video, 'video')}>
                         <video src={video} width="100%" height="100%" poster={VideoThumbnail}>
-                            Your browser does not support the video tag.
+                            {t('eventView.browserNoSupport')}
                         </video>
                     </div>
                 ))}
@@ -213,7 +213,7 @@ function EventView({data}){
             <div className="selected-media-overlay" onClick={closeSelectedMedia}>
                 {selectedMedia.type === 'video' ? (
                     <video src={selectedMedia.src} controls autoPlay width="90%" height="90%">
-                        Your browser does not support the video tag.
+                        {t('eventView.browserNoSupport')}
                     </video>
                 ) : (
                     <img src={selectedMedia.src} alt="selected-media" className="selected-media" />
@@ -319,7 +319,7 @@ function EventView({data}){
                                 </Stack>
                             </Stack>
                             <TicketPanel tickets={eventData?.tickets} eventEndTime={eventData.end_time} image={images[0]} eventID={eventData.event_id}
-                                         isReserveSeating={eventData?.reserveSeating} mapURL={eventData.map_url}
+                                         isReserveSeating={eventData?.reserveSeating} mapURL={eventData.map_url} mapID={eventData.map_id}
                                          eventStartTime={eventData.start_time} eventName={eventData.name} isLoggedIn={checkLoggedIn()}
                             />
                         </Stack>
@@ -352,8 +352,7 @@ function EventView({data}){
                                                         <p>{t('eventView.onlineEvent')}</p>
                                                         {eventData?.location.access !== 'holder' &&
                                                             <Link to={`/online/${eventData.event_id}`} className={'link'} target={'_blank'}>
-                                                                {t('eventView.viewDetails')}
-                                                            </Link>
+                                                                {t('eventView.viewDetails')}</Link>
                                                         }
                                                     </>
                                                     :
@@ -464,10 +463,10 @@ function EventView({data}){
                                                         alt={t('eventView.avatar')} />
                                                 <Stack rowGap={.25}>
                                                     <p className={'event-view__organizer-name'} style={{cursor: 'pointer'}}
-                                                        onClick={() => {
-                                                            collectData(eventData.event_id, 'view-organizer', null, profile.profile_id)
-                                                            navigate(`/o/${profile.custom_url || profile.profile_id}`)
-                                                        }}
+                                                       onClick={() => {
+                                                           collectData(eventData.event_id, 'view-organizer', null, profile.profile_id)
+                                                           navigate(`/o/${profile.custom_url || profile.profile_id}`)
+                                                       }}
                                                     >
                                                         <b>{profile.profile_name}</b>
                                                     </p>
@@ -544,6 +543,7 @@ function EventView({data}){
             >
                 <div className="event-view__ticket-drawer-content">
                     <TicketPanel
+                        mapID={eventData.map_id}
                         eventID={eventData.event_id}
                         isReserveSeating={eventData?.reserveSeating}
                         mapURL={eventData.map_url}

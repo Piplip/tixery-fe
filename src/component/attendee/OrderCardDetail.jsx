@@ -1,8 +1,8 @@
 import PropTypes from "prop-types";
-import {Button as MuiButton, Stack, Typography} from "@mui/material";
+import {Box, Button as MuiButton, Chip, Stack, Typography} from "@mui/material";
 import Dialog from '@mui/material/Dialog';
 import dayjs from "dayjs";
-import {formatCurrency, getUserData} from "../../common/Utilities.js";
+import {formatCurrency, getUserData, hexToRgba} from "../../common/Utilities.js";
 import ShareDialog from "../shared/ShareDialog.jsx";
 import Button from '@mui/joy/Button';
 import Divider from '@mui/joy/Divider';
@@ -12,12 +12,15 @@ import DialogActions from '@mui/joy/DialogActions';
 import Modal from '@mui/joy/Modal';
 import ModalDialog from '@mui/joy/ModalDialog';
 import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {QRCodeSVG} from 'qrcode.react';
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import "../../styles/order-card-detail-styles.css"
 import {useTranslation} from "react-i18next";
 import ReportEvent from "./ReportEvent.jsx";
+import {initializeApp} from "firebase/app";
+import {firebaseConfig} from "../../config/firebaseConfig.js";
+import {getBytes, getStorage, ref} from "firebase/storage";
 
 OrderCardDetail.propTypes = {
     open: PropTypes.bool.isRequired,
@@ -27,16 +30,73 @@ OrderCardDetail.propTypes = {
     ticketInfo: PropTypes.any
 }
 
+initializeApp(firebaseConfig);
+const storage = getStorage()
+
 function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
     const [openDialog, setOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [selectedTicket, setSelectedTicket] = useState(0);
+    const [mapData, setMapData] = useState(null);
     const {t} = useTranslation()
+
+    const getSeatInfo = (seatIdentifier) => {
+        if (!mapData || !seatIdentifier) return null;
+
+        const parts = seatIdentifier.split('_');
+        const objectId = parts[0];
+
+        const targetObject = mapData.canvasObjects.find(obj => obj.id === objectId);
+        if (!targetObject) return null;
+
+        if (parts.length === 1) {
+            return {
+                type: 'table',
+                name: targetObject.properties.tableName,
+                display: targetObject.properties.tableName
+            };
+        }
+
+        if (parts.length === 3) {
+            const row = parseInt(parts[1]);
+            const seat = parseInt(parts[2]);
+
+            const rowLetter = String.fromCharCode(65 + row);
+
+            return {
+                type: 'seat',
+                section: targetObject.properties.sectionName,
+                position: `${rowLetter}${seat + 1}`,
+                display: `${targetObject.properties.sectionName} - Seat ${rowLetter}${seat + 1}`
+            };
+        }
+
+        return null;
+    };
+
+    useEffect(() => {
+        async function getMapData() {
+            if (ticketInfo[0]?.map_url) {
+                const mapRef = ref(storage, ticketInfo[0]?.map_url);
+                try {
+                    const bytes = await getBytes(mapRef);
+                    const decoder = new TextDecoder('utf-8');
+                    const jsonStr = decoder.decode(bytes);
+                    const jsonData = JSON.parse(jsonStr);
+                    setMapData(jsonData);
+                } catch (err) {
+                    console.error("Error parsing seat map file:", err);
+                }
+            }
+        }
+
+        getMapData()
+    }, [ticketInfo]);
 
     function handleCancelOrder(){
         setIsLoading(true)
         eventAxiosWithToken.post(`/order/cancel?` + new URLSearchParams({"order-id": order.order_id, "uname": getUserData('fullName'),
-                "u": getUserData('sub')}))
+            "u": getUserData('sub')}))
             .then(r => {
                 console.log(r.data)
                 setIsLoading(false)
@@ -88,8 +148,6 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                 console.log(err)
             });
     }
-
-    console.log(order)
 
     return (
         <Dialog fullScreen open={open} onClose={handleClose} sx={{zIndex: 10000000}}>
@@ -149,14 +207,107 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                                             }
                                             <p style={{ color: '#2a2a38', fontFamily: 'Raleway', fontSize: 16, wordWrap: 'break-word', textAlign: 'center' }}>
                                                 {item?.name} x{item?.quantity}</p>
-                                                <div style={{
-                                                    alignSelf: 'center', fontSize: '2.5rem', fontWeight: 'bold', background: 'linear-gradient(90deg, #4CAF50, #81C784)',
-                                                    WebkitBackgroundClip: 'text', color: 'transparent', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
-                                                    paddingInline: '20px', borderRadius: '10px', display: 'inline-block'
-                                                }}>
-                                                    {item?.price === 0 ? 'Free' : formatCurrency(item?.price, item?.currency)}
-                                                </div>
+                                            <div style={{
+                                                alignSelf: 'center', fontSize: '2.5rem', fontWeight: 'bold', background: 'linear-gradient(90deg, #4CAF50, #81C784)',
+                                                WebkitBackgroundClip: 'text', color: 'transparent', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
+                                                paddingInline: '20px', borderRadius: '10px', display: 'inline-block'
+                                            }}>
+                                                {item?.price === 0 ? t('attendeeOrderCardDetail.free') : formatCurrency(item?.price, item?.currency)}
+                                            </div>
                                         </Stack>
+                                        {item?.perks && (
+                                            <Stack rowGap={1} sx={{ mt: 1, mb: 2 }}>
+                                                <Typography variant="subtitle2" fontWeight="bold" sx={{ color: '#4d4d4d' }}>
+                                                    {t('attendeeOrderCardDetail.ticketPerks')}
+                                                </Typography>
+                                                <Stack
+                                                    direction="row"
+                                                    spacing={1}
+                                                    flexWrap="wrap"
+                                                    useFlexGap
+                                                    sx={{
+                                                        backgroundColor: '#f5f5f5',
+                                                        borderRadius: '8px',
+                                                        p: 1.5
+                                                    }}
+                                                >
+                                                    {item.perks.split(',').map((perk, i) => (
+                                                        <Chip
+                                                            key={i}
+                                                            label={perk.trim()}
+                                                            size="small"
+                                                            sx={{
+                                                                margin: '4px',
+                                                                backgroundColor: hexToRgba(item.tier_color, 0.2),
+                                                                borderLeft: `4px solid ${item.tier_color || '#2196f3'}`,
+                                                                borderRadius: '4px',
+                                                                '& .MuiChip-label': {
+                                                                    px: 1,
+                                                                    py: 0.5,
+                                                                    fontWeight: 500
+                                                                }
+                                                            }}
+                                                        />
+                                                    ))}
+                                                </Stack>
+                                            </Stack>
+                                        )}
+                                        {item?.seat_identifier && mapData && (
+                                            <Stack rowGap={1} sx={{ mt: 1, mb: 2 }}>
+                                                <Typography variant="subtitle2" fontWeight="bold" sx={{ color: '#4d4d4d' }}>
+                                                    {t('attendeeOrderCardDetail.seatInformation')}
+                                                </Typography>
+                                                <Box
+                                                    sx={{
+                                                        backgroundColor: '#f5f5f5',
+                                                        borderRadius: '8px',
+                                                        p: 1.5,
+                                                        position: 'relative',
+                                                        overflow: 'hidden',
+                                                        '&::before': {
+                                                            content: '""',
+                                                            position: 'absolute',
+                                                            left: 0,
+                                                            top: 0,
+                                                            bottom: 0,
+                                                            width: '4px',
+                                                            backgroundColor: item.tier_color || '#2196f3'
+                                                        }
+                                                    }}
+                                                >
+                                                    {(() => {
+                                                        const seatInfo = getSeatInfo(item.seat_identifier);
+                                                        if (!seatInfo) return <Typography>{t('attendeeOrderCardDetail.noSeatInfo')}</Typography>;
+
+                                                        return (
+                                                            <Stack spacing={1}>
+                                                                <Typography variant="body1" fontWeight="medium">
+                                                                    <strong>
+                                                                        {seatInfo.type === 'table'
+                                                                            ? (t('attendeeOrderCardDetail.tableInfo'))
+                                                                            : (t('attendeeOrderCardDetail.seatInfo'))}
+                                                                    </strong>
+                                                                </Typography>
+                                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                                    <Box sx={{
+                                                                        width: 12,
+                                                                        height: 12,
+                                                                        borderRadius: '50%',
+                                                                        backgroundColor: item.tier_color || '#2196f3'
+                                                                    }} />
+                                                                    <Typography fontWeight="500">
+                                                                        {seatInfo.display}
+                                                                    </Typography>
+                                                                </Box>
+                                                                <Typography variant="body2" sx={{ color: 'text.secondary', mt: 1 }}>
+                                                                    <strong>{t('attendeeOrderCardDetail.tierName')}:</strong> {item.tier_name}
+                                                                </Typography>
+                                                            </Stack>
+                                                        );
+                                                    })()}
+                                                </Box>
+                                            </Stack>
+                                        )}
                                         <Stack rowGap={1.5}>
                                             {order?.end_time && dayjs(order.end_time).isAfter(dayjs()) &&
                                                 <>
@@ -196,16 +347,35 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                         <p className={'order-detail-title'}>{t('attendeeOrderCardDetail.email')}</p>
                         <p className={'order-detail-content'}>{getUserData('sub')}</p>
                         <p className={'order-detail-title'}>{t('attendeeOrderCardDetail.deliveryMethod')}</p>
-                        <p className={'order-detail-content'}>eTicket</p>
+                        <p className={'order-detail-content'}>{t('attendeeOrderCardDetail.eTicket')}</p>
                         <p className={'order-detail-title'}>{t('attendeeOrderCardDetail.ticketName')}</p>
                         <p className={'order-detail-content'}>{ticketInfo[selectedTicket]?.name}</p>
                         <p className={'order-detail-title'}>{t('attendeeOrderCardDetail.quantity')}</p>
                         <p className={'order-detail-content'}>{ticketInfo[selectedTicket]?.quantity}</p>
+
+                        {ticketInfo[selectedTicket]?.seat_identifier && mapData && (() => {
+                            const seatInfo = getSeatInfo(ticketInfo[selectedTicket].seat_identifier);
+                            if (!seatInfo) return null;
+
+                            return (
+                                <>
+                                    <p className={'order-detail-title'}>
+                                        {seatInfo.type === 'table'
+                                            ? (t('attendeeOrderCardDetail.tableInfo'))
+                                            : (t('attendeeOrderCardDetail.seatPosition'))}
+                                    </p>
+                                    <p className={'order-detail-content'}>{seatInfo.display}</p>
+                                    <p className={'order-detail-title'}>{t('attendeeOrderCardDetail.tierName')}</p>
+                                    <p className={'order-detail-content'}>{ticketInfo[selectedTicket].tier_name}</p>
+                                </>
+                            );
+                        })()}
+
                         <p className={'order-detail-title'}>{t('attendeeOrderCardDetail.totalCost')}</p>
                         <p className={'order-detail-content'}>
                             {ticketInfo[selectedTicket]?.price === 0 ?
-                                'Free' :
-                                ticketInfo[selectedTicket]?.currency &&    formatCurrency(ticketInfo[selectedTicket]?.price, ticketInfo[selectedTicket]?.currency)}
+                                t('attendeeOrderCardDetail.free') :
+                                ticketInfo[selectedTicket]?.currency && formatCurrency(ticketInfo[selectedTicket]?.price, ticketInfo[selectedTicket]?.currency)}
                         </p>
                     </Stack>
                 </Stack>

@@ -38,9 +38,10 @@ TicketPanel.propTypes = {
     isReserveSeating: PropTypes.bool,
     mapURL: PropTypes.string,
     eventID: PropTypes.string,
+    mapID: PropTypes.number
 }
 
-function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, isLoggedIn, isReserveSeating, mapURL, eventID}){
+function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, isLoggedIn, isReserveSeating, mapID, mapURL, eventID}){
     const [totalPrice, setTotalPrice] = useState(0)
     const [step, setStep] = useState(1)
     const [expandedTickets, setExpandedTickets] = useState({});
@@ -162,7 +163,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
                        onClick={() => setOpen(true)}
                 >
                     <button className={'view-more-btn'}>
-                        Get tickets
+                        {t('ticketPanel.getTickets')}
                     </button>
                 </Stack>
             );
@@ -353,13 +354,13 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
                                 </Stack>
                                 {isReserveSeating ?
                                     <div style={{ width: '100%', height: '80vh', overflow: 'hidden' }}>
-                                        <SeatMapView eventID={eventID}
+                                        <SeatMapView eventID={eventID} mapID={mapID}
                                                      data={data} setData={setData}
                                                      tierData={tierData} setTier={setTier}
-                                            mapURL={mapURL}
-                                            selectedObject={selectedObject}
-                                            setSelectedObject={setSelectedObject}
-                                            style={{ maxWidth: '100%', maxHeight: '100%', display: 'block' }}
+                                                     mapURL={mapURL}
+                                                     selectedObject={selectedObject}
+                                                     setSelectedObject={setSelectedObject}
+                                                     style={{ maxWidth: '100%', maxHeight: '100%', display: 'block' }}
                                         />
                                     </div>
                                     :
@@ -520,7 +521,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
 
                                                             <Stack direction="row" justifyContent="flex-end">
                                                                 <Typography variant="subtitle2" fontWeight="bold">
-                                                                    Subtotal: {currency}{subtotal.toFixed(2)}
+                                                                    {t('eventRegistration.subtotal')}: {currency}{subtotal.toFixed(2)}
                                                                 </Typography>
                                                             </Stack>
                                                             <Divider />
@@ -529,7 +530,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
                                                 })}
 
                                                 <Stack direction="row" justifyContent="space-between" sx={{ mt: 1 }}>
-                                                    <Typography variant="h6" fontWeight="bold">Total</Typography>
+                                                    <Typography variant="h6" fontWeight="bold">{t('eventRegistration.total')}</Typography>
                                                     <Typography variant="h6" fontWeight="bold">
                                                         {(tickets[0]?.currency?.symbol || '$')}
                                                         {selectedObject.reduce((total, item) => {

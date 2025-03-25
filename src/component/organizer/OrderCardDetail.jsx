@@ -29,38 +29,6 @@ OrderCardDetail.propTypes = {
     data: PropTypes.object.isRequired
 }
 
-const orderData = {
-    orderId: '123456',
-    status: 'Confirmed',
-    statusColor: 'green',
-    orderDateTime: '2025-02-18 14:30',
-    totalAmount: '$120.00',
-    event: {
-        name: 'Concert of the Year',
-        dateTime: '2025-03-01 20:00',
-        venue: 'Madison Square Garden',
-        link: '#'
-    },
-    tickets: [
-        { type: 'VIP', quantity: 2, price: '$50', subtotal: '$100' },
-        { type: 'General', quantity: 1, price: '$20', subtotal: '$20' }
-    ],
-    customer: {
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-        phone: '555-1234'
-    },
-    paymentMethod: 'Credit Card',
-    deliveryMethod: 'Email',
-    specialInstructions: 'Please send tickets via email.',
-    ticketDetails: [
-        { id: 'ticket1', qrCode: 'QR_CODE_1', number: 'A1' },
-        { id: 'ticket2', qrCode: 'QR_CODE_2', number: 'A2' },
-        { id: 'ticket3', qrCode: 'QR_CODE_3', number: 'B1' }
-    ]
-};
-
-
 function OrderCardDetail({open, handleClose, data}){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -89,7 +57,6 @@ function OrderCardDetail({open, handleClose, data}){
                                         {t('orderCardDetail.status')}:{' '}
                                         <span
                                             style={{
-                                                color: orderData.statusColor,
                                                 textTransform: 'uppercase'
                                             }}
                                         >
@@ -216,7 +183,7 @@ function OrderCardDetail({open, handleClose, data}){
                             </Typography>
                             <Typography variant="body1">{t('orderCardDetail.name')}: {data.info.profile_name}</Typography>
                             <Typography variant="body1">{t('orderCardDetail.email')}: {data.info.account_email}</Typography>
-                            {orderData.customer.phone && (
+                            {data.info.phone_number && (
                                 <Typography variant="body1">{t('orderCardDetail.phone')}: {data.info.phone_number}</Typography>
                             )}
                         </CardContent>

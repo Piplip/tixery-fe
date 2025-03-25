@@ -95,14 +95,27 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
                                             ? data.tierIDs[index]
                                             : null;
 
+                                        let perks = [];
+
+                                        if (tier.perks) {
+                                            if (typeof tier.perks === 'string') {
+                                                perks = tier.perks.split(',').map(p => p.trim()).filter(p => p);
+                                            }
+                                            else if (Array.isArray(tier.perks)) {
+                                                perks = [...tier.perks];
+                                            }
+                                        }
+
                                         return {
                                             ...tier,
-                                            dbTierID: dbTierID
+                                            dbTierID: dbTierID,
+                                            perks: perks
                                         };
                                     });
 
                                     setTier(updatedTierData);
                                 }
+
                                 isFetched.current = true
                             })
                             .catch(err => {
@@ -765,14 +778,6 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
         };
     }, [isDragging, dragStart, zoom, offset]);
 
-    const handleZoomIn = () => {
-        setZoom(prevZoom => Math.min(prevZoom + 0.1, 2));
-    };
-
-    const handleZoomOut = () => {
-        setZoom(prevZoom => Math.max(prevZoom - 0.1, 0.5));
-    }
-
     const getBoundingBox = (obj) => {
         const { type, properties } = obj;
         let originalBox;
@@ -1337,13 +1342,7 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
     }, [offset, zoom, objectDragStart, isDraggingObject, selectedObject, data, setData, setSelectedObject, hoveredObject, view, tierData]);
 
     return (
-        <>
-            <canvas ref={canvasRef} className={'create-seat-map__canvas'}></canvas>
-            <Stack direction={'row'} columnGap={1} position="absolute" bottom={16} right={16}>
-                <Button variant="contained" onClick={handleZoomIn}>Zoom In</Button>
-                <Button variant="contained" onClick={handleZoomOut}>Zoom Out</Button>
-            </Stack>
-        </>
+        <canvas ref={canvasRef} className={'create-seat-map__canvas'}></canvas>
     )
 }
 

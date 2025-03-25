@@ -133,21 +133,21 @@ function OrganizerTicketAdmission(){
                 <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
                     <Dropdown onOpenChange={handleAddMoreTicketChange} open={open}>
                         <MenuButton className={'add-more-tickets'}>
-                            Group by {groupBy === 'ticket' ? 'Ticket' : 'Tier'} <ArrowDropDownIcon />
+                            {t('ticketSection.groupBy')} {groupBy === 'ticket' ? t('ticketSection.ticket') : t('ticketSection.tier')} <ArrowDropDownIcon />
                         </MenuButton>
                         <Menu>
                             <MenuItem onClick={() => {
                                 setGroupBy('ticket')
                                 setOpen(false)
-                            }}>Ticket Type</MenuItem>
+                            }}>{t('ticketSection.ticketType')}</MenuItem>
                             <MenuItem onClick={() => {
                                 setGroupBy('tier')
                                 setOpen(false)
-                            }}>Tier</MenuItem>
+                            }}>{t('ticketSection.tier')}</MenuItem>
                         </Menu>
                     </Dropdown>
                     <Typography>
-                        Capacity: {seatMap.capacity}
+                        {t('ticketSection.capacity')}: {seatMap.capacity}
                     </Typography>
                     {tiers.length > 0 &&
                         <Button variant={'contained'}
@@ -201,7 +201,7 @@ function OrganizerTicketAdmission(){
                                                     <Stack direction="row" spacing={3} mt={2}>
                                                         <Box textAlign={'center'}>
                                                             <Typography variant="body2" color="text.secondary">
-                                                                Assigned Seats
+                                                                {t('ticketSection.assignedSeats')}
                                                             </Typography>
                                                             <Typography variant="h6">
                                                                 {tier.assignedseats || 0}
@@ -209,7 +209,7 @@ function OrganizerTicketAdmission(){
                                                         </Box>
                                                         <Box textAlign={'center'}>
                                                             <Typography variant="body2" color="text.secondary">
-                                                                Total Tickets
+                                                                {t('ticketSection.totalTickets')}
                                                             </Typography>
                                                             <Typography variant="h6">
                                                                 {data.tickets?.filter(ticket =>
@@ -226,7 +226,7 @@ function OrganizerTicketAdmission(){
                                                     ) ? (
                                                         <>
                                                             <Typography variant="body2" color="text.secondary" gutterBottom>
-                                                                Tickets
+                                                                {t('ticketSection.tickets')}
                                                             </Typography>
                                                             <Stack spacing={1}>
                                                                 {data.tickets?.filter(ticket =>
@@ -261,7 +261,7 @@ function OrganizerTicketAdmission(){
                                                                                         }
                                                                                     }}
                                                                                 >
-                                                                                    Edit
+                                                                                    {t('ticketSection.edit')}
                                                                                 </Button>
                                                                             </Stack>
                                                                         </Stack>
@@ -274,7 +274,7 @@ function OrganizerTicketAdmission(){
                                                         </>
                                                     ) : (
                                                         <Typography variant="body2" color="text.secondary">
-                                                            No tickets available for this tier.
+                                                            {t('ticketSection.noTicketsAvailable')}
                                                         </Typography>
                                                     )}
                                                 </Box>
@@ -282,10 +282,10 @@ function OrganizerTicketAdmission(){
                                                 {tier.perks && (
                                                     <Box mt={2}>
                                                         <Typography variant="body2" color="text.secondary" gutterBottom>
-                                                            Perks
+                                                            {t('ticketSection.perks')}
                                                         </Typography>
                                                         <Stack direction="row" spacing={1} flexWrap="wrap">
-                                                            {tier.perks.map((perk, i) => (
+                                                            {tier.perks && tier.perks.split(',').map((perk, i) => (
                                                                 <Chip
                                                                     key={i}
                                                                     label={perk}
@@ -325,7 +325,7 @@ function OrganizerTicketAdmission(){
                                                 {ticket.tierData && ticket.tierData.length > 0 && (
                                                     <Box mt={2}>
                                                         <Typography variant="body2" color="text.secondary" gutterBottom>
-                                                            Pricing by Tier
+                                                            {t('ticketSection.pricingByTier')}
                                                         </Typography>
                                                         <Stack spacing={1}>
                                                             {ticket.tierData.map((tierPrice, idx) => {
@@ -388,10 +388,10 @@ function OrganizerTicketAdmission(){
                                 <Box sx={{ mb: 2 }}>
                                     <ViewModuleIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
                                     <Typography variant="h6" gutterBottom>
-                                        No tiers created
+                                        {t('ticketSection.noTiersCreated')}
                                     </Typography>
                                     <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                                        Create tiers in the seat map editor to organize your venue into sections like front row, orchestra, or balcony.
+                                        {t('ticketSection.noTiersDescription')}
                                     </Typography>
                                     <Button
                                         variant="contained"
@@ -402,7 +402,7 @@ function OrganizerTicketAdmission(){
                                         }}
                                         startIcon={<EditIcon />}
                                     >
-                                        Edit seat map
+                                        {t('ticketSection.editSeatMap')}
                                     </Button>
                                 </Box>
                             </Card>

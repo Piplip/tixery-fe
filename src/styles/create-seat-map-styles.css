@@ -66,7 +66,8 @@
 }
 .tier__delete-btn{
     position: absolute;
-    right: 3rem;
+    top: 0;
+    right: 0;
 }
 .create-seat-map__capacity{
     font-size: 1.5rem;
