@@ -147,7 +147,7 @@ function EventDashboard({open = false, setOpen, eventID, startTime}){
                                     {stats?.ticketSales.length > 0 ?
                                         stats.ticketSales.map((ticket, index) => (
                                             <TableRow key={index}>
-                                                <TableCell>{ticket.name}</TableCell>
+                                                <TableCell>{ticket.name} {ticket?.tier_name ? ` - ${ticket.tier_name}` : ''}</TableCell>
                                                 <TableCell>{ticket.sold_quantity || 0} / {ticket.total_quantity}</TableCell>
                                                 <TableCell>{formatCurrency(ticket.price, ticket.currency.currency)}</TableCell>
                                                 <TableCell>{dayjs(ticket.sale_start_time).format("HH:mm DD/MM/YYYY")}</TableCell>
@@ -190,7 +190,7 @@ function EventDashboard({open = false, setOpen, eventID, startTime}){
                                                 <TableCell>
                                                     {order?.tickets.map((ticket, index) => (
                                                         <div key={index}>
-                                                            {ticket.name} x {ticket.quantity}
+                                                            {ticket.name} {ticket?.seat_tier_name ? `- ${ticket?.seat_tier_name}` : ''} x {ticket.quantity}
                                                         </div>
                                                     ))}
                                                 </TableCell>

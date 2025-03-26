@@ -13,6 +13,8 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import {useEffect, useState} from "react";
 import PropTypes from "prop-types";
+import {useTranslation} from "react-i18next";
+import {predefinedPerks} from "../../common/Data.js";
 
 TierPerksModal.propTypes = {
     open: PropTypes.bool.isRequired,
@@ -20,39 +22,6 @@ TierPerksModal.propTypes = {
     tier: PropTypes.object,
     onSave: PropTypes.func.isRequired
 }
-
-const predefinedPerks = {
-    'Access': [
-        'Priority entry',
-        'Early access (30 min)',
-        'VIP entrance',
-        'Backstage access'
-    ],
-    'Seating': [
-        'Premium view',
-        'Reserved seating',
-        'Front row position',
-        'Extra legroom'
-    ],
-    'Food & Drink': [
-        'Free drinks',
-        'Complimentary food',
-        'Dedicated bar access',
-        'Welcome cocktail'
-    ],
-    'Merchandise': [
-        'Event poster',
-        'Commemorative t-shirt',
-        'Artist signed item',
-        'Event program'
-    ],
-    'Experience': [
-        'Meet & greet',
-        'Photo opportunity',
-        'Sound check access',
-        'Exclusive content'
-    ]
-};
 
 function TierPerksModal({ open, onClose, tier, onSave }) {
     const [perks, setPerks] = useState(tier?.perks || []);
@@ -113,11 +82,11 @@ function TierPerksModal({ open, onClose, tier, onSave }) {
                     >
                         {perks.length > 0 ? (
                             <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                                {perks.map((perk, index) => (
+                                {perks.map((perkKey, index) => (
                                     <Chip
                                         key={index}
-                                        label={perk}
-                                        onDelete={() => handleRemovePerk(perk)}
+                                        label={t(`predefinedPerks.${perkKey}`)}
+                                        onDelete={() => handleRemovePerk(perkKey)}
                                         color="primary"
                                         sx={{ margin: '4px' }}
                                     />
@@ -162,23 +131,29 @@ function TierPerksModal({ open, onClose, tier, onSave }) {
                     {t('tierPerksModal.commonPerks')}
                 </Typography>
 
-                {Object.entries(predefinedPerks).map(([category, categoryPerks]) => (
-                    <Box key={category} mb={2}>
-                        <Typography variant="subtitle2" gutterBottom>{category}</Typography>
-                        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                            {categoryPerks.map((perk, index) => (
-                                <Chip
-                                    key={index}
-                                    label={perk}
-                                    onClick={() => handleAddPerk(perk)}
-                                    variant={perks.includes(perk) ? "filled" : "outlined"}
-                                    color={perks.includes(perk) ? "primary" : "default"}
-                                    sx={{ margin: '4px' }}
-                                />
-                            ))}
-                        </Stack>
-                    </Box>
-                ))}
+                {Object.entries(predefinedPerks).map(([categoryKey, categoryPerks]) => {
+                    const category = t(`predefinedPerks.${categoryKey}`);
+                    return (
+                        <Box key={categoryKey} mb={2}>
+                            <Typography variant="subtitle2" gutterBottom>{category}</Typography>
+                            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                                {categoryPerks.map((perkKey, index) => {
+                                    const perk = t(`predefinedPerks.${perkKey}`);
+                                    return (
+                                        <Chip
+                                            key={index}
+                                            label={perk}
+                                            onClick={() => handleAddPerk(perkKey)}
+                                            variant={perks.includes(perkKey) ? "filled" : "outlined"}
+                                            color={perks.includes(perkKey) ? "primary" : "default"}
+                                            sx={{ margin: '4px' }}
+                                        />
+                                    );
+                                })}
+                            </Stack>
+                        </Box>
+                    );
+                })}
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>{t('tierPerksModal.cancel')}</Button>

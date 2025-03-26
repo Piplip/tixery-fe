@@ -53,7 +53,7 @@ function OrderManagement(){
 
         eventAxiosWithToken.get(`/search/orders?${params.toString()}`)
             .then(res => {
-                console.log(res.data);
+                console.log(res.data)
                 setOrders(res.data);
             })
             .catch(err => {
@@ -72,7 +72,6 @@ function OrderManagement(){
     function getOrderAttendeeInfo(id, index){
         accountAxiosWithToken.get(`/order/attendee/info?pid=${id}`)
             .then(res => {
-                console.log(res.data);
                 setOrderDetail({
                     info: res.data,
                     order: orders[index]
@@ -83,8 +82,6 @@ function OrderManagement(){
                 console.log(err);
             });
     }
-
-    console.log(orders)
 
     return (
         <Stack sx={{ padding: '5rem 2rem' }} rowGap={2}>
@@ -162,7 +159,7 @@ function OrderManagement(){
                                         <TableCell sx={{ wordWrap: 'break-word' }}>
                                             {order.tickets.map(ticket => (
                                                 <Typography key={ticket.ticket_id} variant="body2">
-                                                    {ticket.name} <b style={{fontSize: 17}}>x{ticket.quantity}</b>
+                                                    {ticket.name} {ticket?.seat_tier_name ? ` - ${ticket?.seat_tier_name} ` : ''}<b style={{fontSize: 17}}>x{ticket.quantity}</b>
                                                 </Typography>
                                             ))}
                                         </TableCell>

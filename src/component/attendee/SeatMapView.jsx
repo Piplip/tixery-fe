@@ -6,8 +6,9 @@ import {useEffect, useRef, useState} from "react";
 import {getContrastColor} from "../../common/Utilities.js";
 import {useAlert} from "../../custom-hooks/useAlert.js";
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
-import {CircularProgress} from "@mui/material";
-import { Client } from '@stomp/stompjs';
+import {Box, Chip, CircularProgress, Paper, Stack, Typography} from "@mui/material";
+import {Client} from '@stomp/stompjs';
+import {useTranslation} from "react-i18next";
 
 initializeApp(firebaseConfig);
 const storage = getStorage()
@@ -48,6 +49,8 @@ function SeatMapView({eventID, mapURL, selectedObject, setSelectedObject, data, 
     const [isLoading, setIsLoading] = useState(true);
     const [connectionStatus, setConnectionStatus] = useState('disconnected');
     const clientRef = useRef(null);
+    const {t} = useTranslation()
+    const [hoveredTier, setHoveredTier] = useState(null);
 
     useEffect(() => {
         if (!mapID) {
@@ -124,6 +127,9 @@ function SeatMapView({eventID, mapURL, selectedObject, setSelectedObject, data, 
                     const decoder = new TextDecoder('utf-8');
                     const jsonStr = decoder.decode(bytes);
                     const jsonData = JSON.parse(jsonStr);
+
+                    console.log(jsonData)
+
                     if (jsonData.canvasObjects && Array.isArray(jsonData.canvasObjects)) {
                         setData(jsonData.canvasObjects);
                     }
@@ -932,6 +938,7 @@ function SeatMapView({eventID, mapURL, selectedObject, setSelectedObject, data, 
                 }
             }
 
+            setHoveredTier(null);
             return { inObject: false };
         }
 
@@ -947,12 +954,27 @@ function SeatMapView({eventID, mapURL, selectedObject, setSelectedObject, data, 
             };
         }
 
-        return {
+        const result = {
             inObject: localX >= bbox.x &&
                 localX <= bbox.x + bbox.width &&
                 localY >= bbox.y &&
                 localY <= bbox.y + bbox.height
         };
+
+        if (result && result.inObject && tierData) {
+            const assignedTier = tierData.find(tier =>
+                tier && Array.isArray(tier.assignedSeats) &&
+                tier.assignedSeats.includes(obj.id)
+            );
+
+            if (assignedTier) {
+                setHoveredTier(assignedTier);
+            } else {
+                setHoveredTier(null);
+            }
+        }
+
+        return result;
     };
 
     const handleCanvasMouseDown = (e) => {
@@ -995,12 +1017,12 @@ function SeatMapView({eventID, mapURL, selectedObject, setSelectedObject, data, 
                     const isTaken = status === 'sold' || status === 'reserved' || status === 'pending';
 
                     if (isTaken) {
-                        showError('This seat is already taken');
+                        showError(t('seatMapView.seatAlreadyTaken'));
                         return;
                     }
 
                     if (!tierInfo) {
-                        showError('This seat is not available for selection');
+                        showError(t('seatMapView.seatNotAvailable'));
                         return;
                     }
 
@@ -1035,7 +1057,7 @@ function SeatMapView({eventID, mapURL, selectedObject, setSelectedObject, data, 
                     const tierInfo = getTierInfo(tableId);
 
                     if (!tierInfo) {
-                        showError('This table is not available for selection');
+                        showError(t('seatMapView.tableNotAvailable'));
                         return;
                     }
 
@@ -1043,7 +1065,7 @@ function SeatMapView({eventID, mapURL, selectedObject, setSelectedObject, data, 
                     const isTaken = status === 'sold' || status === 'reserved' || status === 'pending';
 
                     if (isTaken) {
-                        showError('This table is already taken');
+                        showError(t('seatMapView.tableAlreadyTaken'));
                         return;
                     }
 
@@ -1099,6 +1121,8 @@ function SeatMapView({eventID, mapURL, selectedObject, setSelectedObject, data, 
         }
 
         let newHoveredObject = null;
+        let newHoveredTier = null;
+
         for (let i = data.length - 1; i >= 0; i--) {
             const obj = data[i];
             const result = isPointInObject(currentWorldPos, obj, true);
@@ -1107,10 +1131,32 @@ function SeatMapView({eventID, mapURL, selectedObject, setSelectedObject, data, 
                     id: obj.id,
                     seatInfo: result.seatInfo,
                 };
+
+                if (tierData) {
+                    let assignedTier;
+
+                    if (result.seatInfo) {
+                        const seatId = `${obj.id}_${result.seatInfo.row}_${result.seatInfo.seat}`;
+                        assignedTier = tierData.find(tier =>
+                            tier && Array.isArray(tier.assignedSeats) &&
+                            (tier.assignedSeats.includes(obj.id) || tier.assignedSeats.includes(seatId))
+                        );
+                    } else {
+                        assignedTier = tierData.find(tier =>
+                            tier && Array.isArray(tier.assignedSeats) &&
+                            tier.assignedSeats.includes(obj.id)
+                        );
+                    }
+
+                    if (assignedTier) {
+                        newHoveredTier = assignedTier;
+                    }
+                }
                 break;
             }
         }
         setHoveredObject(newHoveredObject);
+        setHoveredTier(newHoveredTier);
 
         lastPointerWorldPosRef.current = currentWorldPos;
 
@@ -1122,6 +1168,7 @@ function SeatMapView({eventID, mapURL, selectedObject, setSelectedObject, data, 
 
     const handleCanvasMouseLeave = () => {
         setHoveredObject(null);
+        setHoveredTier(null);
         const canvas = canvasRef.current;
         if (canvas) {
             const ctx = canvas.getContext('2d');
@@ -1203,6 +1250,61 @@ function SeatMapView({eventID, mapURL, selectedObject, setSelectedObject, data, 
                     <CircularProgress />
                     <p style={{ marginTop: '20px', fontWeight: 'bold' }}>Loading seat map...</p>
                 </div>
+            )}
+            {hoveredTier && hoveredTier.perks && hoveredTier.perks.length > 0 && (
+                <Paper
+                    elevation={3}
+                    sx={{
+                        position: 'absolute',
+                        bottom: 16,
+                        right: 16,
+                        maxWidth: 500,
+                        p: 2,
+                        borderTop: 4,
+                        borderColor: hoveredTier.color,
+                        zIndex: 1000,
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)'
+                    }}
+                >
+                    <Box mb={1}>
+                        <Typography variant="subtitle1" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Box
+                                component="span"
+                                sx={{
+                                    width: 12,
+                                    height: 12,
+                                    borderRadius: '50%',
+                                    bgcolor: hoveredTier.color,
+                                    mr: 1
+                                }}
+                            />
+                            {hoveredTier.name} {t('predefinedPerks.benefits')}
+                        </Typography>
+                    </Box>
+
+                    <Stack spacing={1}>
+                        {hoveredTier.perks.map((perk, index) => {
+                            return (
+                                <Box key={index} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                                    <Chip
+                                        label={t(`predefinedPerks.${perk}`)}
+                                        size="small"
+                                        sx={{
+                                            minWidth: '15rem',
+                                            backgroundColor: `${hoveredTier.color}40`,
+                                            borderColor: hoveredTier.color,
+                                            borderWidth: 1,
+                                            borderStyle: 'solid'
+                                        }}
+                                    />
+                                    <Typography variant="body2" color="text.secondary">
+                                        {t(`perkDescriptions.${perk}`)}
+                                    </Typography>
+                                </Box>
+                            );
+                        })}
+                    </Stack>
+                </Paper>
             )}
         </div>
     )

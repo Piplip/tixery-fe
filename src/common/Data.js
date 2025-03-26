@@ -528,3 +528,36 @@ export const EventType = [
 export const Languages = [
     'en', 'vi', 'ko', 'zh', 'ja'
 ]
+
+export const predefinedPerks = {
+    'access': [
+        'priorityEntry',
+        'earlyAccess',
+        'vipEntrance',
+        'backstageAccess'
+    ],
+    'seating': [
+        'premiumView',
+        'reservedSeating',
+        'frontRowPosition',
+        'extraLegroom'
+    ],
+    'foodAndDrink': [
+        'freeDrinks',
+        'complimentaryFood',
+        'dedicatedBarAccess',
+        'welcomeCocktail'
+    ],
+    'merchandise': [
+        'eventPoster',
+        'commemorativeTShirt',
+        'artistSignedItem',
+        'eventProgram'
+    ],
+    'experience': [
+        'meetAndGreet',
+        'photoOpportunity',
+        'soundCheckAccess',
+        'exclusiveContent'
+    ]
+};

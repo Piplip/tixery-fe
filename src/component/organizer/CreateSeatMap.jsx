@@ -66,42 +66,6 @@ const tools = [
     {icon: <TextFieldsIcon sx={{fontSize: 30}}/>, label: 'Text', tooltip: 'Add a text', type: 'text'},
 ];
 
-const getValidationSchema = (selectedTool) => {
-    switch (selectedTool) {
-        case 'seats':
-            return Yup.object().shape({
-                seats: Yup.object().shape({
-                    sectionName: Yup.string().required('Section Name is required'),
-                    rows: Yup.number().typeError("Rows should be a number")
-                        .required('Rows are required'),
-                    seats: Yup.number().typeError("Seats should be a number").required('Seats are required'),
-                })
-            });
-        case 'table':
-            return Yup.object().shape({
-                table: Yup.object().shape({
-                    tableName: Yup.string().required('Table Name is required'),
-                    seats: Yup.number().typeError("Seats should be a number").required('Seats are required'),
-                    endSeats: Yup.number().typeError("End seats should be a number").required("End Seats are required")
-                })
-            });
-        case 'object':
-            return Yup.object().shape({
-                object: Yup.object().shape({
-                    label: Yup.string().required('Label is required'),
-                })
-            });
-        case 'text':
-            return Yup.object().shape({
-                text: Yup.object().shape({
-                    text: Yup.string().required('Text is required'),
-                })
-            });
-        default:
-            return Yup.object();
-    }
-};
-
 const TIER_PALETTE = [
     '#FF0000',
     '#00FF00',
@@ -139,6 +103,43 @@ function CreateSeatMap(){
     const location = useLocation()
     const navigate = useNavigate()
     const {t} = useTranslation()
+
+    const getValidationSchema = (selectedTool) => {
+        const { t } = useTranslation();
+        switch (selectedTool) {
+            case 'seats':
+                return Yup.object().shape({
+                    seats: Yup.object().shape({
+                        sectionName: Yup.string().required(t('createSeatMap.sectionNameRequired')),
+                        rows: Yup.number().typeError(t('createSeatMap.rowsShouldBeNumber'))
+                            .required(t('createSeatMap.rowsRequired')),
+                        seats: Yup.number().typeError(t('createSeatMap.seatsShouldBeNumber')).required(t('createSeatMap.seatsRequired')),
+                    })
+                });
+            case 'table':
+                return Yup.object().shape({
+                    table: Yup.object().shape({
+                        tableName: Yup.string().required(t('createSeatMap.tableNameRequired')),
+                        seats: Yup.number().typeError(t('createSeatMap.seatsShouldBeNumber')).required(t('createSeatMap.seatsRequired')),
+                        endSeats: Yup.number().typeError(t('createSeatMap.endSeatsShouldBeNumber')).required(t('createSeatMap.endSeatsRequired'))
+                    })
+                });
+            case 'object':
+                return Yup.object().shape({
+                    object: Yup.object().shape({
+                        label: Yup.string().required(t('createSeatMap.labelRequired')),
+                    })
+                });
+            case 'text':
+                return Yup.object().shape({
+                    text: Yup.object().shape({
+                        text: Yup.string().required(t('createSeatMap.textRequired')),
+                    })
+                });
+            default:
+                return Yup.object();
+        }
+    };
 
     const addCanvasObject = (objectType, properties) => {
         const centerPosition = {x: 0, y: 0};
@@ -225,7 +226,7 @@ function CreateSeatMap(){
             case 'seats':
                 Option = (
                     <Stack className={'create-seat-map__tool-options'} spacing={2}>
-                        <TextField label="Section Name" variant="outlined" fullWidth
+                        <TextField label={t('createSeatMap.sectionNameLabel')} variant="outlined" fullWidth
                                    name="seats.sectionName"
                                    value={formik.values.seats.sectionName}
                                    onChange={formik.handleChange}
@@ -233,14 +234,14 @@ function CreateSeatMap(){
                                    error={formik.touched.seats?.sectionName && Boolean(formik.errors.seats?.sectionName)}
                                    helperText={formik.touched.seats?.sectionName && formik.errors.seats?.sectionName} />
                         <Stack direction={'row'} spacing={2}>
-                            <TextField label="Rows" variant="outlined" fullWidth
+                            <TextField label={t('createSeatMap.rowsLabel')} variant="outlined" fullWidth
                                        name="seats.rows"
                                        value={formik.values.seats.rows}
                                        onChange={formik.handleChange}
                                        onBlur={formik.handleBlur}
                                        error={formik.touched.seats?.rows && Boolean(formik.errors.seats?.rows)}
                                        helperText={formik.touched.seats?.rows && formik.errors.seats?.rows} />
-                            <TextField label="Seats" variant="outlined" fullWidth
+                            <TextField label={t('createSeatMap.seatsLabel')} variant="outlined" fullWidth
                                        name="seats.seats"
                                        value={formik.values.seats.seats}
                                        onChange={formik.handleChange}
@@ -254,7 +255,7 @@ function CreateSeatMap(){
             case 'table':
                 Option = (
                     <Stack className={'create-seat-map__tool-options'} spacing={2}>
-                        <TextField label="Table Name" variant="outlined" fullWidth
+                        <TextField label={t('createSeatMap.tableNameLabel')} variant="outlined" fullWidth
                                    name="table.tableName"
                                    value={formik.values.table.tableName}
                                    onChange={formik.handleChange}
@@ -262,7 +263,7 @@ function CreateSeatMap(){
                                    error={formik.touched.table?.tableName && Boolean(formik.errors.table?.tableName)}
                                    helperText={formik.touched.table?.tableName && formik.errors.table?.tableName} />
                         <Stack direction={'row'} spacing={2} alignItems="center" justifyContent={'space-between'}>
-                            <Typography>Style</Typography>
+                            <Typography>{t('createSeatMap.styleLabel')}</Typography>
                             <ToggleButtonGroup color="primary" exclusive
                                                value={formik.values.table.style}
                                                onChange={(e, value) => formik.setFieldValue('table.style', value)}>
@@ -274,7 +275,7 @@ function CreateSeatMap(){
                                 </ToggleButton>
                             </ToggleButtonGroup>
                         </Stack>
-                        <TextField label="Seats" variant="outlined" fullWidth
+                        <TextField label={t('createSeatMap.seatsLabel')} variant="outlined" fullWidth
                                    name="table.seats"
                                    value={formik.values.table.seats}
                                    onChange={formik.handleChange}
@@ -283,7 +284,7 @@ function CreateSeatMap(){
                                    helperText={formik.touched.table?.seats && formik.errors.table?.seats} />
                         {formik.values.table.style === 'square' &&
                             <TextField
-                                label="End Seats"
+                                label={t('createSeatMap.endSeatsLabel')}
                                 variant="outlined"
                                 fullWidth
                                 name="table.endSeats"
@@ -294,7 +295,7 @@ function CreateSeatMap(){
                                 helperText={
                                     formik.touched.table?.endSeats && formik.errors.table?.endSeats
                                         ? formik.errors.table?.endSeats
-                                        : `Can add up to ${Math.round(formik.values.table.seats / 2)} seats`
+                                        : t('createSeatMap.canAddUpTo', {seats: Math.round(formik.values.table.seats / 2)})
                                 }
                             />
                         }
@@ -305,7 +306,7 @@ function CreateSeatMap(){
                 Option = (
                     <Stack className={'create-seat-map__tool-options'} spacing={2}>
                         <Stack direction={'row'} spacing={2} alignItems="center" justifyContent={'space-between'}>
-                            <Typography>Shape</Typography>
+                            <Typography>{t('createSeatMap.shapeLabel')}</Typography>
                             <ToggleButtonGroup color="primary" exclusive
                                                value={formik.values.object.shape}
                                                onChange={(e, value) => formik.setFieldValue('object.shape', value)}>
@@ -320,7 +321,7 @@ function CreateSeatMap(){
                                 </ToggleButton>
                             </ToggleButtonGroup>
                         </Stack>
-                        <TextField label="Label" variant="outlined" fullWidth
+                        <TextField label={t('createSeatMap.labelName')} variant="outlined" fullWidth
                                    name="object.label"
                                    value={formik.values.object.label}
                                    onChange={formik.handleChange}
@@ -328,7 +329,7 @@ function CreateSeatMap(){
                                    error={formik.touched.object?.label && Boolean(formik.errors.object?.label)}
                                    helperText={formik.touched.object?.label && formik.errors.object?.label} />
                         <Stack spacing={2}>
-                            <Typography>Object Icon</Typography>
+                            <Typography>{t('createSeatMap.objectIconLabel')}</Typography>
                             <ToggleButtonGroup color="primary" exclusive
                                                value={formik.values.object.icon}
                                                onChange={(e, value) => formik.setFieldValue('object.icon', value)}>
@@ -358,7 +359,7 @@ function CreateSeatMap(){
             case 'text':
                 Option = (
                     <Stack className={'create-seat-map__tool-options'} spacing={2}>
-                        <TextField label="Text" variant="outlined" fullWidth
+                        <TextField label={t('createSeatMap.textLabel')} variant="outlined" fullWidth
                                    name="text.text"
                                    value={formik.values.text.text}
                                    onChange={formik.handleChange}
@@ -366,7 +367,7 @@ function CreateSeatMap(){
                                    error={formik.touched.text?.text && Boolean(formik.errors.text?.text)}
                                    helperText={formik.touched.text?.text && formik.errors.text?.text} />
                         <Stack direction={'row'} spacing={2} alignItems="center" justifyContent={'space-between'}>
-                            <Typography>Size</Typography>
+                            <Typography>{t('createSeatMap.sizeLabel')}</Typography>
                             <ToggleButtonGroup color="primary" exclusive
                                                value={formik.values.text.size}
                                                onChange={(e, value) => formik.setFieldValue('text.size', value)}>
@@ -391,10 +392,10 @@ function CreateSeatMap(){
                     {type === 'create' &&
                         <Stack direction={'row'} columnGap={1} alignSelf={'center'}>
                             <Button type={'button'} variant="outlined" color="secondary" onClick={() => setSelectedTool(null)}>
-                                Cancel
+                                {t('createSeatMap.cancel')}
                             </Button>
                             <Button type={'submit'} variant="contained" color="primary" disabled={!formik.isValid}>
-                                Create
+                                {t('createSeatMap.create')}
                             </Button>
                         </Stack>
                     }
@@ -522,6 +523,7 @@ function CreateSeatMap(){
     }
 
     const RenderSelectedObjectOption = () => {
+        const {t} = useTranslation()
         if (selectedObject.length === 0) return null;
 
         return selectedObject.map((objectId, index) => {
@@ -541,7 +543,7 @@ function CreateSeatMap(){
                             </IconButton>
                         </Stack>
                         {RenderToolOption(foundObject.type, 'edit')}
-                        <Typography variant="body2" mt={2}>Rotation: {Math.round(foundObject.rotation * 100) / 100 || 0}°</Typography>
+                        <Typography variant="body2" mt={2}>{t('createSeatMap.rotation')}: {Math.round(foundObject.rotation * 100) / 100 || 0}°</Typography>
                         <Stack direction="row" spacing={2} alignItems="center">
                             <Typography>0°</Typography>
                             <Slider
@@ -563,7 +565,7 @@ function CreateSeatMap(){
                         </Stack>
                         <Button variant={'contained'} sx={{mt: 1}}
                                 onClick={handleChangeSelectedObjects}
-                        >Change</Button>
+                        >{t('createSeatMap.change')}</Button>
                     </Stack>
                 </Fragment>
             );
@@ -768,6 +770,12 @@ function CreateSeatMap(){
         setCurrentEditTier(null);
     }
 
+    useEffect(() => {
+        if (tier.length !== togglePalette.length) {
+            setTogglePalette(tier.map(() => false));
+        }
+    }, [tier.length]);
+
     return (
         <Box display="flex" flexDirection="column" height="100dvh">
             <TierPerksModal
@@ -859,8 +867,8 @@ function CreateSeatMap(){
             <Stack direction={'row'} sx={{ flexGrow: 1, overflowY: 'auto' }}>
                 <Box
                     sx={{
-                        minWidth: 330,
-                        maxWidth: 330,
+                        minWidth: 350,
+                        maxWidth: 350,
                         borderRight: '2px solid #000',
                         display: 'flex',
                         flexDirection: 'column',
@@ -882,7 +890,7 @@ function CreateSeatMap(){
 
                             <Stack direction={'row'} justifyContent={'space-between'} className={'create-seat-map__tools'}>
                                 {tools.map((tool, index) => (
-                                    <Tooltip key={index} title={tool.tooltip}>
+                                    <Tooltip key={index} title={t(`createSeatMap.tool.${tool.type}.tooltip`)}>
                                         <Stack
                                             alignItems={'center'}
                                             onMouseEnter={() => setHoveredTool(index)}
@@ -891,7 +899,7 @@ function CreateSeatMap(){
                                         >
                                             {hoveredTool === index ? <ControlPointOutlinedIcon sx={{fontSize: 30}}/> : tool.icon}
                                             <Typography variant="body2" color="textSecondary">
-                                                {tool.label}
+                                                {t(`createSeatMap.tool.${tool.type}.label`)}
                                             </Typography>
                                         </Stack>
                                     </Tooltip>
@@ -944,7 +952,8 @@ function CreateSeatMap(){
                                                             <AddIcon sx={{color: getContrastColor(item.color), fontSize: 24}} onClick={() => assignTier(index)}/>
                                                             :
                                                             <EditIcon sx={{color: getContrastColor(item.color)}}
-                                                                      onClick={() => {
+                                                                      onClick={(e) => {
+                                                                          e.stopPropagation()
                                                                           setTogglePalette(prev => prev.map((_, i) => i === index ? !prev[i] : prev[i]))
                                                                       }}
                                                             />
@@ -969,14 +978,14 @@ function CreateSeatMap(){
                                                                 :
                                                                 0
                                                             }
-                                                            {` seats`}
+                                                            {` ${t('createSeatMap.seats')}`}
                                                         </Typography>
 
                                                         {item.perks && item.perks.length > 0 && (
                                                             <Chip
                                                                 size="small"
                                                                 icon={<EmojiEventsIcon fontSize="small" />}
-                                                                label={`${item.perks.length} ${item.perks.length === 1 ? 'perk' : 'perks'}`}
+                                                                label={t('createSeatMap.perks', {count: item.perks.length})}
                                                                 variant="outlined"
                                                                 sx={{ mt: 1 }}
                                                             />

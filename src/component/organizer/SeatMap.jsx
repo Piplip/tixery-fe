@@ -7,6 +7,7 @@ import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {getBytes, getStorage, ref} from "firebase/storage";
 import {useLocation} from "react-router-dom";
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
+import {useTranslation} from "react-i18next";
 
 SeatMap.propTypes = {
     data: PropTypes.array.isRequired,

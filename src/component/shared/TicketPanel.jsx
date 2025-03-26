@@ -505,18 +505,20 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
                                                             </Stack>
 
                                                             <Stack spacing={0.5} sx={{ pl: 3 }}>
-                                                                {items.map((item, idx) => (
-                                                                    <Stack key={idx} direction="row" justifyContent="space-between">
-                                                                        <Typography variant="body2">
-                                                                            {item.type === 'seat'
-                                                                                ? `${item.sectionName}, Row ${item.rowLetter}, Seat ${item.seat + 1}`
-                                                                                : `${item.tableName} (${item.seats} seats)`}
-                                                                        </Typography>
-                                                                        <Typography variant="body2">
-                                                                            {currency}{price.toFixed(2)}
-                                                                        </Typography>
-                                                                    </Stack>
-                                                                ))}
+                                                                {items.map((item, idx) => {
+                                                                    return (
+                                                                        <Stack key={idx} direction="row" justifyContent="space-between">
+                                                                            <Typography variant="body2">
+                                                                                {item.type === 'seat'
+                                                                                    ? `${item.sectionName}, ${t('eventRegistration.row')} ${item.rowLetter}, ${t('eventRegistration.seat')} ${item.seat + 1}`
+                                                                                    : `${item.tableName} (${item.seats} ${t('eventRegistration.seats')})`}
+                                                                            </Typography>
+                                                                            <Typography variant="body2">
+                                                                                {currency}{price.toFixed(2)}
+                                                                            </Typography>
+                                                                        </Stack>
+                                                                    );
+                                                                })}
                                                             </Stack>
 
                                                             <Stack direction="row" justifyContent="flex-end">
@@ -582,7 +584,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
                                                                 border: '1px solid #ddd'
                                                             }} />
                                                             <Typography variant="body2">
-                                                                {ticket.name} - {ticket.currency.symbol}{ticket.price.toFixed(2)}
+                                                                {ticket.name} - {tierInfo?.name} - {ticket.currency.symbol}{ticket.price.toFixed(2)}
                                                             </Typography>
                                                             {ticket.description && (
                                                                 <Tooltip title={ticket.description || t('eventRegistration.noPerkInfo')}>

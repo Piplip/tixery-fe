@@ -8,7 +8,6 @@ import {
     InputLabel,
     MenuItem,
     Select,
-    Snackbar,
     Stack,
     TextField,
     Typography
@@ -27,6 +26,7 @@ import {CircularProgress} from "@mui/joy";
 import {countries} from "../../common/Data.js";
 import {DatePicker} from "@mui/x-date-pickers";
 import {useTranslation} from "react-i18next";
+import {useAlert} from "../../custom-hooks/useAlert.js";
 
 initializeApp(firebaseConfig);
 const storage = getStorage()
@@ -35,13 +35,12 @@ function AttendeeContactInfo() {
     const {t} = useTranslation()
     const {pid, data} = useOutletContext()
     const [isLoading, setIsLoading] = useState(false)
-    const [open, setOpen] = useState(false)
+    const {showInfo} = useAlert()
 
     const validationSchema = Yup.object({
         profile_name: Yup.string().required(t('attendeeContactInfo.profileNameRequired')),
         description: Yup.string().required(t('attendeeContactInfo.descriptionRequired')),
         full_name: Yup.string().required(t('attendeeContactInfo.fullNameRequired')),
-        nickname: Yup.string().required(t('attendeeContactInfo.nicknameRequired')),
         date_of_birth: Yup.date()
             .required(t('attendeeContactInfo.dateOfBirthRequired'))
             .typeError(t('attendeeContactInfo.validDate')),
@@ -80,27 +79,22 @@ function AttendeeContactInfo() {
             nationality: values.nationality
         })
             .then(r => {
-                console.log(r.data)
                 setIsLoading(false)
-                setOpen(true)
+                showInfo(t('attendeeContactInfo.updatedSuccessfully'))
             })
-            .catch(err => console.log(err))
+            .catch(err => {
+                setIsLoading(false)
+                console.log(err)
+            })
         actions.setSubmitting(false);
     };
 
     return (
         <Stack className={'attendee-contact-info'}>
-            <Snackbar
-                open={open}
-                anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
-                autoHideDuration={5000}
-                onClose={() => setOpen(false)}
-                message={t('attendeeContactInfo.updatedSuccessfully')}
-            />
             <Stack rowGap={3}>
                 <Typography fontSize={'1.6rem'}
                             fontWeight={'bold'}>{t('attendeeContactInfo.profilePicture')}</Typography>
-                <DragAndDropZone image={data?.profile_image_url || null}
+                <DragAndDropZone image={data?.profile_image_url}
                                  onFileSelect={(file) => data.profile_image_url = file}/>
             </Stack>
             <Stack rowGap={3}>

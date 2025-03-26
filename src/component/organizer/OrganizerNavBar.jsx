@@ -1,8 +1,6 @@
 import {NavLink} from "react-router-dom";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import SettingsIcon from '@mui/icons-material/Settings';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import VolumeDownIcon from '@mui/icons-material/VolumeDown';
 import FilterFramesIcon from '@mui/icons-material/FilterFrames';
 import EventIcon from '@mui/icons-material/Event';
 import HomeIcon from '@mui/icons-material/Home';
@@ -17,9 +15,7 @@ function OrganizerNavBar(){
         { label: t('organizerNavBar.home'), icon: <HomeIcon />, to: '' },
         { label: t('organizerNavBar.events'), icon: <EventIcon />, to: 'events' },
         { label: t('organizerNavBar.orders'), icon: <FilterFramesIcon />, to: 'order-management' },
-        { label: t('organizerNavBar.marketing'), icon: <VolumeDownIcon />, to: 'marketing' },
         { label: t('organizerNavBar.reporting'), icon: <SignalCellularAltIcon />, to: 'report' },
-        { label: t('organizerNavBar.finance'), icon: <AccountBalanceIcon />, to: 'finance' },
         { label: t('organizerNavBar.organizations'), icon: <SettingsIcon />, to: 'u' },
     ];
 

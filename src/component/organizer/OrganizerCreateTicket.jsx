@@ -50,27 +50,27 @@ function OrganizerCreateTicket() {
     const [selectedSeatMap, setSelectedSeatMap] = useState(null)
 
     const tabs = [
-        { label: t('ticket.admission'), to: '' },
-        { label: t('ticket.addOns'), to: 'add-ons' },
-        { label: t('ticket.promotions'), to: 'promotions' },
-        { label: t('ticket.settings'), to: 'settings' },
+        { label: t('organizerCreateTicket.admission'), to: '' },
+        { label: t('organizerCreateTicket.addOns'), to: 'add-ons' },
+        { label: t('organizerCreateTicket.promotions'), to: 'promotions' },
+        { label: t('organizerCreateTicket.settings'), to: 'settings' },
     ];
 
     const ticketTypes = [
         {
             name: 'free',
             icon: FreeIcon,
-            description: t('ticket.freeDescription'),
+            description: t('organizerCreateTicket.freeDescription'),
         },
         {
             name: 'paid',
             icon: <ReceiptIcon sx={{ color: '#007aa2', backgroundColor: '#fafafa', width: '3.5rem', height: '3.5rem', p: 1 }} />,
-            description: t('ticket.paidDescription'),
+            description: t('organizerCreateTicket.paidDescription'),
         },
         {
             name: 'donation',
             icon: <FavoriteBorderIcon sx={{ color: 'red', backgroundColor: '#fdecff', width: '3.5rem', height: '3.5rem', p: 1 }} />,
-            description: t('ticket.donationDescription'),
+            description: t('organizerCreateTicket.donationDescription'),
         }
     ];
 
@@ -97,7 +97,7 @@ function OrganizerCreateTicket() {
         const msg = validate(0)
         if (typeof msg === 'string' && location.pathname.includes('tickets')) {
             setCurrentStep(0)
-            setTimeout(() => setAlert(t('ticket.requiredFieldsAlert')), 500)
+            setTimeout(() => setAlert(t('organizerCreateTicket.requiredFieldsAlert')), 500)
             const basePath = location.pathname.split('/tickets')[0];
             navigate(basePath);
         }
@@ -188,27 +188,27 @@ function OrganizerCreateTicket() {
 
     const validationSchema = Yup.object().shape({
         ticketName: Yup.string()
-            .required("Ticket name is required.")
-            .max(50, "Ticket name type cannot exceed 50 characters."),
+            .required(t('organizerCreateTicket.ticketNameRequired'))
+            .max(50, t('organizerCreateTicket.ticketNameMax')),
         quantity: Yup.number()
             .test('quantity-validation', '', function(value) {
                 if (tiers && tiers.length) return true;
-                return value > 0 || this.createError({ message: 'Quantity must be greater than 0' });
+                return value > 0 || this.createError({ message: t('organizerCreateTicket.quantityGreaterThanZero') });
             })
-            .typeError("Quantity must be a number."),
+            .typeError(t('organizerCreateTicket.quantityMustBeNumber')),
         price: Yup.mixed().nullable()
             .test('price-validation', '', function(value) {
                 if (tiers && tiers.length) return true;
                 const {type} = this.parent;
                 if (type === 'free' || type === 'donation') return true;
-                return value > 0 || this.createError({ message: 'Price must be greater than 0' });
+                return value > 0 || this.createError({ message: t('organizerCreateTicket.priceGreaterThanZero') });
             }),
         startDate: Yup.date()
-            .required('Start date is required')
-            .typeError('Start date must be a valid date')
+            .required(t('organizerCreateTicket.startDateRequired'))
+            .typeError(t('organizerCreateTicket.startDateValid'))
             .test(
                 'is-before-end-date',
-                'Start date must be earlier than the end date',
+                t('organizerCreateTicket.startDateBeforeEndDate'),
                 function (value) {
                     const {endDate} = this.parent;
                     return !endDate || !value || value <= endDate;
@@ -216,7 +216,7 @@ function OrganizerCreateTicket() {
             )
             .test(
                 'is-before-event-start',
-                'Ticket sales start date should be before the event start date',
+                t('organizerCreateTicket.ticketSalesBeforeEvent'),
                 function (value) {
                     if (data.eventType === 'recurring' || !value) return true;
 
@@ -230,11 +230,11 @@ function OrganizerCreateTicket() {
                     return ticketSalesDate.isBefore(eventStartDate);
                 }
             ),
-        endDate: Yup.date().required('End date is required')
-            .typeError('End date must be a valid date')
+        endDate: Yup.date().required(t('organizerCreateTicket.endDateRequired'))
+            .typeError(t('organizerCreateTicket.endDateValid'))
             .test(
                 'is-after-start-date',
-                'End date must be after the start date',
+                t('organizerCreateTicket.endDateAfterStartDate'),
                 function (value) {
                     const {startDate} = this.parent;
                     return !startDate || !value || value >= startDate;
@@ -242,7 +242,7 @@ function OrganizerCreateTicket() {
             )
             .test(
                 'is-before-event-start',
-                'Ticket sales start date should be before the event start date',
+                t('organizerCreateTicket.ticketSalesBeforeEvent'),
                 function (value) {
                     if (data.eventType === 'recurring' || !value) return true;
 
@@ -257,12 +257,12 @@ function OrganizerCreateTicket() {
                 }
             ),
         startTime: Yup.date()
-            .required("Start time is required."),
+            .required(t('organizerCreateTicket.startTimeRequired')),
         endTime: Yup.date()
-            .required('End time is required.')
+            .required(t('organizerCreateTicket.endTimeRequired'))
             .test(
                 'is-valid-end-time',
-                'End time cannot be earlier than start time.',
+                t('organizerCreateTicket.endTimeNotBeforeStartTime'),
                 function (value) {
                     const {startTime, startDate, endDate} = this.parent;
                     if (startDate && endDate && new Date(startDate).toDateString() === new Date(endDate).toDateString()) {
@@ -272,17 +272,17 @@ function OrganizerCreateTicket() {
                 }
             ),
         minPerOrder: Yup.number()
-            .required("Minimum quantity is required.")
-            .typeError("Minimum quantity must be a number.")
+            .required(t('organizerCreateTicket.minQuantityRequired'))
+            .typeError(t('organizerCreateTicket.quantityMustBeNumber'))
         ,
         maxPerOrder: Yup.number()
-            .required("Maximum quantity is required.")
-            .typeError("Maximum quantity must be a number.")
+            .required(t('organizerCreateTicket.maxQuantityRequired'))
+            .typeError(t('organizerCreateTicket.quantityMustBeNumber'))
         ,
         visibleStartDate: Yup.date().nullable()
             .test(
                 'is-required-if-custom',
-                'Visible start date is required',
+                t('organizerCreateTicket.visibleStartDateRequired'),
                 function (value) {
                     const {visibility} = this.parent;
                     return ticketVisibility[visibility].value !== 'custom' || value !== null;
@@ -290,7 +290,7 @@ function OrganizerCreateTicket() {
             )
             .test(
                 'is-before-visible-end-date',
-                'Visible start date must be earlier than the end date',
+                t('organizerCreateTicket.visibleStartDateBeforeEndDate'),
                 function (value) {
                     const {visibility, visibleEndDate} = this.parent;
                     return ticketVisibility[visibility].value !== 'custom' || !visibleEndDate || !value || value <= visibleEndDate;
@@ -299,7 +299,7 @@ function OrganizerCreateTicket() {
         visibleEndDate: Yup.date().nullable()
             .test(
                 'is-after-visible-start-date',
-                'Visible end date must be later than the start date',
+                t('organizerCreateTicket.visibleEndDateAfterStartDate'),
                 function (value) {
                     const {visibility, visibleStartDate} = this.parent;
                     return ticketVisibility[visibility].value !== 'custom' || !visibleStartDate || !value || value >= visibleStartDate;
@@ -368,7 +368,7 @@ function OrganizerCreateTicket() {
                                 }));
 
                                 setShowSnackbar(true);
-                                setSnackbarMessage('Ticket updated successfully');
+                                setSnackbarMessage(t('organizerCreateTicket.ticketUpdated'));
                                 setHasUnsavedChanges(true);
                             }
                         })
@@ -383,7 +383,7 @@ function OrganizerCreateTicket() {
                             setData({...data, tickets: updatedTickets, capacity: newCapacity});
 
                             setShowSnackbar(true);
-                            setSnackbarMessage('Ticket updated successfully');
+                            setSnackbarMessage(t('organizerCreateTicket.ticketUpdated'));
                             setHasUnsavedChanges(true);
                         })
                         .catch(err => console.log(err));
@@ -421,7 +421,7 @@ function OrganizerCreateTicket() {
                                 }));
                             }
 
-                            setSnackbarMessage('Create ticket successfully')
+                            setSnackbarMessage(t('organizerCreateTicket.ticketCreated'))
                             setHasUnsavedChanges(true);
                         })
                         .catch(err => console.log(err));
@@ -438,7 +438,7 @@ function OrganizerCreateTicket() {
                             setHasUnsavedChanges(true);
                             if (data.eventType === 'recurring') {
                                 setShowSnackbar(true);
-                                setSnackbarMessage('Your ticket was created and will appear on all time slots.');
+                                setSnackbarMessage(t('organizerCreateTicket.recurringTicketCreated'));
                             }
                         })
                         .catch(err => console.log(err));
@@ -546,9 +546,9 @@ function OrganizerCreateTicket() {
                     <>
                         {!!tiers &&
                             <div className={'link'} style={{marginBottom: '1rem'}}
-                                onClick={() => setTiers(null)}
+                                 onClick={() => setTiers(null)}
                             >
-                                Back to map selection
+                                {t('organizerCreateTicket.backToMapSelection')}
                             </div>
                         }
                         <div className="tickets-section">
@@ -583,7 +583,7 @@ function OrganizerCreateTicket() {
                                 <Typography variant="h4"
                                             gutterBottom
                                             sx={{ fontWeight: 'bold', color: '#333', textAlign: 'center' }}>
-                                    Select a Seat Map
+                                    {t('organizerCreateTicket.selectSeatMap')}
                                 </Typography>
 
                                 <Typography variant="h5" gutterBottom
@@ -594,7 +594,7 @@ function OrganizerCreateTicket() {
                                                 marginLeft: 2,
                                             }}
                                 >
-                                    Your Maps
+                                    {t('organizerCreateTicket.yourMaps')}
                                 </Typography>
                                 <Grid container spacing={2}>
                                     {ownerMaps.map((map) => (
@@ -621,7 +621,7 @@ function OrganizerCreateTicket() {
                                                     <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'} columnGap={5}>
                                                         <Typography variant="h6" sx={{ color: '#007aa2', fontWeight: 'bold' }}>{map.name}</Typography>
                                                         <Typography variant="body1">
-                                                            Created at: {dayjs(map.created_at).format("HH:mm DD/MM/YYYY")} (Last changes: {dayjs(map.updated_at).fromNow()})
+                                                            {t('organizerCreateTicket.createdAt')}: {dayjs(map.created_at).format("HH:mm DD/MM/YYYY")} ({t('organizerCreateTicket.lastChanges')}: {dayjs(map.updated_at).fromNow()})
                                                         </Typography>
                                                     </Stack>
                                                 </CardContent>
@@ -637,12 +637,12 @@ function OrganizerCreateTicket() {
                                                                 '&:hover': { backgroundColor: '#e0f7fa' },
                                                             }}
                                                     >
-                                                        Select
+                                                        {t('organizerCreateTicket.select')}
                                                     </Button>
                                                     <Button fullWidth size="small" variant={'contained'}
                                                             onClick={() =>
                                                                 navigate(`/create/seat-map?eid=${location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3]}&mid=${map.map_id}`)}>
-                                                        Edit
+                                                        {t('organizerCreateTicket.edit')}
                                                     </Button>
                                                 </CardActions>
                                             </Card>
@@ -661,7 +661,7 @@ function OrganizerCreateTicket() {
                                                         marginLeft: 2,
                                                     }}
                                         >
-                                            Other Maps
+                                            {t('organizerCreateTicket.otherMaps')}
                                         </Typography>
                                         <Grid container spacing={2}>
                                             {otherMaps.map((map) => (
@@ -686,8 +686,8 @@ function OrganizerCreateTicket() {
                                                             <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
                                                                 <Typography variant="h6" sx={{ color: '#007aa2', fontWeight: 'bold' }}>{map.name}</Typography>
                                                                 <Typography variant="body1">
-                                                                    Created at: {dayjs(map.created_at).format("HH:mm DD/MM/YYYY")}
-                                                                    (Last changes: {dayjs(map.updated_at).fromNow()})
+                                                                    {t('organizerCreateTicket.createdAt')}: {dayjs(map.created_at).format("HH:mm DD/MM/YYYY")}
+                                                                    ({t('organizerCreateTicket.lastChanges')}: {dayjs(map.updated_at).fromNow()})
                                                                 </Typography>
                                                             </Stack>
                                                         </CardContent>
@@ -703,11 +703,11 @@ function OrganizerCreateTicket() {
                                                                         '&:hover': { backgroundColor: '#e0f7fa' },
                                                                     }}
                                                             >
-                                                                Select
+                                                                {t('organizerCreateTicket.select')}
                                                             </Button>
                                                             <Button fullWidth size="small" onClick={() => navigate(`/create/seat-map?eid=${map.map_id}`)}
                                                                     variant={'contained'}>
-                                                                Edit
+                                                                {t('organizerCreateTicket.edit')}
                                                             </Button>
                                                         </CardActions>
                                                     </Card>
@@ -718,24 +718,24 @@ function OrganizerCreateTicket() {
                                 }
                             </Stack>
                             :
-                            <Stack alignItems={'center'} rowGap={2}>
+                            <Stack alignItems={'center'} rowGap={2} sx={{maxWidth: '35rem', textAlign: 'center'}}>
                                 <LayersClearIcon sx={{ fontSize: '7.5rem', color: '#000000', backgroundColor: '#e3e3e3', p: 1, borderRadius: '50%' }} />
                                 <Stack alignItems={'center'}>
                                     <Typography variant={'h5'} fontWeight={'bold'}>
-                                        {t('ticket.noMapsFound')}
+                                        {t('organizerCreateTicket.noMapsFound')}
                                     </Typography>
                                     <Typography variant={'body1'}>
-                                        {t('ticket.createMapPrompt')}
+                                        {t('organizerCreateTicket.createMapPrompt')}
                                     </Typography>
                                 </Stack>
                                 <Button variant={'contained'} onClick={() => navigate(`/create/seat-map?eid=${location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3]}`)}>
-                                    {t('ticket.createButton')}
+                                    {t('organizerCreateTicket.createButton')}
                                 </Button>
                             </Stack>
                         :
                         <>
-                            <p className={'organizer-create-ticket__title'}>{t('ticket.createTickets')}</p>
-                            <p>{t('ticket.chooseTicketType')}</p>
+                            <p className={'organizer-create-ticket__title'}>{t('organizerCreateTicket.createTickets')}</p>
+                            <p>{t('organizerCreateTicket.chooseTicketType')}</p>
                             <Stack className={'organizer-create-ticket__ticket-types'} rowGap={1}>
                                 {ticketTypes.map((ticketType, index) => (
                                     <Stack key={index} className={'organizer-create-ticket__ticket-type'} flexDirection={'row'}
@@ -765,7 +765,7 @@ function OrganizerCreateTicket() {
             </Stack>
             <form onSubmit={formik.handleSubmit}>
                 <Stack className={'organizer-create-ticket__detail'} sx={{display: openDetail.open ? 'flex' : 'none'}}>
-                    <p>{t('ticket.addTickets')}</p>
+                    <p>{t('organizerCreateTicket.addTickets')}</p>
                     <Stack className={'organizer-detail__main'} rowGap={2}>
                         {!tiers &&
                             <Stack direction={'row'} justifyContent={'space-between'}>
@@ -779,7 +779,7 @@ function OrganizerCreateTicket() {
                                 ))}
                             </Stack>
                         }
-                        <TextField name={'ticketName'} label={t('ticket.ticketNameLabel')} variant={'outlined'}
+                        <TextField name={'ticketName'} label={t('organizerCreateTicket.ticketNameLabel')} variant={'outlined'}
                                    fullWidth
                                    value={formik.values.ticketName} focused
                                    onChange={formik.handleChange} onBlur={formik.handleBlur}
@@ -787,7 +787,7 @@ function OrganizerCreateTicket() {
                                    helperText={formik.touched.ticketName && formik.errors.ticketName}
                         />
                         {!tiers &&
-                            <TextField name={'quantity'} label={t('ticket.availableQuantityLabel')} variant={'outlined'}
+                            <TextField name={'quantity'} label={t('organizerCreateTicket.availableQuantityLabel')} variant={'outlined'}
                                        fullWidth
                                        value={formik.values.quantity} focused
                                        onChange={formik.handleChange} onBlur={formik.handleBlur}
@@ -799,7 +799,7 @@ function OrganizerCreateTicket() {
                             {tiers ?
                                 <Stack spacing={2} sx={{ width: '100%' }}>
                                     <Typography variant="subtitle1" fontWeight="bold">
-                                        Set prices for each tier
+                                        {t('organizerCreateTicket.setPricesForTiers')}
                                     </Typography>
                                     {tiers.map((tier, index) => (
                                         <Stack
@@ -827,7 +827,7 @@ function OrganizerCreateTicket() {
                                                 />
                                                 <TextField
                                                     name={`tierPrices.${index}`}
-                                                    label={`Price for ${tier.name}`}
+                                                    label={`${t('organizerCreateTicket.priceFor')} ${tier.name}`}
                                                     variant="outlined"
                                                     value={formik.values.tierPrices?.[index] || ''}
                                                     placeholder="0.00"
@@ -854,7 +854,7 @@ function OrganizerCreateTicket() {
                                             }
                                         }/>
                                     }
-                                    <TextField name={'price'} label={t('ticket.priceLabel')} variant={'outlined'} fullWidth
+                                    <TextField name={'price'} label={t('organizerCreateTicket.priceLabel')} variant={'outlined'} fullWidth
                                                value={openDetail.type === 'free' ? t('ticket.free') : openDetail.type === 'donation' ? t('ticket.donation') : formik.values.price}
                                                placeholder={'0.00'} focused
                                                disabled={openDetail.type === 'donation' || openDetail.type === 'free'}
@@ -869,11 +869,11 @@ function OrganizerCreateTicket() {
                             <Stack direction={'row'} alignItems={'center'} marginBlock={'0 .5rem'}>
                                 <Checkbox checked={formik.values.absorbFee}
                                           onChange={() => formik.setFieldValue('absorbFee', !formik.values.absorbFee)}/>
-                                <p style={{fontSize: '.8rem'}}>{t('ticket.absorbFeesDescription')}</p>
+                                <p style={{fontSize: '.8rem'}}>{t('organizerCreateTicket.absorbFeesDescription')}</p>
                             </Stack>
                         }
                         <Stack direction={'row'} columnGap={1}>
-                            <DatePicker name={'startDate'} label={t('ticket.salesStartLabel')}
+                            <DatePicker name={'startDate'} label={t('organizerCreateTicket.salesStartLabel')}
                                         value={formik.values.startDate}
                                         onChange={(date) => formik.setFieldValue('startDate', date)}
                                         disablePast format={'DD/MM/YYYY'}
@@ -885,7 +885,7 @@ function OrganizerCreateTicket() {
                                             },
                                         }}
                             />
-                            <TimePicker name={'startTime'} label={t('ticket.startTimeLabel')}
+                            <TimePicker name={'startTime'} label={t('organizerCreateTicket.startTimeLabel')}
                                         value={formik.values.startTime} ampm={false}
                                         onChange={(date) => formik.setFieldValue('startTime', date)}
                                         slotProps={{
@@ -898,7 +898,7 @@ function OrganizerCreateTicket() {
                             />
                         </Stack>
                         <Stack direction={'row'} columnGap={1}>
-                            <DatePicker name={'endDate'} label={t('ticket.salesEndLabel')}
+                            <DatePicker name={'endDate'} label={t('organizerCreateTicket.salesEndLabel')}
                                         value={formik.values.endDate}
                                         onChange={(date) => formik.setFieldValue('endDate', date)}
                                         disablePast format={'DD/MM/YYYY'}
@@ -910,7 +910,7 @@ function OrganizerCreateTicket() {
                                             },
                                         }}
                             />
-                            <TimePicker name={'endTime'} label={t('ticket.endTimeLabel')}
+                            <TimePicker name={'endTime'} label={t('organizerCreateTicket.endTimeLabel')}
                                         value={formik.values.endTime} ampm={false}
                                         onChange={(date) => formik.setFieldValue('endTime', date)}
                                         error={formik.touched.endTime && Boolean(formik.errors.endTime)}
@@ -925,7 +925,7 @@ function OrganizerCreateTicket() {
                         </Stack>
                         <Stack direction={'row'} alignItems={'center'} columnGap={.5}>
                             <Typography
-                                variant={'caption'}>{t('ticket.eventTimezone')} {new Date().toString().match(/\(([A-Za-z\s].*)\)/)[1]}</Typography>
+                                variant={'caption'}>{t('organizerCreateTicket.eventTimezone')} {new Date().toString().match(/\(([A-Za-z\s].*)\)/)[1]}</Typography>
                         </Stack>
                         <AccordionGroup transition={{
                             initial: "0.3s ease-out",
@@ -933,18 +933,18 @@ function OrganizerCreateTicket() {
                         }}>
                             <Accordion sx={{p: 0, m: 0}} defaultExpanded>
                                 <AccordionSummary>
-                                    <Typography component="span">{t('ticket.advancedOptions')}</Typography>
+                                    <Typography component="span">{t('organizerCreateTicket.advancedOptions')}</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <Stack rowGap={1}>
                                         <TextAreaWithLimit value={formik.values.description} maxChars={2500} rows={3}
                                                            handleChange={formik.handleChange} onBlur={formik.handleBlur}
                                                            name={'description'}
-                                                           placeholder={t('ticket.ticketDescriptionPlaceholder')}
+                                                           placeholder={t('organizerCreateTicket.ticketDescriptionPlaceholder')}
                                         />
                                         <Dropdown open={open} onOpenChange={handleOpenChange}>
                                             <MenuButton>
-                                               {t(`ticket.visibility-status.${ticketVisibility[formik.values.visibility]?.label.toLowerCase()}`) || t('ticket.visible')}
+                                                {t(`ticket.visibility-status.${ticketVisibility[formik.values.visibility]?.label.toLowerCase()}`) || t('organizerCreateTicket.visible')}
                                             </MenuButton>
                                             <Menu>
                                                 {ticketVisibility.map((visibility, index) => (
@@ -962,7 +962,7 @@ function OrganizerCreateTicket() {
                                             <Stack rowGap={1} marginBlock={1}>
                                                 <Stack direction={'row'} columnGap={1}>
                                                     <DatePicker name={'visibleStartDate'}
-                                                                label={t('ticket.visibleStartLabel')}
+                                                                label={t('organizerCreateTicket.visibleStartLabel')}
                                                                 value={formik.values.visibleStartDate}
                                                                 onChange={(date) => formik.setFieldValue('visibleStartDate', date)}
                                                                 disablePast format={'DD/MM/YYYY'}
@@ -975,7 +975,7 @@ function OrganizerCreateTicket() {
                                                                 }}
                                                     />
                                                     <TimePicker name={'visibleStartTime'}
-                                                                label={t('ticket.startTimeLabel')}
+                                                                label={t('organizerCreateTicket.startTimeLabel')}
                                                                 value={formik.values.visibleStartTime} ampm={false}
                                                                 onChange={(date) => formik.setFieldValue('visibleStartTime', date)}
                                                                 slotProps={{
@@ -989,7 +989,7 @@ function OrganizerCreateTicket() {
                                                 </Stack>
                                                 <Stack direction={'row'} columnGap={1}>
                                                     <DatePicker name={'visibleEndDate'}
-                                                                label={t('ticket.visibleEndLabel')}
+                                                                label={t('organizerCreateTicket.visibleEndLabel')}
                                                                 value={formik.values.visibleEndDate}
                                                                 onChange={(date) => formik.setFieldValue('visibleEndDate', date)}
                                                                 disablePast format={'DD/MM/YYYY'}
@@ -1001,7 +1001,7 @@ function OrganizerCreateTicket() {
                                                                     },
                                                                 }}
                                                     />
-                                                    <TimePicker name={'visibleEndTime'} label={t('ticket.endTimeLabel')}
+                                                    <TimePicker name={'visibleEndTime'} label={t('organizerCreateTicket.endTimeLabel')}
                                                                 value={formik.values.visibleEndTime} ampm={false}
                                                                 onChange={(date) => formik.setFieldValue('visibleEndTime', date)}
                                                                 error={formik.touched.visibleEndTime && Boolean(formik.errors.visibleEndTime)}
@@ -1018,12 +1018,12 @@ function OrganizerCreateTicket() {
                                         }
 
                                         <Stack rowGap={1}>
-                                            <p>{t('ticket.ticketsPerOrder')}</p>
+                                            <p>{t('organizerCreateTicket.ticketsPerOrder')}</p>
                                             <Stack direction={'row'} columnGap={1}>
                                                 <TextField
                                                     key={`min-${formik.values.minPerOrder}`}
                                                     name={'minPerOrder'}
-                                                    label={t('ticket.minQuantityLabel')}
+                                                    label={t('organizerCreateTicket.minQuantityLabel')}
                                                     variant={'outlined'}
                                                     fullWidth
                                                     value={formik.values.minPerOrder}
@@ -1036,7 +1036,7 @@ function OrganizerCreateTicket() {
                                                 <TextField
                                                     key={`max-${formik.values.maxPerOrder}`}
                                                     name={'maxPerOrder'}
-                                                    label={t('ticket.maxQuantityLabel')}
+                                                    label={t('organizerCreateTicket.maxQuantityLabel')}
                                                     variant={'outlined'}
                                                     fullWidth
                                                     value={formik.values.maxPerOrder}
@@ -1057,8 +1057,8 @@ function OrganizerCreateTicket() {
                         <button type={'button'} onClick={() => {
                             setOpenDetail({type: null, open: false})
                             formik.resetForm()
-                        }}>{t('ticket.cancel')}</button>
-                        <button type={'submit'}>{t('ticket.save')}</button>
+                        }}>{t('organizerCreateTicket.cancel')}</button>
+                        <button type={'submit'}>{t('organizerCreateTicket.save')}</button>
                     </Stack>
                 </Stack>
             </form>

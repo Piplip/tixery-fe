@@ -288,7 +288,7 @@ function OrganizerTicketAdmission(){
                                                             {tier.perks && tier.perks.split(',').map((perk, i) => (
                                                                 <Chip
                                                                     key={i}
-                                                                    label={perk}
+                                                                    label={t(`predefinedPerks.${perk.trim()}`)}
                                                                     size="small"
                                                                     sx={{ backgroundColor: alpha(tier.tier_color, 0.1) }}
                                                                 />

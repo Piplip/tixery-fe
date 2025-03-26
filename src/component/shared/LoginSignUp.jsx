@@ -68,7 +68,7 @@ function LoginSignUp() {
         }).then(res => {
             setAwaitResponse(false)
             resetForm()
-            alert(res.data.message)
+            alert(t('loginPage.signUpSuccess'))
 
         }).catch((err) => {
             console.log(err)

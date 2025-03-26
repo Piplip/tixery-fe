@@ -67,7 +67,7 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                 type: 'seat',
                 section: targetObject.properties.sectionName,
                 position: `${rowLetter}${seat + 1}`,
-                display: `${targetObject.properties.sectionName} - Seat ${rowLetter}${seat + 1}`
+                display: `${targetObject.properties.sectionName} - ${t('eventRegistration.seat')} ${rowLetter}${seat + 1}`
             };
         }
 
@@ -234,7 +234,7 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                                                     {item.perks.split(',').map((perk, i) => (
                                                         <Chip
                                                             key={i}
-                                                            label={perk.trim()}
+                                                            label={t(`predefinedPerks.${perk.trim()}`)}
                                                             size="small"
                                                             sx={{
                                                                 margin: '4px',

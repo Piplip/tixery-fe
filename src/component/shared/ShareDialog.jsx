@@ -9,6 +9,7 @@ import InstagramIcon from '@mui/icons-material/Instagram';
 import PropTypes from "prop-types";
 import {useTranslation} from "react-i18next";
 import {collectData} from "../../common/Utilities.js";
+import {useAlert} from "../../custom-hooks/useAlert.js";
 
 const prefix = "http://localhost:5173/events/"
 
@@ -16,17 +17,18 @@ const ShareDialog = ({ eventID }) => {
     const { t } = useTranslation();
     const [open, setOpen] = useState(false);
     const [copyTooltip, setCopyTooltip] = useState(t('shareDialog.copyToClipboard'));
+    const {showInfo, showError} = useAlert()
 
     const handleCopy = () => {
         const eventURL = eventID ? prefix + eventID : window.location.href;
 
         navigator.clipboard.writeText(eventURL)
             .then(() => {
-                setCopyTooltip(t('shareDialog.copied'));
+                showInfo(t('shareDialog.copied'));
                 setTimeout(() => setCopyTooltip(t('shareDialog.copyToClipboard')), 2000);
             })
             .catch(() => {
-                setCopyTooltip(t('shareDialog.copyFailed'));
+                showError(t('shareDialog.copyFailed'));
                 setTimeout(() => setCopyTooltip(t('shareDialog.copyToClipboard')), 2000);
             });
 

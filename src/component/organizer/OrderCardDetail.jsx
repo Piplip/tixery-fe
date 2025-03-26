@@ -151,7 +151,7 @@ function OrderCardDetail({open, handleClose, data}){
                                                 <TableRow key={index} className="order-details__table-row">
                                                     <TableCell>{ticket.ticket_id}</TableCell>
                                                     <TableCell className="order-details__ticket-name">
-                                                        {ticket.name}
+                                                        {ticket.name} {ticket?.seat_tier_name ? ` - ${ticket?.seat_tier_name} ` : ''}
                                                     </TableCell>
                                                     <TableCell>{ticket.quantity}</TableCell>
                                                     <TableCell>
