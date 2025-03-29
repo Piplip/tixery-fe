@@ -20,7 +20,7 @@ function OrganizerTemplate(){
 
     return (
         <div className={'organizer-template'}>
-            {/*<TopNav isLoggedIn={isLoggedIn}/>*/}
+            <TopNav isLoggedIn={isLoggedIn}/>
             <OrganizerNavBar />
             <div className={'organizer-template-outlet-wrapper'}>
                 <Outlet />

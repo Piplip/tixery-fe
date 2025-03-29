@@ -1875,5 +1875,23 @@
     "seatNotAvailable": "Ghế này không có sẵn để chọn",
     "tableNotAvailable": "Bàn này không có sẵn để chọn",
     "tableAlreadyTaken": "Bàn này đã hết lựa chọn"
+  },
+  "attendee404": {
+    "title": "404",
+    "subtitle": "Ôi! Chúng tôi không thể tìm thấy trang này.",
+    "message": "Có vẻ như bạn đã bị lạc trong lịch trình sự kiện. Đừng lo lắng – ngay cả những người tham dự nhiệt tình nhất đôi khi cũng đi nhầm đường.",
+    "button": "Quay lại Trang Chủ"
+  },
+  "organizer404": {
+    "title": "404",
+    "subtitle": "Không Tìm Thấy Trang",
+    "message": "Có vẻ như trang bạn đang tìm kiếm không tồn tại. Là một nhà tổ chức, chúng tôi hiểu thời gian rất quý giá—hãy đưa bạn trở lại quản lý sự kiện của mình.",
+    "button": "Quay lại Bảng Điều Khiển"
+  },
+  "somethingwentwrong": {
+    "title": "Có Lỗi Xảy Ra",
+    "message": "Chúng tôi gặp phải lỗi không mong muốn. Vui lòng thử làm mới trang hoặc quay lại một vị trí an toàn trên nền tảng của chúng tôi.",
+    "refresh": "Làm Mới Trang",
+    "home": "Trang Chủ"
   }
 }

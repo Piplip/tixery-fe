@@ -1874,5 +1874,23 @@
     "seatNotAvailable": "This seat is not available for selection",
     "tableNotAvailable": "This table is not available for selection",
     "tableAlreadyTaken": "This table is out of selection"
+  },
+  "attendee404": {
+    "title": "404",
+    "subtitle": "Oops! We can't find that page.",
+    "message": "It looks like you got lost in the event schedule. Don't worry – even the most enthusiastic attendees sometimes take a wrong turn.",
+    "button": "Back to Home"
+  },
+  "organizer404": {
+    "title": "404",
+    "subtitle": "Page Not Found",
+    "message": "It looks like the page you're looking for doesn't exist. As an organizer, we know time is valuable—let's get you back to managing your event.",
+    "button": "Back to Dashboard"
+  },
+  "somethingwentwrong": {
+    "title": "Something Went Wrong",
+    "message": "We encountered an unexpected error. Please try refreshing the page or return to a safe spot in our platform.",
+    "refresh": "Refresh Page",
+    "home": "Home"
   }
 }

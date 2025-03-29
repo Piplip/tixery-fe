@@ -53,6 +53,9 @@ import dayjs from "dayjs";
 import AttendeeProfileSettings from "./component/template/AttendeeProfileSettings.jsx";
 import CreateSeatMap from "./component/organizer/CreateSeatMap.jsx";
 import {AlertProvider} from "./component/shared/AlertProvider.jsx";
+import SomethingWentWrong from "./component/shared/SomethingWentWrong.jsx";
+import Organizer404Page from "./component/organizer/Organizer404Page.jsx";
+import Attendee404Page from "./component/attendee/Attendee404Page.jsx";
 
 configureDayjs()
 
@@ -60,14 +63,15 @@ dayjs().tz(Intl.DateTimeFormat().resolvedOptions().timeZone)
 
 function App() {
     const routers = createBrowserRouter([
-        {path: '/login', element: <LoginSignUp />},
-        {path: '/sign-up', element: <LoginSignUp />},
-        {path: '/accounts/verify/success', element: <VerifyAccountSuccess />},
-        {path: '/accounts/verify/failed', element: <VerifyAccountFailed />},
+        {path: '/login', element: <LoginSignUp />, errorElement: <SomethingWentWrong />},
+        {path: '/sign-up', element: <LoginSignUp />, errorElement: <SomethingWentWrong />},
+        {path: '/accounts/verify/success', element: <VerifyAccountSuccess />, errorElement: <SomethingWentWrong />},
+        {path: '/accounts/verify/failed', element: <VerifyAccountFailed />, errorElement: <SomethingWentWrong />},
         {
             path: '/',
             element: <RootTemplate />,
             hydrateFallbackElement: <LoadingFallback />,
+            errorElement: <SomethingWentWrong />,
             children: [
                 {index: true, element: <AttendeeHome />},
                 {path: 'payment/:type', element: <PaymentResponse />},
@@ -122,12 +126,14 @@ function App() {
                     path: 'u/:id/following',
                     element: <AttendeeFollowedEvents />
                 },
+                {path: '*', element: <Attendee404Page />}
             ]
         },
         {
             path: 'online/:id/preview',
             hydrateFallbackElement: <LoadingFallback />,
             element: <OnlineEventPage preview={true}/>,
+            errorElement: <SomethingWentWrong />,
             loader: async ({ params }) => {
                 const response = await eventAxiosWithToken.get(`/get/online?eid=${params.id}`);
                 return response.data;
@@ -136,6 +142,8 @@ function App() {
         {
             path: '/u/interests',
             element: <UserCollectDataTemplate />,
+            hydrateFallbackElement: <LoadingFallback />,
+            errorElement: <SomethingWentWrong />,
             children: [
                 {index: true, element: <SelectRole />},
                 {path: 'info', element: <AttendeeCollectnfo />},
@@ -144,18 +152,22 @@ function App() {
         },
         {
             path: '/organizer/overview',
+            errorElement: <SomethingWentWrong />,
             children: [
-                {index: true, element: <OrganizerOverview />}
+                {index: true, element: <OrganizerOverview />},
+                {path: '*', element: <Organizer404Page />},
             ]
         },
         {
             path: 'event/create/auto',
-            element: <CreateEventWithAI />
+            element: <CreateEventWithAI />,
+            errorElement: <SomethingWentWrong />,
         },
         {
             path: 'create/auto/:id/preview',
             element: <AIEventPreview />,
             hydrateFallbackElement: <LoadingFallback />,
+            errorElement: <SomethingWentWrong />,
             loader: async ({ params }) => {
                 const searchParams = new URLSearchParams({
                     eid: params.id,
@@ -168,11 +180,12 @@ function App() {
                 return response.data;
             }
         },
-        {path: 'create/seat-map', element: <CreateSeatMap />},
+        {path: 'create/seat-map', element: <CreateSeatMap />, errorElement: <SomethingWentWrong />},
         {
             path: '/organizer',
             element: <OrganizerTemplate />,
             hydrateFallbackElement: <LoadingFallback />,
+            errorElement: <SomethingWentWrong />,
             children: [
                 {
                     index: true,
@@ -231,7 +244,7 @@ function App() {
                                 {index: true, element: <OrganizerTicketAdmission />}
                             ]
                         },
-                        {path: 'publish', element: <OrganizerPublishEvent />}
+                        {path: 'publish', element: <OrganizerPublishEvent />},
                     ]
                 },
                 {
@@ -252,15 +265,17 @@ function App() {
                                 }
                             ]
                         },
-                        {path: 'publish', element: <OrganizerPublishEvent />}
+                        {path: 'publish', element: <OrganizerPublishEvent />},
                     ]
-                }
+                },
+                {path: '*', element: <Organizer404Page />},
             ]
         },
         {
             path: '/o',
             element: <OrganizerViewTemplate />,
             hydrateFallbackElement: <LoadingFallback />,
+            errorElement: <SomethingWentWrong />,
             children: [
                 {
                     path: ':name', element: <OrganizerView />,
@@ -273,9 +288,11 @@ function App() {
 
                         return response.data;
                     },
-                }
+                },
+                {path: '*', element: <Organizer404Page />},
             ]
-        }
+        },
+        {path: '*', element: <Attendee404Page />, errorElement: <SomethingWentWrong />},
     ])
 
     return (
