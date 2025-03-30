@@ -53,9 +53,10 @@ import dayjs from "dayjs";
 import AttendeeProfileSettings from "./component/template/AttendeeProfileSettings.jsx";
 import CreateSeatMap from "./component/organizer/CreateSeatMap.jsx";
 import {AlertProvider} from "./component/shared/AlertProvider.jsx";
-import SomethingWentWrong from "./component/shared/SomethingWentWrong.jsx";
+import ErrorFallback from "./component/shared/ErrorFallback.jsx";
 import Organizer404Page from "./component/organizer/Organizer404Page.jsx";
 import Attendee404Page from "./component/attendee/Attendee404Page.jsx";
+import NavigationTracker from "./component/shared/NavigationTracker.js";
 
 configureDayjs()
 
@@ -63,17 +64,18 @@ dayjs().tz(Intl.DateTimeFormat().resolvedOptions().timeZone)
 
 function App() {
     const routers = createBrowserRouter([
-        {path: '/login', element: <LoginSignUp />, errorElement: <SomethingWentWrong />},
-        {path: '/sign-up', element: <LoginSignUp />, errorElement: <SomethingWentWrong />},
-        {path: '/accounts/verify/success', element: <VerifyAccountSuccess />, errorElement: <SomethingWentWrong />},
-        {path: '/accounts/verify/failed', element: <VerifyAccountFailed />, errorElement: <SomethingWentWrong />},
+        {path: '/login', element: <LoginSignUp />, errorElement: <ErrorFallback />},
+        {path: '/sign-up', element: <LoginSignUp />, errorElement: <ErrorFallback />},
+        {path: '/accounts/verify/success', element: <VerifyAccountSuccess />, errorElement: <ErrorFallback />},
+        {path: '/accounts/verify/failed', element: <VerifyAccountFailed />, errorElement: <ErrorFallback />},
         {
             path: '/',
             element: <RootTemplate />,
             hydrateFallbackElement: <LoadingFallback />,
-            errorElement: <SomethingWentWrong />,
+            errorElement: <ErrorFallback />,
             children: [
                 {index: true, element: <AttendeeHome />},
+                { path: '/error', element: <ErrorFallback /> },
                 {path: 'payment/:type', element: <PaymentResponse />},
                 {path: 'events/search', element: <EventSearch />,},
                 {path: 'favorites', element: <AttendeeFavoriteEvents />,},
@@ -133,7 +135,7 @@ function App() {
             path: 'online/:id/preview',
             hydrateFallbackElement: <LoadingFallback />,
             element: <OnlineEventPage preview={true}/>,
-            errorElement: <SomethingWentWrong />,
+            errorElement: <ErrorFallback />,
             loader: async ({ params }) => {
                 const response = await eventAxiosWithToken.get(`/get/online?eid=${params.id}`);
                 return response.data;
@@ -143,7 +145,7 @@ function App() {
             path: '/u/interests',
             element: <UserCollectDataTemplate />,
             hydrateFallbackElement: <LoadingFallback />,
-            errorElement: <SomethingWentWrong />,
+            errorElement: <ErrorFallback />,
             children: [
                 {index: true, element: <SelectRole />},
                 {path: 'info', element: <AttendeeCollectnfo />},
@@ -152,7 +154,7 @@ function App() {
         },
         {
             path: '/organizer/overview',
-            errorElement: <SomethingWentWrong />,
+            errorElement: <ErrorFallback />,
             children: [
                 {index: true, element: <OrganizerOverview />},
                 {path: '*', element: <Organizer404Page />},
@@ -161,13 +163,13 @@ function App() {
         {
             path: 'event/create/auto',
             element: <CreateEventWithAI />,
-            errorElement: <SomethingWentWrong />,
+            errorElement: <ErrorFallback />,
         },
         {
             path: 'create/auto/:id/preview',
             element: <AIEventPreview />,
             hydrateFallbackElement: <LoadingFallback />,
-            errorElement: <SomethingWentWrong />,
+            errorElement: <ErrorFallback />,
             loader: async ({ params }) => {
                 const searchParams = new URLSearchParams({
                     eid: params.id,
@@ -180,12 +182,12 @@ function App() {
                 return response.data;
             }
         },
-        {path: 'create/seat-map', element: <CreateSeatMap />, errorElement: <SomethingWentWrong />},
+        {path: 'create/seat-map', element: <CreateSeatMap />, errorElement: <ErrorFallback />},
         {
             path: '/organizer',
             element: <OrganizerTemplate />,
             hydrateFallbackElement: <LoadingFallback />,
-            errorElement: <SomethingWentWrong />,
+            errorElement: <ErrorFallback />,
             children: [
                 {
                     index: true,
@@ -275,7 +277,7 @@ function App() {
             path: '/o',
             element: <OrganizerViewTemplate />,
             hydrateFallbackElement: <LoadingFallback />,
-            errorElement: <SomethingWentWrong />,
+            errorElement: <ErrorFallback />,
             children: [
                 {
                     path: ':name', element: <OrganizerView />,
@@ -292,7 +294,8 @@ function App() {
                 {path: '*', element: <Organizer404Page />},
             ]
         },
-        {path: '*', element: <Attendee404Page />, errorElement: <SomethingWentWrong />},
+        {path: '*', element: <Attendee404Page />, errorElement: <ErrorFallback />},
+        {path: 'navigation-tracker', element: <NavigationTracker />}
     ])
 
     return (

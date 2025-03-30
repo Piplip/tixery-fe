@@ -98,10 +98,16 @@ function LoginSignUp() {
             } else {
                 setAlertMsg(t(`response-code.${res.data.message}`))
             }
-        }).catch(() => {
-            setAwaitResponse(false)
-            setAlertMsg(t('loginPage.invalidEmailPassword'));
-            resetForm()
+        }).catch((err) => {
+            setAwaitResponse(false);
+            resetForm();
+
+            sessionStorage.setItem("serverError", JSON.stringify({
+                type: "server-down",
+                message: "Service is unavailable. Please try again later."
+            }));
+
+            navigate('/error');
         })
     }
 

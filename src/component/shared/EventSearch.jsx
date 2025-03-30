@@ -90,7 +90,10 @@ function EventSearch() {
                     }, 300);
                 }
             })
-            .catch(err => console.log(err));
+            .catch(err => {
+                setIsLoading(false)
+                return Promise.reject(err)
+            });
 
         return () => {
             isCancelled = true;

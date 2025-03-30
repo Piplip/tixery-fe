@@ -4,11 +4,11 @@ import {useEffect, useRef} from "react";
 import {checkLoggedIn, getUserData} from "../../common/Utilities.js";
 import {accountAxiosWithToken, eventAxiosWithToken} from "../../config/axiosConfig.js";
 import TopDestination from "../shared/TopDestination.jsx";
+import {useNavigate} from "react-router-dom";
 
 function AttendeeHome(){
-    // TODO: handle the case where user haven't set up roles
-
     const hasCalledAPI = useRef(false)
+    const navigate = useNavigate()
 
     useEffect(() => {
         const fetchData = async () => {
@@ -21,7 +21,12 @@ function AttendeeHome(){
                 sessionStorage.setItem('liked-event', JSON.stringify(favoriteEvents.data));
                 sessionStorage.setItem('followed-organizer', JSON.stringify(followedOrganizers.data));
             } catch (err) {
-                console.log(err);
+                sessionStorage.setItem("serverError", JSON.stringify({
+                    type: "server-down",
+                    message: "Service is unavailable. Please try again later."
+                }));
+
+                navigate('/error');
             }
         };
 

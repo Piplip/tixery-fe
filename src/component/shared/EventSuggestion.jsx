@@ -61,7 +61,7 @@ function EventSuggestion({type, value, lat, lon, maxCols = 4}){
                     }, 400)
                 })
                 .catch(error => {
-                    console.log(error)
+                    setIsLoading(false)
                 })
         }
     }, [type, value]);

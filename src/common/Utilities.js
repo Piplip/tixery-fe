@@ -83,9 +83,11 @@ export function transformNumber(number){
 }
 export async function getUserLocation(){
     const data = await rootAxios.get('https://ipinfo.io/json');
-    cookie.save('user-location', {lat: data.data.loc.split(',')[0], lon: data.data.loc.split(',')[1],
-        city: data.data.city, country: data.data.country},
-        {path: '/', maxAge: 60 * 60 * 24 * 7})
+    if(data){
+        cookie.save('user-location', {lat: data.data.loc.split(',')[0], lon: data.data.loc.split(',')[1],
+                city: data.data.city, country: data.data.country},
+            {path: '/', maxAge: 60 * 60 * 24 * 7})
+    }
 }
 
 export function formatCurrency(amount, currencyCode) {

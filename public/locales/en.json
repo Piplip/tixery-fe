@@ -1132,55 +1132,6 @@
     "findMyTickets": "Find my tickets"
   },
   "footer": {
-    "useTixeryTitle": "Use Tixery",
-    "planEventsTitle": "Plan Events",
-    "findEventsTitle": "Find Events",
-    "connectWithUsTitle": "Connect With Us",
-    "useTixery": {
-      "createEvents": "Create Events",
-      "pricing": "Pricing",
-      "eventMarketingPlatform": "Event Marketing Platform",
-      "tixeryMobileApp": "Tixery Mobile Ticket App",
-      "tixeryCheckInApp": "Tixery Check-In App",
-      "tixeryAppMarketplace": "Tixery App Marketplace",
-      "eventRegistrationSoftware": "Event Registration Software",
-      "communityGuidelines": "Community Guidelines",
-      "faqs": "FAQs",
-      "sitemap": "Sitemap"
-    },
-    "planEvents": {
-      "sellTicketsOnline": "Sell Tickets Online",
-      "eventPlanning": "Event Planning",
-      "sellConcertTickets": "Sell Concert Tickets Online",
-      "eventPaymentSystem": "Event Payment System",
-      "solutionsForProfessionals": "Solutions for Professional Services",
-      "eventManagementSoftware": "Event Management Software",
-      "halloweenPartyPlanning": "Halloween Party Planning",
-      "virtualEventsPlatform": "Virtual Events Platform",
-      "qrCodesForCheckIn": "QR Codes for Event Check-In",
-      "postYourEventOnline": "Post your event online"
-    },
-    "findEvents": {
-      "newOrleansFoodDrink": "New Orleans Food & Drink Events",
-      "sanFranciscoHoliday": "San Francisco Holiday Events",
-      "tulumMusic": "Tulum Music Events",
-      "denverHobby": "Denver Hobby Events",
-      "atlantaPopMusic": "Atlanta Pop Music Events",
-      "newYorkEvents": "New York Events",
-      "chicagoEvents": "Chicago Events",
-      "dallasEventsToday": "Events in Dallas Today",
-      "losAngelesEvents": "Los Angeles Events",
-      "washingtonEvents": "Washington Events"
-    },
-    "connectWithUs": {
-      "contactSupport": "Contact Support",
-      "contactSales": "Contact Sales",
-      "x": "X",
-      "facebook": "Facebook",
-      "linkedIn": "LinkedIn",
-      "instagram": "Instagram",
-      "tiktok": "TikTok"
-    },
     "bottom": {
       "about": "About",
       "blog": "Blog",
@@ -1890,7 +1841,7 @@
   "somethingwentwrong": {
     "title": "Something Went Wrong",
     "message": "We encountered an unexpected error. Please try refreshing the page or return to a safe spot in our platform.",
-    "refresh": "Refresh Page",
+    "goback": "Go Back",
     "home": "Home"
   }
 }

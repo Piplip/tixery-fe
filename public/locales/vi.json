@@ -1125,55 +1125,6 @@
     "exploreMore": "Khám phá thêm sự kiện"
   },
   "footer": {
-    "useTixeryTitle": "Sử dụng Tixery",
-    "planEventsTitle": "Lên kế hoạch sự kiện",
-    "findEventsTitle": "Tìm Sự kiện",
-    "connectWithUsTitle": "Kết nối với chúng tôi",
-    "useTixery": {
-      "createEvents": "Tạo sự kiện",
-      "pricing": "Giá cả",
-      "eventMarketingPlatform": "Nền tảng tiếp thị Sự kiện",
-      "tixeryMobileApp": "Ứng dụng Vé Di động Tixery",
-      "tixeryCheckInApp": "Ứng dụng Check-In Tixery",
-      "tixeryAppMarketplace": "Chợ Ứng dụng Tixery",
-      "eventRegistrationSoftware": "Phần mềm Đăng ký Sự kiện",
-      "communityGuidelines": "Hướng dẫn Cộng đồng",
-      "faqs": "Câu hỏi thường gặp",
-      "sitemap": "Sơ đồ trang web"
-    },
-    "planEvents": {
-      "sellTicketsOnline": "Bán Vé Trực tuyến",
-      "eventPlanning": "Lên Kế hoạch Sự kiện",
-      "sellConcertTickets": "Bán Vé Buổi hòa nhạc Trực tuyến",
-      "eventPaymentSystem": "Hệ thống Thanh toán Sự kiện",
-      "solutionsForProfessionals": "Giải pháp cho Dịch vụ Chuyên nghiệp",
-      "eventManagementSoftware": "Phần mềm Quản lý Sự kiện",
-      "halloweenPartyPlanning": "Lên Kế hoạch Tiệc Halloween",
-      "virtualEventsPlatform": "Nền tảng Sự kiện Ảo",
-      "qrCodesForCheckIn": "Mã QR cho Check-In Sự kiện",
-      "postYourEventOnline": "Đăng sự kiện của bạn trực tuyến"
-    },
-    "findEvents": {
-      "newOrleansFoodDrink": "Sự kiện Ăn uống ở New Orleans",
-      "sanFranciscoHoliday": "Sự kiện Ngày lễ ở San Francisco",
-      "tulumMusic": "Sự kiện Âm nhạc ở Tulum",
-      "denverHobby": "Sự kiện Sở thích ở Denver",
-      "atlantaPopMusic": "Sự kiện Nhạc Pop ở Atlanta",
-      "newYorkEvents": "Sự kiện ở New York",
-      "chicagoEvents": "Sự kiện ở Chicago",
-      "dallasEventsToday": "Sự kiện ở Dallas Hôm nay",
-      "losAngelesEvents": "Sự kiện ở Los Angeles",
-      "washingtonEvents": "Sự kiện ở Washington"
-    },
-    "connectWithUs": {
-      "contactSupport": "Liên hệ Hỗ trợ",
-      "contactSales": "Liên hệ Bán hàng",
-      "x": "X",
-      "facebook": "Facebook",
-      "linkedIn": "LinkedIn",
-      "instagram": "Instagram",
-      "tiktok": "TikTok"
-    },
     "bottom": {
       "about": "Giới thiệu",
       "blog": "Blog",
@@ -1880,18 +1831,18 @@
     "title": "404",
     "subtitle": "Ôi! Chúng tôi không thể tìm thấy trang này.",
     "message": "Có vẻ như bạn đã bị lạc trong lịch trình sự kiện. Đừng lo lắng – ngay cả những người tham dự nhiệt tình nhất đôi khi cũng đi nhầm đường.",
-    "button": "Quay lại Trang Chủ"
+    "button": "Quay lại trang chủ"
   },
   "organizer404": {
     "title": "404",
     "subtitle": "Không Tìm Thấy Trang",
     "message": "Có vẻ như trang bạn đang tìm kiếm không tồn tại. Là một nhà tổ chức, chúng tôi hiểu thời gian rất quý giá—hãy đưa bạn trở lại quản lý sự kiện của mình.",
-    "button": "Quay lại Bảng Điều Khiển"
+    "button": "Quay lại bảng điều khiển"
   },
   "somethingwentwrong": {
     "title": "Có Lỗi Xảy Ra",
     "message": "Chúng tôi gặp phải lỗi không mong muốn. Vui lòng thử làm mới trang hoặc quay lại một vị trí an toàn trên nền tảng của chúng tôi.",
-    "refresh": "Làm Mới Trang",
+    "goback": "Quay lại",
     "home": "Trang Chủ"
   }
 }
