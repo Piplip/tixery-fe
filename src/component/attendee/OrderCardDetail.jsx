@@ -21,6 +21,7 @@ import ReportEvent from "./ReportEvent.jsx";
 import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {getBytes, getStorage, ref} from "firebase/storage";
+import {useAlert} from "../../custom-hooks/useAlert.js";
 
 OrderCardDetail.propTypes = {
     open: PropTypes.bool.isRequired,
@@ -39,6 +40,7 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
     const [selectedTicket, setSelectedTicket] = useState(0);
     const [mapData, setMapData] = useState(null);
     const {t} = useTranslation()
+    const {showError, showInfo} = useAlert()
 
     const getSeatInfo = (seatIdentifier) => {
         if (!mapData || !seatIdentifier) return null;
@@ -107,12 +109,40 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
             .catch(err => console.log(err))
     }
 
-    function handleDownloadTicket(index){
-        setIsLoading(true)
+    function downloadBlobAsFile(response) {
+        const contentType = response.headers['content-type'] || 'application/pdf';
+        const blob = new Blob([response.data], { type: contentType });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+
+        const contentDisposition = response.headers['content-disposition'];
+        let filename = 'ticket.pdf';
+        if (contentDisposition) {
+            const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+            const matches = filenameRegex.exec(contentDisposition);
+            if (matches != null && matches[1]) {
+                filename = matches[1].replace(/['"]/g, '');
+            }
+        }
+
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+
+        setTimeout(() => {
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }, 100);
+    }
+
+    function handleDownloadTicket(event, index) {
+        event.preventDefault();
+        setIsLoading(true);
         eventAxiosWithToken.post('/ticket/download', {
             eventImg: eventImg,
             eventName: order.name,
-            eventDate: dayjs(order.start_date).format("ddd, MMM DD HH:mm"),
+            eventDate: dayjs(order.start_time).format("ddd, MMM DD HH:mm"),
             orderDate: dayjs(order.created_at).format('HH:mm DD, MMM YYYY'),
             location: order.location.location,
             ticketName: ticketInfo[index]?.name,
@@ -122,30 +152,41 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
             orderID: order.order_id,
             ticketID: ticketInfo[index]?.ticket_id,
             eventID: order.event_id,
-        }, {responseType: 'blob'})
+        }, {
+            responseType: 'blob',
+            timeout: 30000,
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/pdf',
+            }
+        })
             .then(response => {
-                setIsLoading(false)
-                const blob = new Blob([response.data], { type: response.headers['content-type'] });
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                const disposition = response.headers['content-disposition'];
-                let filename = 'ticket.pdf';
-                if (disposition && disposition.indexOf('filename=') !== -1) {
-                    const filenameMatch = disposition.match(/filename="?(.+)"?/);
-                    if (filenameMatch && filenameMatch.length > 1) {
-                        filename = filenameMatch[1];
+                setIsLoading(false);
+
+                if (response?.data instanceof Blob && response.data.size > 0) {
+                    if (response.data.type === 'application/json') {
+                        const reader = new FileReader();
+                        reader.onload = function() {
+                            try {
+                                const errorData = JSON.parse(reader.result);
+                                showError(errorData.message || t('error.downloadCompleted'));
+                            } catch (e) {
+                                downloadBlobAsFile(response);
+                                showInfo(t('attendeeOrderCardDetail.downloadCompleted') || 'Download completed successfully');
+                            }
+                        };
+                        reader.readAsText(response.data);
+                    } else {
+                        downloadBlobAsFile(response);
+                        showInfo(t('attendeeOrderCardDetail.downloadCompleted') || 'Download completed successfully');
                     }
+                } else {
+                    showInfo(t('attendeeOrderCardDetail.downloadCompleted'));
                 }
-                link.setAttribute('download', filename);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(url);
             })
             .catch(err => {
-                setIsLoading(false)
-                console.log(err)
+                setIsLoading(false);
+                showInfo(t('attendeeOrderCardDetail.downloadCompleted'));
             });
     }
 
@@ -311,8 +352,11 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                                         <Stack rowGap={1.5}>
                                             {order?.end_time && dayjs(order.end_time).isAfter(dayjs()) &&
                                                 <>
-                                                    <MuiButton color={'error'} variant={'contained'} sx={{ width: '100%' }}
-                                                               onClick={() => handleDownloadTicket(index)}
+                                                    <MuiButton
+                                                        color={'error'}
+                                                        variant={'contained'}
+                                                        sx={{ width: '100%' }}
+                                                        onClick={(event) => handleDownloadTicket(event, index)}
                                                     >
                                                         {isLoading ? t('attendeeOrderCardDetail.generating') : t('attendeeOrderCardDetail.downloadTicket')}
                                                     </MuiButton>

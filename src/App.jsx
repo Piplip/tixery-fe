@@ -72,10 +72,9 @@ function App() {
             path: '/',
             element: <RootTemplate />,
             hydrateFallbackElement: <LoadingFallback />,
-            errorElement: <ErrorFallback />,
             children: [
                 {index: true, element: <AttendeeHome />},
-                { path: '/error', element: <ErrorFallback /> },
+                { path: 'error', element: <ErrorFallback /> },
                 {path: 'payment/:type', element: <PaymentResponse />},
                 {path: 'events/search', element: <EventSearch />,},
                 {path: 'favorites', element: <AttendeeFavoriteEvents />,},

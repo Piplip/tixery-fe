@@ -1,7 +1,13 @@
 import axios from "axios";
 import {getCookie} from "../common/Utilities.js";
 
+let isDownloadInProgress = false;
+
 const errorHandler = (error) => {
+    if (error.request?.responseType === 'blob') {
+        return Promise.reject(error);
+    }
+
     if (error.response) {
         const { status, data } = error.response;
 
@@ -191,9 +197,42 @@ eventAxiosWithToken.interceptors.response.use(
             localStorage.setItem('tk', getCookie('AUTH_TOKEN'));
             window.location.reload();
         }
+
+        if (isDownloadInProgress) {
+            isDownloadInProgress = false;
+        }
+
         return response;
     },
-    error => errorHandler(error)
+    error => {
+        if (error.request?.responseType === 'blob' &&
+            error.response?.data instanceof Blob &&
+            error.response?.status >= 200 &&
+            error.response?.status < 300) {
+
+            isDownloadInProgress = false;
+
+            return Promise.resolve({
+                data: error.response.data,
+                headers: error.response.headers,
+                status: error.response.status,
+                statusText: error.response.statusText,
+                config: error.config
+            });
+        }
+
+        if (error.request?.responseType === 'blob') {
+            isDownloadInProgress = false;
+            return Promise.reject(error);
+        }
+
+        if (isDownloadInProgress) {
+            isDownloadInProgress = false;
+            return Promise.reject(error);
+        }
+
+        return errorHandler(error);
+    }
 );
 
 eventAxiosWithToken.interceptors.request.use(
@@ -202,6 +241,12 @@ eventAxiosWithToken.interceptors.request.use(
         if (token) {
             config.headers['Authorization'] = 'Bearer ' + token;
         }
+
+        if (config.responseType === 'blob') {
+            config.headers['Accept'] = 'application/pdf';
+            isDownloadInProgress = true;
+        }
+
         return config;
     },
     error => {

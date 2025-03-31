@@ -1472,6 +1472,8 @@
     "backToOrders": "Back to Orders",
     "eventImage": "Event Image",
     "free": "Free",
+    "ticketName": "Ticket Name",
+    "downloadCompleted": "Process completed",
     "ticketPerks": "Ticket Perks",
     "seatInformation": "Seat Information",
     "noSeatInfo": "No seat information available",
@@ -1843,5 +1845,8 @@
     "message": "We encountered an unexpected error. Please try refreshing the page or return to a safe spot in our platform.",
     "goback": "Go Back",
     "home": "Home"
+  },
+  "error": {
+    "somethingWentWrong": "Something went wrong! Please try again later."
   }
 }

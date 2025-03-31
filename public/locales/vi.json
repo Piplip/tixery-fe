@@ -1409,7 +1409,9 @@
   },
   "attendeeOrderCardDetail": {
     "backToOrders": "Quay lại đơn hàng",
+    "ticketName": "Ten vé",
     "eventImage": "Hình ảnh sự kiện",
+    "downloadCompleted": "Tạo vé thành công",
     "free": "Miễn phí",
     "ticketPerks": "Quyền lợi vé",
     "seatInformation": "Thông tin chỗ ngồi",
@@ -1844,5 +1846,8 @@
     "message": "Chúng tôi gặp phải lỗi không mong muốn. Vui lòng thử làm mới trang hoặc quay lại một vị trí an toàn trên nền tảng của chúng tôi.",
     "goback": "Quay lại",
     "home": "Trang Chủ"
+  },
+  "error": {
+    "somethingWentWrong": "Có lỗi xảy ra! Vui lòng thử lại sau."
   }
 }
