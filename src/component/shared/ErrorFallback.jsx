@@ -62,7 +62,7 @@ function ErrorFallback() {
         >
             <Box
                 component="img"
-                src="https://firebasestorage.googleapis.com/v0/b/medicare-10c3b.appspot.com/o/assets%2Flogo.svg?alt=media&token=65847a28-8ce8-4a10-a88a-1a0f16c0b41f"
+                src="https://res.cloudinary.com/de25mkp9v/image/upload/v1743413016/logo_xdxerq.png"
                 alt="Event Logo"
                 sx={{ width: '200px', mb: 3, mx: 'auto' }}
             />

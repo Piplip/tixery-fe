@@ -1655,13 +1655,15 @@
     "yes": "Có"
   },
   "eventDashboard": {
+    "salesTab": "Tổng quan",
+    "attendeesTab": "Người tham dự",
     "title": "Tổng quan sự kiện",
     "eventLink": "Liên kết sự kiện",
     "copyLink": "Sao chép liên kết",
     "ticketsSold": "Vé đã bán",
     "pageViews": "Lượt xem trang",
     "salesByTicketType": "Doanh số theo loại vé",
-    "ticketType": "Loại vé",
+    "ticketType": "Tên vé",
     "sold": "Đã bán",
     "pricePerTicket": "Giá mỗi vé",
     "totalPrice": "Tổng giá",
@@ -1849,5 +1851,19 @@
   },
   "error": {
     "somethingWentWrong": "Có lỗi xảy ra! Vui lòng thử lại sau."
+  },
+  "eventAttendee": {
+    "title": "Người tham dự",
+    "searchPlaceholder": "Tìm kiếm người tham dự",
+    "ticketType": "Loại Vé",
+    "allTicketTypes": "Tất cả các loại vé",
+    "attendeesFound": "người tham dự",
+    "noAttendeesFound": "Không tìm thấy người tham dự nào",
+    "fullName": "Họ và Tên",
+    "profileName": "Tên Profile",
+    "email": "Email",
+    "phone": "SĐT",
+    "quantity": "Số Lượng",
+    "registrationDate": "Ngày Mua Vé"
   }
 }

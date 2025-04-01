@@ -97,7 +97,7 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
 
     function handleCancelOrder(){
         setIsLoading(true)
-        eventAxiosWithToken.post(`/order/cancel?` + new URLSearchParams({"order-id": order.order_id, "uname": getUserData('fullName'),
+        eventAxiosWithToken.post(`/order/cancel?` + new URLSearchParams({"pid": getUserData('profileID'),"order-id": order.order_id, "uname": getUserData('fullName'),
             "u": getUserData('sub')}))
             .then(r => {
                 console.log(r.data)
@@ -199,6 +199,7 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                         {ticketInfo?.length > 0 && ticketInfo?.map((item, index) => {
                             return (
                                 <Stack className={`${selectedTicket === index ? 'selected-ticket' : ''} order-ticket`}
+                                       style={{ transform: `translateX(${-80 * (index)}%)` }}
                                        key={index} sx={{ boxShadow: '0 0 1rem #e8e8e8', borderRadius: 5, overflow: 'hidden', width: '27.5rem' }}
                                        onClick={() => {
                                            if (selectedTicket === index) return;
@@ -382,7 +383,8 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                             )
                         })}
                     </div>
-                    <Stack flexGrow={1} rowGap={2} fontFamily={'Roboto Slab'} sx={{ transform: `translateX(-${80 * (ticketInfo?.length - 1)}%)` }}>
+                    <Stack flexGrow={1} rowGap={2} fontFamily={'Roboto Slab'}
+                           sx={{ width: '35rem', transform: `translateX(-${80 * (ticketInfo?.length >= 3 ? (ticketInfo.length + 1.75) : (ticketInfo.length - 1))}%)`}}>
                         <Typography fontWeight={'bold'} fontSize={30}>{order.name}</Typography>
                         <hr />
                         <Typography variant={'h5'}>{t('attendeeOrderCardDetail.contactInformation')}</Typography>

@@ -1655,6 +1655,8 @@
     "ja": "日本語"
   },
   "eventDashboard": {
+    "salesTab": "Sales",
+    "attendeesTab": "Event Attendees",
     "title": "Event Dashboard",
     "eventLink": "Event link",
     "copyLink": "Copy link",
@@ -1848,5 +1850,19 @@
   },
   "error": {
     "somethingWentWrong": "Something went wrong! Please try again later."
+  },
+  "eventAttendee": {
+    "title": "Attendees",
+    "searchPlaceholder": "Search attendees",
+    "ticketType": "Ticket Type",
+    "allTicketTypes": "All Ticket Types",
+    "attendeesFound": "attendees found",
+    "noAttendeesFound": "No attendees found",
+    "fullName": "Full Name",
+    "profileName": "Profile Name",
+    "email": "Email",
+    "phone": "Phone",
+    "quantity": "Quantity",
+    "registrationDate": "Registration Date"
   }
 }

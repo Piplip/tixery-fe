@@ -256,14 +256,14 @@ function OrganizerPublishEvent(){
                                         }}
                             >
                                 <FormControlLabel
-                                    value={true}
-                                    control={<Radio sx={{ marginRight: 1 }} />}
-                                    label={t('eventPublish.allowRefunds')}
-                                />
-                                <FormControlLabel
                                     value={false}
                                     control={<Radio sx={{ marginRight: 1 }} />}
                                     label={t('eventPublish.dontAllowRefunds')}
+                                />
+                                <FormControlLabel
+                                    value={true}
+                                    control={<Radio sx={{ marginRight: 1 }} />}
+                                    label={t('eventPublish.allowRefunds')}
                                 />
                             </RadioGroup>
                             {data.allowRefund &&

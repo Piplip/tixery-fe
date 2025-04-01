@@ -44,7 +44,7 @@ initializeApp(firebaseConfig);
 const storage = getStorage();
 
 moment.locales(localStorage.getItem('localce'))
-const localizer = momentLocalizer(moment);
+momentLocalizer(moment);
 
 const eventStyleGetter = (event) => {
     const backgroundColor = {

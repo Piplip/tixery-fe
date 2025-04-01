@@ -24,12 +24,12 @@ import dayjs from "dayjs";
 import SuccessAnimation from "../../animation/success-animation.json"
 import {motion} from 'framer-motion';
 import Lottie from 'react-lottie';
-import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import {useTranslation} from "react-i18next";
 import ShareDialog from "../shared/ShareDialog.jsx";
 import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {getBytes, getStorage, ref} from "firebase/storage";
+import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 
 const checkboxStyle = {
     sx: {
@@ -451,7 +451,15 @@ function CreateEvent() {
                             const jsonData = JSON.parse(jsonStr);
 
                             if (jsonData.tierData && Array.isArray(jsonData.tierData)) {
-                                return jsonData.tierData
+                                return jsonData.tierData.map(tier => {
+                                    if (tier.perks && Array.isArray(tier.perks)) {
+                                        return {
+                                            ...tier,
+                                            perks: tier.perks.join(',')
+                                        };
+                                    }
+                                    return tier;
+                                });
                             }
                         })
                         .catch(err => {
@@ -461,7 +469,7 @@ function CreateEvent() {
 
                 payload = {
                     type: eventData.type, category: eventData.category, subCategory: eventData.subCategory,
-                    tags: eventData?.tags ? eventData.tags.split(',') : null, eventVisibility: eventData.eventVisibility,
+                    tags: eventData?.tags ? eventData.tags.split(',') : [], eventVisibility: eventData.eventVisibility,
                     allowRefund: eventData.allowRefund, daysForRefund: eventData.daysForRefund, automatedRefund: eventData.automatedRefund,
                     publishType: eventData.publishType, publishDate: eventData.publishDate, publishTime: eventData.publishTime,
                     timezone: eventData.timezone, capacity: eventData.capacity, reserveSeating: eventData.reserveSeating, tierData
@@ -469,7 +477,7 @@ function CreateEvent() {
                 break;
             }
         }
-
+        console.log(payload)
         eventAxiosWithToken.post(`/create?step=${currentStep}&eid=${location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3]}`, payload)
             .then(r => {
                 if(r.data.status === 'OK'){

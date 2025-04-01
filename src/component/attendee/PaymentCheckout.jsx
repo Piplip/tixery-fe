@@ -66,12 +66,15 @@ function PaymentCheckout({total, currency, eventName, eventID, tickets, quantiti
             profileID: getUserData('profileID'),
             eventID: eventID,
             username: getUserData('fullName'),
-            tickets: tickets.filter((ticket, originalIndex) => quantities[originalIndex] !== 0)
-                .map((ticket) => ({
-                    ticketTypeID: ticket.ticket_type_id,
-                    quantity: quantities[tickets.indexOf(ticket)],
-                    price: ticket.price * quantities[tickets.indexOf(ticket)]
-                }))
+            tickets: tickets.filter((ticket, index) => quantities[index] !== 0)
+                .map((ticket, index, filteredArray) => {
+                    const originalIndex = tickets.findIndex(t => t === ticket);
+                    return {
+                        ticketTypeID: ticket.ticket_type_id,
+                        quantity: quantities[originalIndex],
+                        price: ticket.price * quantities[originalIndex]
+                    };
+                })
         }
         const isReserve = tierTicketIDs && tierTicketIDs.length > 0
 
@@ -80,12 +83,13 @@ function PaymentCheckout({total, currency, eventName, eventID, tickets, quantiti
         }
 
         eventAxiosWithToken.post(`/payment/stripe/checkout?reserve=${isReserve}`, payload).then(response => {
+            console.log(response.data)
             if(response.data.status === 'success'){
                 window.location.href = response.data.sessionURL
             }
             else{
                 setIsLoading(false)
-                alert(response.statusText)
+                showError(t('paymentCheckout.paymentError'));
             }
         }).catch(error => {
             setIsLoading(false)
