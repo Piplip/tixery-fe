@@ -3,6 +3,7 @@ import {Outlet} from "react-router-dom";
 import RootFooter from "../shared/RootFooter.jsx";
 import {useEffect, useState} from "react";
 import {checkLoggedIn, clearCookie, getCookie} from "../../common/Utilities.js";
+import {Stack} from "@mui/material";
 
 function RootTemplate(){
     const [isLoggedIn, setIsLoggedIn] = useState(checkLoggedIn())
@@ -18,11 +19,13 @@ function RootTemplate(){
     }, [])
 
     return (
-        <>
+        <Stack sx={{minHeight: '100vh'}}>
             <TopNav enableScrollEffect={true} isLoggedIn={isLoggedIn}/>
-            <Outlet />
+            <div style={{flexGrow: 1}}>
+                <Outlet />
+            </div>
             <RootFooter />
-        </>
+        </Stack>
     )
 }
 

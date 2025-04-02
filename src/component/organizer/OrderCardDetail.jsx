@@ -197,7 +197,8 @@ function OrderCardDetail({open, handleClose, data}){
                             <Typography variant="body1">
                                 {data.order.payment_method &&
                                     <>
-                                        {t('orderCardDetail.paymentMethod')}: <span style={{textTransform: 'capitalize'}}>{data.order.payment_method}</span>
+                                        {t('orderCardDetail.paymentMethod')}: <span style={{textTransform: 'capitalize'}}>
+                                        {t(`paymentCheckout.${data.order.payment_method}`)}</span>
                                     </>
                                 }
                             </Typography>

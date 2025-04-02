@@ -102,13 +102,30 @@ function OrganizerPublishEvent(){
                                 <Stack direction={'row'} justifyContent={'space-between'}>
                                     <div className="event-publish__info">
                                         <span><BookOnlineIcon />
-                                            {data?.tickets ?
-                                                data.tickets[0]?.price > 0 ? formatCurrency(data.tickets[0]?.price, data.tickets[0]?.currency)
-                                                    : data.tickets[0]?.ticketType === 'free' ? t('eventPublish.free') : t('eventPublish.donation')
+                                            {data?.reserveSeating ?
+                                                data?.tickets?.length > 0 &&
+                                                        data.tickets.flatMap(ticket =>
+                                                            ticket.tierData?.map(tier => tier.price) || []
+                                                        ).filter(price => price > 0).length > 0 ?
+                                                            formatCurrency(Math.min(...data.tickets.flatMap(ticket =>
+                                                                ticket.tierData?.map(tier => tier.price) || []
+                                                            ).filter(price => price > 0)), data.tickets[0]?.currency) : '---'
                                                 :
-                                                '---'
-                                            }
-                                        </span>
+                                                data?.tickets?.length > 0 ?
+                                                    (data.tickets.some(ticket => ticket.ticketType === 'free') ?
+                                                            t('eventPublish.free') :
+                                                            data.tickets.some(ticket => ticket.ticketType === 'donation') ?
+                                                                t('eventPublish.donation') :
+                                                                data.tickets.some(ticket => ticket.price > 0) ?
+                                                                    formatCurrency(Math.min(...data.tickets
+                                                                            .filter(ticket => ticket.price > 0)
+                                                                            .map(ticket => ticket.price)),
+                                                                        data.tickets.find(ticket => ticket.price > 0)?.currency
+                                                                    ) :
+                                                                    '---'
+                                                    ) :
+                                                    '---'
+                                            }                                        </span>
                                         <span><PersonIcon />{data?.capacity || '---'}</span>
                                     </div>
                                     <Link to="/preview" className="event-publish__preview">

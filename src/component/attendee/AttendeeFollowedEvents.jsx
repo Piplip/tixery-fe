@@ -24,14 +24,14 @@ function AttendeeFollowedEvents(){
     }, []);
 
     return (
-        <Stack sx={{ padding: '7.5rem 10%' }} rowGap={3}>
+        <Stack sx={{ padding: '7.5rem 10%', minHeight: '100%'}} rowGap={3}>
             <Stack direction={'row'} columnGap={2} alignItems={'center'}>
                 <IconButton onClick={() => navigate(-1)}>
                     <ArrowBackIcon />
                 </IconButton>
                 <Typography fontSize={'1.8rem'} fontWeight={'bold'}>{t('followedEvents.eventsFromFollowedOrganizers')}</Typography>
             </Stack>
-            <Stack rowGap={3}>
+            <Stack rowGap={3} flexGrow={1}>
                 {followedEvents?.length > 0 ?
                     followedEvents.map((event, index) => {
                         return (

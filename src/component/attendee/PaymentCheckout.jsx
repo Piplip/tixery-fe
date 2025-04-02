@@ -21,6 +21,7 @@ import {Link} from "react-router-dom";
 import dayjs from "dayjs";
 import {useTranslation} from "react-i18next";
 import {useAlert} from "../../custom-hooks/useAlert.js";
+import GooglePayButton from "@google-pay/button-react";
 
 PaymentCheckout.propTypes = {
     total: PropTypes.number,
@@ -29,14 +30,15 @@ PaymentCheckout.propTypes = {
     eventID: PropTypes.string,
     tickets: PropTypes.array,
     quantities: PropTypes.object,
-    tierTicketIDs: PropTypes.array
+    tierTicketIDs: PropTypes.array,
+    resetState: PropTypes.func
 }
 
-function PaymentCheckout({total, currency, eventName, eventID, tickets, quantities, tierTicketIDs}){
+function PaymentCheckout({total, currency, eventName, eventID, tickets, quantities, tierTicketIDs, resetState}){
     const [isLoading, setIsLoading] = useState(false);
     const [selectedMethod, setSelectedMethod] = useState('credit-card');
     const {t} = useTranslation()
-    const {showError} = useAlert()
+    const {showError, showSuccess} = useAlert()
 
     const [preferences, setPreferences] = useState({
         organizer_pay_update: true,
@@ -67,7 +69,7 @@ function PaymentCheckout({total, currency, eventName, eventID, tickets, quantiti
             eventID: eventID,
             username: getUserData('fullName'),
             tickets: tickets.filter((ticket, index) => quantities[index] !== 0)
-                .map((ticket, index, filteredArray) => {
+                .map((ticket) => {
                     const originalIndex = tickets.findIndex(t => t === ticket);
                     return {
                         ticketTypeID: ticket.ticket_type_id,
@@ -91,10 +93,57 @@ function PaymentCheckout({total, currency, eventName, eventID, tickets, quantiti
                 setIsLoading(false)
                 showError(t('paymentCheckout.paymentError'));
             }
-        }).catch(error => {
+        }).catch(() => {
             setIsLoading(false)
             showError(t('paymentCheckout.paymentError'));
         })
+    }
+
+    function handleGooglePayment(paymentData) {
+        setIsLoading(true);
+        collectData(eventID, 'purchase', total);
+        accountAxiosWithToken.post(`/notification/preferences/update?pid=${getUserData('profileID')}&role=${getUserData('role')}`, preferences)
+            .catch(error => console.log(error));
+
+        let payload = {
+            amount: total*100,
+            email: getUserData('sub'),
+            currency: currency,
+            quantity: 1,
+            name: `Tickets for ${eventName} - Tixery Event - ${dayjs().format("HH:mm DD/MM/YYYY")}`,
+            userID: getUserData('userID'),
+            profileID: getUserData('profileID'),
+            eventID: eventID,
+            username: getUserData('fullName'),
+            tickets: tickets.filter((ticket, index) => quantities[index] !== 0)
+                .map((ticket) => {
+                    const originalIndex = tickets.findIndex(t => t === ticket);
+                    return {
+                        ticketTypeID: ticket.ticket_type_id,
+                        quantity: quantities[originalIndex],
+                        price: ticket.price * quantities[originalIndex]
+                    };
+                }),
+            googlePaymentData: paymentData
+        };
+
+        const isReserve = tierTicketIDs && tierTicketIDs.length > 0;
+        if(isReserve){
+            payload = {...payload, tierTicketIDs: tierTicketIDs};
+        }
+
+        eventAxiosWithToken.post(`/payment/google-pay/checkout?reserve=${isReserve}`, payload).then(response => {
+            if(response.data.status === 'OK'){
+                resetState()
+                showSuccess(t('paymentCheckout.paymentSuccess'));
+            } else {
+                setIsLoading(false);
+                showSuccess(t('paymentCheckout.paymentError'));
+            }
+        }).catch(() => {
+            setIsLoading(false);
+            showError(t('paymentCheckout.paymentError'));
+        });
     }
 
     return (
@@ -139,7 +188,9 @@ function PaymentCheckout({total, currency, eventName, eventID, tickets, quantiti
                             <img src={StripeIcon} alt={'stripe'} />
                             <Typography fontWeight={'bold'} fontSize={'1.1rem'}>Stripe</Typography>
                         </Stack>
-                        <Stack direction={'row'} columnGap={2} alignItems={'center'} className={'payment-method'}>
+                        <Stack direction={'row'} columnGap={2} alignItems={'center'} className={'payment-method'}
+                            onClick={() => setSelectedMethod('google-pay')}
+                        >
                             <img src={GooglePayIcon} alt={'google pay'} />
                             <Typography fontWeight={'bold'} fontSize={'1.1rem'}>Google Pay</Typography>
                         </Stack>
@@ -155,7 +206,46 @@ function PaymentCheckout({total, currency, eventName, eventID, tickets, quantiti
                             selectedMethod === 'credit-card' ?
                                 <button className={'pay-btn'}>{t('paymentCheckout.placeOrder')}</button>
                                 :
-                                <button className={'pay-btn google-pay-btn'}>Google Pay</button>
+                                <GooglePayButton
+                                    style={{height: '3rem'}}
+                                    environment={"TEST"}
+                                    buttonSizeMode={"fill"}
+                                    paymentRequest={{
+                                        apiVersion: 2,
+                                        apiVersionMinor: 0,
+                                        allowedPaymentMethods: [
+                                            {
+                                                type: 'CARD',
+                                                parameters: {
+                                                    allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+                                                    allowedCardNetworks: ['MASTERCARD', 'VISA']
+                                                },
+                                                tokenizationSpecification: {
+                                                    type: 'PAYMENT_GATEWAY',
+                                                    parameters: {
+                                                        gateway: 'example',
+                                                        gatewayMerchantId: 'exampleGatewayMerchantId'
+                                                    }
+                                                }
+                                            },
+                                        ],
+                                        merchantInfo: {
+                                            merchantId: '01234567890123456789',
+                                            merchantName: 'Tixery'
+                                        },
+                                        transactionInfo: {
+                                            totalPriceStatus: 'FINAL',
+                                            totalPriceLabel: t('paymentCheckout.total'),
+                                            totalPrice: `${total}`,
+                                            currencyCode: currency,
+                                            countryCode: 'US'
+                                        }
+                                    }}
+                                    onLoadPaymentData={handleGooglePayment}
+                                    onError={() => {
+                                        showError(t('paymentCheckout.paymentError'));
+                                    }}
+                                />
                         }
                     </Stack>
                 </Stack>

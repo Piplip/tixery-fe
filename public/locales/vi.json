@@ -813,7 +813,7 @@
   "organizerNavBar": {
     "home": "Trang chủ",
     "events": "Sự kiện",
-    "orders": "Đơn hàng",
+    "orders": "Đơn đặt vé",
     "marketing": "Tiếp thị",
     "reporting": "Báo cáo",
     "finance": "Tài chính",
@@ -1173,6 +1173,9 @@
     "noPerkInfo": "Không có thông tin quyền lợi."
   },
   "eventRegistration": {
+    "availableQuantity": "Số vé còn lại: {{quantity}}",
+    "soldOut": "Đã hết vé",
+    "saleEndingIn": "Kết thúc bán trong {{hours}} tiếng nữa",
     "startsOn": "Bắt đầu vào",
     "selectAtLeastOneTicket": "Vui lòng chọn ít nhất một vé để tiếp tục.",
     "freeCheckoutSuccess": "Đơn hàng của bạn đã được đặt thành công!",
@@ -1180,7 +1183,7 @@
     "promoCode": "Mã khuyến mãi",
     "apply": "Áp dụng",
     "donationAmount": "Số tiền quyên góp",
-    "salesEndAt": "Bán kết thúc lúc",
+    "salesEndAt": "Kết thúc bán vào",
     "checkout": "Thanh toán",
     "orderSummary": "Tóm tắt đơn hàng",
     "subtotal": "Tổng phụ",
@@ -1337,7 +1340,7 @@
       "featureAnnouncement": "Cập nhật về các tính năng và thông báo mới của Tixery",
       "additionalInfo": "Yêu cầu thông tin bổ sung về một sự kiện sau khi bạn đã tham dự",
       "organizerAnnounces": "Khi một nhà tổ chức bạn theo dõi thông báo một sự kiện mới",
-      "eventOnSales": "Lời nhắc về các sự kiện đang bán",
+      "eventOnSales": "Lời nhắc về các sự kiện đang mở bán",
       "likedEvents": "Lời nhắc về các sự kiện tôi đã thích"
     },
     "organizing": {
@@ -1409,7 +1412,7 @@
   },
   "attendeeOrderCardDetail": {
     "backToOrders": "Quay lại đơn hàng",
-    "ticketName": "Ten vé",
+    "ticketName": "Tên vé",
     "eventImage": "Hình ảnh sự kiện",
     "downloadCompleted": "Tạo vé thành công",
     "free": "Miễn phí",
@@ -1458,7 +1461,10 @@
     "placeOrder": "Thanh toán",
     "poweredBy": "Được cung cấp bởi",
     "ticketsForEvent": "Vé cho {{eventName}} - Sự kiện Tixery - ",
-    "paymentError": "Thanh toán không thành công. Vui lòng thử lại sau vài phút."
+    "paymentError": "Thanh toán không thành công. Vui lòng thử lại sau vài phút.",
+    "paymentSuccess": "Thanh toán thành công.",
+    "stripe": "Stripe",
+    "google-pay": "Google Pay"
   },
   "createSeatMap": {
     "tool": {
@@ -1865,5 +1871,27 @@
     "phone": "SĐT",
     "quantity": "Số Lượng",
     "registrationDate": "Ngày Mua Vé"
+  },
+  "attendeeEmail": {
+    "sendEmail": "Gửi Email",
+    "composeEmail": "Gửi Email cho người tham dự",
+    "recipients": "Người nhận",
+    "allAttendees": "Tất cả người tham dự",
+    "currentFiltered": "Người tham dự đang được lọc",
+    "ticketTypeFiltered": "Người tham dự có vé {{type}}",
+    "selectedAttendees": "Người tham dự được chọn ({{count}})",
+    "recipientCount": "{{count}} Người nhận",
+    "subject": "Tiêu đề",
+    "message": "Nội dung",
+    "subjectRequired": "Yêu cầu tiêu đề",
+    "contentRequired": "Yêu cầu nội dung email",
+    "emailSent": "Email đã được gửi đến {{count}} người nhận",
+    "sendError": "Gửi email thất bại",
+    "sending": "Đang gửi...",
+    "send": "Gửi",
+    "cancel": "Hủy",
+    "byTicketTypes": "Theo loại vé",
+    "selectTicketTypes": "Chọn loại vé:",
+    "selectAtLeastOne": "Vui lòng chọn ít nhất một loại vé"
   }
 }

@@ -4,8 +4,9 @@ import { eventAxiosWithToken } from "../../config/axiosConfig.js";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
     TextField, InputAdornment, Typography, Box, FormControl, InputLabel, Select,
-    MenuItem, Pagination, CircularProgress, TableSortLabel, Chip
+    MenuItem, Pagination, CircularProgress, TableSortLabel, Chip, Checkbox
 } from "@mui/material";
+import AttendeeEmailDialog from "./AttendeeEmailDialog.jsx";
 import SearchIcon from "@mui/icons-material/Search";
 import dayjs from "dayjs";
 import { useTranslation } from 'react-i18next';
@@ -23,6 +24,7 @@ function EventAttendee({ eventID }) {
     const [page, setPage] = useState(1);
     const [orderBy, setOrderBy] = useState("registration_date");
     const [order, setOrder] = useState("desc");
+    const [selectedAttendees, setSelectedAttendees] = useState([])
     const rowsPerPage = 10;
 
     useEffect(() => {
@@ -94,11 +96,28 @@ function EventAttendee({ eventID }) {
             });
     }, [uniqueAttendees, searchTerm, ticketFilter, orderBy, order]);
 
-    // Paginate results
     const paginatedAttendees = useMemo(() => {
         const startIndex = (page - 1) * rowsPerPage;
         return filteredAttendees.slice(startIndex, startIndex + rowsPerPage);
     }, [filteredAttendees, page]);
+
+    const handleSelectAttendee = (profileId) => {
+        if (selectedAttendees.includes(profileId)) {
+            setSelectedAttendees(selectedAttendees.filter(id => id !== profileId));
+        } else {
+            setSelectedAttendees([...selectedAttendees, profileId]);
+        }
+    };
+
+    const handleSelectAll = (event) => {
+        if (event.target.checked) {
+            const newSelected = paginatedAttendees.map(a => a.profile_id);
+            setSelectedAttendees([...new Set([...selectedAttendees, ...newSelected])]);
+        } else {
+            const pageIds = paginatedAttendees.map(a => a.profile_id);
+            setSelectedAttendees(selectedAttendees.filter(id => !pageIds.includes(id)));
+        }
+    };
 
     return (
         <Box>
@@ -134,6 +153,16 @@ function EventAttendee({ eventID }) {
                         ))}
                     </Select>
                 </FormControl>
+
+                <Box sx={{ display: "flex", ml: "auto" }}>
+                    <AttendeeEmailDialog
+                        attendees={uniqueAttendees}
+                        ticketTypes={ticketTypes}
+                        ticketFilter={ticketFilter}
+                        selectedAttendees={selectedAttendees}
+                        eventID={eventID}
+                    />
+                </Box>
             </Box>
 
             <Box mb={2}>
@@ -157,6 +186,19 @@ function EventAttendee({ eventID }) {
                         <Table sx={{ minWidth: 650 }}>
                             <TableHead>
                                 <TableRow>
+                                    <TableCell padding="checkbox">
+                                        <Checkbox
+                                            indeterminate={
+                                                paginatedAttendees.some(a => selectedAttendees.includes(a.profile_id)) &&
+                                                !paginatedAttendees.every(a => selectedAttendees.includes(a.profile_id))
+                                            }
+                                            checked={
+                                                paginatedAttendees.length > 0 &&
+                                                paginatedAttendees.every(a => selectedAttendees.includes(a.profile_id))
+                                            }
+                                            onChange={handleSelectAll}
+                                        />
+                                    </TableCell>
                                     <TableCell>
                                         <TableSortLabel
                                             active={orderBy === "fullName"}
@@ -164,15 +206,6 @@ function EventAttendee({ eventID }) {
                                             onClick={() => handleSort("fullName")}
                                         >
                                             {t('eventAttendee.fullName')}
-                                        </TableSortLabel>
-                                    </TableCell>
-                                    <TableCell>
-                                        <TableSortLabel
-                                            active={orderBy === "profileName"}
-                                            direction={orderBy === "profileName" ? order : "asc"}
-                                            onClick={() => handleSort("profileName")}
-                                        >
-                                            {t('eventAttendee.profileName')}
                                         </TableSortLabel>
                                     </TableCell>
                                     <TableCell>{t('eventAttendee.email')}</TableCell>
@@ -209,8 +242,13 @@ function EventAttendee({ eventID }) {
                             <TableBody>
                                 {paginatedAttendees.map((attendee, index) => (
                                     <TableRow key={index} hover>
+                                        <TableCell padding="checkbox">
+                                            <Checkbox
+                                                checked={selectedAttendees.includes(attendee.profile_id)}
+                                                onChange={() => handleSelectAttendee(attendee.profile_id)}
+                                            />
+                                        </TableCell>
                                         <TableCell>{attendee.fullName}</TableCell>
-                                        <TableCell>{attendee.profileName}</TableCell>
                                         <TableCell>{attendee.email}</TableCell>
                                         <TableCell>{attendee.phoneNumber}</TableCell>
                                         <TableCell>{attendee.ticket_name}</TableCell>

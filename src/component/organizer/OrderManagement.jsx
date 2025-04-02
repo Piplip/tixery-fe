@@ -89,10 +89,6 @@ function OrderManagement(){
             <Typography fontSize={'3.5rem'} fontFamily={'Raleway'} fontWeight={700} gutterBottom>
                 {t('orderManagement.title')}
             </Typography>
-            <Typography mb={2} fontFamily={'Raleway'}>
-                {t('orderManagement.description')}
-                <Link to="#" className={'link'}>{t('orderManagement.ordersReport')}</Link>.
-            </Typography>
             <Stack rowGap={2}>
                 <Stack direction={'row'} columnGap={1}>
                     <TextField sx={{ width: '30%' }}

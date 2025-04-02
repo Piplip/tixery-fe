@@ -20,7 +20,7 @@
     cursor: pointer;
     font-size: 1.15rem;
     font-weight: bold;
-    width: 30rem;
+    width: 100%;
     font-family: "Microsoft Tai Le", sans-serif;
 }
 .pay-btn:hover{

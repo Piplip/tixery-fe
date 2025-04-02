@@ -51,7 +51,6 @@ function OrganizerCreateTicket() {
 
     const tabs = [
         { label: t('organizerCreateTicket.admission'), to: '' },
-        { label: t('organizerCreateTicket.addOns'), to: 'add-ons' },
         { label: t('organizerCreateTicket.promotions'), to: 'promotions' },
         { label: t('organizerCreateTicket.settings'), to: 'settings' },
     ];

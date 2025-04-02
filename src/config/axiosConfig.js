@@ -4,6 +4,10 @@ import {getCookie} from "../common/Utilities.js";
 let isDownloadInProgress = false;
 
 const errorHandler = (error) => {
+    if (error.config.url === "/attendees/email" && error.response?.status === 404) {
+        return Promise.reject(error);
+    }
+
     if (error.request?.responseType === 'blob') {
         return Promise.reject(error);
     }

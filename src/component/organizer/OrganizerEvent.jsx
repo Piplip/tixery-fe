@@ -44,7 +44,7 @@ initializeApp(firebaseConfig);
 const storage = getStorage();
 
 moment.locales(localStorage.getItem('localce'))
-momentLocalizer(moment);
+const localizer = momentLocalizer(moment);
 
 const eventStyleGetter = (event) => {
     const backgroundColor = {
@@ -490,13 +490,6 @@ function OrganizerEvent() {
                     views={['month', 'week', 'day']}
                 />
             )}
-            {(events.length > 0 || pastEvents.length > 0) &&
-                <div className="event-list__footer">
-                    <a href="#" className="event-list__export-link">
-                        {t('eventList.csvExport')}
-                    </a>
-                </div>
-            }
             <Dialog onClose={() => setOpen(false)} open={open} maxWidth={"md"}>
                 <DialogTitle sx={{ marginTop: 2, fontSize: '1.75rem', padding: '.25rem 1.5rem 0', textAlign: 'center' }}>
                     {t('eventList.createNewEvent')}

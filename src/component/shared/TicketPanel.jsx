@@ -1,5 +1,5 @@
 import {
-    Button,
+    Button, Chip,
     Dialog,
     DialogActions,
     DialogContent,
@@ -117,7 +117,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
                 columnGap={1.5}>
                 <div
                     className={`event-view__quantity-button ${
-                        quantity === 0 ? "disabled" : ""
+                        quantity === 0 || tickets[index].available_quantity === 0 ? "disabled" : ""
                     }`}
                     onClick={() => quantity > 0 &&  handleQuantityChange(index, "subtract")}
                 >
@@ -126,7 +126,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
                 <div className={"event-view__quantity-value"}>{quantity}</div>
                 <div
                     className={`event-view__quantity-button ${
-                        quantity >= tickets[index].max_per_order ? "disabled" : ""
+                        quantity >= tickets[index].max_per_order || tickets[index].available_quantity === 0 ? "disabled" : ""
                     }`}
                     onClick={() => quantity < tickets[index].max_per_order && handleQuantityChange(index, "add")}
                 >
@@ -248,7 +248,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
                         price: ticket.price * quantities[tickets.indexOf(ticket)]
                     }))
             }
-        ).catch(error => {
+        ).catch(() => {
             setIsLoading(false)
             alert(t('paymentCheckout.paymentError'));
         })
@@ -328,6 +328,21 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
                 }
             })
             .catch(err => console.log(err))
+    }
+
+    function resetState() {
+        setTotalPrice(0);
+        setStep(1);
+        setExpandedTickets({});
+        setCoupon('');
+        setPrices(tickets?.map((ticket) => ticket.price || 0) || []);
+        setTotalDonationPrice(0);
+        setQuantities(tickets?.reduce((acc, _, index) => ({ ...acc, [index]: 0 }), {}) || {});
+        setAppliedCoupon({});
+        setSelectedObject([]);
+        setTierTicketIDs([]);
+        setIsLoading(false);
+        setOpen(false)
     }
 
     return (
@@ -433,10 +448,23 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
                                                         </>
                                                     )}
                                                     <Stack paddingBlock={1}>
-                                                        <Typography variant={'h6'} sx={{ textTransform: 'capitalize' }}>
-                                                            {ticket.ticket_type === 'paid' ? `${ticket.currency.symbol !== "null" ? ticket.currency.symbol : ''}${ticket.price}` : ticket.ticket_type}
+                                                        <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
+                                                            <Typography variant={'h6'} sx={{ textTransform: 'capitalize' }}>
+                                                                {ticket.ticket_type === 'paid' ? `${ticket.currency.symbol !== "null" ? ticket.currency.symbol : ''}${ticket.price}` : ticket.ticket_type}
+                                                            </Typography>
+                                                            <Chip sx={{fontWeight: 'bold', fontSize: 16}}
+                                                                  label={ticket.available_quantity === 0 ?
+                                                                      t('eventRegistration.soldOut')
+                                                                      :
+                                                                      t('eventRegistration.availableQuantity', {quantity: ticket.available_quantity})}/>
+                                                        </Stack>
+                                                        <Typography variant={'body2'}>
+                                                            {dayjs(ticket.sale_end_time).diff(dayjs(), 'hour') < 24 ?
+                                                                t('eventRegistration.saleEndingIn', {hours: dayjs(ticket.sale_end_time).diff(dayjs(), 'hour')})
+                                                                :
+                                                                t('eventRegistration.salesEndAt') + ' ' + dayjs(ticket.sale_end_time).format("HH:mm DD MMM YYYY")
+                                                            }
                                                         </Typography>
-                                                        <Typography variant={'body2'}>{t('eventRegistration.salesEndAt')} {dayjs(ticket.sale_end_time).format("HH:mm DD MMM YYYY")}</Typography>
                                                     </Stack>
                                                 </Stack>
                                             )
@@ -448,7 +476,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
                                 }
                             </Stack>
                             :
-                            <PaymentCheckout
+                            <PaymentCheckout resetState={resetState}
                                 tierTicketIDs={tierTicketIDs}
                                 total={totalPrice - (appliedCoupon?.amount ? totalPrice * appliedCoupon.amount / 100 : 0)}
                                 currency={tickets[0]?.currency?.currency}

@@ -42,6 +42,8 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
     const {t} = useTranslation()
     const {showError, showInfo} = useAlert()
 
+    console.log(ticketInfo)
+
     const getSeatInfo = (seatIdentifier) => {
         if (!mapData || !seatIdentifier) return null;
 

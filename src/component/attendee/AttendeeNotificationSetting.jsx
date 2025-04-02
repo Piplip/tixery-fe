@@ -16,7 +16,6 @@ function AttendeeNotificationSetting(){
     const labels = {
         attending: {
             feature_announcement: t('attendeeNotificationSetting.attending.featureAnnouncement'),
-            additional_info: t('attendeeNotificationSetting.attending.additionalInfo'),
             organizer_announces: t('attendeeNotificationSetting.attending.organizerAnnounces'),
             event_on_sales: t('attendeeNotificationSetting.attending.eventOnSales'),
             liked_events: t('attendeeNotificationSetting.attending.likedEvents'),
@@ -42,12 +41,10 @@ function AttendeeNotificationSetting(){
         if(preferences.attending === undefined){
             accountAxiosWithToken.get(`/notification/preferences?pid=${pid}`)
                 .then(r => {
-                    console.log(r.data)
                     setPreferences(prev => ({
                         ...prev,
                         attending: {
                             feature_announcement: r.data.feature_announcement,
-                            additional_info: r.data.additional_info,
                             organizer_announces: r.data.organizer_announces,
                             event_on_sales: r.data.event_on_sales,
                             liked_events: r.data.liked_events,

@@ -30,7 +30,6 @@ function AttendeeProfileSettings() {
     const links = [
         { to: '', labelKey: 'attendeeProfileSettings.contactInfo' },
         { to: 'password', labelKey: 'attendeeProfileSettings.password' },
-        { to: 'credit-card', labelKey: 'attendeeProfileSettings.creditDebitCards' },
         { to: 'email-preferences', labelKey: 'attendeeProfileSettings.emailPreferences' },
         { to: 'personal-info', labelKey: 'attendeeProfileSettings.personalData' },
     ];

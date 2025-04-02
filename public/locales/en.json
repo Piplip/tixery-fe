@@ -1180,6 +1180,9 @@
     "noPerkInfo": "No perk information available."
   },
   "eventRegistration": {
+    "availableQuantity": "{{quantity}} Remaining",
+    "soldOut": "Sold out",
+    "saleEndingIn": "Sale ending in {{hours}} hours",
     "startsOn": "Starts on",
     "selectAtLeastOneTicket": "Please select at least one ticket to proceed.",
     "freeCheckoutSuccess": "Your order has been placed successfully!",
@@ -1519,7 +1522,10 @@
     "placeOrder": "Place Order",
     "poweredBy": "Powered by",
     "ticketsForEvent": "Tickets for {{eventName}} - Tixery Event - ",
-    "paymentError": "Payment failed. Please try again in a few minutes."
+    "paymentError": "Payment failed. Please try again in a few minutes.",
+    "paymentSuccess": "Payment successfully.",
+    "stripe": "Stripe",
+    "google-pay": "Google Pay"
   },
   "response-code": {
     "ACLG_001": "Account not found",
@@ -1864,5 +1870,27 @@
     "phone": "Phone",
     "quantity": "Quantity",
     "registrationDate": "Registration Date"
+  },
+  "attendeeEmail": {
+    "sendEmail": "Send Email",
+    "composeEmail": "Compose Email",
+    "recipients": "Recipients",
+    "allAttendees": "All Attendees",
+    "currentFiltered": "Current Filtered Attendees",
+    "ticketTypeFiltered": "Attendees with {{type}} ticket",
+    "selectedAttendees": "Selected Attendees ({{count}})",
+    "recipientCount": "{{count}} Recipients",
+    "subject": "Subject",
+    "message": "Message",
+    "subjectRequired": "Subject is required",
+    "contentRequired": "Email content is required",
+    "emailSent": "Email sent to {{count}} recipients",
+    "sendError": "Failed to send email",
+    "sending": "Sending...",
+    "send": "Send",
+    "cancel": "Cancel",
+    "byTicketTypes": "By ticket types",
+    "selectTicketTypes": "Select ticket types:",
+    "selectAtLeastOne": "Please select at least one ticket type"
   }
 }
