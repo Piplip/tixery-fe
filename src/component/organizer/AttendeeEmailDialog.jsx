@@ -247,7 +247,8 @@ function AttendeeEmailDialog({ attendees, ticketTypes, selectedAttendees }) {
                         onClick={handleSendEmail}
                         variant="contained"
                         color="primary"
-                        disabled={loading || getRecipientCount() === 0 || (selectionMode === "byticket" && selectedTicketTypes.length === 0)}
+                        disabled={loading || getRecipientCount() === 0 || (selectionMode === "byticket" && selectedTicketTypes.length === 0)
+                        || emailContent.trim() === "" || subject.trim() === ""}
                         startIcon={loading && <CircularProgress size={20} color="inherit" />}
                     >
                         {loading ? t('attendeeEmail.sending') : t('attendeeEmail.send')}

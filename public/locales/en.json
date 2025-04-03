@@ -1503,7 +1503,8 @@
     "cancelConfirmation": "Are you sure you want to cancel this order?",
     "noNevermind": "No, nevermind",
     "cancelling": "Cancelling...",
-    "yesCancelOrder": "Yes, Cancel Order"
+    "yesCancelOrder": "Yes, Cancel Order",
+    "cancelCompleted": "Order cancelled"
   },
   "paymentCheckout": {
     "checkout": "Checkout",
@@ -1525,7 +1526,8 @@
     "paymentError": "Payment failed. Please try again in a few minutes.",
     "paymentSuccess": "Payment successfully.",
     "stripe": "Stripe",
-    "google-pay": "Google Pay"
+    "google-pay": "Google Pay",
+    "total": "Total"
   },
   "response-code": {
     "ACLG_001": "Account not found",

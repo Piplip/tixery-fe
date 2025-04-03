@@ -60,7 +60,7 @@ function EventSuggestion({type, value, lat, lon, maxCols = 4}){
                         setIsLoading(false)
                     }, 400)
                 })
-                .catch(error => {
+                .catch(() => {
                     setIsLoading(false)
                 })
         }

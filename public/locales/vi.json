@@ -1442,7 +1442,8 @@
     "cancelConfirmation": "Bạn có chắc chắn muốn hủy đơn hàng này?",
     "noNevermind": "Không, thôi bỏ qua",
     "cancelling": "Đang hủy...",
-    "yesCancelOrder": "Có, hủy đơn hàng"
+    "yesCancelOrder": "Có, hủy đơn hàng",
+    "cancelCompleted": "Đã hủy thành công"
   },
   "paymentCheckout": {
     "checkout": "Thanh toán",
@@ -1464,7 +1465,8 @@
     "paymentError": "Thanh toán không thành công. Vui lòng thử lại sau vài phút.",
     "paymentSuccess": "Thanh toán thành công.",
     "stripe": "Stripe",
-    "google-pay": "Google Pay"
+    "google-pay": "Google Pay",
+    "total": "Tổng cộng"
   },
   "createSeatMap": {
     "tool": {

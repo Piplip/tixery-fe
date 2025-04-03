@@ -42,8 +42,6 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
     const {t} = useTranslation()
     const {showError, showInfo} = useAlert()
 
-    console.log(ticketInfo)
-
     const getSeatInfo = (seatIdentifier) => {
         if (!mapData || !seatIdentifier) return null;
 
@@ -102,13 +100,15 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
         eventAxiosWithToken.post(`/order/cancel?` + new URLSearchParams({"pid": getUserData('profileID'),"order-id": order.order_id, "uname": getUserData('fullName'),
             "u": getUserData('sub')}))
             .then(r => {
-                console.log(r.data)
-                setIsLoading(false)
                 if(r.data.status === 'OK'){
                     window.location.reload()
+                    showInfo(t('attendeeOrderCardDetail.cancelCompleted'));
                 }
             })
-            .catch(err => console.log(err))
+            .catch(() => {
+                showError(t('error.somethingWentWrong'))
+            })
+            .finally(() => setIsLoading(false))
     }
 
     function downloadBlobAsFile(response) {
