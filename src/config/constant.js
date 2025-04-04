@@ -1,1 +1,0 @@
-export const WEB_SOCKET_URL = "http://localhost:9999/ws"

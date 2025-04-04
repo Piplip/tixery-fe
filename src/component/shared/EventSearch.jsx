@@ -170,6 +170,8 @@ function EventSearch() {
         });
 
         const searchParams = new URLSearchParams(location.search);
+        const queryValue = searchParams.get('q');
+
         searchParams.delete('category');
         searchParams.delete('sub_category');
         searchParams.delete('date');
@@ -177,6 +179,9 @@ function EventSearch() {
         searchParams.delete('followed');
         searchParams.delete('online');
 
+        if (queryValue) {
+            searchParams.set('q', queryValue);
+        }
         navigate({ search: searchParams.toString().toLowerCase() });
     };
 
