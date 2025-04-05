@@ -57,6 +57,9 @@ import ErrorFallback from "./component/shared/ErrorFallback.jsx";
 import Organizer404Page from "./component/organizer/Organizer404Page.jsx";
 import Attendee404Page from "./component/attendee/Attendee404Page.jsx";
 import NavigationTracker from "./component/shared/NavigationTracker.js";
+import Dashboard from "./component/dashboard/Dashboard.tsx";
+import MainGrid from "./component/dashboard/components/MainGrid.js";
+import UsersManagement from "./component/dashboard/components/users/UsersManagement.js";
 
 configureDayjs()
 
@@ -291,6 +294,14 @@ function App() {
                     },
                 },
                 {path: '*', element: <Organizer404Page />},
+            ]
+        },
+        {
+            path: '/admin',
+            element: <Dashboard />,
+            children: [
+                { index: true, element: <MainGrid /> },
+                { path: 'users', element: <UsersManagement /> },
             ]
         },
         {path: '*', element: <Attendee404Page />, errorElement: <ErrorFallback />},

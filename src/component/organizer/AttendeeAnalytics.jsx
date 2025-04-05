@@ -1,12 +1,32 @@
-import { Box, Typography, Card, CardContent, Divider, Tooltip, Button } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import { Info as InfoIcon } from '@mui/icons-material';
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip as ChartTooltip, Legend, BarChart, CartesianGrid, XAxis, YAxis, Bar, LineChart, Line } from 'recharts';
-import { motion } from 'framer-motion';
-import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
+import {Box, Card, CardContent, Typography} from '@mui/material';
+import {useTheme} from '@mui/material/styles';
+import {
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Cell,
+    Legend,
+    Line,
+    LineChart,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    Tooltip as ChartTooltip,
+    XAxis,
+    YAxis
+} from 'recharts';
+import {useMemo} from 'react';
+import {useTranslation} from 'react-i18next';
 import PropTypes from "prop-types";
-import Grid from "@mui/material/Grid2";
+import dayjs from "dayjs";
+import countries from 'i18n-iso-countries';
+import enLocale from 'i18n-iso-countries/langs/en.json';
+import viLocale from 'i18n-iso-countries/langs/vi.json';
+import i18n from "i18next";
+import PeopleIcon from '@mui/icons-material/People';
+
+countries.registerLocale(enLocale);
+countries.registerLocale(viLocale);
 
 AttendeeAnalytics.propTypes = {
     attendees: PropTypes.array
@@ -15,6 +35,35 @@ AttendeeAnalytics.propTypes = {
 function AttendeeAnalytics({ attendees }) {
     const theme = useTheme();
     const { t } = useTranslation();
+
+    if (!attendees || attendees.length === 0) {
+        return (
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 4,
+                    minHeight: '40vh',
+                    textAlign: 'center',
+                    backgroundColor: theme.palette.background.paper,
+                    borderRadius: 2
+                }}
+            >
+                <PeopleIcon sx={{ fontSize: 80, color: theme.palette.text.secondary, mb: 2 }} />
+                <Typography variant="h5" gutterBottom>
+                    {t('eventAttendee.analytics.noAttendees')}
+                </Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ maxWidth: '600px', mb: 3 }}>
+                    {t('eventAttendee.analytics.noAttendeesMessage')}
+                </Typography>
+                <Typography variant="body2" sx={{ fontStyle: 'italic', maxWidth: '600px' }}>
+                    {t('eventAttendee.analytics.noAttendeesAdvice')}
+                </Typography>
+            </Box>
+        );
+    }
 
     const calculateAge = (dob) => {
         const birthDate = new Date(dob);
@@ -53,7 +102,6 @@ function AttendeeAnalytics({ attendees }) {
             '35-44': 0,
             '45-54': 0,
             '55+': 0,
-            'Unknown': 0
         };
 
         uniqueAttendees.forEach(attendee => {
@@ -74,16 +122,42 @@ function AttendeeAnalytics({ attendees }) {
 
     const ticketData = useMemo(() => {
         const ticketCounts = attendees.reduce((acc, attendee) => {
-            const ticketName = attendee.ticket_name;
-            acc[ticketName] = (acc[ticketName] || 0) + attendee.ticket_count;
+            const ticketKey = attendee.tier_name
+                ? `${attendee.ticket_name} - ${attendee.tier_name}`
+                : attendee.ticket_name;
+
+            acc[ticketKey] = (acc[ticketKey] || 0) + attendee.ticket_count;
             return acc;
         }, {});
-        return Object.entries(ticketCounts).map(([name, value]) => ({ name, value }));
+
+        return Object.entries(ticketCounts)
+            .map(([name, value]) => ({ name, value }));
+    }, [attendees]);
+
+    const tierData = useMemo(() => {
+        const tieredAttendees = attendees.filter(a => a.tier_name);
+
+        if (tieredAttendees.length === 0) return [];
+
+        const tierCounts = tieredAttendees.reduce((acc, attendee) => {
+            const tierKey = `${attendee.ticket_name} - ${attendee.tier_name}`;
+            acc[tierKey] = (acc[tierKey] || 0) + attendee.ticket_count;
+            acc[tierKey + "_color"] = attendee.tier_color || '#cccccc';
+            return acc;
+        }, {});
+
+        return Object.entries(tierCounts)
+            .filter(([key]) => !key.endsWith("_color"))
+            .map(([name, value]) => ({
+                name,
+                value,
+                color: tierCounts[name + "_color"]
+            }));
     }, [attendees]);
 
     const registrationData = useMemo(() => {
         const regByDate = attendees.reduce((acc, attendee) => {
-            const date = new Date(attendee.registration_date).toISOString().split('T')[0];
+            const date = new Date(attendee.registration_date).toLocaleDateString();
             acc[date] = (acc[date] || 0) + attendee.ticket_count;
             return acc;
         }, {});
@@ -96,24 +170,30 @@ function AttendeeAnalytics({ attendees }) {
         const interestCategories = {};
         uniqueAttendees.forEach(attendee => {
             if (!attendee.interests) return;
+
             try {
                 const interestStr = attendee.interests.replace(/^"|"$/g, '');
                 const interests = interestStr.split(',');
                 interests.forEach(interest => {
-                    const category = interest.split('-')[0];
-                    if (category) {
-                        interestCategories[category] = (interestCategories[category] || 0) + 1;
+                    const parts = interest.split('-');
+                    const category = parts[0];
+                    if (category && category.trim()) {
+                        interestCategories[category.trim()] = (interestCategories[category.trim()] || 0) + 1;
                     }
                 });
             } catch (e) {
-                console.error("Error parsing interests:", e);
+                console.error("Error parsing interests for attendee:", attendee.profile_id, e);
             }
         });
+
         return Object.entries(interestCategories)
-            .map(([name, value]) => ({ name, value }))
+            .map(([name, value]) => ({
+                name: t(`event-category.${name}`, { defaultValue: name }),
+                value
+            }))
             .sort((a, b) => b.value - a.value)
             .slice(0, 5);
-    }, [uniqueAttendees]);
+    }, [uniqueAttendees, t]);
 
     const nationalityData = useMemo(() => {
         const nationalityCounts = uniqueAttendees.reduce((acc, attendee) => {
@@ -121,11 +201,19 @@ function AttendeeAnalytics({ attendees }) {
             acc[nationality] = (acc[nationality] || 0) + 1;
             return acc;
         }, {});
+
+        const currentLanguage = i18n.language || 'en';
+
         return Object.entries(nationalityCounts)
-            .map(([name, value]) => ({ name, value }))
+            .map(([code, value]) => ({
+                name: code === 'Unknown'
+                    ? t('common.unknown', { defaultValue: 'Unknown' })
+                    : countries.getName(code, currentLanguage) || code,
+                value
+            }))
             .sort((a, b) => b.value - a.value)
             .slice(0, 5);
-    }, [uniqueAttendees]);
+    }, [uniqueAttendees, i18n.language, t]);
 
     const COLORS = [
         theme.palette.primary.main,
@@ -136,176 +224,270 @@ function AttendeeAnalytics({ attendees }) {
         theme.palette.info.main,
     ];
 
-    const compliment =
-        uniqueAttendees.length > 100
-            ? t('Great job! Your event is attracting a lot of interest!')
-            : t('Keep pushing – there’s room to grow your audience!');
-
     return (
-        <Box sx={{ backgroundColor: theme.palette.background.paper, p: 4 }}>
-            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-                <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold', color: theme.palette.text.primary }}>
-                    {t('eventAttendee.analytics.title')}
-                    <Tooltip title={t('eventAttendee.analytics.description')}>
-                        <InfoIcon sx={{ ml: 1, fontSize: 18, verticalAlign: 'middle', color: 'text.secondary' }} />
-                    </Tooltip>
-                </Typography>
-            </motion.div>
-
-            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} transition={{ duration: 0.5 }}>
-                <Card sx={{ borderRadius: 2, boxShadow: 4, mb: 4, background: theme.palette.success.light }}>
-                    <CardContent>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: theme.palette.success.dark }}>
-                            {compliment}
-                        </Typography>
-                        <Button variant="contained" color="success" sx={{ mt: 2 }}>
-                            {t('eventAttendee.analytics.seeDetails')}
-                        </Button>
-                    </CardContent>
-                </Card>
-            </motion.div>
-
-            <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Box sx={{width: "100%", backgroundColor: theme.palette.background.paper}}>
+            <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 3, mb: 4, justifyContent: 'center'}}>
                 {[
-                    { label: t('eventAttendee.analytics.totalAttendees'), value: uniqueAttendees.length },
-                    { label: t('eventAttendee.analytics.totalTickets'), value: attendees.reduce((sum, a) => sum + a.ticket_count, 0) },
-                    { label: t('eventAttendee.analytics.ticketTypes'), value: new Set(attendees.map(a => a.ticket_name)).size },
-                    { label: t('eventAttendee.analytics.countries'), value: new Set(uniqueAttendees.map(a => a.nationality).filter(Boolean)).size }
+                    {
+                        label: t("eventAttendee.analytics.totalAttendees"),
+                        value: uniqueAttendees.length,
+                    },
+                    {
+                        label: t("eventAttendee.analytics.totalTickets"),
+                        value: attendees.reduce((sum, a) => sum + a.ticket_count, 0),
+                    },
+                    {
+                        label: t("eventAttendee.analytics.ticketTypes"),
+                        value: new Set(attendees.map((a) => {
+                            return a.tier_name
+                                ? `${a.ticket_name} - ${a.tier_name}`
+                                : a.ticket_name;
+                        })).size,
+                    },
+                    {
+                        label: t("eventAttendee.analytics.countries"),
+                        value: new Set(
+                            uniqueAttendees.map((a) => a.nationality).filter(Boolean)
+                        ).size,
+                    },
                 ].map((item, index) => (
-                    <Grid item xs={12} sm={6} md={3} key={index}>
-                        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: index * 0.1 }}>
-                            <Card sx={{ borderRadius: 2, boxShadow: 3, cursor: 'pointer', '&:hover': { boxShadow: 6 } }}>
-                                <CardContent>
-                                    <Typography variant="overline" sx={{ color: theme.palette.text.secondary }}>
-                                        {item.label}
-                                    </Typography>
-                                    <Typography variant="h4" sx={{ mt: 1, fontWeight: 500 }}>
-                                        {item.value}
-                                    </Typography>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    </Grid>
+                    <Box
+                        key={index}
+                        sx={{
+                            flexBasis: {
+                                xs: 'calc(50% - 12px)',
+                                sm: 'calc(50% - 12px)',
+                                md: 'calc(25% - 18px)',
+                            },
+                            flexGrow: 0,
+                            flexShrink: 0,
+                        }}
+                    >
+                        <Card sx={{ borderRadius: 2, boxShadow: 3, height: '100%' }}>
+                            <CardContent sx={{ textAlign: 'center' }}>
+                                <Typography
+                                    variant="overline"
+                                    sx={{ color: theme.palette.text.secondary }}
+                                >
+                                    {item.label}
+                                </Typography>
+                                <Typography variant="h4" sx={{ mt: 1, fontWeight: 500 }}>
+                                    {item.value}
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Box>
                 ))}
-            </Grid>
+            </Box>
 
             <Box sx={{ mb: 4 }}>
-                <Typography variant="h6" sx={{ mb: 2, color: theme.palette.text.primary }}>
-                    {t('eventAttendee.analytics.demographics')}
-                </Typography>
-                <Divider sx={{ mb: 3 }} />
-
-                <Grid container spacing={3}>
-                    <Grid item xs={12} md={6}>
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-                            <Card sx={{ borderRadius: 2, boxShadow: 3 }}>
-                                <CardContent>
-                                    <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 500 }}>
-                                        {t('eventAttendee.analytics.genderDistribution')}
-                                    </Typography>
-                                    <ResponsiveContainer width="100%" height={240}>
-                                        <PieChart>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: 3,
+                        justifyContent: 'center'
+                    }}
+                >
+                    <Box
+                        sx={{
+                            flexBasis: {
+                                xs: '100%',
+                                md: 'calc(50% - 12px)',
+                            },
+                            flexGrow: 0,
+                            flexShrink: 0,
+                            minWidth: {
+                                md: 'calc(50% - 12px)',
+                            }
+                        }}
+                    >
+                        <Card sx={{ borderRadius: 2, boxShadow: 3, height: '100%' }}>
+                            <CardContent>
+                                <Typography
+                                    variant="subtitle1"
+                                    gutterBottom
+                                    sx={{ fontWeight: 500, textAlign: 'center' }}
+                                >
+                                    {t("eventAttendee.analytics.genderDistribution")}
+                                </Typography>
+                                <Box sx={{ width: '100%', height: 300 }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
                                             <Pie
                                                 data={genderData}
                                                 cx="50%"
                                                 cy="50%"
                                                 innerRadius={60}
                                                 outerRadius={80}
-                                                paddingAngle={5}
                                                 dataKey="value"
-                                                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                                label={({ name, percent }) =>
+                                                    `${t(`eventAttendee.analytics.${name}`)}: ${(percent * 100).toFixed(0)}%`
+                                                }
                                             >
                                                 {genderData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                    <Cell
+                                                        key={`cell-${index}`}
+                                                        fill={COLORS[index % COLORS.length]}
+                                                    />
                                                 ))}
                                             </Pie>
-                                            <ChartTooltip formatter={(value) => [`${value} attendees`, 'Count']} />
+                                            <ChartTooltip
+                                                formatter={(value) => [t('eventAttendee.analytics.totalAttendee', {total: value})]}
+                                            />
                                         </PieChart>
                                     </ResponsiveContainer>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    </Grid>
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    </Box>
 
-                    <Grid item xs={12} md={6}>
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }}>
-                            <Card sx={{ borderRadius: 2, boxShadow: 3 }}>
-                                <CardContent>
-                                    <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 500 }}>
-                                        {t('eventAttendee.analytics.ageDistribution')}
-                                    </Typography>
-                                    <ResponsiveContainer width="100%" height={240}>
-                                        <BarChart data={ageData}>
+                    <Box
+                        sx={{
+                            flexBasis: {
+                                xs: '100%',
+                                md: 'calc(50% - 12px)',
+                            },
+                            flexGrow: 0,
+                            flexShrink: 0,
+                            minWidth: {
+                                md: 'calc(50% - 12px)',
+                            }
+                        }}
+                    >
+                        <Card sx={{ borderRadius: 2, boxShadow: 3, height: '100%' }}>
+                            <CardContent>
+                                <Typography
+                                    variant="subtitle1"
+                                    gutterBottom
+                                    sx={{ fontWeight: 500, textAlign: 'center' }}
+                                >
+                                    {t("eventAttendee.analytics.ageDistribution")}
+                                </Typography>
+                                <Box sx={{ width: '100%', height: 300 }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart
+                                            data={ageData}
+                                            margin={{ top: 10, right: 10, bottom: 20, left: 10 }}
+                                        >
                                             <CartesianGrid strokeDasharray="3 3" />
                                             <XAxis dataKey="name" />
                                             <YAxis allowDecimals={false} />
-                                            <ChartTooltip formatter={(value) => [`${value} attendees`, 'Count']} />
+                                            <ChartTooltip
+                                                formatter={(value) => [t('eventAttendee.analytics.totalAttendee', {total: value})]}
+                                            />
                                             <Bar dataKey="value" fill={theme.palette.primary.main} />
                                         </BarChart>
                                     </ResponsiveContainer>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    </Grid>
-                </Grid>
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    </Box>
+                </Box>
             </Box>
 
             <Box sx={{ mb: 4 }}>
-                <Typography variant="h6" sx={{ mb: 2, color: theme.palette.text.primary }}>
-                    {t('eventAttendee.analytics.ticketInsights')}
-                </Typography>
-                <Divider sx={{ mb: 3 }} />
-
-                <Grid container spacing={3}>
-                    <Grid item xs={12} md={6}>
-                        <motion.div initial={{ x: -50 }} animate={{ x: 0 }} transition={{ duration: 0.5 }}>
-                            <Card sx={{ borderRadius: 2, boxShadow: 3 }}>
-                                <CardContent>
-                                    <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 500 }}>
-                                        {t('eventAttendee.analytics.ticketDistribution')}
-                                    </Typography>
-                                    <ResponsiveContainer width="100%" height={240}>
-                                        <PieChart>
-                                            <Pie
-                                                data={ticketData}
-                                                cx="50%"
-                                                cy="50%"
-                                                outerRadius={80}
-                                                dataKey="value"
-                                                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                                            >
-                                                {ticketData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                                ))}
-                                            </Pie>
-                                            <ChartTooltip formatter={(value) => [`${value} tickets`, 'Count']} />
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: 3,
+                        justifyContent: 'center'
+                    }}
+                >
+                    <Box
+                        sx={{
+                            flexBasis: {
+                                xs: '100%',
+                                md: 'calc(50% - 12px)',
+                            },
+                            flexGrow: 0,
+                            flexShrink: 0,
+                            minWidth: {
+                                md: 'calc(50% - 12px)',
+                            }
+                        }}
+                    >
+                        <Card sx={{ borderRadius: 2, boxShadow: 3, height: '100%' }}>
+                            <CardContent>
+                                <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 500, textAlign: 'center' }}>
+                                    {tierData.length > 0
+                                        ? t('eventAttendee.analytics.tierDistribution')
+                                        : t('eventAttendee.analytics.ticketDistribution')}
+                                </Typography>
+                                <Box sx={{ width: '100%', height: 300 }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
+                                            {tierData.length > 0 ? (
+                                                <Pie
+                                                    data={tierData}
+                                                    cx="50%"
+                                                    cy="50%"
+                                                    outerRadius={80}
+                                                    dataKey="value"
+                                                    nameKey="name"
+                                                    label
+                                                >
+                                                    {tierData.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                                    ))}
+                                                </Pie>
+                                            ) : (
+                                                <Pie
+                                                    data={ticketData}
+                                                    cx="50%"
+                                                    cy="50%"
+                                                    outerRadius={80}
+                                                    dataKey="value"
+                                                >
+                                                    {ticketData.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                    ))}
+                                                </Pie>
+                                            )}
+                                            <ChartTooltip formatter={(value) => [t('eventAttendee.analytics.ticketSold', {total: value})]} />
                                             <Legend />
                                         </PieChart>
                                     </ResponsiveContainer>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    </Grid>
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    </Box>
 
-                    <Grid item xs={12} md={6}>
-                        <motion.div initial={{ x: 50 }} animate={{ x: 0 }} transition={{ duration: 0.5 }}>
-                            <Card sx={{ borderRadius: 2, boxShadow: 3 }}>
-                                <CardContent>
-                                    <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 500 }}>
-                                        {t('eventAttendee.analytics.registrationTimeline')}
-                                    </Typography>
-                                    <ResponsiveContainer width="100%" height={240}>
-                                        <LineChart data={registrationData}>
+                    <Box
+                        sx={{
+                            flexBasis: {
+                                xs: '100%',
+                                md: 'calc(50% - 12px)',
+                            },
+                            flexGrow: 0,
+                            flexShrink: 0,
+                            minWidth: {
+                                md: 'calc(50% - 12px)',
+                            }
+                        }}
+                    >
+                        <Card sx={{ borderRadius: 2, boxShadow: 3, height: '100%' }}>
+                            <CardContent>
+                                <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 500, textAlign: 'center' }}>
+                                    {t('eventAttendee.analytics.registrationTimeline')}
+                                </Typography>
+                                <Box sx={{ width: '100%', height: 300 }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <LineChart
+                                            data={registrationData}
+                                            margin={{ top: 10, right: 10, bottom: 20, left: 10 }}
+                                        >
                                             <CartesianGrid strokeDasharray="3 3" />
                                             <XAxis
                                                 dataKey="date"
                                                 tickFormatter={(date) =>
-                                                    new Date(date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+                                                    dayjs(date).format('DD/MM')
                                                 }
                                             />
                                             <YAxis allowDecimals={false} />
                                             <ChartTooltip
-                                                formatter={(value) => [`${value} tickets`, 'Tickets Sold']}
+                                                formatter={(value) =>  [t('eventAttendee.analytics.ticketSold', {total: value})]}
                                                 labelFormatter={(date) => new Date(date).toLocaleDateString()}
                                             />
                                             <Line
@@ -317,62 +499,96 @@ function AttendeeAnalytics({ attendees }) {
                                             />
                                         </LineChart>
                                     </ResponsiveContainer>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    </Grid>
-                </Grid>
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    </Box>
+                </Box>
             </Box>
 
             <Box>
-                <Typography variant="h6" sx={{ mb: 2, color: theme.palette.text.primary }}>
-                    {t('eventAttendee.analytics.attendeeInsights')}
-                </Typography>
-                <Divider sx={{ mb: 3 }} />
-
-                <Grid container spacing={3}>
-                    <Grid item xs={12} md={6}>
-                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
-                            <Card sx={{ borderRadius: 2, boxShadow: 3 }}>
-                                <CardContent>
-                                    <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 500 }}>
-                                        {t('eventAttendee.analytics.topInterests')}
-                                    </Typography>
-                                    <ResponsiveContainer width="100%" height={240}>
-                                        <BarChart data={interestsData} layout="vertical" margin={{ left: 100 }}>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: 3,
+                        justifyContent: 'center'
+                    }}
+                >
+                    <Box
+                        sx={{
+                            flexBasis: {
+                                xs: '100%',
+                                md: 'calc(50% - 12px)',
+                            },
+                            flexGrow: 0,
+                            flexShrink: 0,
+                            minWidth: {
+                                md: 'calc(50% - 12px)',
+                            }
+                        }}
+                    >
+                        <Card sx={{ borderRadius: 2, boxShadow: 3, height: '100%' }}>
+                            <CardContent>
+                                <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 500, textAlign: 'center' }}>
+                                    {t('eventAttendee.analytics.topInterests')}
+                                </Typography>
+                                <Box sx={{ width: '100%', height: 300 }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart
+                                            data={interestsData}
+                                            layout="vertical"
+                                            margin={{ top: 10, right: 10, bottom: 10, left: 0 }}
+                                        >
                                             <CartesianGrid strokeDasharray="3 3" />
                                             <XAxis type="number" />
                                             <YAxis dataKey="name" type="category" width={100} />
-                                            <ChartTooltip formatter={(value) => [`${value} attendees`, 'Count']} />
+                                            <ChartTooltip formatter={(value) => [t('eventAttendee.analytics.totalAttendee', {total: value})]} />
                                             <Bar dataKey="value" fill={theme.palette.secondary.main} />
                                         </BarChart>
                                     </ResponsiveContainer>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    </Grid>
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    </Box>
 
-                    <Grid item xs={12} md={6}>
-                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0.2 }}>
-                            <Card sx={{ borderRadius: 2, boxShadow: 3 }}>
-                                <CardContent>
-                                    <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 500 }}>
-                                        {t('eventAttendee.analytics.topCountries')}
-                                    </Typography>
-                                    <ResponsiveContainer width="100%" height={240}>
-                                        <BarChart data={nationalityData} layout="vertical" margin={{ left: 50 }}>
+                    <Box
+                        sx={{
+                            flexBasis: {
+                                xs: '100%',
+                                md: 'calc(50% - 12px)',
+                            },
+                            flexGrow: 0,
+                            flexShrink: 0,
+                            minWidth: {
+                                md: 'calc(50% - 12px)',
+                            }
+                        }}
+                    >
+                        <Card sx={{ borderRadius: 2, boxShadow: 3, height: '100%' }}>
+                            <CardContent>
+                                <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 500, textAlign: 'center' }}>
+                                    {t('eventAttendee.analytics.topCountries')}
+                                </Typography>
+                                <Box sx={{ width: '100%', height: 300 }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart
+                                            data={nationalityData}
+                                            layout="vertical"
+                                            margin={{ top: 10, right: 10, bottom: 10, left: 0 }}
+                                        >
                                             <CartesianGrid strokeDasharray="3 3" />
                                             <XAxis type="number" />
-                                            <YAxis dataKey="name" type="category" width={50} />
-                                            <ChartTooltip formatter={(value) => [`${value} attendees`, 'Count']} />
+                                            <YAxis dataKey="name" type="category" width={120} />
+                                            <ChartTooltip formatter={(value) =>  [t('eventAttendee.analytics.totalAttendee', {total: value})]} />
                                             <Bar dataKey="value" fill={theme.palette.info.main} />
                                         </BarChart>
                                     </ResponsiveContainer>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    </Grid>
-                </Grid>
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    </Box>
+                </Box>
             </Box>
         </Box>
     );

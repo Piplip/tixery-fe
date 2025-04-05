@@ -38,12 +38,10 @@ function EventAttendee({ eventID }) {
         setLoading(true);
         eventAxiosWithToken.get(`/event/attendees?eid=${eventID}`)
             .then(r => {
-                console.log(r.data)
                 setAttendees(r.data);
                 setLoading(false);
             })
-            .catch(err => {
-                console.error(err);
+            .catch(() => {
                 setLoading(false);
             });
     }, [eventID]);
@@ -272,7 +270,9 @@ function EventAttendee({ eventID }) {
                                                 <TableCell>{attendee.fullName}</TableCell>
                                                 <TableCell>{attendee.email}</TableCell>
                                                 <TableCell>{attendee.phoneNumber}</TableCell>
-                                                <TableCell>{attendee.ticket_name}</TableCell>
+                                                <TableCell>
+                                                    {attendee.ticket_name} {attendee?.tier_name ? ` - ${attendee.tier_name}` : ''}
+                                                </TableCell>
                                                 <TableCell align="center">{attendee.ticket_count}</TableCell>
                                                 <TableCell>{dayjs(attendee.registration_date).format("DD MMM YYYY, HH:mm")}</TableCell>
                                             </TableRow>

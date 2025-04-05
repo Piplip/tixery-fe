@@ -1357,6 +1357,7 @@
     "pastOrders": "Đơn đặt vé cũ"
   },
   "attendeePassword": {
+    "passwordUpdatedSuccessfully": "Cập nhật mật khẩu thành công",
     "yourPassword": "Mật khẩu của bạn",
     "setNewPassword": "Đặt mật khẩu mới",
     "currentPassword": "Mật khẩu hiện tại",
@@ -1872,7 +1873,35 @@
     "email": "Email",
     "phone": "SĐT",
     "quantity": "Số Lượng",
-    "registrationDate": "Ngày Mua Vé"
+    "registrationDate": "Ngày Mua Vé",
+    "viewAnalytics": "Xem Phân Tích",
+    "viewAttendees": "Xem Người Tham Dự",
+    "analytics": {
+      "title": "Phân Tích Người Tham Dự",
+      "description": "Tổng quan về thống kê người tham dự sự kiện của bạn.",
+      "seeDetails": "Xem Chi Tiết Hơn",
+      "totalAttendees": "Tổng Số Người Tham Dự",
+      "totalTickets": "Tổng Số Vé Đã Bán",
+      "ticketTypes": "Số Loại Vé",
+      "countries": "Tổng Quốc Gia",
+      "genderDistribution": "Phân Bố Theo Giới Tính",
+      "ageDistribution": "Phân Bố Theo Độ Tuổi",
+      "ticketInsights": "Thông Tin Chi Tiết về Vé",
+      "ticketDistribution": "Phân Bố Thep Vé",
+      "registrationTimeline": "Thống Kê Mua Vé",
+      "attendeeInsights": "Thông Tin Chi Tiết về Người Tham Dự",
+      "topInterests": "Các Mối Quan Tâm Hàng Đầu",
+      "topCountries": "Phân Bố Theo Quốc Gia",
+      "totalAttendee": "Tổng: {{total}} người tham dự",
+      "totalTicket": "Tổng: {{total}} vé",
+      "ticketSold": "Vé đã bán: {{total}}",
+      "Male": "Nam",
+      "Female": "Nữ",
+      "tierDistribution": "Phân Bố Theo Hạng Vé",
+      "noAttendees": "Chưa Có Người Tham Dự",
+      "noAttendeesMessage": "Sự kiện của bạn hiện chưa có người tham dự nào đăng ký.",
+      "noAttendeesAdvice": "Hãy thử quảng bá sự kiện của bạn trên mạng xã hội hoặc thông qua các chiến dịch email. Phân tích sẽ hiển thị ở đây khi có người đăng ký."
+    }
   },
   "attendeeEmail": {
     "sendEmail": "Gửi Email",

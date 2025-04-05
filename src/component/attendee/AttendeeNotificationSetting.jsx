@@ -1,17 +1,32 @@
-import {Button, Checkbox, FormControlLabel, Snackbar, Stack, Typography} from "@mui/material";
+import {Button, Checkbox, FormControlLabel, Stack, Typography} from "@mui/material";
 import {useEffect, useState} from "react";
 import {getUserData} from "../../common/Utilities.js";
 import {accountAxiosWithToken} from "../../config/axiosConfig.js";
 import {CircularProgress} from "@mui/joy";
 import {useOutletContext} from "react-router-dom";
 import {useTranslation} from "react-i18next";
+import {useAlert} from "../../custom-hooks/useAlert.js";
 
 function AttendeeNotificationSetting(){
-    const {pid}  = useOutletContext()
-    const [preferences, setPreferences] = useState({});
-    const [open, setOpen] = useState(false)
-    const [isLoading, setIsLoading] = useState(false)
+    const {pid} = useOutletContext()
+    const [isLoading, setIsLoading] = useState(true)
+    const [isSaving, setIsSaving] = useState(false)
     const {t} = useTranslation()
+    const {showInfo} = useAlert()
+
+    const [preferences, setPreferences] = useState({
+        attending: {
+            feature_announcement: false,
+            organizer_announces: false,
+            event_on_sales: false,
+            liked_events: false,
+        },
+        organizing: {
+            feature_announcement: false,
+            event_sales_recap: false,
+            important_reminders: false,
+        }
+    });
 
     const labels = {
         attending: {
@@ -38,45 +53,62 @@ function AttendeeNotificationSetting(){
     };
 
     useEffect(() => {
-        if(preferences.attending === undefined){
-            accountAxiosWithToken.get(`/notification/preferences?pid=${pid}`)
-                .then(r => {
-                    setPreferences(prev => ({
-                        ...prev,
-                        attending: {
-                            feature_announcement: r.data.feature_announcement,
-                            organizer_announces: r.data.organizer_announces,
-                            event_on_sales: r.data.event_on_sales,
-                            liked_events: r.data.liked_events,
-                        },
-                        organizing: {
-                            feature_announcement: r.data.feature_announcement,
-                            event_sales_recap: r.data.event_sales_recap,
-                            important_reminders: r.data.important_reminders,
-                            order_confirmations: r.data.order_confirmations,
-                        }
-                    }))
-                })
-                .catch(err => console.log(err))
-        }
+        accountAxiosWithToken.get(`/notification/preferences?pid=${pid}`)
+            .then(r => {
+                const responseData = r.data || {};
+
+                setPreferences({
+                    attending: {
+                        feature_announcement: Boolean(responseData.feature_announcement === true),
+                        organizer_announces: Boolean(responseData.organizer_announces === true),
+                        event_on_sales: Boolean(responseData.event_on_sales === true),
+                        liked_events: Boolean(responseData.liked_events === true),
+                    },
+                    organizing: {
+                        feature_announcement: Boolean(responseData.feature_announcement === true),
+                        event_sales_recap: Boolean(responseData.event_sales_recap === true),
+                        important_reminders: Boolean(responseData.important_reminders === true),
+                    }
+                });
+                setIsLoading(false);
+            })
+            .catch(err => {
+                console.log(err);
+                setIsLoading(false);
+            });
     }, [pid]);
 
     function updatePreferences(){
-        setIsLoading(true)
-        accountAxiosWithToken.post(`/notification/preferences/update?pid=${getUserData('profileID')}&role=${getUserData('role') === 'ATTENDEE' ? 'ATTENDEE' : 'HOST'}`,
-            getUserData('role') === 'ATTENDEE' ? preferences.attending : preferences.organizing)
-            .then(r => {
-                setIsLoading(false)
-                setOpen(true)
+        setIsSaving(true);
+        const userRole = getUserData('role');
+
+        const preferencesToSend = userRole === 'ATTENDEE'
+            ? preferences.attending
+            : preferences.organizing;
+
+        accountAxiosWithToken.post(
+            `/notification/preferences/update?pid=${getUserData('profileID')}&role=${userRole}`,
+            preferencesToSend
+        )
+            .then(() => {
+                setIsSaving(false);
+                showInfo(t('attendeeNotificationSetting.preferencesUpdated'))
             })
-            .catch(err => console.log(err))
+            .catch(err => {
+                console.log(err);
+                setIsSaving(false);
+            });
+    }
+
+    if (isLoading) {
+        return <Stack alignItems="center" padding={4}><CircularProgress /></Stack>;
     }
 
     return (
         <Stack className="email-preferences" rowGap={1}>
             <Typography variant="h5" fontWeight={'bold'} fontSize={'1.75rem'}>{t('attendeeNotificationSetting.emailPreferences')}</Typography>
             <hr style={{ marginBlock: '.5rem 1rem' }} />
-            {getUserData('role') !== 'ATTENDEE' &&
+            {getUserData('role') === 'ATTENDEE' ?
                 <Stack rowGap={2}>
                     <Stack>
                         <Typography variant="h6" fontWeight={'bold'} fontSize={'1.4rem'}>{t('attendeeNotificationSetting.attendingEvents')}</Typography>
@@ -84,7 +116,7 @@ function AttendeeNotificationSetting(){
                     </Stack>
 
                     <Stack className="email-preferences__options">
-                        {preferences?.attending && Object.keys(preferences.attending).map((key) => (
+                        {Object.keys(preferences.attending).map((key) => (
                             <FormControlLabel
                                 key={key}
                                 control={<Checkbox checked={preferences.attending[key]} onChange={() => handleChange("attending", key)} />}
@@ -93,9 +125,7 @@ function AttendeeNotificationSetting(){
                         ))}
                     </Stack>
                 </Stack>
-            }
-
-            {getUserData('role') !== 'HOST' &&
+                :
                 <Stack rowGap={2}>
                     <Stack>
                         <Typography variant="h6" fontWeight={'bold'} fontSize={'1.4rem'}>{t('attendeeNotificationSetting.organizingEvents')}</Typography>
@@ -103,7 +133,7 @@ function AttendeeNotificationSetting(){
                     </Stack>
 
                     <Stack>
-                        {preferences?.organizing && Object.keys(preferences.organizing).map((key) => (
+                        {Object.keys(preferences.organizing).map((key) => (
                             <FormControlLabel
                                 key={key}
                                 control={<Checkbox checked={preferences.organizing[key]} onChange={() => handleChange("organizing", key)} />}
@@ -116,18 +146,10 @@ function AttendeeNotificationSetting(){
 
             <Button variant="contained" className="email-preferences__save-btn" sx={{ marginTop: 2, paddingBlock: 1 }}
                     onClick={updatePreferences}
-                    disabled={isLoading}
+                    disabled={isSaving}
             >
-                {isLoading ? <CircularProgress size={'sm'} /> : t('attendeeNotificationSetting.savePreferences')}
+                {isSaving ? <CircularProgress size={'sm'} /> : t('attendeeNotificationSetting.savePreferences')}
             </Button>
-
-            <Snackbar
-                open={open}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                autoHideDuration={5000}
-                onClose={() => setOpen(false)}
-                message={t('attendeeNotificationSetting.preferencesUpdated')}
-            />
         </Stack>
     );
 }

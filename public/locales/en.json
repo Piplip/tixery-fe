@@ -1418,6 +1418,7 @@
     "pastOrders": "Past Orders"
   },
   "attendeePassword": {
+    "passwordUpdatedSuccessfully": "Password updated successfully!",
     "yourPassword": "Your password",
     "setNewPassword": "Set a new password",
     "currentPassword": "Current Password",
@@ -1871,7 +1872,36 @@
     "email": "Email",
     "phone": "Phone",
     "quantity": "Quantity",
-    "registrationDate": "Registration Date"
+    "registrationDate": "Registration Date",
+    "viewAnalytics": "Attendee Analytics",
+    "viewAttendees": "View Attendees",
+    "analytics": {
+      "title": "Attendee Analytics",
+      "description": "Overview of your event attendee statistics.",
+      "seeDetails": "See More Details",
+      "totalAttendees": "Total Attendees",
+      "totalTickets": "Total Tickets Sold",
+      "ticketTypes": "Unique Ticket Types",
+      "countries": "Unique Countries",
+      "demographics": "Demographics",
+      "genderDistribution": "Gender Distribution",
+      "ageDistribution": "Age Distribution",
+      "ticketInsights": "Ticket Insights",
+      "ticketDistribution": "Ticket Distribution",
+      "registrationTimeline": "Registration Timeline",
+      "attendeeInsights": "Attendee Insights",
+      "topInterests": "Top Interests",
+      "topCountries": "Top Countries",
+      "totalAttendee": "Total: {{total}} attendees",
+      "totalTicket": "Total: {{total}} tickets",
+      "ticketSold": "Tickets Sold: {{total}}",
+      "Male": "Male",
+      "Female": "Female",
+      "tierDistribution": "Tier Distribution",
+      "noAttendees": "No Attendees Yet",
+      "noAttendeesMessage": "Your event doesn't have any registered attendees at the moment.",
+      "noAttendeesAdvice": "Try promoting your event on social media or through email campaigns. Analytics will appear here once people register."
+    }
   },
   "attendeeEmail": {
     "sendEmail": "Send Email",
