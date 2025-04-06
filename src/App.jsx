@@ -59,7 +59,9 @@ import Attendee404Page from "./component/attendee/Attendee404Page.jsx";
 import NavigationTracker from "./component/shared/NavigationTracker.js";
 import Dashboard from "./component/dashboard/Dashboard.tsx";
 import MainGrid from "./component/dashboard/components/MainGrid.js";
-import UsersManagement from "./component/dashboard/components/users/UsersManagement.js";
+import UserManagement from "./component/dashboard/components/users/UserManagement.tsx";
+import EventReport from "./component/dashboard/components/event/EventReport.tsx";
+import EventManagement from "./component/dashboard/components/event/EventManagement.tsx";
 
 configureDayjs()
 
@@ -299,9 +301,46 @@ function App() {
         {
             path: '/admin',
             element: <Dashboard />,
+            hydrateFallbackElement: <LoadingFallback />,
             children: [
                 { index: true, element: <MainGrid /> },
-                { path: 'users', element: <UsersManagement /> },
+                {
+                    path: 'users',
+                    element: <UserManagement />,
+                    loader: async ({ request }) => {
+                        const url = new URL(request.url);
+                        const page = url.searchParams.get('page') || '1';
+                        const size = url.searchParams.get('size') || '10';
+
+                        const response = await accountAxiosWithToken.get(`/admin/users?page=${page}&size=${size}`);
+                        return response.data;
+                    }
+                },
+                {
+                    path: 'events',
+                    element: <EventManagement />,
+                    loader: async ({ request }) => {
+                        const url = new URL(request.url);
+                        const page = url.searchParams.get('page') || '1';
+                        const size = url.searchParams.get('size') || '10';
+                        const startDate = url.searchParams.get('start_date') || dayjs().subtract(30, 'day').format('YYYY-MM-DD');
+                        const endDate = url.searchParams.get('end_date') || dayjs().format('YYYY-MM-DD');
+
+                        const [statsResponse, eventsResponse] = await Promise.all([
+                            eventAxiosWithToken.get(`/admin/event-stats?start_date=${startDate}&end_date=${endDate}`),
+                            eventAxiosWithToken.get(`/admin/events?start_date=${startDate}&end_date=${endDate}&page=${page}&size=${size}`)
+                        ]);
+
+                        console.log(statsResponse.data);
+                        console.log(eventsResponse.data);
+
+                        return {
+                            stats: statsResponse.data,
+                            events: eventsResponse.data
+                        };
+                    }
+                },
+                { path: 'reports', element: <EventReport /> }
             ]
         },
         {path: '*', element: <Attendee404Page />, errorElement: <ErrorFallback />},

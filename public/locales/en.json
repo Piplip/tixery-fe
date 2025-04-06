@@ -1545,6 +1545,7 @@
   "search-this-area": "Search this area",
   "organizerReport": {
     "organizerReport": "Organizer Report from {{start}} to {{end}}",
+    "nothingToReport": "Nothing to Report",
     "startDate": "Start Date",
     "endDate": "End Date",
     "applyFilters": "Apply Filters",

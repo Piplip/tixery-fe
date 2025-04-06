@@ -59,7 +59,6 @@ const defaultEventColumns: GridColDef[] = [
     }
 ];
 
-// Default rows for events (used when no rows are provided)
 const defaultEventRows = [
     {
         id: 1,

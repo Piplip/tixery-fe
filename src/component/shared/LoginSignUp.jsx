@@ -94,6 +94,10 @@ function LoginSignUp() {
                     redirectLink = '/'
                 else if (role.toLowerCase() === "host")
                     redirectLink = '/organizer'
+                else if(role.toLowerCase() === "admin")
+                    redirectLink = '/admin'
+                else
+                    redirectLink = '/'
                 setTimeout(() => navigate(redirectLink), 2000)
             } else {
                 setAlertMsg(t(`response-code.${res.data.message}`))

@@ -1552,6 +1552,7 @@
   "search-this-area": "Tìm kiếm trong khu vực này",
   "organizerReport": {
     "organizerReport": "Báo cáo từ {{start}} đến {{end}}",
+    "nothingToReport": "Không có gì để báo cáo",
     "startDate": "Ngày bắt đầu",
     "endDate": "Ngày kết thúc",
     "applyFilters": "Áp dụng bộ lọc",

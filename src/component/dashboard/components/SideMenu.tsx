@@ -1,83 +1,82 @@
 import * as React from 'react';
-import { styled } from '@mui/material/styles';
+import {styled} from '@mui/material/styles';
 import Avatar from '@mui/material/Avatar';
-import MuiDrawer, { drawerClasses } from '@mui/material/Drawer';
+import MuiDrawer, {drawerClasses} from '@mui/material/Drawer';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import SelectContent from './SelectContent';
 import MenuContent from './MenuContent';
-import CardAlert from './CardAlert';
 import OptionsMenu from './OptionsMenu';
+import {getUserData} from '../../../common/Utilities';
 
 const drawerWidth = 240;
 
 const Drawer = styled(MuiDrawer)({
-  width: drawerWidth,
-  flexShrink: 0,
-  boxSizing: 'border-box',
-  mt: 10,
-  [`& .${drawerClasses.paper}`]: {
     width: drawerWidth,
+    flexShrink: 0,
     boxSizing: 'border-box',
-  },
+    mt: 10,
+    [`& .${drawerClasses.paper}`]: {
+        width: drawerWidth,
+        boxSizing: 'border-box',
+    },
 });
 
 export default function SideMenu() {
-  return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        display: { xs: 'none', md: 'block' },
-        [`& .${drawerClasses.paper}`]: {
-          backgroundColor: 'background.paper',
-        },
-      }}
-    >
-        <Box
-            component="img"
-            src="https://res.cloudinary.com/de25mkp9v/image/upload/v1743413016/logo_xdxerq.png"
-            alt="Event Logo"
-            sx={{ width: '150px', marginBlock: 2, mx: 'auto' }}
-        />
-      <Divider />
-      <Box
-        sx={{
-          overflow: 'auto',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        <MenuContent />
-      </Box>
-      <Stack
-        direction="row"
-        sx={{
-          p: 2,
-          gap: 1,
-          alignItems: 'center',
-          borderTop: '1px solid',
-          borderColor: 'divider',
-        }}
-      >
-        <Avatar
-          sizes="small"
-          alt="Riley Carter"
-          src="/static/images/avatar/7.jpg"
-          sx={{ width: 36, height: 36 }}
-        />
-        <Box sx={{ mr: 'auto' }}>
-          <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: '16px' }}>
-            Riley Carter
-          </Typography>
-          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            riley@email.com
-          </Typography>
-        </Box>
-        <OptionsMenu />
-      </Stack>
-    </Drawer>
-  );
+    return (
+        <Drawer
+            variant="permanent"
+            sx={{
+                display: {xs: 'none', md: 'block'},
+                [`& .${drawerClasses.paper}`]: {
+                    backgroundColor: 'background.paper',
+                },
+            }}
+        >
+            <Box
+                component="img"
+                src="https://res.cloudinary.com/de25mkp9v/image/upload/v1743413016/logo_xdxerq.png"
+                alt="Event Logo"
+                sx={{width: '150px', marginBlock: 2, mx: 'auto'}}
+            />
+            <Divider/>
+            <Box
+                sx={{
+                    overflow: 'auto',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                }}
+            >
+                <MenuContent/>
+            </Box>
+            <Stack
+                direction="row"
+                sx={{
+                    p: 1,
+                    gap: 1,
+                    alignItems: 'center',
+                    borderTop: '1px solid',
+                    borderColor: 'divider',
+                }}
+            >
+                <Avatar
+                    sizes="small"
+                    alt={getUserData("fullName")}
+                    src="/static/images/avatar/7.jpg"
+                    sx={{width: 36, height: 36}}
+                />
+                <Box sx={{mr: 'auto'}}>
+                    <Typography variant="body2" sx={{fontWeight: 500, lineHeight: '16px'}}>
+                        {getUserData("fullName")}
+                    </Typography>
+                    <Typography variant="caption" sx={{color: 'text.secondary'}}>
+                        {getUserData("sub")}
+                    </Typography>
+                </Box>
+                <OptionsMenu/>
+            </Stack>
+        </Drawer>
+    );
 }
