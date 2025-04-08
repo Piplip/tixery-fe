@@ -10,15 +10,17 @@ import PeopleRoundedIcon from '@mui/icons-material/PeopleRounded';
 import AssignmentRoundedIcon from '@mui/icons-material/AssignmentRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import {useLocation, useNavigate} from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const mainListItems = [
-    {text: 'Home', icon: <HomeRoundedIcon/>, path: '/admin'},
-    {text: 'Manage Users', icon: <PeopleRoundedIcon/>, path: '/admin/users'},
-    {text: 'Manage Event', icon: <SettingsRoundedIcon/>, path: '/admin/events'},
-    {text: 'Event Report', icon: <AssignmentRoundedIcon/>, path: '/admin/reports'},
+    {key: 'home', icon: <HomeRoundedIcon/>, path: '/admin'},
+    {key: 'manageUsers', icon: <PeopleRoundedIcon/>, path: '/admin/users'},
+    {key: 'manageEvent', icon: <SettingsRoundedIcon/>, path: '/admin/events'},
+    {key: 'eventReport', icon: <AssignmentRoundedIcon/>, path: '/admin/reports'},
 ];
 
 export default function MenuContent() {
+    const { t } = useTranslation();
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -29,14 +31,14 @@ export default function MenuContent() {
     return (
         <Stack sx={{flexGrow: 1, p: 1}}>
             <List dense>
-                {mainListItems.map((item, index) => (
-                    <ListItem key={index} disablePadding sx={{display: 'block'}}>
+                {mainListItems.map((item) => (
+                    <ListItem key={item.key} disablePadding sx={{display: 'block'}}>
                         <ListItemButton
                             selected={location.pathname === item.path}
                             onClick={() => handleNavigation(item.path)}
                         >
                             <ListItemIcon>{item.icon}</ListItemIcon>
-                            <ListItemText primary={item.text}/>
+                            <ListItemText primary={t(`menuContent.${item.key}`)}/>
                         </ListItemButton>
                     </ListItem>
                 ))}

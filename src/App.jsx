@@ -303,7 +303,20 @@ function App() {
             element: <Dashboard />,
             hydrateFallbackElement: <LoadingFallback />,
             children: [
-                { index: true, element: <MainGrid /> },
+                {
+                    index: true, element: <MainGrid />,
+                    loader: async () => {
+                        const [overviewResponse, metricsResponse] = await Promise.all([
+                            accountAxiosWithToken.get('/admin/overview'),
+                            eventAxiosWithToken.get('/admin/metrics')
+                        ]);
+
+                        return {
+                            overview: overviewResponse.data,
+                            metrics: metricsResponse.data
+                        };
+                    }
+                },
                 {
                     path: 'users',
                     element: <UserManagement />,
@@ -330,9 +343,6 @@ function App() {
                             eventAxiosWithToken.get(`/admin/event-stats?start_date=${startDate}&end_date=${endDate}`),
                             eventAxiosWithToken.get(`/admin/events?start_date=${startDate}&end_date=${endDate}&page=${page}&size=${size}`)
                         ]);
-
-                        console.log(statsResponse.data);
-                        console.log(eventsResponse.data);
 
                         return {
                             stats: statsResponse.data,

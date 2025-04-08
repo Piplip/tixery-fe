@@ -9,6 +9,7 @@ import Typography from '@mui/material/Typography';
 import MenuContent from './MenuContent';
 import OptionsMenu from './OptionsMenu';
 import {getUserData} from '../../../common/Utilities';
+import {useTranslation} from "react-i18next";
 
 const drawerWidth = 240;
 
@@ -24,6 +25,10 @@ const Drawer = styled(MuiDrawer)({
 });
 
 export default function SideMenu() {
+    const { t } = useTranslation();
+    const fullName = getUserData("fullName");
+    const sub = getUserData("sub");
+
     return (
         <Drawer
             variant="permanent"
@@ -63,16 +68,16 @@ export default function SideMenu() {
             >
                 <Avatar
                     sizes="small"
-                    alt={getUserData("fullName")}
+                    alt={fullName}
                     src="/static/images/avatar/7.jpg"
                     sx={{width: 36, height: 36}}
                 />
                 <Box sx={{mr: 'auto'}}>
                     <Typography variant="body2" sx={{fontWeight: 500, lineHeight: '16px'}}>
-                        {getUserData("fullName")}
+                        {fullName}
                     </Typography>
                     <Typography variant="caption" sx={{color: 'text.secondary'}}>
-                        {getUserData("sub")}
+                        {sub}
                     </Typography>
                 </Box>
                 <OptionsMenu/>

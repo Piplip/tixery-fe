@@ -1925,5 +1925,147 @@
     "byTicketTypes": "By ticket types",
     "selectTicketTypes": "Select ticket types:",
     "selectAtLeastOne": "Please select at least one ticket type"
+  },
+  "colorMode": {
+    "system": "System",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "copyright": {
+    "text": "Copyright © Tixery {{year}}."
+  },
+  "sideMenu": {
+    "eventLogo": "Event Logo"
+  },
+  "optionsMenu": {
+    "openMenu": "Open menu",
+    "myAccount": "My account",
+    "logout": "Logout"
+  },
+  "menuContent": {
+    "home": "Home",
+    "manageUsers": "Manage Users",
+    "manageEvent": "Manage Event",
+    "eventReport": "Event Report"
+  },
+  "mainGrid": {
+    "overview": "Overview"
+  },
+  "statCard": {
+    "Tickets Sold": "Tickets Sold",
+    "Total Events": "Total Events",
+    "trendUp": "+25%",
+    "trendDown": "-25%",
+    "trendNeutral": "+5%"
+  },
+  "sessionsChart": {
+    "sessions": "Sessions",
+    "increase": "+35%",
+    "description": "Sessions per day for the last 30 days",
+    "direct": "Direct",
+    "referral": "Referral",
+    "organic": "Organic"
+  },
+  "chartUserByCountry": {
+    "usersByCountry": "Users by Country",
+    "other": "Other",
+    "total": "Total"
+  },
+  "eventTicketSalesChart": {
+    "title": "Ticket Sales by Event Category",
+    "increase": "+12%",
+    "description": "Total tickets sold across all categories for the last 6 months"
+  },
+  "userManagement": {
+    "title": "User Management",
+    "totalUsers": "Total users",
+    "id": "ID",
+    "fullName": "Full Name",
+    "email": "Email",
+    "role": "Role",
+    "status": "Status",
+    "actions": "Actions",
+    "active": "Active",
+    "inactive": "Inactive",
+    "edit": "Edit",
+    "events": "Events",
+    "delete": "Delete",
+    "deleteSuccess": "User deleted successfully",
+    "deleteError": "Error deleting user"
+  },
+  "userFormDialog": {
+    "editUser": "Edit User",
+    "addNewUser": "Add New User",
+    "basicInfo": "Basic Information",
+    "organizerProfile": "Organizer Profile",
+    "notificationPrefs": "Notification Preferences",
+    "email": "Email",
+    "fullName": "Full Name",
+    "role": "Role",
+    "status": "Status",
+    "dob": "Date of Birth",
+    "gender": "Gender",
+    "phoneNumber": "Phone Number",
+    "nationality": "Nationality",
+    "profileImage": "Profile Image",
+    "profileName": "Profile Name",
+    "customURL": "Custom URL",
+    "emailOptIn": "Email Opt-in",
+    "description": "Description",
+    "statistics": "Statistics",
+    "followersTooltip": "Total number of followers",
+    "followers": "Followers",
+    "totalAttendeesTooltip": "Total attendees at events",
+    "totalAttendees": "Total Attendees",
+    "totalEventsTooltip": "Total events hosted",
+    "eventsHosted": "Events Hosted",
+    "emailNotificationPreferences": "Email Notification Preferences",
+    "featureAnnouncements": "Feature Announcements",
+    "eventSalesRecap": "Event Sales Recap",
+    "importantReminders": "Important Reminders",
+    "orderConfirmations": "Order Confirmations",
+    "cancel": "Cancel",
+    "update": "Update",
+    "create": "Create",
+    "statusValue": {
+      "verified": "Verified",
+      "pending": "Pending",
+      "disabled": "Disabled"
+    },
+    "genderValue": {
+      "male": "Male",
+      "female": "Female",
+      "other": "Other",
+      "prefernottosay": "Prefer not to say"
+    },
+    "attendee": "Attendee",
+    "host": "Host",
+    "admin": "Admin"
+  },
+  "eventManagement": {
+    "title": "Event Reports",
+    "totalEvents": "Total events",
+    "eventName": "Event Name",
+    "organizer": "Organizer",
+    "date": "Date",
+    "ticketsSold": "Tickets Sold",
+    "completionRate": "Completion Rate",
+    "revenue": "Revenue",
+    "platformFee": "Platform Fee",
+    "status": "Status",
+    "totalRevenue": "Total Revenue",
+    "avgCompletionRate": "Avg. Completion Rate",
+    "filterReports": "Filter Reports",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "apply": "Apply",
+    "allEvents": "All Events",
+    "highPerformance": "High Performance",
+    "lowPerformance": "Low Performance",
+    "statusValue": {
+      "published": "Published",
+      "past": "Past",
+      "cancelled": "Cancelled"
+    }
   }
 }

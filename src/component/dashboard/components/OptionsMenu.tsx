@@ -10,12 +10,14 @@ import ListItemIcon, {listItemIconClasses} from '@mui/material/ListItemIcon';
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import MenuButton from './MenuButton';
+import {useTranslation} from "react-i18next";
 
 const MenuItem = styled(MuiMenuItem)({
     margin: '2px 0',
 });
 
 export default function OptionsMenu() {
+    const {t} = useTranslation()
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -33,7 +35,7 @@ export default function OptionsMenu() {
     return (
         <React.Fragment>
             <MenuButton
-                aria-label="Open menu"
+                aria-label={t('optionsMenu.openMenu')}
                 onClick={handleClick}
                 sx={{borderColor: 'transparent'}}
             >
@@ -59,7 +61,7 @@ export default function OptionsMenu() {
                     },
                 }}
             >
-                <MenuItem onClick={handleClose}>My account</MenuItem>
+                <MenuItem onClick={handleClose}>{t('optionsMenu.myAccount')}</MenuItem>
                 <Divider/>
                 <MenuItem
                     onClick={handleClose}
@@ -70,7 +72,7 @@ export default function OptionsMenu() {
                         },
                     }}
                 >
-                    <ListItemText>Logout</ListItemText>
+                    <ListItemText>{t('optionsMenu.logout')}</ListItemText>
                     <ListItemIcon>
                         <LogoutRoundedIcon fontSize="small"/>
                     </ListItemIcon>

@@ -1925,5 +1925,147 @@
     "byTicketTypes": "Theo loại vé",
     "selectTicketTypes": "Chọn loại vé:",
     "selectAtLeastOne": "Vui lòng chọn ít nhất một loại vé"
+  },
+  "colorMode": {
+    "system": "Hệ thống",
+    "light": "Sáng",
+    "dark": "Tối"
+  },
+  "copyright": {
+    "text": "© Tixery {{year}}. Đã bảo lưu mọi quyền."
+  },
+  "sideMenu": {
+    "eventLogo": "Logo Sự kiện"
+  },
+  "optionsMenu": {
+    "openMenu": "Mở menu",
+    "myAccount": "Tài khoản của tôi",
+    "logout": "Đăng xuất"
+  },
+  "menuContent": {
+    "home": "Trang chủ",
+    "manageUsers": "Quản lý Người dùng",
+    "manageEvent": "Quản lý Sự kiện",
+    "eventReport": "Báo cáo Sự kiện"
+  },
+  "mainGrid": {
+    "overview": "Tổng quan"
+  },
+  "statCard": {
+    "Tickets Sold": "Vé đã bán",
+    "Total Events": "Tổng số sự kiện",
+    "trendUp": "+25%",
+    "trendDown": "-25%",
+    "trendNeutral": "+5%"
+  },
+  "sessionsChart": {
+    "sessions": "Phiên",
+    "increase": "+35%",
+    "description": "Lưu lượng truy cập mỗi ngày trong 30 ngày qua",
+    "direct": "Trực tiếp",
+    "referral": "Giới thiệu",
+    "organic": "Tự nhiên"
+  },
+  "chartUserByCountry": {
+    "usersByCountry": "Người dùng theo quốc gia",
+    "other": "Khác",
+    "total": "Tổng"
+  },
+  "eventTicketSalesChart": {
+    "title": "Doanh số bán vé theo loại sự kiện",
+    "increase": "+12%",
+    "description": "Tổng 3 loại sự kiện có số vé đã bán nhiều nhất trong 6 tháng qua"
+  },
+  "userManagement": {
+    "title": "Quản lý Người dùng",
+    "totalUsers": "Tổng số người dùng",
+    "id": "ID",
+    "fullName": "Họ và Tên",
+    "email": "Email",
+    "role": "Vai trò",
+    "status": "Trạng thái",
+    "actions": "Hành động",
+    "active": "Đang hoạt động",
+    "inactive": "Không hoạt động",
+    "edit": "Chỉnh sửa",
+    "events": "Sự kiện",
+    "delete": "Xóa",
+    "deleteSuccess": "Xóa người dùng thành công",
+    "deleteError": "Lỗi khi xóa người dùng"
+  },
+  "userFormDialog": {
+    "editUser": "Chỉnh sửa Người dùng",
+    "addNewUser": "Thêm Người dùng Mới",
+    "basicInfo": "Thông tin Cơ bản",
+    "organizerProfile": "Hồ sơ Tổ chức",
+    "notificationPrefs": "Tùy chọn Thông báo",
+    "email": "Email",
+    "fullName": "Họ và Tên",
+    "role": "Vai trò",
+    "status": "Trạng thái",
+    "dob": "Ngày sinh",
+    "gender": "Giới tính",
+    "phoneNumber": "Số điện thoại",
+    "nationality": "Quốc tịch",
+    "profileImage": "Ảnh đại diện",
+    "profileName": "Tên hồ sơ",
+    "customURL": "URL tùy chỉnh",
+    "emailOptIn": "Đăng ký nhận email",
+    "description": "Mô tả",
+    "statistics": "Thống kê",
+    "followersTooltip": "Tổng số người theo dõi",
+    "followers": "Người theo dõi",
+    "totalAttendeesTooltip": "Tổng số người tham dự sự kiện",
+    "totalAttendees": "Tổng số người tham dự",
+    "totalEventsTooltip": "Tổng số sự kiện đã tổ chức",
+    "eventsHosted": "Sự kiện đã tổ chức",
+    "emailNotificationPreferences": "Tùy chọn Thông báo Email",
+    "featureAnnouncements": "Thông báo Tính năng",
+    "eventSalesRecap": "Tóm tắt Doanh số Sự kiện",
+    "importantReminders": "Lời nhắc Quan trọng",
+    "orderConfirmations": "Xác nhận Đơn hàng",
+    "cancel": "Hủy",
+    "update": "Cập nhật",
+    "create": "Tạo",
+    "statusValue": {
+      "verified": "Đã xác minh",
+      "pending": "Đang chờ",
+      "disabled": "Đã vô hiệu hóa"
+    },
+    "genderValue": {
+      "male": "Nam",
+      "female": "Nữ",
+      "other": "Khác",
+      "prefernottosay": "Không muốn tiết lộ"
+    },
+    "attendee": "Người tham dự",
+    "host": "Chủ trì",
+    "admin": "Quản trị viên"
+  },
+  "eventManagement": {
+    "title": "Báo cáo Sự kiện",
+    "totalEvents": "Tổng số sự kiện",
+    "eventName": "Tên sự kiện",
+    "organizer": "Người tổ chức",
+    "date": "Ngày",
+    "ticketsSold": "Vé đã bán",
+    "completionRate": "Tỷ lệ Hoàn thành",
+    "revenue": "Doanh thu",
+    "platformFee": "Phí nền tảng",
+    "status": "Trạng thái",
+    "totalRevenue": "Tổng doanh thu",
+    "avgCompletionRate": "Tỷ lệ Hoàn thành Trung bình",
+    "filterReports": "Lọc Báo cáo",
+    "startDate": "Ngày Bắt đầu",
+    "endDate": "Ngày Kết thúc",
+    "apply": "Áp dụng",
+    "allEvents": "Tất cả Sự kiện",
+    "highPerformance": "Hiệu suất Cao",
+    "lowPerformance": "Hiệu suất Thấp",
+    "statusValue": {
+      "published": "Đã xuất bản",
+      "past": "Đã qua",
+      "cancelled": "Đã hủy"
+    }
   }
 }
