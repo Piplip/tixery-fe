@@ -306,14 +306,16 @@ function App() {
                 {
                     index: true, element: <MainGrid />,
                     loader: async () => {
-                        const [overviewResponse, metricsResponse] = await Promise.all([
+                        const [overviewResponse, metricsResponse, analyticsResponse] = await Promise.all([
                             accountAxiosWithToken.get('/admin/overview'),
-                            eventAxiosWithToken.get('/admin/metrics')
+                            eventAxiosWithToken.get('/admin/metrics'),
+                            accountAxiosWithToken.get('/admin/analytics')
                         ]);
 
                         return {
                             overview: overviewResponse.data,
-                            metrics: metricsResponse.data
+                            metrics: metricsResponse.data,
+                            analytics: analyticsResponse.data
                         };
                     }
                 },
@@ -350,7 +352,19 @@ function App() {
                         };
                     }
                 },
-                { path: 'reports', element: <EventReport /> }
+                {
+                    path: 'reports',
+                    element: <EventReport />,
+                    loader: async ({ request }) => {
+                        const url = new URL(request.url);
+                        const page = url.searchParams.get('page') || '1';
+                        const size = url.searchParams.get('size') || '10';
+
+                        const response = await eventAxiosWithToken.get(`/admin/reports?page=${page}&size=${size}`);
+                        console.log(response.data)
+                        return response.data;
+                    }
+                }
             ]
         },
         {path: '*', element: <Attendee404Page />, errorElement: <ErrorFallback />},

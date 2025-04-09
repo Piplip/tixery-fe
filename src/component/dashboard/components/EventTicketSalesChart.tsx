@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Chip from '@mui/material/Chip';
@@ -6,37 +7,87 @@ import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { useTheme } from '@mui/material/styles';
-import {useTranslation} from "react-i18next";
+import { useTranslation } from "react-i18next";
+import dayjs from 'dayjs';
+import { formatCurrency } from '../../../common/Utilities';
 
-export default function EventTicketSalesChart({ eventTypes = [] }) {
+interface RevenueTrend {
+    previousRevenue: number;
+    trend: 'up' | 'down' | 'stable';
+    currentRevenue: number;
+    trendPercentage: number;
+}
+
+interface EventType {
+    data: number[];
+    id: string;
+    label: string;
+    stack?: string;
+}
+
+interface EventTicketSalesChartProps {
+    eventTypes?: EventType[];
+    revenueTrend?: RevenueTrend;
+}
+
+export default function EventTicketSalesChart({
+                                                  eventTypes = [],
+                                                  revenueTrend
+                                              }: EventTicketSalesChartProps) {
     const { t } = useTranslation();
     const theme = useTheme();
+
+    const topEventTypes = React.useMemo(() => {
+        return [...eventTypes]
+            .filter(type => type.data.some(val => val > 0))
+            .sort((a, b) =>
+                b.data.reduce((sum, val) => sum + val, 0) -
+                a.data.reduce((sum, val) => sum + val, 0)
+            )
+            .slice(0, 5);
+    }, [eventTypes]);
 
     const colorPalette = [
         theme.palette.primary.dark,
         theme.palette.primary.main,
         theme.palette.primary.light,
+        theme.palette.secondary.main,
+        theme.palette.secondary.light,
     ];
 
-    const totalSold = Array.isArray(eventTypes)
-        ? eventTypes.reduce((sum, category) =>
-            sum + (Array.isArray(category.data)
-                ? category.data.reduce((s, v) => s + v, 0)
-                : 0), 0)
-        : 0;
+    const totalSold = React.useMemo(() => {
+        if (revenueTrend) {
+            return revenueTrend.currentRevenue;
+        }
+
+        return Array.isArray(eventTypes)
+            ? eventTypes.reduce((sum, category) =>
+                sum + (Array.isArray(category.data)
+                    ? category.data.reduce((s, v) => s + v, 0)
+                    : 0), 0)
+            : 0;
+    }, [eventTypes, revenueTrend]);
 
     const getLast6Months = () => {
         const months = [];
-        const today = new Date();
+        const today = dayjs();
         for (let i = 5; i >= 0; i--) {
-            const d = new Date();
-            d.setMonth(today.getMonth() - i);
-            months.push(d.toLocaleDateString('en-US', { month: 'short' }));
+            months.push(today.subtract(i, 'month').format('MMMM'));
         }
         return months;
     };
 
     const months = getLast6Months();
+
+    const trendColor = revenueTrend?.trend === 'up' ? 'success' :
+        revenueTrend?.trend === 'down' ? 'error' : 'default';
+
+    const formattedTrendPercentage = revenueTrend?.trendPercentage !== 0 ?
+        `${revenueTrend?.trendPercentage.toFixed(1)}%` : "";
+
+    const trendLabel = revenueTrend?.trend === 'up' ? t('eventTicketSalesChart.increase') :
+        revenueTrend?.trend === 'down' ? t('eventTicketSalesChart.decrease') :
+            t('eventTicketSalesChart.stable');
 
     return (
         <Card variant="outlined" sx={{ width: '100%' }}>
@@ -54,28 +105,37 @@ export default function EventTicketSalesChart({ eventTypes = [] }) {
                         }}
                     >
                         <Typography variant="h4" component="p">
-                            {totalSold}
+                            {formatCurrency(totalSold, 'USD')}
                         </Typography>
-                        <Chip size="small" color="success" label={t('eventTicketSalesChart.increase')} />
+                        <Chip
+                            size="small"
+                            color={trendColor}
+                            label={revenueTrend?.trendPercentage !== 0 ?
+                                `${trendLabel} ${formattedTrendPercentage}` :
+                                trendLabel}
+                        />
                     </Stack>
                     <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                         {t('eventTicketSalesChart.description')}
                     </Typography>
                 </Stack>
-                {Array.isArray(eventTypes) && eventTypes.length > 0 && (
+                {topEventTypes.length > 0 ? (
                     <BarChart
+                        sx={{textTransform: 'capitalize'}}
                         borderRadius={8}
                         colors={colorPalette}
-                        xAxis={
-                            [
-                                {
-                                    scaleType: 'band',
-                                    categoryGapRatio: 0.5,
-                                    data: months,
-                                },
-                            ] as any
-                        }
-                        series={eventTypes.map(event => ({...event, label: t(`event-category.${event.label}`) }))}
+                        xAxis={[{
+                            scaleType: 'band',
+                            categoryGapRatio: 0.5,
+                            data: months,
+                        } as any]}
+                        series={topEventTypes.map(event => ({
+                            data: event.data,
+                            id: event.id,
+                            label: t(`event-category.${event.label}`, event.label),
+                            stack: event.stack,
+                            valueFormatter: (value: number) => formatCurrency(value, 'USD')
+                        }))}
                         height={250}
                         margin={{ left: 50, right: 30, top: 50, bottom: 20 }}
                         grid={{ horizontal: true }}
@@ -86,15 +146,15 @@ export default function EventTicketSalesChart({ eventTypes = [] }) {
                                     vertical: 'top',
                                     horizontal: 'right',
                                 },
-                                direction: 'row',
-                                padding: 8,
-                                itemMarkWidth: 10,
-                                itemMarkHeight: 10,
-                                markGap: 5,
-                                itemGap: 10,
                             },
                         }}
                     />
+                ) : (
+                    <Box sx={{ height: 250, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Typography variant="body2" color="text.secondary">
+                            {t('common.noDataAvailable', 'No data available')}
+                        </Typography>
+                    </Box>
                 )}
             </CardContent>
         </Card>

@@ -26,7 +26,6 @@ import {CircularProgress} from "@mui/joy";
 import {countries} from "../../common/Data.js";
 import {DatePicker} from "@mui/x-date-pickers";
 import {useTranslation} from "react-i18next";
-import {useAlert} from "../../custom-hooks/useAlert.js";
 
 initializeApp(firebaseConfig);
 const storage = getStorage()
@@ -35,7 +34,6 @@ function AttendeeContactInfo() {
     const {t} = useTranslation()
     const {pid, data} = useOutletContext()
     const [isLoading, setIsLoading] = useState(false)
-    const {showInfo} = useAlert()
 
     const validationSchema = Yup.object({
         profile_name: Yup.string().required(t('attendeeContactInfo.profileNameRequired')),

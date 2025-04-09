@@ -22,6 +22,7 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import Chip from '@mui/material/Chip';
 import {useTranslation} from "react-i18next";
+import {viVN, enUS} from '@mui/x-data-grid/locales';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -55,7 +56,6 @@ interface EventsData {
 
 export default function EventManagement() {
     const { t, i18n } = useTranslation();
-    dayjs.locale(i18n.language);
     const theme = useTheme();
     const submit = useSubmit();
     const [searchParams] = useSearchParams();
@@ -81,6 +81,10 @@ export default function EventManagement() {
     const [filteredCount, setFilteredCount] = useState<number>(events.total_count);
 
     const totalEvents = events.total_count || 0;
+
+    const getLocale = () => {
+        return i18n.language.startsWith('vi') ? viVN : enUS;
+    };
 
     React.useEffect(() => {
         if (tabValue === 0) {
@@ -128,13 +132,12 @@ export default function EventManagement() {
     };
 
     const reportColumns: GridColDef[] = [
-        {field: 'name', headerName: t('eventManagement.eventName'), flex: 1, minWidth: 200},
-        {field: 'organizer_name', headerName: t('eventManagement.organizer'), flex: 1, minWidth: 150},
+        {field: 'name', headerName: t('eventManagement.eventName'), flex: 1, minWidth: 250},
+        {field: 'organizer_name', headerName: t('eventManagement.organizer'), flex: 1, minWidth: 200},
         {
             field: 'start_time',
             headerName: t('eventManagement.date'),
-            flex: 1,
-            minWidth: 200,
+            minWidth: 140,
             valueGetter: (params) => {
                 return dayjs.tz(params, 'Asia/Ho_Chi_Minh').format('HH:mm DD MMM YYYY');
             }
@@ -385,6 +388,7 @@ export default function EventManagement() {
 
                 <Box sx={{height: 600, width: '100%'}}>
                     <DataGrid
+                        localeText={getLocale().components.MuiDataGrid.defaultProps.localeText}
                         rows={filteredEvents}
                         columns={reportColumns}
                         paginationModel={paginationModel}

@@ -26,7 +26,7 @@ const Drawer = styled(MuiDrawer)({
 
 export default function SideMenu() {
     const { t } = useTranslation();
-    const fullName = getUserData("fullName");
+    const fullName = getUserData("profileName");
     const sub = getUserData("sub");
 
     return (

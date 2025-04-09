@@ -11,6 +11,7 @@ import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
 import SideMenuMobile from './SideMenuMobile';
 import MenuButton from './MenuButton';
 import ColorModeIconDropdown from '../../shared-theme/ColorModeIconDropdown';
+import { useTranslation } from 'react-i18next';
 
 const Toolbar = styled(MuiToolbar)({
     width: '100%',
@@ -29,6 +30,7 @@ const Toolbar = styled(MuiToolbar)({
 });
 
 export default function AppNavbar() {
+    const { t } = useTranslation();
     const [open, setOpen] = React.useState(false);
 
     const toggleDrawer = (newOpen: boolean) => () => {
@@ -63,13 +65,13 @@ export default function AppNavbar() {
                         spacing={1}
                         sx={{justifyContent: 'center', mr: 'auto'}}
                     >
-                        <CustomIcon/>
+                        <CustomIcon />
                         <Typography variant="h4" component="h1" sx={{color: 'text.primary'}}>
-                            Dashboard
+                            {t('navigation.dashboard')}
                         </Typography>
                     </Stack>
                     <ColorModeIconDropdown/>
-                    <MenuButton aria-label="menu" onClick={toggleDrawer(true)}>
+                    <MenuButton aria-label={t('common.menu')} onClick={toggleDrawer(true)}>
                         <MenuRoundedIcon/>
                     </MenuButton>
                     <SideMenuMobile open={open} toggleDrawer={toggleDrawer}/>

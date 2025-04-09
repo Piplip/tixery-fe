@@ -5,6 +5,7 @@ import cookie from "react-cookies";
 import {GoogleGenerativeAI} from "@google/generative-ai";
 import dayjs from "dayjs";
 import i18n from "i18next";
+import "dayjs/locale/vi.js"
 
 export function hasRole(roles){
     const token = localStorage.getItem('tk');
@@ -124,8 +125,6 @@ export async function generateGeminiContent(prompt, instruction){
         }
     });
 }
-
-import "dayjs/locale/vi.js"
 
 export function configureDayjs() {
     const updateDayjsLocale = () => {

@@ -5,7 +5,7 @@ import AttendeeFavoriteEvents from "./AttendeeFavoriteEvents.jsx";
 import AttendeeFollowing from "./AttendeeFollowing.jsx";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import {useEffect, useRef, useState} from "react";
-import {accountAxiosWithToken} from "../../config/axiosConfig.js";
+import {accountAxiosWithToken, eventAxiosWithToken} from "../../config/axiosConfig.js";
 import {checkLoggedIn, getUserData} from "../../common/Utilities.js";
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import {Link, useNavigate} from "react-router-dom";
@@ -35,9 +35,18 @@ function AttendeeProfile(){
                 `/attendee/interest?udid=${getUserData('userDataID')}`
             ];
 
+            let totalLikedEvents = 0
+            eventAxiosWithToken.get(`/event/favorite/total?pid=${getUserData('profileID')}`)
+                .then(r => {
+                    totalLikedEvents = r.data
+                })
+                .catch(err => {
+                    console.log(err)
+                })
+
             Promise.all(endpoints.map(endpoint => accountAxiosWithToken.get(endpoint)))
-                .then(([statsResponse, interestResponse]) => {
-                    setStats(statsResponse.data);
+                .then(([totalFollowing, interestResponse]) => {
+                    setStats({totalFollowing: totalFollowing.data, totalLikedEvents});
                     if (interestResponse.data) {
                         setInterest(interestResponse.data.split(','));
                     }
@@ -90,7 +99,8 @@ function AttendeeProfile(){
                         </Link>
                     </Stack>
                     <p className="attendee-profile__stats">
-                        <Link to={'/favorites'}>{stats.total_saved} {t('attendeeProfile.likes')}</Link> • <Link to={'#'}>{stats.total_followed} {t('attendeeProfile.following')}</Link>
+                        <Link to={'/favorites'}>
+                            {stats.totalLikedEvents} {t('attendeeProfile.likes')}</Link> • <Link to={'#'}>{stats.totalFollowing} {t('attendeeProfile.following')}</Link>
                     </p>
                 </Stack>
             </Stack>

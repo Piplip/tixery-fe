@@ -7,36 +7,61 @@ import SessionsChart from './SessionsChart';
 import StatCard from './StatCard';
 import Grid from '@mui/material/Grid2';
 import { useLoaderData } from "react-router-dom";
-import {useTranslation} from "react-i18next";
+import { useTranslation } from "react-i18next";
+
+interface TrafficData {
+    totalSessions: number;
+    sessions: number[];
+    totalUsers: number;
+    dates: string[];
+    source: string;
+    users: number[];
+}
+
+interface AnalyticsData {
+    trafficData: TrafficData[];
+    endDate: string;
+    propertyId: string;
+    startDate: string;
+}
 
 interface MetricsData {
     ticketsSold: {
         data: number[];
-        trend: 'up' | 'down';
-        interval: string;
+        trend: 'up' | 'down' | 'stable';
+        interval: number;
+        trendPercentage: number;
         title: string;
         value: string;
     };
     totalEvents: {
-        trend: 'up' | 'down';
+        trend: 'up' | 'down' | 'stable';
         dailyEvents: number[];
-        interval: string;
+        interval: number;
+        trendPercentage: number;
         title: string;
         value: string;
     };
+    revenueTrend: {
+        previousRevenue: number;
+        trend: 'up' | 'down' | 'stable';
+        currentRevenue: number;
+        trendPercentage: number;
+    };
     topEventTypes: Array<{
-        stack: string;
         data: number[];
         id: string;
         label: string;
+        stack?: string;
     }>;
 }
 
 export default function MainGrid() {
-    const {t} = useTranslation()
-    const { overview, metrics } = useLoaderData() as {
+    const { t } = useTranslation();
+    const { overview, metrics, analytics } = useLoaderData() as {
         overview: { usersByCountry: Array<{ nationality: string; count: number }> };
         metrics: MetricsData;
+        analytics: AnalyticsData;
     };
 
     return (
@@ -51,16 +76,26 @@ export default function MainGrid() {
                 sx={{ mb: (theme) => theme.spacing(2) }}
             >
                 <Grid key="tickets" size={{ xs: 12, sm: 6, lg: 6 }}>
-                    <StatCard {...metrics.ticketsSold} />
+                    <StatCard
+                        {...metrics.ticketsSold}
+                        trendPercentage={metrics.ticketsSold.trendPercentage}
+                    />
                 </Grid>
                 <Grid key="events" size={{ xs: 12, sm: 6, lg: 6 }}>
-                    <StatCard {...metrics.totalEvents} data={metrics.totalEvents.dailyEvents} />
+                    <StatCard
+                        {...metrics.totalEvents}
+                        data={metrics.totalEvents.dailyEvents}
+                        trendPercentage={metrics.totalEvents.trendPercentage}
+                    />
                 </Grid>
                 <Grid size={{ xs: 12, md: 6 }}>
-                    <SessionsChart />
+                    <SessionsChart analyticsData={analytics} />
                 </Grid>
                 <Grid size={{ xs: 12, md: 6 }}>
-                    <EventTicketSalesChart eventTypes={metrics.topEventTypes} />
+                    <EventTicketSalesChart
+                        eventTypes={metrics.topEventTypes}
+                        revenueTrend={metrics.revenueTrend}
+                    />
                 </Grid>
             </Grid>
             <Grid container spacing={2} columns={12}>

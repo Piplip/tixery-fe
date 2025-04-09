@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
@@ -26,103 +26,78 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import BlockIcon from '@mui/icons-material/Block';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import FlagIcon from '@mui/icons-material/Flag';
+import { useLoaderData } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import dayjs from 'dayjs';
 
 interface EventReport {
-    id: number;
-    eventId: number;
-    eventName: string;
-    reportedBy: string;
-    reportDate: string;
-    reason: string;
-    description: string;
+    report_id: number;
+    event_id: string;
+    event_name: string;
+    reporter_name: string;
+    reporter_email: string | null;
+    report_reason: string;
+    report_details: string;
+    report_date: string;
     status: 'pending' | 'under_review' | 'resolved' | 'action_taken';
-    severity: 'low' | 'medium' | 'high';
+    reporter_profile_id: number;
+    report_level: 'LOW' | 'MEDIUM' | 'HIGH';
+    report_count: number;
 }
 
-const mockReports: EventReport[] = [
-    {
-        id: 1,
-        eventId: 103,
-        eventName: 'Summer Music Festival',
-        reportedBy: 'john.doe@example.com',
-        reportDate: '2024-07-10',
-        reason: 'Misleading information',
-        description: 'The event description promised live performances from top artists that were not actually present.',
-        status: 'pending',
-        severity: 'medium'
-    },
-    {
-        id: 2,
-        eventId: 245,
-        eventName: 'Tech Workshop',
-        reportedBy: 'sarah.tech@example.com',
-        reportDate: '2024-07-09',
-        reason: 'Safety concerns',
-        description: 'The venue was overcrowded, exceeding capacity limits. Fire exits were blocked.',
-        status: 'under_review',
-        severity: 'high'
-    },
-    {
-        id: 3,
-        eventId: 187,
-        eventName: 'Food and Wine Tasting',
-        reportedBy: 'foodie123@example.com',
-        reportDate: '2024-07-08',
-        reason: 'Inappropriate content',
-        description: 'The event featured inappropriate language and content not mentioned in the description.',
-        status: 'resolved',
-        severity: 'medium'
-    },
-    {
-        id: 4,
-        eventId: 321,
-        eventName: 'Business Networking',
-        reportedBy: 'business.pro@example.com',
-        reportDate: '2024-07-07',
-        reason: 'Fraudulent activity',
-        description: 'The organizer was collecting additional fees at the door that were not disclosed during ticket purchase.',
-        status: 'action_taken',
-        severity: 'high'
-    },
-    {
-        id: 5,
-        eventId: 456,
-        eventName: 'Charity Run',
-        reportedBy: 'runner42@example.com',
-        reportDate: '2024-07-05',
-        reason: 'Misrepresentation',
-        description: 'Event claimed to be donating 100% of proceeds to charity but only a small portion was actually donated.',
-        status: 'pending',
-        severity: 'high'
-    }
-];
+interface LoaderData {
+    reports: EventReport[];
+    total: number;
+    size: number;
+    page: number;
+    status_distribution: {
+        [key: string]: number;
+    };
+}
 
 export default function EventReport() {
+    const loaderData = useLoaderData() as LoaderData;
     const theme = useTheme();
-    const [reports, setReports] = useState<EventReport[]>(mockReports);
+    const { t } = useTranslation();
+
+    const [reports, setReports] = useState<EventReport[]>([]);
     const [selectedReport, setSelectedReport] = useState<EventReport | null>(null);
     const [openDialog, setOpenDialog] = useState(false);
     const [adminNotes, setAdminNotes] = useState('');
     const [actionType, setActionType] = useState('');
     const [tabValue, setTabValue] = useState(0);
+    const [statusDistribution, setStatusDistribution] = useState<{[key: string]: number}>({});
+    const [totalCount, setTotalCount] = useState(0);
+
+    useEffect(() => {
+        if (loaderData) {
+            const formattedReports = loaderData.reports.map(report => ({
+                ...report,
+                id: report.report_id
+            }));
+            setReports(formattedReports);
+            setStatusDistribution(loaderData.status_distribution);
+            setTotalCount(loaderData.total);
+        }
+    }, [loaderData]);;
 
     const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
         setTabValue(newValue);
 
-        // Filter reports based on status
         if (newValue === 0) {
-            setReports(mockReports); // All reports
+            setReports(loaderData.reports);
         } else if (newValue === 1) {
-            setReports(mockReports.filter(report => report.status === 'pending')); // Pending reports
+            setReports(loaderData.reports.filter(report => report.status === 'pending'));
         } else if (newValue === 2) {
-            setReports(mockReports.filter(report => report.status === 'under_review')); // Under review
+            setReports(loaderData.reports.filter(report => report.status === 'under_review'));
         } else if (newValue === 3) {
-            setReports(mockReports.filter(report => report.status === 'resolved' || report.status === 'action_taken')); // Resolved
+            setReports(loaderData.reports.filter(report =>
+                report.status === 'resolved' || report.status === 'action_taken'));
         }
     };
 
     const handleViewDetails = (id: number) => {
-        const report = reports.find((r) => r.id === id);
+        const report = reports.find((r) => r.report_id === id);
         if (report) {
             setSelectedReport(report);
             setAdminNotes('');
@@ -133,7 +108,7 @@ export default function EventReport() {
 
     const handleResolveReport = (id: number, actionTaken: boolean = false) => {
         setReports(reports.map(report =>
-            report.id === id ?
+            report.report_id === id ?
                 { ...report, status: actionTaken ? 'action_taken' : 'resolved' } :
                 report
         ));
@@ -142,22 +117,21 @@ export default function EventReport() {
 
     const handleStartReview = (id: number) => {
         setReports(reports.map(report =>
-            report.id === id ? { ...report, status: 'under_review' } : report
+            report.report_id === id ? { ...report, status: 'under_review' } : report
         ));
         setOpenDialog(false);
     };
 
-    // Calculate summary metrics
-    const pendingReports = reports.filter(r => r.status === 'pending').length;
-    const highSeverityReports = reports.filter(r => r.severity === 'high').length;
-    const resolvedReports = reports.filter(r => r.status === 'resolved' || r.status === 'action_taken').length;
-    const totalReports = mockReports.length;
+    const pendingReports = statusDistribution['pending'] || 0;
+    const highSeverityReports = reports.filter(r => r.report_level === 'HIGH').length;
+    const resolvedReports = (statusDistribution['resolved'] || 0) +
+        (statusDistribution['action_taken'] || 0);
 
     const getSeverityColor = (severity: string) => {
-        switch (severity) {
-            case 'high': return theme.palette.error;
-            case 'medium': return theme.palette.warning;
-            case 'low': return theme.palette.info;
+        switch (severity.toUpperCase()) {
+            case 'HIGH': return theme.palette.error;
+            case 'MEDIUM': return theme.palette.warning;
+            case 'LOW': return theme.palette.info;
             default: return theme.palette.primary;
         }
     };
@@ -165,46 +139,46 @@ export default function EventReport() {
     const getStatusChip = (status: string) => {
         switch (status) {
             case 'pending':
-                return <Chip size="small" icon={<WarningAmberIcon />} label="Pending" color="warning" />;
+                return <Chip size="small" icon={<WarningAmberIcon />} label={t('status.pending')} color="warning" />;
             case 'under_review':
-                return <Chip size="small" icon={<VisibilityIcon />} label="Under Review" color="info" />;
+                return <Chip size="small" icon={<VisibilityIcon />} label={t('status.underReview')} color="info" />;
             case 'resolved':
-                return <Chip size="small" icon={<CheckCircleIcon />} label="Resolved" color="success" />;
+                return <Chip size="small" icon={<CheckCircleIcon />} label={t('status.resolved')} color="success" />;
             case 'action_taken':
-                return <Chip size="small" icon={<BlockIcon />} label="Action Taken" color="error" />;
+                return <Chip size="small" icon={<BlockIcon />} label={t('status.actionTaken')} color="error" />;
             default:
                 return <Chip size="small" label={status} />;
         }
     };
 
     const reportColumns: GridColDef[] = [
-        { field: 'id', headerName: 'ID', width: 70 },
-        { field: 'eventName', headerName: 'Event Name', flex: 1, minWidth: 180 },
-        { field: 'reportedBy', headerName: 'Reported By', flex: 1, minWidth: 150 },
+        { field: 'report_id', headerName: 'ID', width: 70 },
+        { field: 'event_name', headerName: t('columns.eventName'), flex: 1, minWidth: 180 },
+        { field: 'reporter_name', headerName: t('columns.reportedBy'), flex: 1, minWidth: 150 },
         {
-            field: 'reportDate',
-            headerName: 'Date Reported',
+            field: 'report_date',
+            headerName: t('columns.dateReported'),
             flex: 1,
             minWidth: 120,
             valueFormatter: (params) => {
                 if (!params.value) return '-';
-                return new Date(params.value.toString()).toLocaleDateString();
+                return dayjs(params.value.toString()).format('MM/DD/YYYY');
             }
         },
-        { field: 'reason', headerName: 'Reason', flex: 1, minWidth: 150 },
+        { field: 'report_reason', headerName: t('columns.reason'), flex: 1, minWidth: 150 },
         {
-            field: 'severity',
-            headerName: 'Severity',
+            field: 'report_level',
+            headerName: t('columns.severity'),
             flex: 1,
             minWidth: 120,
-            renderCell: (params: GridRenderCellParams<EventReport>) => {
+            renderCell: (params: GridRenderCellParams<any>) => {
                 if (!params.value) return null;
                 const severity = params.value as string;
                 const color = getSeverityColor(severity);
 
                 return (
                     <Chip
-                        label={severity.charAt(0).toUpperCase() + severity.slice(1)}
+                        label={t(`severity.${severity.toLowerCase()}`)}
                         size="small"
                         sx={{
                             bgcolor: alpha(color.main, 0.2),
@@ -218,17 +192,17 @@ export default function EventReport() {
         },
         {
             field: 'status',
-            headerName: 'Status',
+            headerName: t('columns.status'),
             flex: 1,
             minWidth: 140,
-            renderCell: (params: GridRenderCellParams<EventReport>) => {
+            renderCell: (params: GridRenderCellParams<any>) => {
                 if (!params.value) return null;
                 return getStatusChip(params.value as string);
             }
         },
         {
             field: 'actions',
-            headerName: 'Actions',
+            headerName: t('columns.actions'),
             flex: 1,
             minWidth: 150,
             sortable: false,
@@ -238,10 +212,10 @@ export default function EventReport() {
                         <Button
                             variant="contained"
                             size="small"
-                            onClick={() => handleViewDetails(Number(params.id))}
+                            onClick={() => handleViewDetails(params.row.report_id)}
                             sx={{ borderRadius: '8px' }}
                         >
-                            Review
+                            {t('buttons.review')}
                         </Button>
                     </Stack>
                 );
@@ -254,16 +228,15 @@ export default function EventReport() {
             <Paper sx={{ p: 3 }}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
                     <Typography variant="h5" component="h2" sx={{ display: 'flex', alignItems: 'center' }}>
-                        <FlagIcon sx={{ mr: 1 }} /> Event Reports
+                        <FlagIcon sx={{ mr: 1 }} /> {t('eventReports')}
                     </Typography>
                 </Stack>
 
-                {/* Summary Cards */}
                 <Grid container spacing={3} sx={{ mb: 4 }}>
                     <Grid item xs={12} sm={6} md={3}>
                         <Paper elevation={2} sx={{ p: 2, borderRadius: 2, bgcolor: alpha(theme.palette.warning.main, 0.1) }}>
                             <Typography variant="subtitle2" color="text.secondary">
-                                Pending Reports
+                                {t('metrics.pendingReports')}
                             </Typography>
                             <Typography variant="h4" color="warning.main" fontWeight="bold">
                                 {pendingReports}
@@ -273,7 +246,7 @@ export default function EventReport() {
                     <Grid item xs={12} sm={6} md={3}>
                         <Paper elevation={2} sx={{ p: 2, borderRadius: 2, bgcolor: alpha(theme.palette.error.main, 0.1) }}>
                             <Typography variant="subtitle2" color="text.secondary">
-                                High Severity
+                                {t('metrics.highSeverity')}
                             </Typography>
                             <Typography variant="h4" color="error.main" fontWeight="bold">
                                 {highSeverityReports}
@@ -283,7 +256,7 @@ export default function EventReport() {
                     <Grid item xs={12} sm={6} md={3}>
                         <Paper elevation={2} sx={{ p: 2, borderRadius: 2, bgcolor: alpha(theme.palette.success.main, 0.1) }}>
                             <Typography variant="subtitle2" color="text.secondary">
-                                Resolved
+                                {t('metrics.resolved')}
                             </Typography>
                             <Typography variant="h4" color="success.main" fontWeight="bold">
                                 {resolvedReports}
@@ -293,16 +266,15 @@ export default function EventReport() {
                     <Grid item xs={12} sm={6} md={3}>
                         <Paper elevation={2} sx={{ p: 2, borderRadius: 2, bgcolor: alpha(theme.palette.primary.main, 0.1) }}>
                             <Typography variant="subtitle2" color="text.secondary">
-                                Total Reports
+                                {t('metrics.totalReports')}
                             </Typography>
                             <Typography variant="h4" color="primary.main" fontWeight="bold">
-                                {totalReports}
+                                {totalCount}
                             </Typography>
                         </Paper>
                     </Grid>
                 </Grid>
 
-                {/* Filter Tabs */}
                 <Box sx={{ width: '100%', mb: 2 }}>
                     <Tabs
                         value={tabValue}
@@ -311,25 +283,24 @@ export default function EventReport() {
                         indicatorColor="primary"
                         aria-label="report filter tabs"
                     >
-                        <Tab label="All Reports" />
-                        <Tab label="Pending" />
-                        <Tab label="Under Review" />
-                        <Tab label="Resolved" />
+                        <Tab label={t('tabs.allReports')} />
+                        <Tab label={t('tabs.pending')} />
+                        <Tab label={t('tabs.underReview')} />
+                        <Tab label={t('tabs.resolved')} />
                     </Tabs>
                 </Box>
 
-                {/* Data Grid */}
                 <Box sx={{ height: 500, width: '100%' }}>
                     <CustomizedDataGrid
                         rows={reports}
                         columns={reportColumns}
-                        pageSize={10}
-                        pageSizeOptions={[5, 10, 25]}
+                        getRowId={(row) => row.report_id}
+                        pageSizeOptions={[loaderData.size, 5, 10, 25]}
                         disableRowSelectionOnClick
                         initialState={{
-                            pagination: { paginationModel: { pageSize: 10 } },
+                            pagination: { paginationModel: { pageSize: loaderData.size } },
                             sorting: {
-                                sortModel: [{ field: 'reportDate', sort: 'desc' }],
+                                sortModel: [{ field: 'report_date', sort: 'desc' }],
                             },
                         }}
                         getRowClassName={(params) =>
@@ -338,13 +309,14 @@ export default function EventReport() {
                         sx={{
                             '& .MuiDataGrid-cell': {
                                 padding: '8px',
+                                display: 'flex',
+                                alignItems: 'center'
                             }
                         }}
                     />
                 </Box>
             </Paper>
 
-            {/* Report Detail Dialog */}
             <Dialog
                 open={openDialog}
                 onClose={() => setOpenDialog(false)}
@@ -354,102 +326,102 @@ export default function EventReport() {
                 {selectedReport && (
                     <>
                         <DialogTitle>
-                            Report for {selectedReport.eventName}
+                            {t('dialog.reportFor')} {selectedReport.event_name}
                             <Typography variant="subtitle2" color="text.secondary" component="div">
-                                Report ID: {selectedReport.id} | Event ID: {selectedReport.eventId}
+                                {t('dialog.reportId')}: {selectedReport.report_id} | {t('dialog.eventId')}: {selectedReport.event_id}
                             </Typography>
                         </DialogTitle>
                         <DialogContent dividers>
                             <Grid container spacing={3}>
                                 <Grid item xs={12} sm={6}>
-                                    <Typography variant="subtitle2" color="text.secondary">Reported By</Typography>
-                                    <Typography variant="body1">{selectedReport.reportedBy}</Typography>
+                                    <Typography variant="subtitle2" color="text.secondary">{t('dialog.reportedBy')}</Typography>
+                                    <Typography variant="body1">{selectedReport.reporter_name}</Typography>
                                 </Grid>
                                 <Grid item xs={12} sm={6}>
-                                    <Typography variant="subtitle2" color="text.secondary">Date Reported</Typography>
-                                    <Typography variant="body1">{new Date(selectedReport.reportDate).toLocaleDateString()}</Typography>
+                                    <Typography variant="subtitle2" color="text.secondary">{t('dialog.dateReported')}</Typography>
+                                    <Typography variant="body1">{dayjs(selectedReport.report_date).format('MM/DD/YYYY')}</Typography>
                                 </Grid>
                                 <Grid item xs={12} sm={6}>
-                                    <Typography variant="subtitle2" color="text.secondary">Reason</Typography>
-                                    <Typography variant="body1">{selectedReport.reason}</Typography>
+                                    <Typography variant="subtitle2" color="text.secondary">{t('dialog.reason')}</Typography>
+                                    <Typography variant="body1">{selectedReport.report_reason}</Typography>
                                 </Grid>
                                 <Grid item xs={12} sm={6}>
                                     <Stack direction="row" spacing={2} alignItems="center">
-                                        <Typography variant="subtitle2" color="text.secondary">Status:</Typography>
+                                        <Typography variant="subtitle2" color="text.secondary">{t('dialog.status')}:</Typography>
                                         {getStatusChip(selectedReport.status)}
 
-                                        <Typography variant="subtitle2" color="text.secondary" sx={{ ml: 2 }}>Severity:</Typography>
+                                        <Typography variant="subtitle2" color="text.secondary" sx={{ ml: 2 }}>{t('dialog.severity')}:</Typography>
                                         <Chip
-                                            label={selectedReport.severity.charAt(0).toUpperCase() + selectedReport.severity.slice(1)}
+                                            label={t(`severity.${selectedReport.report_level.toLowerCase()}`)}
                                             size="small"
-                                            color={selectedReport.severity === 'high' ? 'error' : selectedReport.severity === 'medium' ? 'warning' : 'info'}
+                                            color={selectedReport.report_level === 'HIGH' ? 'error' : selectedReport.report_level === 'MEDIUM' ? 'warning' : 'info'}
                                         />
                                     </Stack>
                                 </Grid>
                                 <Grid item xs={12}>
-                                    <Typography variant="subtitle2" color="text.secondary">Description</Typography>
+                                    <Typography variant="subtitle2" color="text.secondary">{t('dialog.description')}</Typography>
                                     <Paper variant="outlined" sx={{ p: 2, mt: 1, bgcolor: 'background.default' }}>
-                                        <Typography variant="body2">{selectedReport.description}</Typography>
+                                        <Typography variant="body2">{selectedReport.report_details}</Typography>
                                     </Paper>
                                 </Grid>
                                 <Grid item xs={12}>
-                                    <Typography variant="subtitle2" color="text.secondary">Admin Notes</Typography>
+                                    <Typography variant="subtitle2" color="text.secondary">{t('dialog.adminNotes')}</Typography>
                                     <TextField
                                         multiline
                                         rows={4}
                                         fullWidth
                                         variant="outlined"
-                                        placeholder="Add your notes about this report..."
+                                        placeholder={t('dialog.addNotes')}
                                         value={adminNotes}
                                         onChange={(e) => setAdminNotes(e.target.value)}
                                         sx={{ mt: 1 }}
                                     />
                                 </Grid>
                                 <Grid item xs={12}>
-                                    <Typography variant="subtitle2" color="text.secondary">Action</Typography>
+                                    <Typography variant="subtitle2" color="text.secondary">{t('dialog.action')}</Typography>
                                     <FormControl fullWidth sx={{ mt: 1 }}>
-                                        <InputLabel id="action-type-label">Select Action</InputLabel>
+                                        <InputLabel id="action-type-label">{t('dialog.selectAction')}</InputLabel>
                                         <Select
                                             labelId="action-type-label"
                                             value={actionType}
-                                            label="Select Action"
+                                            label={t('dialog.selectAction')}
                                             onChange={(e) => setActionType(e.target.value)}
                                         >
-                                            <MenuItem value="none">No Action Required</MenuItem>
-                                            <MenuItem value="warning">Issue Warning to Organizer</MenuItem>
-                                            <MenuItem value="suspend_event">Suspend Event</MenuItem>
-                                            <MenuItem value="suspend_organizer">Suspend Organizer Account</MenuItem>
-                                            <MenuItem value="refund">Process Refunds</MenuItem>
+                                            <MenuItem value="none">{t('actions.noAction')}</MenuItem>
+                                            <MenuItem value="warning">{t('actions.issueWarning')}</MenuItem>
+                                            <MenuItem value="suspend_event">{t('actions.suspendEvent')}</MenuItem>
+                                            <MenuItem value="suspend_organizer">{t('actions.suspendOrganizer')}</MenuItem>
+                                            <MenuItem value="refund">{t('actions.processRefunds')}</MenuItem>
                                         </Select>
                                     </FormControl>
                                 </Grid>
                             </Grid>
                         </DialogContent>
                         <DialogActions sx={{ p: 2, justifyContent: 'space-between' }}>
-                            <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+                            <Button onClick={() => setOpenDialog(false)}>{t('buttons.cancel')}</Button>
                             <Stack direction="row" spacing={1}>
                                 {selectedReport.status === 'pending' && (
                                     <Button
                                         variant="outlined"
                                         color="primary"
-                                        onClick={() => handleStartReview(selectedReport.id)}
+                                        onClick={() => handleStartReview(selectedReport.report_id)}
                                     >
-                                        Start Review
+                                        {t('buttons.startReview')}
                                     </Button>
                                 )}
                                 <Button
                                     variant="outlined"
                                     color="success"
-                                    onClick={() => handleResolveReport(selectedReport.id)}
+                                    onClick={() => handleResolveReport(selectedReport.report_id)}
                                 >
-                                    Mark Resolved
+                                    {t('buttons.markResolved')}
                                 </Button>
                                 <Button
                                     variant="contained"
                                     color="error"
-                                    onClick={() => handleResolveReport(selectedReport.id, true)}
+                                    onClick={() => handleResolveReport(selectedReport.report_id, true)}
                                 >
-                                    Take Action
+                                    {t('buttons.takeAction')}
                                 </Button>
                             </Stack>
                         </DialogActions>

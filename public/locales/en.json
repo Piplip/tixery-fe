@@ -1956,7 +1956,10 @@
     "Total Events": "Total Events",
     "trendUp": "+25%",
     "trendDown": "-25%",
-    "trendNeutral": "+5%"
+    "trendNeutral": "+5%",
+    "day": "Last {{interval}} days",
+    "active": "{{interval}} active now",
+    "trendStable": "Stable"
   },
   "sessionsChart": {
     "sessions": "Sessions",
@@ -1974,7 +1977,8 @@
   "eventTicketSalesChart": {
     "title": "Ticket Sales by Event Category",
     "increase": "+12%",
-    "description": "Total tickets sold across all categories for the last 6 months"
+    "description": "Total tickets sold across all categories for the last 6 months",
+    "stable": "Stable"
   },
   "userManagement": {
     "title": "User Management",
@@ -1988,10 +1992,13 @@
     "active": "Active",
     "inactive": "Inactive",
     "edit": "Edit",
-    "events": "Events",
+    "events": "View Organizer Events",
     "delete": "Delete",
     "deleteSuccess": "User deleted successfully",
-    "deleteError": "Error deleting user"
+    "deleteError": "Error deleting user",
+    "admin": "Admin",
+    "attendee": "Attendee",
+    "host": "Organizer"
   },
   "userFormDialog": {
     "editUser": "Edit User",
@@ -2067,5 +2074,68 @@
       "past": "Past",
       "cancelled": "Cancelled"
     }
-  }
+  },
+  "eventReports": "Event Reports",
+  "metrics": {
+    "pendingReports": "Pending Reports",
+    "highSeverity": "High Severity Reports",
+    "resolved": "Resolved Reports",
+    "totalReports": "Total Reports"
+  },
+  "tabs": {
+    "allReports": "All Reports",
+    "pending": "Pending",
+    "underReview": "Under Review",
+    "resolved": "Resolved"
+  },
+  "columns": {
+    "eventName": "Event Name",
+    "reportedBy": "Reported By",
+    "dateReported": "Date Reported",
+    "reason": "Reason",
+    "severity": "Severity",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "severity": {
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low"
+  },
+  "status": {
+    "pending": "Pending",
+    "underReview": "Under Review",
+    "resolved": "Resolved",
+    "actionTaken": "Action Taken"
+  },
+  "buttons": {
+    "review": "Review",
+    "cancel": "Cancel",
+    "startReview": "Start Review",
+    "markResolved": "Mark Resolved",
+    "takeAction": "Take Action"
+  },
+  "dialog": {
+    "reportFor": "Report for",
+    "reportId": "Report ID",
+    "eventId": "Event ID",
+    "reportedBy": "Reported By",
+    "dateReported": "Date Reported",
+    "reason": "Reason",
+    "status": "Status",
+    "severity": "Severity",
+    "description": "Description",
+    "adminNotes": "Admin Notes",
+    "addNotes": "Add your notes here...",
+    "action": "Action",
+    "selectAction": "Select Action"
+  },
+  "actions": {
+    "noAction": "No Action Required",
+    "issueWarning": "Issue Warning",
+    "suspendEvent": "Suspend Event",
+    "suspendOrganizer": "Suspend Organizer",
+    "processRefunds": "Process Refunds"
+  },
+  "navigation.dashboard": "Dashboard"
 }

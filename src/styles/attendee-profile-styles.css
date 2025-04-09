@@ -37,7 +37,7 @@
 
 .attendee-profile__content {
     align-items: center;
-    padding: 2rem 15%;
+    padding: 2rem 10%;
     row-gap: 3rem;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
