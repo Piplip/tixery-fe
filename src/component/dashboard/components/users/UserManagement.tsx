@@ -76,12 +76,6 @@ export default function UserManagement() {
         submit(formData, {method: 'get', action: '/admin/users'});
     };
 
-    const handleAdd = () => {
-        setSelectedUser(null);
-        setSelectedUserData(null);
-        setOpenDialog(true);
-    };
-
     const handleEdit = (id: number, role: string) => {
         const user = users.find((u) => u.id === id);
         if (user) {
@@ -89,6 +83,7 @@ export default function UserManagement() {
 
             accountAxiosWithToken.get(`/admin/user?uid=${id}&role=${role.toLowerCase()}`)
                 .then(response => {
+                    console.log(response.data)
                     setSelectedUserData(response.data);
                     setOpenDialog(true);
                 })
@@ -219,10 +214,33 @@ export default function UserManagement() {
     const handleSaveUser = (formData: any) => {
         const isUpdate = selectedUser != null;
 
-        const requestData = {...formData,};
+        const requestData = {
+            accountId: formData.account_id,
+            profileId: formData.profile_id,
+            userDataId: formData.user_data_id,
+            accountEmail: formData.account_email,
+            roleName: formData.role_name,
+            fullName: formData.full_name,
+            dateOfBirth: formData.date_of_birth,
+            gender: formData.gender,
+            phoneNumber: formData.phone_number,
+            nationality: formData.nationality,
+            accountStatus: formData.account_status,
+            profileName: formData.profile_name || "",
+            description: formData.description || "",
+            profileImageUrl: formData.profile_image_url,
+            emailOptIn: formData.email_opt_in,
+            socialMediaLinks: formData.social_media_links || [],
+            customUrl: formData.custom_url || "",
+            totalFollowers: formData.total_followers || 0,
+            totalAttendeeHosted: formData.total_attendee_hosted || 0,
+            totalEventHosted: formData.total_event_hosted || 0,
+            notifyPreferences: formData.notify_preferences,
+            authorities: formData.authorities || ''
+        };
 
         const apiCall = isUpdate
-            ? accountAxiosWithToken.put(`/admin/user?uid=${selectedUser.account_id}`, requestData)
+            ? accountAxiosWithToken.put(`/admin/user?uid=${selectedUser.account_id}&pid=${selectedUser.profile_id}`, requestData)
             : accountAxiosWithToken.post('/admin/user', requestData);
 
         apiCall
@@ -236,15 +254,17 @@ export default function UserManagement() {
                 } else {
                     const newUser = {
                         ...formData,
-                        id: response.data?.account_id || Math.max(...users.map(u => u.id), 0) + 1,
+                        id: response.data?.accountId || Math.max(...users.map(u => u.id), 0) + 1,
                     };
                     setUsers([...users, newUser]);
                 }
 
                 setOpenDialog(false);
+                showSuccess(t('userManagement.updateSuccess'));
             })
             .catch(error => {
                 console.error(isUpdate ? "Error updating user:" : "Error creating user:", error);
+                showError(t('userManagement.updateError'));
             });
     };
 

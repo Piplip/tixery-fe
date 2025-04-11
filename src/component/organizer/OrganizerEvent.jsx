@@ -419,6 +419,7 @@ function OrganizerEvent() {
                             <Option value="scheduled">{t('eventList.upcomingEvents')}</Option>
                             <Option value="published">{t('eventList.publishedEvents')}</Option>
                             <Option value="past">{t('eventList.pastEvents')}</Option>
+                            <Option value="suspended">{t('eventList.suspended')}</Option>
                             <Option value="all">{t('eventList.allEvents')}</Option>
                         </Select>
                         <Select value={filters.profile} onChange={(_, val) => handleTypeChange(val, "profile")}>

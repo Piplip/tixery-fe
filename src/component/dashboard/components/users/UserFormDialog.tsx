@@ -29,9 +29,9 @@ import Tooltip from '@mui/material/Tooltip';
 import countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
 import viLocale from 'i18n-iso-countries/langs/vi.json';
-import { getStorage, ref, getDownloadURL } from 'firebase/storage';
-import i18n from "i18next";
+import {getDownloadURL, getStorage, ref} from 'firebase/storage';
 import {useTranslation} from "react-i18next";
+import Paper from "@mui/material/Paper";
 
 countries.registerLocale(enLocale);
 countries.registerLocale(viLocale);
@@ -65,11 +65,18 @@ function TabPanel(props: TabPanelProps) {
     );
 }
 
-interface NotifyPreferences {
+interface OrganizerNotifyPreferences {
     feature_announcement: boolean;
     event_sales_recap: boolean;
     important_reminders: boolean;
     order_confirmations: boolean;
+}
+
+interface AttendeeNotifyPreferences {
+    feature_announcement: boolean;
+    organizer_announces: boolean;
+    event_on_sales: boolean;
+    liked_events: boolean;
 }
 
 interface UserFormData {
@@ -93,7 +100,23 @@ interface UserFormData {
     total_followers?: number;
     total_attendee_hosted?: number;
     total_event_hosted?: number;
-    notify_preferences?: string | NotifyPreferences;
+    notify_preferences?: string | OrganizerNotifyPreferences | AttendeeNotifyPreferences;
+    authorities?: string;
+}
+interface UserAuthorities {
+    host?: {
+        event_management: boolean;
+        ticket_management: boolean;
+        attendee_management: boolean;
+        financial_management: boolean;
+        analytics_access: boolean;
+    };
+    attendee?: {
+        comment_post: boolean;
+        review_create: boolean;
+        ticket_transfer: boolean;
+        refund_request: boolean;
+    };
 }
 
 interface UserFormDialogProps {
@@ -104,7 +127,7 @@ interface UserFormDialogProps {
 }
 
 export default function UserFormDialog({open, onClose, onSave, user}: UserFormDialogProps) {
-    const { t, i18n } = useTranslation();
+    const {t, i18n} = useTranslation();
     const [formData, setFormData] = useState<UserFormData>({
         account_email: '',
         role_name: 'ATTENDEE',
@@ -117,14 +140,38 @@ export default function UserFormDialog({open, onClose, onSave, user}: UserFormDi
         profile_name: '',
         description: '',
         email_opt_in: 0,
+        authorities: ''
     });
     const [profileImageUrl, setProfileImageUrl] = useState<string | undefined>(undefined);
 
-    const [notifyPrefs, setNotifyPrefs] = useState<NotifyPreferences>({
+    const [organizerNotifyPrefs, setOrganizerNotifyPrefs] = useState<OrganizerNotifyPreferences>({
         feature_announcement: false,
         event_sales_recap: false,
         important_reminders: false,
         order_confirmations: false
+    });
+
+    const [attendeeNotifyPrefs, setAttendeeNotifyPrefs] = useState<AttendeeNotifyPreferences>({
+        feature_announcement: false,
+        organizer_announces: false,
+        event_on_sales: false,
+        liked_events: false
+    });
+
+    const [userAuthorities, setUserAuthorities] = useState<UserAuthorities>({
+        host: {
+            event_management: true,
+            ticket_management: true,
+            attendee_management: true,
+            financial_management: true,
+            analytics_access: true,
+        },
+        attendee: {
+            comment_post: true,
+            review_create: true,
+            ticket_transfer: true,
+            refund_request: true,
+        }
     });
 
     useEffect(() => {
@@ -155,13 +202,65 @@ export default function UserFormDialog({open, onClose, onSave, user}: UserFormDi
 
     useEffect(() => {
         if (user) {
-            let parsedNotifyPrefs = notifyPrefs;
             if (user.notify_preferences && typeof user.notify_preferences === 'string') {
                 try {
-                    parsedNotifyPrefs = JSON.parse(user.notify_preferences);
-                    setNotifyPrefs(parsedNotifyPrefs);
+                    const parsedPrefs = JSON.parse(user.notify_preferences);
+
+                    if (user.role_name === 'HOST') {
+                        setOrganizerNotifyPrefs({
+                            feature_announcement: Boolean(parsedPrefs.feature_announcement),
+                            event_sales_recap: Boolean(parsedPrefs.event_sales_recap),
+                            important_reminders: Boolean(parsedPrefs.important_reminders),
+                            order_confirmations: Boolean(parsedPrefs.order_confirmations || false)
+                        });
+                    } else if (user.role_name === 'ATTENDEE') {
+                        setAttendeeNotifyPrefs({
+                            feature_announcement: Boolean(parsedPrefs.feature_announcement),
+                            organizer_announces: Boolean(parsedPrefs.organizer_announces),
+                            event_on_sales: Boolean(parsedPrefs.event_on_sales),
+                            liked_events: Boolean(parsedPrefs.liked_events)
+                        });
+                    }
                 } catch (e) {
                     console.error("Error parsing notify preferences", e);
+                }
+            }
+
+            if (user.authorities && typeof user.authorities === 'string') {
+                const authList = user.authorities.split(',');
+
+                if (user.role_name === 'HOST') {
+                    setUserAuthorities({
+                        host: {
+                            event_management: authList.includes('EVENT_MANAGEMENT'),
+                            ticket_management: authList.includes('TICKET_MANAGEMENT'),
+                            attendee_management: authList.includes('ATTENDEE_MANAGEMENT'),
+                            financial_management: authList.includes('FINANCIAL_MANAGEMENT'),
+                            analytics_access: authList.includes('ANALYTICS_ACCESS'),
+                        },
+                        attendee: {
+                            comment_post: true,
+                            review_create: true,
+                            ticket_transfer: true,
+                            refund_request: true,
+                        }
+                    });
+                } else if (user.role_name === 'ATTENDEE') {
+                    setUserAuthorities({
+                        host: {
+                            event_management: true,
+                            ticket_management: true,
+                            attendee_management: true,
+                            financial_management: true,
+                            analytics_access: true,
+                        },
+                        attendee: {
+                            comment_post: authList.includes('COMMENT_POST'),
+                            review_create: authList.includes('REVIEW_CREATE'),
+                            ticket_transfer: authList.includes('TICKET_TRANSFER'),
+                            refund_request: authList.includes('REFUND_REQUEST'),
+                        }
+                    });
                 }
             }
 
@@ -177,7 +276,6 @@ export default function UserFormDialog({open, onClose, onSave, user}: UserFormDi
                 phone_number: user.phone_number || '',
                 nationality: user.nationality || 'US',
                 account_status: user.account_status || 'VERIFIED',
-
                 profile_name: user.profile_name || '',
                 description: user.description || '',
                 profile_image_url: user.profile_image_url,
@@ -188,6 +286,7 @@ export default function UserFormDialog({open, onClose, onSave, user}: UserFormDi
                 total_attendee_hosted: user.total_attendee_hosted,
                 total_event_hosted: user.total_event_hosted,
                 notify_preferences: user.notify_preferences,
+                authorities: user.authorities || '',
             });
         } else {
             setFormData({
@@ -202,18 +301,46 @@ export default function UserFormDialog({open, onClose, onSave, user}: UserFormDi
                 profile_name: '',
                 description: '',
                 email_opt_in: 0,
+                authorities: '',
             });
 
-            setNotifyPrefs({
+            setOrganizerNotifyPrefs({
                 feature_announcement: false,
                 event_sales_recap: false,
                 important_reminders: false,
                 order_confirmations: false
             });
+
+            setAttendeeNotifyPrefs({
+                feature_announcement: false,
+                organizer_announces: false,
+                event_on_sales: false,
+                liked_events: false
+            });
+
+            setUserAuthorities({
+                host: {
+                    event_management: true,
+                    ticket_management: true,
+                    attendee_management: true,
+                    financial_management: true,
+                    analytics_access: true,
+                },
+                attendee: {
+                    comment_post: true,
+                    review_create: true,
+                    ticket_transfer: true,
+                    refund_request: true,
+                }
+            });
         }
 
         setTabValue(0);
-    }, [user, open]);
+    }, [user, open]);;
+
+    useEffect(() => {
+        setTabValue(0);
+    }, [formData.role_name]);
 
     const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
         setTabValue(newValue);
@@ -240,6 +367,52 @@ export default function UserFormDialog({open, onClose, onSave, user}: UserFormDi
         }));
     };
 
+    const handleHostAuthorityChange = (field: keyof typeof userAuthorities.host) => (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        setUserAuthorities(prev => ({
+            ...prev,
+            host: {
+                ...prev.host!,
+                [field]: event.target.checked
+            }
+        }));
+
+        setFormData(prev => ({
+            ...prev,
+            authorities: JSON.stringify({
+                ...userAuthorities,
+                host: {
+                    ...userAuthorities.host!,
+                    [field]: event.target.checked
+                }
+            })
+        }));
+    };
+
+    const handleAttendeeAuthorityChange = (field: keyof typeof userAuthorities.attendee) => (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        setUserAuthorities(prev => ({
+            ...prev,
+            attendee: {
+                ...prev.attendee!,
+                [field]: event.target.checked
+            }
+        }));
+
+        setFormData(prev => ({
+            ...prev,
+            authorities: JSON.stringify({
+                ...userAuthorities,
+                attendee: {
+                    ...userAuthorities.attendee!,
+                    [field]: event.target.checked
+                }
+            })
+        }));
+    };
+
     const handleSwitchChange = (field: string) => (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
@@ -247,15 +420,30 @@ export default function UserFormDialog({open, onClose, onSave, user}: UserFormDi
         setFormData((prev) => ({...prev, [field]: value}));
     };
 
-    const handleNotifyPrefChange = (field: keyof NotifyPreferences) => (
+    const handleOrganizerNotifyPrefChange = (field: keyof OrganizerNotifyPreferences) => (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
         const updatedPrefs = {
-            ...notifyPrefs,
+            ...organizerNotifyPrefs,
             [field]: event.target.checked
         };
 
-        setNotifyPrefs(updatedPrefs);
+        setOrganizerNotifyPrefs(updatedPrefs);
+        setFormData((prev) => ({
+            ...prev,
+            notify_preferences: JSON.stringify(updatedPrefs)
+        }));
+    };
+
+    const handleAttendeeNotifyPrefChange = (field: keyof AttendeeNotifyPreferences) => (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const updatedPrefs = {
+            ...attendeeNotifyPrefs,
+            [field]: event.target.checked
+        };
+
+        setAttendeeNotifyPrefs(updatedPrefs);
         setFormData((prev) => ({
             ...prev,
             notify_preferences: JSON.stringify(updatedPrefs)
@@ -264,10 +452,33 @@ export default function UserFormDialog({open, onClose, onSave, user}: UserFormDi
 
     const handleSubmit = (event: React.FormEvent) => {
         event.preventDefault();
-        onSave(formData);
+
+        let authorityString = '';
+
+        if (formData.role_name === 'HOST') {
+            authorityString = Object.entries(userAuthorities.host || {})
+                .filter(([_, isEnabled]) => isEnabled)
+                .map(([key]) => key.toUpperCase())
+                .join(',');
+        } else if (formData.role_name === 'ATTENDEE') {
+            authorityString = Object.entries(userAuthorities.attendee || {})
+                .filter(([_, isEnabled]) => isEnabled)
+                .map(([key]) => key.toUpperCase())
+                .join(',');
+        }
+
+        const finalData = {
+            ...formData,
+            authorities: authorityString
+        };
+
+        console.log('Submitting:', finalData);
+        onSave(finalData);
     };
 
     const isOrganizer = formData.role_name === 'HOST';
+    const isAttendee = formData.role_name === 'ATTENDEE';
+    const showNotifyPrefs = isOrganizer || isAttendee;
 
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -279,8 +490,166 @@ export default function UserFormDialog({open, onClose, onSave, user}: UserFormDi
                     <Tabs value={tabValue} onChange={handleTabChange} aria-label="user form tabs">
                         <Tab label={t('userFormDialog.basicInfo')} id="user-tab-0"/>
                         {isOrganizer && <Tab label={t('userFormDialog.organizerProfile')} id="user-tab-1"/>}
-                        {isOrganizer && <Tab label={t('userFormDialog.notificationPrefs')} id="user-tab-2"/>}
+                        {showNotifyPrefs && <Tab label={t('userFormDialog.notificationPrefs')} id="user-tab-2"/>}
                     </Tabs>
+
+                    {(isOrganizer || isAttendee) && (
+                        <TabPanel value={tabValue} index={isOrganizer ? 2 : 1}>
+                            <Typography variant="subtitle1" gutterBottom>
+                                {t('userFormDialog.manageUserAuthorities')}
+                            </Typography>
+
+                            {isOrganizer && (
+                                <>
+                                    <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
+                                        {t('userFormDialog.hostPrivileges')}
+                                    </Typography>
+                                    <Paper variant="outlined" sx={{ p: 2 }}>
+                                        <Grid container spacing={2}>
+                                            <Grid item xs={12} sm={6}>
+                                                <FormControlLabel
+                                                    control={
+                                                        <Switch
+                                                            checked={userAuthorities.host?.event_management || false}
+                                                            onChange={handleHostAuthorityChange('event_management')}
+                                                        />
+                                                    }
+                                                    label={t('authorities.host.eventManagement')}
+                                                />
+                                                <Typography variant="caption" color="text.secondary" display="block" sx={{ ml: 4 }}>
+                                                    {t('authorities.host.eventManagementDesc')}
+                                                </Typography>
+                                            </Grid>
+                                            <Grid item xs={12} sm={6}>
+                                                <FormControlLabel
+                                                    control={
+                                                        <Switch
+                                                            checked={userAuthorities.host?.ticket_management || false}
+                                                            onChange={handleHostAuthorityChange('ticket_management')}
+                                                        />
+                                                    }
+                                                    label={t('authorities.host.ticketManagement')}
+                                                />
+                                                <Typography variant="caption" color="text.secondary" display="block" sx={{ ml: 4 }}>
+                                                    {t('authorities.host.ticketManagementDesc')}
+                                                </Typography>
+                                            </Grid>
+                                            <Grid item xs={12} sm={6}>
+                                                <FormControlLabel
+                                                    control={
+                                                        <Switch
+                                                            checked={userAuthorities.host?.attendee_management || false}
+                                                            onChange={handleHostAuthorityChange('attendee_management')}
+                                                        />
+                                                    }
+                                                    label={t('authorities.host.attendeeManagement')}
+                                                />
+                                                <Typography variant="caption" color="text.secondary" display="block" sx={{ ml: 4 }}>
+                                                    {t('authorities.host.attendeeManagementDesc')}
+                                                </Typography>
+                                            </Grid>
+                                            <Grid item xs={12} sm={6}>
+                                                <FormControlLabel
+                                                    control={
+                                                        <Switch
+                                                            checked={userAuthorities.host?.financial_management || false}
+                                                            onChange={handleHostAuthorityChange('financial_management')}
+                                                        />
+                                                    }
+                                                    label={t('authorities.host.financialManagement')}
+                                                />
+                                                <Typography variant="caption" color="text.secondary" display="block" sx={{ ml: 4 }}>
+                                                    {t('authorities.host.financialManagementDesc')}
+                                                </Typography>
+                                            </Grid>
+                                            <Grid item xs={12} sm={6}>
+                                                <FormControlLabel
+                                                    control={
+                                                        <Switch
+                                                            checked={userAuthorities.host?.analytics_access || false}
+                                                            onChange={handleHostAuthorityChange('analytics_access')}
+                                                        />
+                                                    }
+                                                    label={t('authorities.host.analyticsAccess')}
+                                                />
+                                                <Typography variant="caption" color="text.secondary" display="block" sx={{ ml: 4 }}>
+                                                    {t('authorities.host.analyticsAccessDesc')}
+                                                </Typography>
+                                            </Grid>
+                                        </Grid>
+                                    </Paper>
+                                </>
+                            )}
+
+                            {isAttendee && (
+                                <>
+                                    <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
+                                        {t('userFormDialog.attendeePrivileges')}
+                                    </Typography>
+                                    <Paper variant="outlined" sx={{ p: 2 }}>
+                                        <Grid container spacing={2}>
+                                            <Grid item xs={12} sm={6}>
+                                                <FormControlLabel
+                                                    control={
+                                                        <Switch
+                                                            checked={userAuthorities.attendee?.comment_post || false}
+                                                            onChange={handleAttendeeAuthorityChange('comment_post')}
+                                                        />
+                                                    }
+                                                    label={t('authorities.attendee.commentPost')}
+                                                />
+                                                <Typography variant="caption" color="text.secondary" display="block" sx={{ ml: 4 }}>
+                                                    {t('authorities.attendee.commentPostDesc')}
+                                                </Typography>
+                                            </Grid>
+                                            <Grid item xs={12} sm={6}>
+                                                <FormControlLabel
+                                                    control={
+                                                        <Switch
+                                                            checked={userAuthorities.attendee?.review_create || false}
+                                                            onChange={handleAttendeeAuthorityChange('review_create')}
+                                                        />
+                                                    }
+                                                    label={t('authorities.attendee.reviewCreate')}
+                                                />
+                                                <Typography variant="caption" color="text.secondary" display="block" sx={{ ml: 4 }}>
+                                                    {t('authorities.attendee.reviewCreateDesc')}
+                                                </Typography>
+                                            </Grid>
+                                            <Grid item xs={12} sm={6}>
+                                                <FormControlLabel
+                                                    control={
+                                                        <Switch
+                                                            checked={userAuthorities.attendee?.ticket_transfer || false}
+                                                            onChange={handleAttendeeAuthorityChange('ticket_transfer')}
+                                                        />
+                                                    }
+                                                    label={t('authorities.attendee.ticketTransfer')}
+                                                />
+                                                <Typography variant="caption" color="text.secondary" display="block" sx={{ ml: 4 }}>
+                                                    {t('authorities.attendee.ticketTransferDesc')}
+                                                </Typography>
+                                            </Grid>
+                                            <Grid item xs={12} sm={6}>
+                                                <FormControlLabel
+                                                    control={
+                                                        <Switch
+                                                            checked={userAuthorities.attendee?.refund_request || false}
+                                                            onChange={handleAttendeeAuthorityChange('refund_request')}
+                                                        />
+                                                    }
+                                                    label={t('authorities.attendee.refundRequest')}
+                                                />
+                                                <Typography variant="caption" color="text.secondary" display="block" sx={{ ml: 4 }}>
+                                                    {t('authorities.attendee.refundRequestDesc')}
+                                                </Typography>
+                                            </Grid>
+                                        </Grid>
+                                    </Paper>
+                                </>
+                            )}
+                        </TabPanel>
+                    )}
 
                     <TabPanel value={tabValue} index={0}>
                         <Stack spacing={3}>
@@ -469,7 +838,8 @@ export default function UserFormDialog({open, onClose, onSave, user}: UserFormDi
                                                 borderColor: 'divider',
                                                 borderRadius: 1
                                             }}>
-                                                <Typography variant="body2" color="text.secondary">{t('userFormDialog.totalAttendees')}</Typography>
+                                                <Typography variant="body2"
+                                                            color="text.secondary">{t('userFormDialog.totalAttendees')}</Typography>
                                                 <Typography
                                                     variant="h6">{formData.total_attendee_hosted?.toLocaleString() || "0"}</Typography>
                                             </Box>
@@ -483,7 +853,8 @@ export default function UserFormDialog({open, onClose, onSave, user}: UserFormDi
                                                 borderColor: 'divider',
                                                 borderRadius: 1
                                             }}>
-                                                <Typography variant="body2" color="text.secondary">{t('userFormDialog.eventsHosted')}</Typography>
+                                                <Typography variant="body2"
+                                                            color="text.secondary">{t('userFormDialog.eventsHosted')}</Typography>
                                                 <Typography
                                                     variant="h6">{formData.total_event_hosted?.toLocaleString() || "0"}</Typography>
                                             </Box>
@@ -494,49 +865,93 @@ export default function UserFormDialog({open, onClose, onSave, user}: UserFormDi
                         </TabPanel>
                     )}
 
-                    {isOrganizer && (
-                        <TabPanel value={tabValue} index={2}>
+                    {showNotifyPrefs && (
+                        <TabPanel value={tabValue} index={isOrganizer ? 2 : 1}>
                             <Typography variant="subtitle1" gutterBottom>
                                 {t('userFormDialog.emailNotificationPreferences')}
                             </Typography>
-                            <Stack spacing={2}>
-                                <FormControlLabel
-                                    control={
-                                        <Switch
-                                            checked={notifyPrefs.feature_announcement}
-                                            onChange={handleNotifyPrefChange('feature_announcement')}
-                                        />
-                                    }
-                                    label={t('userFormDialog.featureAnnouncements')}
-                                />
-                                <FormControlLabel
-                                    control={
-                                        <Switch
-                                            checked={notifyPrefs.event_sales_recap}
-                                            onChange={handleNotifyPrefChange('event_sales_recap')}
-                                        />
-                                    }
-                                    label={t('userFormDialog.eventSalesRecap')}
-                                />
-                                <FormControlLabel
-                                    control={
-                                        <Switch
-                                            checked={notifyPrefs.important_reminders}
-                                            onChange={handleNotifyPrefChange('important_reminders')}
-                                        />
-                                    }
-                                    label={t('userFormDialog.importantReminders')}
-                                />
-                                <FormControlLabel
-                                    control={
-                                        <Switch
-                                            checked={notifyPrefs.order_confirmations}
-                                            onChange={handleNotifyPrefChange('order_confirmations')}
-                                        />
-                                    }
-                                    label={t('userFormDialog.orderConfirmations')}
-                                />
-                            </Stack>
+
+                            {isAttendee && (
+                                <Stack spacing={2}>
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={attendeeNotifyPrefs.feature_announcement}
+                                                onChange={handleAttendeeNotifyPrefChange('feature_announcement')}
+                                            />
+                                        }
+                                        label={t('attendeeNotificationSetting.attending.featureAnnouncement')}
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={attendeeNotifyPrefs.organizer_announces}
+                                                onChange={handleAttendeeNotifyPrefChange('organizer_announces')}
+                                            />
+                                        }
+                                        label={t('attendeeNotificationSetting.attending.organizerAnnounces')}
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={attendeeNotifyPrefs.event_on_sales}
+                                                onChange={handleAttendeeNotifyPrefChange('event_on_sales')}
+                                            />
+                                        }
+                                        label={t('attendeeNotificationSetting.attending.eventOnSales')}
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={attendeeNotifyPrefs.liked_events}
+                                                onChange={handleAttendeeNotifyPrefChange('liked_events')}
+                                            />
+                                        }
+                                        label={t('attendeeNotificationSetting.attending.likedEvents')}
+                                    />
+                                </Stack>
+                            )}
+
+                            {isOrganizer && (
+                                <Stack spacing={2}>
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={organizerNotifyPrefs.feature_announcement}
+                                                onChange={handleOrganizerNotifyPrefChange('feature_announcement')}
+                                            />
+                                        }
+                                        label={t('attendeeNotificationSetting.organizing.featureAnnouncement')}
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={organizerNotifyPrefs.event_sales_recap}
+                                                onChange={handleOrganizerNotifyPrefChange('event_sales_recap')}
+                                            />
+                                        }
+                                        label={t('attendeeNotificationSetting.organizing.eventSalesRecap')}
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={organizerNotifyPrefs.important_reminders}
+                                                onChange={handleOrganizerNotifyPrefChange('important_reminders')}
+                                            />
+                                        }
+                                        label={t('attendeeNotificationSetting.organizing.importantReminders')}
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={organizerNotifyPrefs.order_confirmations}
+                                                onChange={handleOrganizerNotifyPrefChange('order_confirmations')}
+                                            />
+                                        }
+                                        label={t('attendeeNotificationSetting.organizing.orderConfirmations')}
+                                    />
+                                </Stack>
+                            )}
                         </TabPanel>
                     )}
                 </DialogContent>

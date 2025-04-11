@@ -63,7 +63,7 @@ function ReportEvent({eventID}){
 
         if(checkLoggedIn()){
             payload = {...payload,
-                email: email,
+                reporterEmail: email,
                 reporterProfileID: getUserData('profileID')
             }
         }

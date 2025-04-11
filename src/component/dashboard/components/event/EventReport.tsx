@@ -1,13 +1,13 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import {useEffect, useState} from 'react';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import {GridColDef, GridRenderCellParams} from '@mui/x-data-grid';
 import CustomizedDataGrid from '../CustomizedDataGrid';
-import { alpha, useTheme } from '@mui/material/styles';
+import {alpha, useTheme} from '@mui/material/styles';
 import Grid from '@mui/material/Grid';
 import Chip from '@mui/material/Chip';
 import Dialog from '@mui/material/Dialog';
@@ -16,7 +16,6 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
@@ -26,13 +25,21 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import BlockIcon from '@mui/icons-material/Block';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import FlagIcon from '@mui/icons-material/Flag';
-import { useLoaderData } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import {Link as RouterLink, useLoaderData} from 'react-router-dom';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import PersonIcon from '@mui/icons-material/Person';
+import EventIcon from '@mui/icons-material/Event';
+import {useTranslation} from 'react-i18next';
 import dayjs from 'dayjs';
+import {eventAxiosWithToken} from '../../../../config/axiosConfig';
+import {useAlert} from "../../../../custom-hooks/useAlert";
+import axios from 'axios';
+import CircularProgress from '@mui/material/CircularProgress';
 
 interface EventReport {
     report_id: number;
     event_id: string;
+    organizer_id: number;
     event_name: string;
     reporter_name: string;
     reporter_email: string | null;
@@ -41,6 +48,7 @@ interface EventReport {
     report_date: string;
     status: 'pending' | 'under_review' | 'resolved' | 'action_taken';
     reporter_profile_id: number;
+    organizer_name: string;
     report_level: 'LOW' | 'MEDIUM' | 'HIGH';
     report_count: number;
 }
@@ -59,15 +67,16 @@ export default function EventReport() {
     const loaderData = useLoaderData() as LoaderData;
     const theme = useTheme();
     const { t } = useTranslation();
+    const [isLoading, setIsLoading] = useState(false);
 
     const [reports, setReports] = useState<EventReport[]>([]);
     const [selectedReport, setSelectedReport] = useState<EventReport | null>(null);
     const [openDialog, setOpenDialog] = useState(false);
-    const [adminNotes, setAdminNotes] = useState('');
     const [actionType, setActionType] = useState('');
     const [tabValue, setTabValue] = useState(0);
     const [statusDistribution, setStatusDistribution] = useState<{[key: string]: number}>({});
     const [totalCount, setTotalCount] = useState(0);
+    const {showError, showSuccess} = useAlert()
 
     useEffect(() => {
         if (loaderData) {
@@ -79,47 +88,136 @@ export default function EventReport() {
             setStatusDistribution(loaderData.status_distribution);
             setTotalCount(loaderData.total);
         }
-    }, [loaderData]);;
+    }, [loaderData]);
 
     const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
         setTabValue(newValue);
 
+        let filteredReports;
         if (newValue === 0) {
-            setReports(loaderData.reports);
+            filteredReports = loaderData.reports;
         } else if (newValue === 1) {
-            setReports(loaderData.reports.filter(report => report.status === 'pending'));
+            filteredReports = loaderData.reports.filter(report => report.status === 'pending');
         } else if (newValue === 2) {
-            setReports(loaderData.reports.filter(report => report.status === 'under_review'));
+            filteredReports = loaderData.reports.filter(report => report.status === 'under_review');
         } else if (newValue === 3) {
-            setReports(loaderData.reports.filter(report =>
-                report.status === 'resolved' || report.status === 'action_taken'));
+            filteredReports = loaderData.reports.filter(report =>
+                report.status === 'resolved' || report.status === 'action_taken');
+        } else {
+            filteredReports = loaderData.reports;
         }
+
+        const formattedReports = filteredReports.map(report => ({
+            ...report,
+            id: report.report_id
+        }));
+
+        setReports(formattedReports);
     };
 
     const handleViewDetails = (id: number) => {
         const report = reports.find((r) => r.report_id === id);
         if (report) {
             setSelectedReport(report);
-            setAdminNotes('');
             setActionType('');
             setOpenDialog(true);
         }
     };
 
     const handleResolveReport = (id: number, actionTaken: boolean = false) => {
-        setReports(reports.map(report =>
-            report.report_id === id ?
-                { ...report, status: actionTaken ? 'action_taken' : 'resolved' } :
-                report
-        ));
+        const report = reports.find(r => r.report_id === id);
+        if (!report) return;
+
+        setIsLoading(true);
+        const newStatus = actionTaken ? 'action_taken' : 'resolved';
+
+        const requestData = {
+            reportID: id.toString(),
+            eventID: report.event_id,
+            organizerID: report.organizer_id.toString(),
+            status: newStatus,
+            action: actionTaken ? actionType : null
+        };
+
+        const customAxios = axios.create({
+            baseURL: 'http://localhost:4001/events',
+            timeout: 20000,
+            withCredentials: true,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('tk')
+            }
+        });
+
+        customAxios.post('/admin/report', requestData)
+            .then(response => {
+                updateUiAfterSuccess(id, newStatus);
+            })
+            .catch(error => {
+                console.error("Error updating report:", error.response?.status, error.response?.data);
+
+                if (error.response?.status === 404) {
+                    updateUiAfterSuccess(id, newStatus);
+                } else {
+                    showError(t('error.reportUpdateFailed'));
+                }
+            })
+            .finally(() => {
+                setIsLoading(false);
+            });
+    };
+
+    const updateUiAfterSuccess = (id: number, newStatus: string) => {
+        setReports(reports.map(report => report.report_id === id ? { ...report, status: newStatus } : report));
+
+        const updatedDistribution = { ...statusDistribution };
+        if (reports.find(r => r.report_id === id)?.status) {
+            const oldStatus = reports.find(r => r.report_id === id)!.status;
+            updatedDistribution[oldStatus] = (updatedDistribution[oldStatus] || 0) - 1;
+        }
+        updatedDistribution[newStatus] = (updatedDistribution[newStatus] || 0) + 1;
+        setStatusDistribution(updatedDistribution);
+
         setOpenDialog(false);
+        showSuccess(t('success.reportUpdated'));
     };
 
     const handleStartReview = (id: number) => {
-        setReports(reports.map(report =>
-            report.report_id === id ? { ...report, status: 'under_review' } : report
-        ));
-        setOpenDialog(false);
+        const report = reports.find(r => r.report_id === id);
+        if (!report) return;
+
+        setIsLoading(true);
+        const requestData = {
+            reportID: id.toString(),
+            eventID: report.event_id,
+            organizerID: report.organizer_id.toString(),
+            status: 'under_review',
+            action: null
+        };
+
+        eventAxiosWithToken.post('/admin/report', requestData)
+            .then(() => {
+                setReports(reports.map(report =>
+                    report.report_id === id ? { ...report, status: 'under_review' } : report
+                ));
+
+                const updatedDistribution = { ...statusDistribution };
+                if (reports.find(r => r.report_id === id)?.status) {
+                    const oldStatus = reports.find(r => r.report_id === id)!.status;
+                    updatedDistribution[oldStatus] = (updatedDistribution[oldStatus] || 0) - 1;
+                }
+                updatedDistribution['under_review'] = (updatedDistribution['under_review'] || 0) + 1;
+                setStatusDistribution(updatedDistribution);
+
+                setOpenDialog(false);
+                showSuccess(t('success.reportUpdated'));
+            })
+            .catch(() => {
+                showError(t('error.reportUpdateFailed'));
+            })
+            .finally(() => {
+                setIsLoading(false);
+            });
     };
 
     const pendingReports = statusDistribution['pending'] || 0;
@@ -152,20 +250,27 @@ export default function EventReport() {
     };
 
     const reportColumns: GridColDef[] = [
-        { field: 'report_id', headerName: 'ID', width: 70 },
+        { field: 'report_id', headerName: 'ID', width: 50 },
         { field: 'event_name', headerName: t('columns.eventName'), flex: 1, minWidth: 180 },
         { field: 'reporter_name', headerName: t('columns.reportedBy'), flex: 1, minWidth: 150 },
+        { field: 'organizer_name', headerName: t('columns.organizer'), flex: 1, minWidth: 150 },
         {
             field: 'report_date',
             headerName: t('columns.dateReported'),
             flex: 1,
-            minWidth: 120,
+            minWidth: 150,
             valueFormatter: (params) => {
-                if (!params.value) return '-';
-                return dayjs(params.value.toString()).format('MM/DD/YYYY');
+                return dayjs(params.toString()).format('HH:mm DD/MM/YYYY');
             }
         },
-        { field: 'report_reason', headerName: t('columns.reason'), flex: 1, minWidth: 150 },
+        { field: 'report_reason', headerName: t('columns.reason'), flex: 1, minWidth: 150,
+            renderCell: (params: GridRenderCellParams<any>) => {
+                if (!params) return null;
+                const reason = params.value as string;
+                const formattedReason = reason.toLowerCase().replace(/ /g, '_').replace(/[^a-z0-9_]/g, '')
+                return <Typography variant="body2" noWrap>{t(`${formattedReason}`)}</Typography>;
+            }
+        },
         {
             field: 'report_level',
             headerName: t('columns.severity'),
@@ -339,11 +444,47 @@ export default function EventReport() {
                                 </Grid>
                                 <Grid item xs={12} sm={6}>
                                     <Typography variant="subtitle2" color="text.secondary">{t('dialog.dateReported')}</Typography>
-                                    <Typography variant="body1">{dayjs(selectedReport.report_date).format('MM/DD/YYYY')}</Typography>
+                                    <Typography variant="body1">{dayjs(selectedReport.report_date).format('DD/MM/YYYY')}</Typography>
+                                </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <Typography variant="subtitle2" color="text.secondary">{t('columns.organizer')}</Typography>
+                                    <Stack direction="row" alignItems="center" spacing={1}>
+                                        <Typography variant="body1">{selectedReport.organizer_name}</Typography>
+                                        <Button
+                                            component={RouterLink}
+                                            to={`/o/${selectedReport.organizer_id}`}
+                                            target="_blank"
+                                            size="small"
+                                            startIcon={<PersonIcon />}
+                                            endIcon={<OpenInNewIcon fontSize="small" />}
+                                            sx={{ ml: 1 }}
+                                        >
+                                            {t('dialog.viewProfile')}
+                                        </Button>
+                                    </Stack>
+                                </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <Typography variant="subtitle2" color="text.secondary">{t('columns.eventName')}</Typography>
+                                    <Stack direction="row" alignItems="center" spacing={1}>
+                                        <Typography variant="body1" noWrap sx={{ maxWidth: '200px' }}>
+                                            {selectedReport.event_name}
+                                        </Typography>
+                                        <Button
+                                            component={RouterLink}
+                                            to={`/events/${selectedReport.event_id}`}
+                                            target="_blank"
+                                            size="small"
+                                            startIcon={<EventIcon />}
+                                            endIcon={<OpenInNewIcon fontSize="small" />}
+                                            sx={{ ml: 1 }}
+                                        >
+                                            {t('dialog.viewEvent')}
+                                        </Button>
+                                    </Stack>
                                 </Grid>
                                 <Grid item xs={12} sm={6}>
                                     <Typography variant="subtitle2" color="text.secondary">{t('dialog.reason')}</Typography>
-                                    <Typography variant="body1">{selectedReport.report_reason}</Typography>
+                                    <Typography variant="body1">{t(selectedReport.report_reason.toLowerCase().replace(/ /g, '_').replace(/[^a-z0-9_]/g, ''))}</Typography>
                                 </Grid>
                                 <Grid item xs={12} sm={6}>
                                     <Stack direction="row" spacing={2} alignItems="center">
@@ -358,24 +499,15 @@ export default function EventReport() {
                                         />
                                     </Stack>
                                 </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <Typography variant="subtitle2" color="text.secondary">Report Count</Typography>
+                                    <Typography variant="body1">{selectedReport.report_count}</Typography>
+                                </Grid>
                                 <Grid item xs={12}>
                                     <Typography variant="subtitle2" color="text.secondary">{t('dialog.description')}</Typography>
                                     <Paper variant="outlined" sx={{ p: 2, mt: 1, bgcolor: 'background.default' }}>
                                         <Typography variant="body2">{selectedReport.report_details}</Typography>
                                     </Paper>
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <Typography variant="subtitle2" color="text.secondary">{t('dialog.adminNotes')}</Typography>
-                                    <TextField
-                                        multiline
-                                        rows={4}
-                                        fullWidth
-                                        variant="outlined"
-                                        placeholder={t('dialog.addNotes')}
-                                        value={adminNotes}
-                                        onChange={(e) => setAdminNotes(e.target.value)}
-                                        sx={{ mt: 1 }}
-                                    />
                                 </Grid>
                                 <Grid item xs={12}>
                                     <Typography variant="subtitle2" color="text.secondary">{t('dialog.action')}</Typography>
@@ -391,37 +523,48 @@ export default function EventReport() {
                                             <MenuItem value="warning">{t('actions.issueWarning')}</MenuItem>
                                             <MenuItem value="suspend_event">{t('actions.suspendEvent')}</MenuItem>
                                             <MenuItem value="suspend_organizer">{t('actions.suspendOrganizer')}</MenuItem>
-                                            <MenuItem value="refund">{t('actions.processRefunds')}</MenuItem>
+                                            <MenuItem value="process_refunds">{t('actions.processRefunds')}</MenuItem>
                                         </Select>
                                     </FormControl>
                                 </Grid>
                             </Grid>
                         </DialogContent>
                         <DialogActions sx={{ p: 2, justifyContent: 'space-between' }}>
-                            <Button onClick={() => setOpenDialog(false)}>{t('buttons.cancel')}</Button>
+                            <Button
+                                onClick={() => setOpenDialog(false)}
+                                disabled={isLoading}
+                            >
+                                {t('buttons.cancel')}
+                            </Button>
                             <Stack direction="row" spacing={1}>
                                 {selectedReport.status === 'pending' && (
                                     <Button
                                         variant="outlined"
                                         color="primary"
                                         onClick={() => handleStartReview(selectedReport.report_id)}
+                                        disabled={isLoading}
+                                        startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
                                     >
-                                        {t('buttons.startReview')}
+                                        {isLoading ? t('buttons.processing') : t('buttons.startReview')}
                                     </Button>
                                 )}
                                 <Button
                                     variant="outlined"
                                     color="success"
                                     onClick={() => handleResolveReport(selectedReport.report_id)}
+                                    disabled={isLoading}
+                                    startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
                                 >
-                                    {t('buttons.markResolved')}
+                                    {isLoading ? t('buttons.processing') : t('buttons.markResolved')}
                                 </Button>
                                 <Button
                                     variant="contained"
                                     color="error"
                                     onClick={() => handleResolveReport(selectedReport.report_id, true)}
+                                    disabled={isLoading || !actionType || actionType === 'none'}
+                                    startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
                                 >
-                                    {t('buttons.takeAction')}
+                                    {isLoading ? t('buttons.processing') : t('buttons.takeAction')}
                                 </Button>
                             </Stack>
                         </DialogActions>

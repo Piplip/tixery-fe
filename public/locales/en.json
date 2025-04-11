@@ -69,6 +69,7 @@
     "showPastEvents": "Show past events",
     "createEvent": "Create Event",
     "event": "Event",
+    "suspended": "Suspended",
     "sold": "Sold",
     "gross": "Gross",
     "status": "Status",
@@ -1271,7 +1272,8 @@
     "tier": "Tier",
     "rotation": "Rotation",
     "change": "Change",
-    "seats": "seats"
+    "seats": "seats",
+    "distortionLabel": "Distortion"
   },
   "topDestination": {
     "topDestinationsAroundWorld": "Top Destinations Around the World",
@@ -1536,6 +1538,7 @@
     "ACLG_003": "The email you use to login is associated to google login! Please use it to log into your account",
     "ACLG_004": "Login successfully",
     "ACLG_005": "Invalid email or password",
+    "ACLG_006": "Account disabled",
     "ESCP_001": "Invalid discount code",
     "ESCP_002": "Discount code has expired",
     "ESCP_003": "Discount code has been used",
@@ -1859,7 +1862,8 @@
     "home": "Home"
   },
   "error": {
-    "somethingWentWrong": "Something went wrong! Please try again later."
+    "somethingWentWrong": "Something went wrong! Please try again later.",
+    "reportUpdateFailed": "Report update failed"
   },
   "eventAttendee": {
     "title": "Attendees",
@@ -1998,14 +2002,19 @@
     "deleteError": "Error deleting user",
     "admin": "Admin",
     "attendee": "Attendee",
-    "host": "Organizer"
+    "host": "Organizer",
+    "updateSuccess": "Update user successfully",
+    "updateError": "Error updating user"
   },
   "userFormDialog": {
+    "manageUserAuthorities": "Manage User Authorities",
+    "hostPrivileges": "Host Privileges",
+    "attendeePrivileges": "Attendee Privileges",
     "editUser": "Edit User",
     "addNewUser": "Add New User",
     "basicInfo": "Basic Information",
     "organizerProfile": "Organizer Profile",
-    "notificationPrefs": "Notification Preferences",
+    "notificationPrefs": "Preferences",
     "email": "Email",
     "fullName": "Full Name",
     "role": "Role",
@@ -2095,7 +2104,8 @@
     "reason": "Reason",
     "severity": "Severity",
     "status": "Status",
-    "actions": "Actions"
+    "actions": "Actions",
+    "organizer": "Organizer"
   },
   "severity": {
     "high": "High",
@@ -2113,7 +2123,8 @@
     "cancel": "Cancel",
     "startReview": "Start Review",
     "markResolved": "Mark Resolved",
-    "takeAction": "Take Action"
+    "takeAction": "Take Action",
+    "processing": "Processing..."
   },
   "dialog": {
     "reportFor": "Report for",
@@ -2128,7 +2139,10 @@
     "adminNotes": "Admin Notes",
     "addNotes": "Add your notes here...",
     "action": "Action",
-    "selectAction": "Select Action"
+    "selectAction": "Select Action",
+    "totalReport": "Total Reports",
+    "viewProfile": "View organizer profile",
+    "viewEvent": "View event page"
   },
   "actions": {
     "noAction": "No Action Required",
@@ -2137,5 +2151,32 @@
     "suspendOrganizer": "Suspend Organizer",
     "processRefunds": "Process Refunds"
   },
-  "navigation.dashboard": "Dashboard"
+  "navigation.dashboard": "Dashboard",
+  "success": {
+    "reportUpdated": "Report updated"
+  },
+  "authorities": {
+    "attendee": {
+      "commentPost": "View organizer's page",
+      "commentPostDesc": "Allows attendees to view the organizer's profile page.",
+      "reviewCreate": "Cancel ticket booking",
+      "reviewCreateDesc": "Allows attendees to cancel their ticket bookings.",
+      "ticketTransfer": "Buy ticket",
+      "ticketTransferDesc": "Allows attendees to buy tickets.",
+      "refundRequest": "Report event",
+      "refundRequestDesc": "Allows attendees to report events within the system."
+    },
+    "host": {
+      "eventManagement": "Create & Manage events",
+      "eventManagementDesc": "Allows organizers to create and manage their events.",
+      "ticketManagement": "Create & Manage tickets",
+      "ticketManagementDesc": "Allows organizers to create and manage tickets for their events.",
+      "attendeeManagement": "Manage attendees",
+      "attendeeManagementDesc": "Allows organizers to manage their attendees.",
+      "financialManagement": "Manage financials",
+      "financialManagementDesc": "Allows organizers to access and manage financials for their events.",
+      "analyticsAccess": "Access analytics",
+      "analyticsAccessDesc": "Allows organizers to access analytics features for their events."
+    }
+  }
 }

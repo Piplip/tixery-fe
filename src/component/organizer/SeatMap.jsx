@@ -482,10 +482,10 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
         ctx.fillStyle = '#4285F4';
         ctx.strokeStyle = '#000';
         ctx.lineWidth = 1 / zoom;
-        
+
         const centerTopX = 0;
         const centerTopY = bbox.y - 20 / zoom;
-        
+
         ctx.beginPath();
         ctx.arc(centerTopX, centerTopY, 8 / zoom, 0, Math.PI * 2);
         ctx.fill();
