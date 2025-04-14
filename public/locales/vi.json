@@ -1091,6 +1091,7 @@
     "alreadyHaveAccount": "Đã có tài khoản? Đăng nhập",
     "dontHaveAccount": "Chưa có tài khoản? Đăng ký",
     "invalidEmail": "Email không hợp lệ",
+    "invalidEmailFormat": "Invalid email format",
     "passwordTooShort": "Mật khẩu quá ngắn",
     "passwordTooLong": "Mật khẩu quá dài",
     "passwordsDontMatch": "Mật khẩu không khớp",

@@ -45,7 +45,7 @@ function LoginSignUp() {
 
     const schema = Yup.object().shape({
         email: Yup.string()
-            .email(t('loginPage.invalidEmailFormat'))
+            .email(t('loginPage.invalidEmail'))
             .required(t('loginPage.emailRequired')),
 
         password: isSignUpPage ? Yup.string()
