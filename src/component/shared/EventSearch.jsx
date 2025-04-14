@@ -5,7 +5,7 @@ import {Checkbox, Dialog, DialogContent, FormControlLabel, IconButton, Stack, Ty
 import {Accordion, AccordionDetails, AccordionGroup, AccordionSummary} from "@mui/joy";
 import RadioGroup from '@mui/material/RadioGroup';
 import Chip from '@mui/material/Chip';
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import Radio from '@mui/material/Radio';
 import TrendingSearches from "./TrendingSearches.jsx";
 import Grid from "@mui/material/Grid2";
@@ -18,6 +18,7 @@ import {getCookie} from "../../common/Utilities.js";
 import MapIcon from '@mui/icons-material/Map';
 import Map from "../shared/Map.jsx"
 import EventSuggestion from "./EventSuggestion.jsx";
+import {debounce} from "lodash";
 
 function EventSearch() {
     const location = useLocation()
@@ -66,8 +67,23 @@ function EventSearch() {
         });
     }, [location.search]);
 
+    const debouncedFetchEvents = useCallback(
+        debounce((searchParams, followedOrganizers) => {
+            setIsLoading(true);
+            eventAxios.post(`/search?${searchParams.toString()}`, followedOrganizers)
+                .then(r => {
+                    setIsLoading(false);
+                    setEvents(r.data);
+                })
+                .catch(err => {
+                    setIsLoading(false);
+                    return Promise.reject(err);
+                });
+        }, 500),
+        []
+    );
+
     useEffect(() => {
-        setIsLoading(true);
         let isCancelled = false;
         const rawParams = {
             ...filters,
@@ -80,25 +96,19 @@ function EventSearch() {
         );
 
         const params = new URLSearchParams(filteredParams);
-        eventAxios.post(`/search?${params.toString()}`,
-            filters.followed ? sessionStorage.getItem('followed-organizer') : null)
-            .then(r => {
-                if (!isCancelled) {
-                    setTimeout(() => {
-                        setIsLoading(false);
-                        setEvents(r.data);
-                    }, 300);
-                }
-            })
-            .catch(err => {
-                setIsLoading(false)
-                return Promise.reject(err)
-            });
+
+        if (!isCancelled) {
+            debouncedFetchEvents(
+                params,
+                filters.followed ? sessionStorage.getItem('followed-organizer') : null
+            );
+        }
 
         return () => {
             isCancelled = true;
+            debouncedFetchEvents.cancel();
         };
-    }, [location.search]);
+    }, [location.search, debouncedFetchEvents]);
 
     const handleCheckboxChange = (type) => {
         setFilters(prev => ({...prev, [type]: !prev[type]}));
