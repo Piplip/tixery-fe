@@ -302,6 +302,7 @@ function App() {
             path: '/admin',
             element: <Dashboard />,
             hydrateFallbackElement: <LoadingFallback />,
+            errorElement: <ErrorFallback />,
             children: [
                 {
                     index: true, element: <MainGrid />,
