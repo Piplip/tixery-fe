@@ -1,42 +1,52 @@
-.login-page{
+.login-page {
     display: flex;
-    height: 100dvh;
+    min-height: 100dvh;
     width: 100%;
     background-color: rgba(243, 243, 243, 0.29);
     font-family: Candara, sans-serif;
 }
-.login-page__img-wrapper{
-    height: 100%;
+
+.login-page__img-wrapper {
+    position: relative;
     width: 50%;
-    object-fit: cover;
-    display: flex;
-    justify-content: center;
+    min-height: 100dvh;
     background-color: black;
     overflow: hidden;
 }
-.login-page__img-wrapper > img{
+
+.login-page__img-wrapper > img {
+    position: absolute;
+    inset: 0;
     height: 100%;
+    width: 100%;
+    object-fit: cover;
+    object-position: center;
 }
-.login-page__form-wrapper{
+
+.login-page__form-wrapper {
     display: flex;
     flex-direction: column;
     justify-content: center;
     flex-grow: 1;
-    padding-inline: 12%;
+    padding: 2rem 12%;
+    background-color: white;
 }
-.login-page__form-title{
-    font-size: 3.75rem;
+
+.login-page__form-title {
+    font-size: clamp(2rem, 5vw, 3.75rem);
     font-family: Candara, sans-serif;
     margin-bottom: 1rem;
     font-weight: bold;
     margin-block: 1rem 2rem;
 }
-.login-page__form-divider{
+
+.login-page__form-divider {
     border-bottom: 1px solid;
-    margin-block: 2rem 2rem;
+    margin-block: 2rem;
     position: relative;
 }
-.login-page__form-divider > div{
+
+.login-page__form-divider > div {
     position: absolute;
     top: 0;
     left: 50%;
@@ -46,23 +56,34 @@
     border-radius: 1rem;
     padding: 0.25rem 1rem;
 }
-.login-page__login-external{
+
+.login-page__login-external {
     display: flex;
     justify-content: center;
+    align-items: center;
     border: 1px solid gray;
-    padding-block: .5rem;
+    padding: .75rem;
     column-gap: .5rem;
     transition: background-color .3s;
-    font-size: .9rem;
+    font-size: clamp(0.875rem, 2vw, 0.9rem);
 }
-.login-page__login-external:hover{
+
+.login-page__login-external img {
+    width: clamp(16px, 4vw, 20px);
+    height: auto;
+}
+
+.login-page__login-external:hover {
     background-color: #f1f1f1;
     cursor: pointer;
 }
-.login-page__form-toggle{
-    margin-top: 3rem;
+
+.login-page__form-toggle {
+    margin-top: 2rem;
     text-align: center;
+    font-size: clamp(0.875rem, 2vw, 1rem);
 }
+
 .loader {
     width: 20px;
     aspect-ratio: 1;
@@ -74,10 +95,51 @@
     background-size: 20% 100%;
     animation: l1 1s infinite linear;
 }
+
 @keyframes l1 {
     0%  {background-size: 20% 100%,20% 100%,20% 100%}
     33% {background-size: 20% 10% ,20% 100%,20% 100%}
     50% {background-size: 20% 100%,20% 10% ,20% 100%}
     66% {background-size: 20% 100%,20% 100%,20% 10% }
     100%{background-size: 20% 100%,20% 100%,20% 100%}
+}
+
+@media (max-width: 1024px) {
+    .login-page__form-wrapper {
+        padding: 2rem 8%;
+    }
+}
+
+@media (max-width: 768px) {
+    .login-page {
+        flex-direction: column;
+    }
+
+    .login-page__img-wrapper {
+        position: relative;
+        width: 100%;
+        min-height: 30vh;
+    }
+
+    .login-page__form-wrapper {
+        padding: 2rem 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-page__img-wrapper {
+        min-height: 25vh;
+    }
+
+    .login-page__form-wrapper {
+        padding: 1.5rem 1rem;
+    }
+
+    .login-page__form-title {
+        margin-block: 0.5rem 1.5rem;
+    }
+
+    .login-page__form-divider {
+        margin-block: 1.5rem;
+    }
 }

@@ -965,8 +965,8 @@
     "noMatches": "Không có sự kiện phù hợp với tìm kiếm của bạn",
     "today": "Hôm nay",
     "tomorrow": "Ngày mai",
-    "weekend": "Cuối tuần",
-    "week": "Tuần này",
+    "thisWeekend": "Cuối tuần",
+    "thisWeek": "Tuần này",
     "nextWeek": "Tuần tới",
     "thisMonth": "Tháng này",
     "nextMonth": "Tháng tới"

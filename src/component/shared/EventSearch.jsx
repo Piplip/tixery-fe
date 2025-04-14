@@ -28,8 +28,8 @@ function EventSearch() {
     const dates = [
         { value: 'today', label: t('eventSearch.today') },
         { value: 'tomorrow', label: t('eventSearch.tomorrow') },
-        { value: 'weekend', label: t('eventSearch.weekend') },
-        { value: 'week', label: t('eventSearch.week') },
+        { value: 'weekend', label: t('eventSearch.thisWeekend') },
+        { value: 'week', label: t('eventSearch.thisWeek') },
         { value: 'nextWeek', label: t('eventSearch.nextWeek') },
         { value: 'thisMonth', label: t('eventSearch.thisMonth') },
         { value: 'nextMonth', label: t('eventSearch.nextMonth') }
