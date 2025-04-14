@@ -5,7 +5,6 @@ import LoadingFallback from "./component/shared/LoadingFallback.jsx";
 import {checkLoggedIn, getUserData} from "./common/Utilities.js";
 import {accountAxiosWithToken, eventAxiosWithToken} from "./config/axiosConfig.js";
 import dayjs from "dayjs";
-import NavigationTracker from "./component/shared/NavigationTracker.js";
 
 const AttendeeHome = lazy(() => import("./component/attendee/AttendeeHome.jsx"));
 const LoginSignUp = lazy(() => import("./component/shared/LoginSignUp.jsx"));
