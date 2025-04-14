@@ -219,7 +219,7 @@ function TicketPanel({tickets, eventEndTime, image, eventName, eventStartTime, i
                     if(!checkLoggedIn()) {
                         setLoginDialogOpen(true)
                     }
-                    else {
+                    else if(getUserData('role') === 'ATTENDEE'){
                         collectData(tickets[0].event_id, 'view-tickets', null, tickets[0].organizer_id)
                         setOpen(true)
                     }
