@@ -9,31 +9,31 @@ export default defineConfig({
             '@': path.resolve(__dirname, './src'),
         },
     },
-    // server: {
-    //     port: 5173,
-    //     proxy: {
-    //         '^/accounts': {
-    //             target: 'http://localhost:4001',
-    //             changeOrigin: true,
-    //             secure: false,
-    //         },
-    //         '^/events': {
-    //             target: 'http://localhost:4001',
-    //             changeOrigin: true,
-    //             secure: false,
-    //         },
-    //         '^/registry': {
-    //             target: 'http://localhost:4001',
-    //             changeOrigin: true,
-    //             secure: false,
-    //         },
-    //         '^/config': {
-    //             target: 'http://localhost:4001',
-    //             changeOrigin: true,
-    //             secure: false,
-    //         },
-    //     },
-    // },
+    server: {
+        port: 5173,
+        proxy: {
+            '^/accounts': {
+                target: 'http://localhost:4001',
+                changeOrigin: true,
+                secure: false,
+            },
+            '^/events': {
+                target: 'http://localhost:4001',
+                changeOrigin: true,
+                secure: false,
+            },
+            '^/registry': {
+                target: 'http://localhost:4001',
+                changeOrigin: true,
+                secure: false,
+            },
+            '^/config': {
+                target: 'http://localhost:4001',
+                changeOrigin: true,
+                secure: false,
+            },
+        },
+    },
     build: {
         chunkSizeWarningLimit: 1000,
         rollupOptions: {
