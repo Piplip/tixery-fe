@@ -105,7 +105,7 @@ function LoginSignUp() {
         }).catch((err) => {
             setAwaitResponse(false);
             resetForm();
-	    setAlertMsg(t(`response-code.ACLG-005`)
+	    setAlertMsg(t(`response-code.ACLG-005`))
         })
     }
 
