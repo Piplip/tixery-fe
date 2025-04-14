@@ -92,7 +92,11 @@ function EventSearch() {
         };
 
         const filteredParams = Object.fromEntries(
-            Object.entries(rawParams).filter(([, value]) => value !== null && value !== undefined && value !== '')
+            Object.entries(rawParams).filter(([, value]) =>
+                value !== null &&
+                value !== undefined &&
+                value !== ''
+            )
         );
 
         const params = new URLSearchParams(filteredParams);
@@ -108,7 +112,7 @@ function EventSearch() {
             isCancelled = true;
             debouncedFetchEvents.cancel();
         };
-    }, [location.search, debouncedFetchEvents]);
+    }, [filters, location.search, debouncedFetchEvents]);
 
     const handleCheckboxChange = (type) => {
         setFilters(prev => ({...prev, [type]: !prev[type]}));
@@ -333,7 +337,7 @@ function EventSearch() {
                 <DialogContent>
                     <Stack sx={{position: 'relative'}}>
                         <Map latitude={getCookie('user-location').lat} longitude={getCookie('user-location').lon}
-                            showSearch={true} handleSearch={getMapSearchEvents}
+                             showSearch={true} handleSearch={getMapSearchEvents}
                         />
                     </Stack>
                 </DialogContent>
