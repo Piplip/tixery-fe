@@ -105,13 +105,7 @@ function LoginSignUp() {
         }).catch((err) => {
             setAwaitResponse(false);
             resetForm();
-
-            sessionStorage.setItem("serverError", JSON.stringify({
-                type: "server-down",
-                message: "Service is unavailable. Please try again later."
-            }));
-
-            navigate('/error');
+	    setAlertMsg(t(`response-code.ACLG-005`)
         })
     }
 
