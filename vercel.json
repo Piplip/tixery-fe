@@ -1,48 +1,4 @@
 {
-  "version": 2,
-  "routes": [
-    {
-      "src": "^/accounts/(.*)",
-      "dest": "https://localhost/accounts/$1",
-      "headers": { "x-forwarded-host": "true" }
-    },
-    {
-      "src": "^/events/(.*)",
-      "dest": "https://localhost/events/$1",
-      "headers": { "x-forwarded-host": "true" }
-    },
-    {
-      "src": "^/registry/(.*)",
-      "dest": "https://localhost/registry/$1",
-      "headers": { "x-forwarded-host": "true" }
-    },
-    {
-      "src": "^/config/(.*)",
-      "dest": "https://localhost/config/$1",
-      "headers": { "x-forwarded-host": "true" }
-    },
-    {
-      "src": "^/static/(.*)",
-      "dest": "/static/$1"
-    },
-    {
-      "src": "^/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "^/favicon.ico",
-      "dest": "/favicon.ico"
-    },
-    {
-      "src": "^/manifest.json",
-      "dest": "/manifest.json"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
-
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
