@@ -178,6 +178,7 @@ function TopNavSearchBar(){
     }
 
     function handleDeleteSearchHistory(id, index){
+	if(!localStorage.getItem('tk')) return;
         const searches = [...searchHistory]
         searches.splice(index, 1)
         setSearchHistory(searches)
@@ -211,7 +212,7 @@ function TopNavSearchBar(){
                                         {suggestion.map((s, index) => (
                                             <Stack key={index} flexDirection={'row'} className={'search-result-item'}
                                                    onClick={() => {
-                                                       navigate(`events/search?q=${searchValue}&online=${locationValue.value === 'Online'}`)
+                                                       navigate(`events/search?q=${s}&online=${locationValue.value === 'Online'}`)
                                                        setShowRecentSearches(false)
                                                    }}
                                             >
