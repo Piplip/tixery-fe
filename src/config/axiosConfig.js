@@ -4,7 +4,7 @@ import {getCookie} from "../common/Utilities.js";
 let isDownloadInProgress = false;
 
 const errorHandler = (error) => {
-    if (error.config.url === "/attendees/email" && error.response?.status === 404) {
+    if ((error.config.url === "/attendees/email" && error.response?.status === 404) || error.config.url === '/login') {
         return Promise.reject(error);
     }
 
