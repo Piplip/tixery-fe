@@ -6,6 +6,27 @@ import {GoogleGenerativeAI} from "@google/generative-ai";
 import dayjs from "dayjs";
 import i18n from "i18next";
 import "dayjs/locale/vi.js"
+import 'dayjs/locale/en'
+import relativeTime from 'dayjs/plugin/relativeTime'
+
+dayjs.extend(relativeTime);
+dayjs.locale(i18n.language || 'en');
+
+i18n.on('languageChanged', (lng) => {
+    dayjs.locale(lng);
+});
+
+export const formatDate = (date, format = 'DD/MM/YYYY') => {
+    return dayjs(date).format(format);
+};
+
+export const getRelativeTime = (date) => {
+    return dayjs(date).fromNow();
+};
+
+export const createDayjs = (date) => {
+    return dayjs(date);
+};
 
 export function hasRole(roles){
     const token = localStorage.getItem('tk');

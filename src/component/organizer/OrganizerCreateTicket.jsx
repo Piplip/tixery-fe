@@ -15,7 +15,7 @@ import MenuButton from "@mui/joy/MenuButton";
 import Menu from "@mui/joy/Menu";
 import {NavLink, Outlet, useLocation, useNavigate, useOutletContext} from "react-router-dom";
 import {EventContext} from "../../context.js";
-import dayjs from "dayjs";
+import {useDayjs} from "../../hooks/useDayjs";
 import "../../styles/organizer-create-ticket-styles.scss"
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import CurrencySelect from "../shared/CurrencySelect.jsx";
@@ -24,6 +24,13 @@ import LayersClearIcon from '@mui/icons-material/LayersClear';
 import {getUserData} from "../../common/Utilities.js";
 import Grid from "@mui/material/Grid2";
 import {alpha} from "@mui/material/styles";
+import dayjs from "dayjs";
+import relativeTime from 'dayjs/plugin/relativeTime';
+import 'dayjs/locale/vi';
+import 'dayjs/locale/en';
+
+dayjs.extend(relativeTime);
+dayjs.locale('vi');
 
 const ticketVisibility = [
     {label: 'Visible', value: 'visible'},
@@ -48,6 +55,7 @@ function OrganizerCreateTicket() {
     const [seatMap, setSeatMap] = useState([]);
     const [tiers, setTiers] = useState(null)
     const [selectedSeatMap, setSelectedSeatMap] = useState(null)
+    const {formatDate, getRelativeTime, create, add, isValid, isBefore, now} = useDayjs();
 
     const tabs = [
         { label: t('organizerCreateTicket.admission'), to: '' },
@@ -159,10 +167,10 @@ function OrganizerCreateTicket() {
                 ticketName: "",
                 quantity: '',
                 price: '',
-                startDate: dayjs().add(1, 'month'),
-                endDate: dayjs().add(2, 'month'),
-                startTime: dayjs(),
-                endTime: dayjs().add(1, 'hour'),
+                startDate: add(now(), 1, 'month'),
+                endDate: add(now(), 2, 'month'),
+                startTime: now(),
+                endTime: add(now(), 1, 'hour'),
                 minPerOrder: '1',
                 maxPerOrder: '1',
                 visibility: 0,
@@ -219,14 +227,14 @@ function OrganizerCreateTicket() {
                 function (value) {
                     if (data.eventType === 'recurring' || !value) return true;
 
-                    const ticketSalesDate = dayjs(value);
-                    const eventStartDate = dayjs(data.eventDate, "DD/MM/YYYY");
+                    const ticketSalesDate = create(value);
+                    const eventStartDate = create(data.eventDate, "DD/MM/YYYY");
 
-                    if (!ticketSalesDate.isValid() || !eventStartDate.isValid()) {
+                    if (!isValid(ticketSalesDate) || !isValid(eventStartDate)) {
                         return false;
                     }
 
-                    return ticketSalesDate.isBefore(eventStartDate);
+                    return isBefore(ticketSalesDate, eventStartDate);
                 }
             ),
         endDate: Yup.date().required(t('organizerCreateTicket.endDateRequired'))
@@ -245,14 +253,14 @@ function OrganizerCreateTicket() {
                 function (value) {
                     if (data.eventType === 'recurring' || !value) return true;
 
-                    const ticketSalesDate = dayjs(value);
-                    const eventStartDate = dayjs(data.eventDate, "DD/MM/YYYY");
+                    const ticketSalesDate = create(value);
+                    const eventStartDate = create(data.eventDate, "DD/MM/YYYY");
 
-                    if (!ticketSalesDate.isValid() || !eventStartDate.isValid()) {
+                    if (!isValid(ticketSalesDate) || !isValid(eventStartDate)) {
                         return false;
                     }
 
-                    return ticketSalesDate.isBefore(eventStartDate);
+                    return isBefore(ticketSalesDate, eventStartDate);
                 }
             ),
         startTime: Yup.date()
@@ -620,7 +628,7 @@ function OrganizerCreateTicket() {
                                                     <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'} columnGap={5}>
                                                         <Typography variant="h6" sx={{ color: '#007aa2', fontWeight: 'bold' }}>{map.name}</Typography>
                                                         <Typography variant="body1">
-                                                            {t('organizerCreateTicket.createdAt')}: {dayjs(map.created_at).format("HH:mm DD/MM/YYYY")} ({t('organizerCreateTicket.lastChanges')}: {dayjs(map.updated_at).fromNow()})
+                                                            {t('organizerCreateTicket.createdAt')}: {formatDate(map.created_at, "HH:mm DD/MM/YYYY")} ({getRelativeTime(map.updated_at)})
                                                         </Typography>
                                                     </Stack>
                                                 </CardContent>
@@ -685,8 +693,8 @@ function OrganizerCreateTicket() {
                                                             <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
                                                                 <Typography variant="h6" sx={{ color: '#007aa2', fontWeight: 'bold' }}>{map.name}</Typography>
                                                                 <Typography variant="body1">
-                                                                    {t('organizerCreateTicket.createdAt')}: {dayjs(map.created_at).format("HH:mm DD/MM/YYYY")}
-                                                                    ({t('organizerCreateTicket.lastChanges')}: {dayjs(map.updated_at).fromNow()})
+                                                                    {t('organizerCreateTicket.createdAt')}: {formatDate(map.created_at, "HH:mm DD/MM/YYYY")}
+                                                                    ({getRelativeTime(map.updated_at)})
                                                                 </Typography>
                                                             </Stack>
                                                         </CardContent>
