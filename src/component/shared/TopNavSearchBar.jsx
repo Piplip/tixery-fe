@@ -208,7 +208,7 @@ function TopNavSearchBar(){
                                value={searchValue} onChange={handleSearchChange}
                                onClick={handleSearchInpClick}
                         />
-                        {showRecentSearches &&
+                        {location.pathname.includes("/events/search") && showRecentSearches &&
                             (suggestion.length > 0 ?
                                     <Stack className={'drop-down-suggestion'}>
                                         {suggestion.map((s, index) => (
@@ -231,7 +231,7 @@ function TopNavSearchBar(){
                                             </Stack>
                                             :
                                             <Stack className={'drop-down-suggestion'}>
-                                                {location.pathname.includes("/events/search") && searchHistory.length > 0 ?
+                                                {searchHistory.length > 0 ?
                                                     <>
                                                         <Stack flexDirection={'row'} className={'recent-search__header'}>
                                                             <Typography variant={'h6'}>{t('topNavSearchBar.recentSearches')}</Typography>
