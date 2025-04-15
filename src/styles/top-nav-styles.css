@@ -37,6 +37,9 @@
     width: 100%;
     margin-left: 5px;
 }
+.top-nav-input-container__input:first-child{
+    width: 150%;
+}
 .top-nav-container__nav-links-container > div{
     padding-inline: 1rem;
     border-radius: 10px;
@@ -107,7 +110,6 @@
     opacity: 1;
 }
 
-/* Nav links */
 .top-nav-container__nav-links-container__link {
     padding: 0.5rem;
     border-radius: 10px;
@@ -119,7 +121,6 @@
     background-color: #dddddd;
 }
 
-/* Search Bar Container adjustments */
 .top-nav-input-container {
     width: 100%;
     max-width: 700px;
@@ -133,7 +134,76 @@
     box-shadow: 2px 3px 10px 0 #989898;
 }
 
-/* Adjustments for smaller screens */
+.drop-down-suggestion {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 70vh;
+    overflow-y: auto;
+    z-index: 1000;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-top: 8px;
+    padding: 8px 0;
+}
+
+.drop-down-suggestion::-webkit-scrollbar {
+    width: 8px;
+}
+
+.drop-down-suggestion::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 8px;
+}
+
+.drop-down-suggestion::-webkit-scrollbar-thumb {
+    background: #c5c5c5;
+    border-radius: 8px;
+}
+
+.drop-down-suggestion::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0;
+}
+
+.search-result-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.search-result-item span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    max-width: calc(100% - 80px);
+}
+
+.search-result-item svg {
+    min-width: 24px;
+    margin-right: 10px;
+}
+
+.search-result-item .MuiSvgIcon-root:first-of-type[data-testid="LiveTvIcon"] {
+    color: #c90f0f;
+}
+
+.search-result-item .MuiSvgIcon-root:first-of-type[data-testid="LocationOnIcon"] {
+    color: #2196f3;
+}
+
+.search-result-item .MuiSvgIcon-root:first-of-type[data-testid="TurnSharpRightIcon"] {
+    color: #4caf50;
+}
+
+.search-result-item .MuiSvgIcon-root:first-of-type[data-testid="SearchIcon"] {
+    color: #ff9800;
+}
+
 @media (max-width: 600px) {
     .top-nav-container {
         padding: 10px 1rem;
@@ -161,3 +231,4 @@
         font-size: 0.7rem;
     }
 }
+

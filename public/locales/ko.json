@@ -1305,7 +1305,8 @@
     "noRecentSearches": "최근 검색어가 없습니다.",
     "chooseLocation": "위치 선택",
     "useCurrentLocation": "현재 위치 사용",
-    "browseOnlineEvents": "온라인 이벤트 둘러보기"
+    "browseOnlineEvents": "온라인 이벤트 둘러보기",
+    "viewEvent": "이벤트 보기"
   },
   "trendingSearches": {
     "trendsIn": "의 트렌드",

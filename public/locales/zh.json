@@ -1305,7 +1305,8 @@
     "noRecentSearches": "没有最近的搜索",
     "chooseLocation": "选择地点",
     "useCurrentLocation": "使用我的当前位置",
-    "browseOnlineEvents": "浏览线上活动"
+    "browseOnlineEvents": "浏览线上活动",
+    "viewEvent": "查看活动"
   },
   "trendingSearches": {
     "trendsIn": "中的趋势",

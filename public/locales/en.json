@@ -1305,7 +1305,8 @@
     "noRecentSearches": "No recent searches",
     "chooseLocation": "Choose a location",
     "useCurrentLocation": "Use my current location",
-    "browseOnlineEvents": "Browse online events"
+    "browseOnlineEvents": "Browse online events",
+    "viewEvent": "View event"
   },
   "trendingSearches": {
     "trendsIn": "Trends in",

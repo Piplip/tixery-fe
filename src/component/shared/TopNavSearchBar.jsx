@@ -12,6 +12,12 @@ import cookie from 'react-cookies'
 import {checkLoggedIn, extractCity, getCookie, getUserData, getUserLocation} from "../../common/Utilities.js";
 import ClearIcon from '@mui/icons-material/Clear';
 import {useTranslation} from "react-i18next";
+import {getDownloadURL, getStorage, ref} from "firebase/storage";
+import {initializeApp} from "firebase/app";
+import {firebaseConfig} from "@/config/firebaseConfig.js";
+
+initializeApp(firebaseConfig);
+const storage = getStorage()
 
 function TopNavSearchBar(){
     const location = useLocation()
@@ -113,16 +119,19 @@ function TopNavSearchBar(){
 
                         for(let i = 0; i < events.length; i++) {
                             const event = events[i];
+                            // Include image references for events
                             suggestions.push({
                                 text: event.name,
                                 type: 'event',
-                                eventId: event.event_id
+                                eventId: event.event_id,
+                                images: event.images,
+                                imageUrl: null // Will be populated later
                             });
 
                             if (event?.location?.location &&
                                 event.location.location.toLowerCase().includes(query.toLowerCase())) {
                                 suggestions.push({
-                                    text: event.location.name,
+                                    text: event.location.location,
                                     type: 'location'
                                 });
                             }
@@ -151,15 +160,31 @@ function TopNavSearchBar(){
                                 )
                         );
 
-                        setSuggestion(suggestions);
-                        setShowRecentSearches(true);
+                        const eventSuggestions = suggestions.filter(s => s.type === 'event' && s.images && s.images.length > 0);
+
+                        Promise.all(
+                            eventSuggestions.map(suggestion => {
+                                const imageRef = ref(storage, suggestion.images[0]);
+                                return getDownloadURL(imageRef)
+                                    .then(url => {
+                                        suggestion.imageUrl = url;
+                                        return suggestion;
+                                    })
+                                    .catch(() => {
+                                        suggestion.imageUrl = "https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F936315053%2F558993483103%2F1%2Foriginal.20250115-135317?crop=focalpoint&fit=crop&auto=format%2Ccompress&q=75&sharp=10&fp-x=0.5&fp-y=0.5&s=3a03308f50db1e157ca93403975dcc59";
+                                        return suggestion;
+                                    });
+                            })
+                        ).then(() => {
+                            setSuggestion(suggestions);
+                            setShowRecentSearches(true);
+                        });
                     })
                     .catch((err) => console.log(err));
             }
         }, 500),
         [locationValue]
     )
-
     useEffect(() => {
         return () => debounceSuggestion.cancel();
     }, [debounceSuggestion]);
@@ -207,6 +232,7 @@ function TopNavSearchBar(){
             }
         }
     }
+
     function handleDeleteSearchHistory(id, index){
         if(!localStorage.getItem('tk')) return;
             const searches = [...searchHistory]
@@ -250,12 +276,25 @@ function TopNavSearchBar(){
                                                        setShowRecentSearches(false);
                                                    }}
                                             >
-                                                {s.type === 'event' && <LiveTvIcon fontSize="small" sx={{ mr: 1 }} />}
-                                                {s.type === 'location' && <LocationOnIcon fontSize="small" sx={{ mr: 1 }} />}
-                                                {s.type === 'category' && <TurnSharpRightIcon fontSize="small" sx={{ mr: 1 }} />}
-                                                {s.type === 'tag' && <SearchIcon fontSize="small" sx={{ mr: 1 }} />}
-                                                <span>{s.text}</span>
-                                                {s.type === 'event' && <Typography variant="caption" sx={{ ml: 1, color: 'primary.main' }}>
+                                                {s.type === 'event' && s.imageUrl && (
+                                                    <div className="search-result-item-image-container">
+                                                        <img src={s.imageUrl} alt={s.text} className="search-result-item-image" />
+                                                    </div>
+                                                )}
+                                                {s.type === 'event' && !s.imageUrl && <LiveTvIcon fontSize="small" />}
+                                                {s.type === 'location' && <LocationOnIcon fontSize="small" />}
+                                                {s.type === 'category' && <TurnSharpRightIcon fontSize="small" />}
+                                                {s.type === 'tag' && <SearchIcon fontSize="small" />}
+                                                <span title={s.text}>{s.text}</span>
+                                                {s.type === 'event' && <Typography
+                                                    variant="caption"
+                                                    sx={{
+                                                        ml: 1,
+                                                        color: 'primary.main',
+                                                        whiteSpace: 'nowrap',
+                                                        fontWeight: 500
+                                                    }}
+                                                >
                                                     {t('topNavSearchBar.viewEvent')}
                                                 </Typography>}
                                             </Stack>
