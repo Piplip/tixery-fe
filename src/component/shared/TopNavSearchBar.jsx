@@ -162,7 +162,7 @@ function TopNavSearchBar(){
     }
 
     function handleSearchChange(e) {
-        if(location.search.includes("/events/search")) return
+        if(location.pathname.includes("/events/search")) return
 
         const newValue = e.target.value;
         setSearchValue(newValue);
@@ -231,7 +231,7 @@ function TopNavSearchBar(){
                                             </Stack>
                                             :
                                             <Stack className={'drop-down-suggestion'}>
-                                                {searchHistory.length > 0 ?
+                                                {location.pathname.includes("/events/search") && searchHistory.length > 0 ?
                                                     <>
                                                         <Stack flexDirection={'row'} className={'recent-search__header'}>
                                                             <Typography variant={'h6'}>{t('topNavSearchBar.recentSearches')}</Typography>
