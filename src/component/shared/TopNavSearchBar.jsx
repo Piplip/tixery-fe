@@ -208,7 +208,7 @@ function TopNavSearchBar(){
                                value={searchValue} onChange={handleSearchChange}
                                onClick={handleSearchInpClick}
                         />
-                        {location.pathname.includes("/events/search") && showRecentSearches &&
+                        {!location.pathname.includes("/events/search") && showRecentSearches &&
                             (suggestion.length > 0 ?
                                     <Stack className={'drop-down-suggestion'}>
                                         {suggestion.map((s, index) => (
