@@ -147,6 +147,8 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     margin-top: 8px;
     padding: 8px 0;
+    scrollbar-width: thin;
+    scrollbar-color: #c5c5c5 #f1f1f1;
 }
 
 .drop-down-suggestion::-webkit-scrollbar {
@@ -202,6 +204,28 @@
 
 .search-result-item .MuiSvgIcon-root:first-of-type[data-testid="SearchIcon"] {
     color: #ff9800;
+}
+
+.search-result-item-image-container {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    margin-right: 10px;
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-result-item-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.top-nav-input-container > div {
+    position: relative;
 }
 
 @media (max-width: 600px) {

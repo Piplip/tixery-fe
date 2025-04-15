@@ -119,13 +119,12 @@ function TopNavSearchBar(){
 
                         for(let i = 0; i < events.length; i++) {
                             const event = events[i];
-                            // Include image references for events
                             suggestions.push({
                                 text: event.name,
                                 type: 'event',
                                 eventId: event.event_id,
                                 images: event.images,
-                                imageUrl: null // Will be populated later
+                                imageUrl: null
                             });
 
                             if (event?.location?.location &&
