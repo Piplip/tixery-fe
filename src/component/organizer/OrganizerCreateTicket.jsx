@@ -15,7 +15,7 @@ import MenuButton from "@mui/joy/MenuButton";
 import Menu from "@mui/joy/Menu";
 import {NavLink, Outlet, useLocation, useNavigate, useOutletContext} from "react-router-dom";
 import {EventContext} from "../../context.js";
-import {useDayjs} from "../../hooks/useDayjs";
+import {useDayjs} from "../../custom-hooks/useDayjs.js";
 import "../../styles/organizer-create-ticket-styles.scss"
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import CurrencySelect from "../shared/CurrencySelect.jsx";
