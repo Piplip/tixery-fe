@@ -108,31 +108,56 @@ function TopNavSearchBar(){
                 }
                 eventAxios.get(`/search/suggestions?` + searchParams)
                     .then((r) => {
-                        const data = r.data;
-                        let arr = [];
-                        for(let i = 0; i < data.length; i++) {
-                            const item = data[i]
-                            arr.push(item.name);
-                            if (item?.location?.location.toLowerCase().includes(query.toLowerCase())) {
-                                arr.push(item.location.name);
+                        const events = r.data;
+                        let suggestions = [];
+
+                        for(let i = 0; i < events.length; i++) {
+                            const event = events[i];
+                            suggestions.push({
+                                text: event.name,
+                                type: 'event',
+                                eventId: event.event_id
+                            });
+
+                            if (event?.location?.location &&
+                                event.location.location.toLowerCase().includes(query.toLowerCase())) {
+                                suggestions.push({
+                                    text: event.location.name,
+                                    type: 'location'
+                                });
                             }
-                            if (item?.category?.toLowerCase().includes(query.toLowerCase())) {
-                                arr.push(item.category);
+
+                            if (event?.category &&
+                                event.category.toLowerCase().includes(query.toLowerCase())) {
+                                suggestions.push({
+                                    text: event.category,
+                                    type: 'category'
+                                });
                             }
-                            item?.tags?.forEach((tag) => {
+
+                            event?.tags?.forEach((tag) => {
                                 if (tag.toLowerCase().includes(query.toLowerCase())) {
-                                    arr.push(tag);
+                                    suggestions.push({
+                                        text: tag,
+                                        type: 'tag'
+                                    });
                                 }
                             });
                         }
-                        arr = [...new Set(arr)];
-                        setSuggestion(arr);
+
+                        suggestions = suggestions.filter((suggestion, index, self) =>
+                                index === self.findIndex((s) =>
+                                    s.text === suggestion.text && s.type === suggestion.type
+                                )
+                        );
+
+                        setSuggestion(suggestions);
                         setShowRecentSearches(true);
                     })
                     .catch((err) => console.log(err));
             }
         }, 500),
-        []
+        [locationValue]
     )
 
     useEffect(() => {
@@ -162,23 +187,26 @@ function TopNavSearchBar(){
     }
 
     function handleSearchChange(e) {
-        if(location.pathname.includes("/events/search")) return
-
         const newValue = e.target.value;
         setSearchValue(newValue);
         setSuggestion([]);
 
-        const searchParams = new URLSearchParams(location.search);
-        if (newValue === '') {
-            searchParams.delete('q');
+        if(!location.pathname.includes("/events/search")) {
+            const searchParams = new URLSearchParams(location.search);
+            if (newValue === '') {
+                searchParams.delete('q');
+            } else {
+                searchParams.set('q', newValue);
+                debounceSuggestion(newValue);
+            }
+
+            navigate(location.pathname + '?' + searchParams.toString());
         } else {
-            searchParams.set('q', newValue);
-            debounceSuggestion(newValue);
+            if (newValue !== '') {
+                debounceSuggestion(newValue);
+            }
         }
-
-        navigate(location.pathname + '?' + searchParams.toString());
     }
-
     function handleDeleteSearchHistory(id, index){
         if(!localStorage.getItem('tk')) return;
             const searches = [...searchHistory]
@@ -214,11 +242,22 @@ function TopNavSearchBar(){
                                         {suggestion.map((s, index) => (
                                             <Stack key={index} flexDirection={'row'} className={'search-result-item'}
                                                    onClick={() => {
-                                                       navigate(`events/search?q=${s}&online=${locationValue.value === 'Online'}`)
-                                                       setShowRecentSearches(false)
+                                                       if (s.type === 'event' && s.eventId) {
+                                                           navigate(`/events/${s.eventId}`);
+                                                       } else {
+                                                           navigate(`events/search?q=${s.text}&online=${locationValue.value === 'Online'}`);
+                                                       }
+                                                       setShowRecentSearches(false);
                                                    }}
                                             >
-                                                <span>{s}</span>
+                                                {s.type === 'event' && <LiveTvIcon fontSize="small" sx={{ mr: 1 }} />}
+                                                {s.type === 'location' && <LocationOnIcon fontSize="small" sx={{ mr: 1 }} />}
+                                                {s.type === 'category' && <TurnSharpRightIcon fontSize="small" sx={{ mr: 1 }} />}
+                                                {s.type === 'tag' && <SearchIcon fontSize="small" sx={{ mr: 1 }} />}
+                                                <span>{s.text}</span>
+                                                {s.type === 'event' && <Typography variant="caption" sx={{ ml: 1, color: 'primary.main' }}>
+                                                    {t('topNavSearchBar.viewEvent')}
+                                                </Typography>}
                                             </Stack>
                                         ))}
                                     </Stack>
