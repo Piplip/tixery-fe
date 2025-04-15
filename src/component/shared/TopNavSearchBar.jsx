@@ -162,6 +162,8 @@ function TopNavSearchBar(){
     }
 
     function handleSearchChange(e) {
+        if(location.search.includes("/events/search")) return
+
         const newValue = e.target.value;
         setSearchValue(newValue);
         setSuggestion([]);
@@ -178,13 +180,13 @@ function TopNavSearchBar(){
     }
 
     function handleDeleteSearchHistory(id, index){
-	if(!localStorage.getItem('tk')) return;
-        const searches = [...searchHistory]
-        searches.splice(index, 1)
-        setSearchHistory(searches)
-        hasDeleted.current = true
-        eventAxiosWithToken.post(`/search/history/delete?search-id=${id}`)
-            .catch(err => console.log(err))
+        if(!localStorage.getItem('tk')) return;
+            const searches = [...searchHistory]
+            searches.splice(index, 1)
+            setSearchHistory(searches)
+            hasDeleted.current = true
+            eventAxiosWithToken.post(`/search/history/delete?search-id=${id}`)
+                .catch(err => console.log(err))
     }
 
     return (
