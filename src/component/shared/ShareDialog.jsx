@@ -10,17 +10,17 @@ import PropTypes from "prop-types";
 import {useTranslation} from "react-i18next";
 import {collectData} from "../../common/Utilities.js";
 import {useAlert} from "../../custom-hooks/useAlert.js";
-
-const prefix = "http://localhost:5173/events/"
+import {useLocation} from "react-router-dom";
 
 const ShareDialog = ({ eventID }) => {
     const { t } = useTranslation();
     const [open, setOpen] = useState(false);
     const [copyTooltip, setCopyTooltip] = useState(t('shareDialog.copyToClipboard'));
     const {showInfo, showError} = useAlert()
+    const location = useLocation();
 
     const handleCopy = () => {
-        const eventURL = eventID ? prefix + eventID : window.location.href;
+        const eventURL = eventID ? location.pathname + eventID : location.pathname;
 
         navigator.clipboard.writeText(eventURL)
             .then(() => {
@@ -62,7 +62,7 @@ const ShareDialog = ({ eventID }) => {
                         <Stack direction={'row'} columnGap={5} alignItems={'center'} style={{ border: '1px solid', padding: '.5rem 1rem' }}>
                             <Stack>
                                 <Typography variant={'body2'} fontWeight={'bold'}>{t('shareDialog.eventURL')}</Typography>
-                                <p>{eventID ? prefix + eventID : window.location.href}</p>
+                                <p>{eventID ? location.pathname + eventID : location.pathname}</p>
                             </Stack>
                             <Tooltip title={copyTooltip}>
                                 <ContentCopyIcon onClick={handleCopy} style={{ cursor: 'pointer' }} />

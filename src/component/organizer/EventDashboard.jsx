@@ -29,6 +29,7 @@ import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import dayjs from "dayjs";
 import {formatCurrency} from "../../common/Utilities.js";
 import EventAttendee from "./EventAttendee.jsx";
+import {useLocation} from "react-router-dom";
 
 EventDashboard.propTypes = {
     open: PropTypes.bool,
@@ -41,6 +42,7 @@ function EventDashboard({open = false, setOpen, eventID, startTime}){
     const {t} = useTranslation()
     const [stats, setStats] = useState(null)
     const [tabValue, setTabValue] = useState(0);
+    const location = useLocation()
 
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
@@ -61,7 +63,7 @@ function EventDashboard({open = false, setOpen, eventID, startTime}){
     }, [eventID]);
 
     const handleCopyLink = () => {
-        const eventLink = `http://localhost:5173/events/${eventID}`;
+        const eventLink = `${location.pathname}/events/${eventID}`;
         navigator.clipboard.writeText(eventLink).then(() => {
             alert(t('eventDashboard.linkCopied'));
         }).catch(err => {
@@ -117,7 +119,7 @@ function EventDashboard({open = false, setOpen, eventID, startTime}){
                                         {t('eventDashboard.eventLink')}
                                     </Typography>
                                     <Typography variant="body2">
-                                        http://localhost:5173/events/{eventID}
+                                        {location.pathname}/events/{eventID}
                                     </Typography>
                                 </Stack>
                                 <Stack direction={'row'} columnGap={2}>
