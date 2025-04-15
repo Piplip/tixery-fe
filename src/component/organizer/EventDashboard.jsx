@@ -1,21 +1,22 @@
 import PropTypes from "prop-types";
 import {
     Alert,
-    Button,
     Box,
+    Button,
     Dialog,
     DialogContent,
-    DialogTitle, IconButton,
+    DialogTitle,
+    IconButton,
     Paper,
     Stack,
-    Table,
     Tab,
-    Tabs,
+    Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
     TableRow,
+    Tabs,
     Typography
 } from "@mui/material";
 import EventIcon from "@mui/icons-material/Event";
@@ -29,7 +30,6 @@ import {eventAxiosWithToken} from "../../config/axiosConfig.js";
 import dayjs from "dayjs";
 import {formatCurrency} from "../../common/Utilities.js";
 import EventAttendee from "./EventAttendee.jsx";
-import {useLocation} from "react-router-dom";
 
 EventDashboard.propTypes = {
     open: PropTypes.bool,
@@ -38,11 +38,12 @@ EventDashboard.propTypes = {
     startTime: PropTypes.string
 }
 
+const basePath = 'https://tixery-fe.vercel.app'
+
 function EventDashboard({open = false, setOpen, eventID, startTime}){
     const {t} = useTranslation()
     const [stats, setStats] = useState(null)
     const [tabValue, setTabValue] = useState(0);
-    const location = useLocation()
 
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
@@ -63,7 +64,7 @@ function EventDashboard({open = false, setOpen, eventID, startTime}){
     }, [eventID]);
 
     const handleCopyLink = () => {
-        const eventLink = `${location.pathname}/events/${eventID}`;
+        const eventLink = `${basePath}//events/${eventID}`;
         navigator.clipboard.writeText(eventLink).then(() => {
             alert(t('eventDashboard.linkCopied'));
         }).catch(err => {
@@ -119,7 +120,7 @@ function EventDashboard({open = false, setOpen, eventID, startTime}){
                                         {t('eventDashboard.eventLink')}
                                     </Typography>
                                     <Typography variant="body2">
-                                        {location.pathname}/events/{eventID}
+                                        {basePath}/events/{eventID}
                                     </Typography>
                                 </Stack>
                                 <Stack direction={'row'} columnGap={2}>
