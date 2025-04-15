@@ -1,5 +1,4 @@
 import React, {useEffect, useRef, useState} from "react"
-import {Button, Stack} from "@mui/material";
 import PropTypes from "prop-types";
 import {getContrastColor} from "../../common/Utilities.js"
 import {initializeApp} from "firebase/app";
@@ -7,7 +6,6 @@ import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {getBytes, getStorage, ref} from "firebase/storage";
 import {useLocation} from "react-router-dom";
 import {eventAxiosWithToken} from "../../config/axiosConfig.js";
-import {useTranslation} from "react-i18next";
 
 SeatMap.propTypes = {
     data: PropTypes.array.isRequired,
@@ -43,14 +41,29 @@ const TABLE_MARGIN = 5;
 initializeApp(firebaseConfig);
 const storage = getStorage()
 
-function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, zoom, setZoom, offset, setOffset, view,
-                     tierData, setTier, setSelectedTool, setSeatMapData, setAssignedSeat}){
+function SeatMap({
+                     data,
+                     setData,
+                     selectedObject,
+                     setSelectedObject,
+                     setCenter,
+                     zoom,
+                     setZoom,
+                     offset,
+                     setOffset,
+                     view,
+                     tierData,
+                     setTier,
+                     setSelectedTool,
+                     setSeatMapData,
+                     setAssignedSeat
+                 }) {
     const canvasRef = useRef(null);
     const [isDragging, setIsDragging] = useState(false);
-    const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+    const [dragStart, setDragStart] = useState({x: 0, y: 0});
     const [isInitialized, setIsInitialized] = useState(false);
     const [isDraggingObject, setIsDraggingObject] = useState(false);
-    const [objectDragStart, setObjectDragStart] = useState({ x: 0, y: 0 });
+    const [objectDragStart, setObjectDragStart] = useState({x: 0, y: 0});
     const [hoveredObject, setHoveredObject] = useState(null);
     const [isRotating, setIsRotating] = useState(false);
     const lastPointerWorldPosRef = useRef(null);
@@ -82,7 +95,7 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
                                 const jsonStr = decoder.decode(bytes);
                                 const jsonData = JSON.parse(jsonStr);
 
-                                if(jsonData.totalAssignedSeats){
+                                if (jsonData.totalAssignedSeats) {
                                     setAssignedSeat(parseInt(jsonData.totalAssignedSeats))
                                 }
 
@@ -101,8 +114,7 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
                                         if (tier.perks) {
                                             if (typeof tier.perks === 'string') {
                                                 perks = tier.perks.split(',').map(p => p.trim()).filter(p => p);
-                                            }
-                                            else if (Array.isArray(tier.perks)) {
+                                            } else if (Array.isArray(tier.perks)) {
                                                 perks = [...tier.perks];
                                             }
                                         }
@@ -135,36 +147,34 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
         const height = ctx.canvas.height / (window.devicePixelRatio || 1);
 
         const baseGridSize = 20;
-        let gridSize = baseGridSize * zoom;
 
-        if (zoom < 1) {
+        let gridSize;
+        if (zoom < 0.2) {
+            gridSize = baseGridSize * Math.ceil(1 / (zoom * 2));
+        } else if (zoom < 1) {
             gridSize = baseGridSize * Math.ceil(1 / zoom);
+        } else {
+            gridSize = baseGridSize * zoom;
         }
-
-        const offsetX = offset.x % gridSize;
-        const offsetY = offset.y % gridSize;
 
         ctx.clearRect(0, 0, width, height);
 
         if (gridSize >= 5) {
+            const offsetX = offset.x % gridSize;
+            const offsetY = offset.y % gridSize;
+
             ctx.beginPath();
             ctx.strokeStyle = '#e0e0e0';
             ctx.lineWidth = 1;
 
             for (let x = offsetX; x <= width; x += gridSize) {
-                const roundedX = Math.floor(x) + 0.5;
-                if (roundedX >= 0 && roundedX <= width) {
-                    ctx.moveTo(roundedX, 0);
-                    ctx.lineTo(roundedX, height);
-                }
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
             }
 
             for (let y = offsetY; y <= height; y += gridSize) {
-                const roundedY = Math.floor(y) + 0.5;
-                if (roundedY >= 0 && roundedY <= height) {
-                    ctx.moveTo(0, roundedY);
-                    ctx.lineTo(width, roundedY);
-                }
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
             }
 
             ctx.stroke();
@@ -172,7 +182,7 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
     };
 
     const drawSeats = (ctx, properties, hoveredSeat = null, selectedSeats = [], sectionId) => {
-        const { sectionName, rows, seats } = properties;
+        const {sectionName, rows, seats} = properties;
         const rowCount = parseInt(rows);
         const seatCount = parseInt(seats);
 
@@ -185,8 +195,24 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
         ctx.font = 'bold 16px Arial';
         ctx.fillStyle = assignedTier ? getContrastColor(assignedTier.color) : '#000';
         ctx.textAlign = 'center';
-        ctx.fillText(sectionName, (sectionWidth + 2 * ROW_LABEL_WIDTH) / 2, -15);
+        ctx.fillText(sectionName, (sectionWidth + 2 * ROW_LABEL_WIDTH) / 2, -30);
         ctx.textAlign = 'left';
+
+        for (let s = 0; s < seatCount; s++) {
+            const x = ROW_LABEL_WIDTH + s * (SEAT_SIZE + SEAT_GAP);
+            const y = -12;
+
+            if (hoveredSeat && hoveredSeat.type === 'column' && hoveredSeat.index === s) {
+                ctx.fillStyle = 'rgba(0, 123, 255, 0.3)';
+                ctx.fillRect(x, y - 10, SEAT_SIZE, 16);
+            }
+
+            ctx.fillStyle = '#000';
+            ctx.font = '10px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(s + 1, x + SEAT_SIZE / 2, y);
+        }
+
 
         for (let r = 0; r < rowCount; r++) {
             const rowLetter = String.fromCharCode(65 + r);
@@ -194,6 +220,14 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
             ctx.font = 'bold 12px Arial';
             ctx.textAlign = 'center';
             ctx.fillText(rowLetter, ROW_LABEL_WIDTH / 2, r * (SEAT_SIZE + SEAT_GAP) + SEAT_SIZE / 2 + 4);
+
+            const rowY = r * (SEAT_SIZE + SEAT_GAP);
+
+            if (hoveredSeat && hoveredSeat.type === 'row' && hoveredSeat.index === r) {
+                ctx.fillStyle = 'rgba(0, 123, 255, 0.3)';
+                ctx.fillRect(0, rowY, ROW_LABEL_WIDTH - 2, SEAT_SIZE);
+            }
+
 
             for (let s = 0; s < seatCount; s++) {
                 const x = ROW_LABEL_WIDTH + s * (SEAT_SIZE + SEAT_GAP);
@@ -222,13 +256,11 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
                     ctx.lineWidth = 2;
                     ctx.stroke();
                     ctx.restore();
-                }
-                else if (selectedSeats.includes(seatId)) {
+                } else if (selectedSeats.includes(seatId)) {
                     ctx.fillStyle = baseColor;
                     ctx.strokeStyle = '#000000';
                     ctx.lineWidth = 2.5;
-                }
-                else {
+                } else {
                     ctx.fillStyle = baseColor;
                     ctx.strokeStyle = baseStroke;
                     ctx.lineWidth = 1;
@@ -243,6 +275,11 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
                 ctx.fillText(seatNumber.toString(), x + SEAT_SIZE / 2, y + SEAT_SIZE / 2 + 3);
             }
 
+            if (hoveredSeat && hoveredSeat.type === 'row' && hoveredSeat.index === r) {
+                ctx.fillStyle = 'rgba(0, 123, 255, 0.3)';
+                ctx.fillRect(ROW_LABEL_WIDTH + sectionWidth + 2, rowY, ROW_LABEL_WIDTH - 2, SEAT_SIZE);
+            }
+
             ctx.fillStyle = '#000';
             ctx.font = 'bold 12px Arial';
             ctx.textAlign = 'center';
@@ -251,7 +288,7 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
     }
 
     const drawTable = (ctx, properties, tableId) => {
-        const { tableName, style, seats } = properties;
+        const {tableName, style, seats} = properties;
         let tableWidth, tableHeight, tableRadius;
 
         const assignedTier = tierData?.find(tier =>
@@ -395,7 +432,7 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
     };
 
     const drawCustomObject = (ctx, properties, objectId) => {
-        const { objectName, shape, label, icon } = properties;
+        const {objectName, shape, label, icon} = properties;
         ctx.save();
 
         const assignedTier = tierData?.find(tier =>
@@ -430,13 +467,13 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
 
         const textLines = [];
         if (objectName) {
-            textLines.push({ text: objectName, font: 'bold 14px Arial', size: 14 });
+            textLines.push({text: objectName, font: 'bold 14px Arial', size: 14});
         }
         if (label) {
-            textLines.push({ text: label, font: '12px Arial', size: 12 });
+            textLines.push({text: label, font: '12px Arial', size: 12});
         }
         if (icon) {
-            textLines.push({ text: `[${icon}]`, font: '10px Arial', size: 10 });
+            textLines.push({text: `[${icon}]`, font: '10px Arial', size: 10});
         }
 
         ctx.textAlign = 'center';
@@ -460,7 +497,7 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
     };
 
     const drawText = (ctx, properties) => {
-        const { text, size } = properties;
+        const {text, size} = properties;
         const fontSize = size * 4;
         ctx.save();
 
@@ -526,7 +563,7 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
     };
 
     const drawObject = (ctx, obj, zoom, offset) => {
-        const { type, position = { x: 0, y: 0 }, properties, rotation = 0 } = obj;
+        const {type, position = {x: 0, y: 0}, properties, rotation = 0} = obj;
         const isHovered = hoveredObject && hoveredObject.id === obj.id;
         const isSelected = selectedObject.includes(obj.id);
 
@@ -541,18 +578,16 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
             if (type === 'seats') {
                 const hoveredSeatInfo = hoveredObject?.id === obj.id ? hoveredObject.seatInfo : null;
                 drawSeats(ctx, properties, hoveredSeatInfo, selectedObject, obj.id);
-            }
-            else {
+            } else {
                 if (isHovered && !isSelected) {
                     ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
                     ctx.shadowBlur = 10;
-                }
-                else if (isSelected) {
+                } else if (isSelected) {
                     ctx.shadowColor = '#2196f3';
                     ctx.shadowBlur = 10;
                 }
 
-                switch(type) {
+                switch (type) {
                     case 'table':
                         drawTable(ctx, properties, obj.id);
                         break;
@@ -564,10 +599,8 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
                         break;
                 }
             }
-        }
-
-        else {
-            switch(type) {
+        } else {
+            switch (type) {
                 case 'seats':
                     drawSeats(ctx, properties);
                     break;
@@ -604,7 +637,9 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
 
         ctx.clearRect(0, 0, width, height);
         drawGrid(ctx, zoom, offset);
-        data.forEach(obj => {drawObject(ctx, obj, zoom, offset);});
+        data.forEach(obj => {
+            drawObject(ctx, obj, zoom, offset);
+        });
 
         if (view === 'map' && selectedObject.length > 1) {
             const selectedObjs = data.filter(obj => selectedObject.includes(obj.id));
@@ -624,16 +659,16 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
 
     const calculateCanvasCenter = () => {
         const canvas = canvasRef.current;
-        if (!canvas) return { x: 0, y: 0 };
+        if (!canvas) return {x: 0, y: 0};
 
         const width = canvas.clientWidth;
         const height = canvas.clientHeight;
 
-        return { x: width / 2, y: height / 2 };
+        return {x: width / 2, y: height / 2};
     };
 
     useEffect(() => {
-        if(view === 'tier'){
+        if (view === 'tier') {
             setSelectedObject([])
         }
     }, [view]);
@@ -700,7 +735,7 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
 
             const zoomDirection = e.deltaY < 0 ? 1 : -1;
             const zoomFactor = 0.15;
-            const newZoom = Math.max(0.5, Math.min(5, zoom + zoomDirection * zoomFactor));
+            const newZoom = Math.max(0.1, Math.min(5, zoom + zoomDirection * zoomFactor));
 
             const newOffset = {
                 x: mouseX - worldX * newZoom,
@@ -711,7 +746,7 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
             setOffset(newOffset);
         };
 
-        canvas.addEventListener('wheel', handleWheel, { passive: false });
+        canvas.addEventListener('wheel', handleWheel, {passive: false});
 
         return () => {
             canvas.removeEventListener('wheel', handleWheel);
@@ -726,7 +761,7 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
             const width = canvas.clientWidth;
             const height = canvas.clientHeight;
 
-            setCenter({ x: width / 2, y: height / 2 });
+            setCenter({x: width / 2, y: height / 2});
         };
 
         updateCenter();
@@ -744,7 +779,7 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
         const handleMouseDown = (e) => {
             if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
                 setIsDragging(true);
-                setDragStart({ x: e.clientX, y: e.clientY });
+                setDragStart({x: e.clientX, y: e.clientY});
                 canvas.style.cursor = 'grabbing';
             }
         };
@@ -756,7 +791,7 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
 
                 setOffset(prev => ({x: prev.x + dx, y: prev.y + dy}));
 
-                setDragStart({ x: e.clientX, y: e.clientY });
+                setDragStart({x: e.clientX, y: e.clientY});
 
                 const ctx = canvas.getContext('2d');
                 renderCanvas(ctx, zoom, offset);
@@ -780,16 +815,15 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
     }, [isDragging, dragStart, zoom, offset]);
 
     const getBoundingBox = (obj) => {
-        const { type, properties } = obj;
+        const {type, properties} = obj;
         let originalBox;
 
         if (type === 'seats') {
-            const { seats, rows } = properties;
+            const {seats, rows} = properties;
             const width = parseInt(seats) * (SEAT_SIZE + SEAT_GAP) - SEAT_GAP + 2 * ROW_LABEL_WIDTH;
             const height = parseInt(rows) * (SEAT_SIZE + SEAT_GAP) + 20;
-            originalBox = { x: 0, y: -35, width, height: height + 20 };
-        }
-        else if (type === 'table') {
+            originalBox = {x: 0, y: -50, width, height: height + 35};
+        } else if (type === 'table') {
             if (properties.style === 'square') {
                 const tableWidth = properties.width
                     ? parseInt(properties.width, 10)
@@ -813,10 +847,10 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
                 let minY = Infinity, maxY = -Infinity;
 
                 const corners = [
-                    { x: -tableWidth / 2, y: -tableHeight / 2 },
-                    { x: tableWidth / 2, y: -tableHeight / 2 },
-                    { x: tableWidth / 2, y: tableHeight / 2 },
-                    { x: -tableWidth / 2, y: tableHeight / 2 },
+                    {x: -tableWidth / 2, y: -tableHeight / 2},
+                    {x: tableWidth / 2, y: -tableHeight / 2},
+                    {x: tableWidth / 2, y: tableHeight / 2},
+                    {x: -tableWidth / 2, y: tableHeight / 2},
                 ];
                 corners.forEach((pt) => {
                     if (pt.x < minX) minX = pt.x;
@@ -870,7 +904,7 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
                 originalBox = {
                     x: minX - 5,
                     y: minY - 5,
-                    width: maxX - minX + 10 ,
+                    width: maxX - minX + 10,
                     height: maxY - minY + 10,
                 };
             } else if (properties.style === 'circle') {
@@ -885,24 +919,21 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
                     height: boundingRadius * 2,
                 };
             }
-        }
-        else if (type === 'object') {
+        } else if (type === 'object') {
             if (properties.shape === 'line') {
-                originalBox = { x: -50, y: -5, width: 100, height: 10 };
+                originalBox = {x: -50, y: -5, width: 100, height: 10};
             } else if (properties.shape === 'square') {
-                originalBox = { x: -60, y: -40, width: 120, height: 80 };
+                originalBox = {x: -60, y: -40, width: 120, height: 80};
             } else if (properties.shape === 'circle') {
-                originalBox = { x: -40, y: -40, width: 80, height: 80 };
+                originalBox = {x: -40, y: -40, width: 80, height: 80};
             }
-        }
-        else if (type === 'text') {
+        } else if (type === 'text') {
             const fontSize = properties.size * 4;
             const approxWidth = properties.text.length * (fontSize / 2);
             const approxHeight = fontSize;
-            originalBox = { x: -approxWidth / 2, y: -approxHeight / 2, width: approxWidth, height: approxHeight };
-        }
-        else {
-            originalBox = { x: 0, y: 0, width: 0, height: 0 };
+            originalBox = {x: -approxWidth / 2, y: -approxHeight / 2, width: approxWidth, height: approxHeight};
+        } else {
+            originalBox = {x: 0, y: 0, width: 0, height: 0};
         }
 
         return originalBox;
@@ -922,10 +953,10 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
             const sin = Math.sin(radians);
 
             const corners = [
-                { x: bbox.x, y: bbox.y },
-                { x: bbox.x + bbox.width, y: bbox.y },
-                { x: bbox.x + bbox.width, y: bbox.y + bbox.height },
-                { x: bbox.x, y: bbox.y + bbox.height }
+                {x: bbox.x, y: bbox.y},
+                {x: bbox.x + bbox.width, y: bbox.y},
+                {x: bbox.x + bbox.width, y: bbox.y + bbox.height},
+                {x: bbox.x, y: bbox.y + bbox.height}
             ];
 
             corners.forEach(corner => {
@@ -962,9 +993,56 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
         const localY = dx * sin + dy * cos;
 
         if (obj.type === 'seats' && view === 'tier' && checkSeat) {
-            const { rows, seats } = obj.properties;
+            const {rows, seats} = obj.properties;
             const rowCount = parseInt(rows);
             const seatCount = parseInt(seats);
+
+            if (localY >= -22 && localY <= -6) {
+                for (let s = 0; s < seatCount; s++) {
+                    const x = ROW_LABEL_WIDTH + s * (SEAT_SIZE + SEAT_GAP);
+                    if (localX >= x && localX <= x + SEAT_SIZE) {
+                        return {
+                            inObject: true,
+                            sectionId: obj.id,
+                            seatInfo: {
+                                type: 'column',
+                                index: s
+                            }
+                        };
+                    }
+                }
+            }
+
+            const sectionWidth = seatCount * (SEAT_SIZE + SEAT_GAP) - SEAT_GAP;
+
+            for (let r = 0; r < rowCount; r++) {
+                const y = r * (SEAT_SIZE + SEAT_GAP);
+
+                if (localX >= 0 && localX <= ROW_LABEL_WIDTH - 2 &&
+                    localY >= y && localY <= y + SEAT_SIZE) {
+                    return {
+                        inObject: true,
+                        sectionId: obj.id,
+                        seatInfo: {
+                            type: 'row',
+                            index: r
+                        }
+                    };
+                }
+
+                if (localX >= ROW_LABEL_WIDTH + sectionWidth + 2 &&
+                    localX <= ROW_LABEL_WIDTH + sectionWidth + ROW_LABEL_WIDTH &&
+                    localY >= y && localY <= y + SEAT_SIZE) {
+                    return {
+                        inObject: true,
+                        sectionId: obj.id,
+                        seatInfo: {
+                            type: 'row',
+                            index: r
+                        }
+                    };
+                }
+            }
 
             for (let r = 0; r < rowCount; r++) {
                 for (let s = 0; s < seatCount; s++) {
@@ -989,7 +1067,7 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
                 }
             }
 
-            return { inObject: false };
+            return {inObject: false};
         }
 
         const bbox = getBoundingBox(obj);
@@ -1033,7 +1111,7 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
                 const dx = canvasCoords.x - selectedObj.position.x;
                 const dy = canvasCoords.y - selectedObj.position.y;
                 const initialAngle = Math.atan2(dy, dx) * 180 / Math.PI;
-                setObjectDragStart({ x: canvasCoords.x, y: canvasCoords.y, initialAngle });
+                setObjectDragStart({x: canvasCoords.x, y: canvasCoords.y, initialAngle});
                 return;
             }
         }
@@ -1045,7 +1123,7 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
         if (e.shiftKey) {
             if (e.button === 0 || e.button === 1) {
                 setIsDragging(true);
-                setDragStart({ x: e.clientX, y: e.clientY });
+                setDragStart({x: e.clientX, y: e.clientY});
                 canvas.style.cursor = 'grabbing';
             }
             return;
@@ -1058,6 +1136,38 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
 
                 if (result.inObject) {
                     if (obj.type === 'seats' && result.seatInfo) {
+                        const {type, index} = result.seatInfo;
+                        const sectionId = result.sectionId;
+
+                        if (type === 'row' || type === 'column') {
+                            const section = data.find(o => o.id === sectionId);
+                            if (section && section.type === 'seats') {
+                                const rowCount = parseInt(section.properties.rows);
+                                const seatCount = parseInt(section.properties.seats);
+                                const selectedSeats = [];
+
+                                if (type === 'row') {
+                                    for (let s = 0; s < seatCount; s++) {
+                                        selectedSeats.push(`${sectionId}_${index}_${s}`);
+                                    }
+                                } else if (type === 'column') {
+                                    for (let r = 0; r < rowCount; r++) {
+                                        selectedSeats.push(`${sectionId}_${r}_${index}`);
+                                    }
+                                }
+
+                                if (e.ctrlKey || e.metaKey) {
+                                    setSelectedObject(prev => {
+                                        const uniqueSelection = new Set([...prev, ...selectedSeats]);
+                                        return Array.from(uniqueSelection);
+                                    });
+                                } else {
+                                    setSelectedObject(selectedSeats);
+                                }
+                                return;
+                            }
+                        }
+
                         const seatId = `${obj.id}_${result.seatInfo.row}_${result.seatInfo.seat}`;
 
                         setSelectedObject(prev =>
@@ -1162,7 +1272,7 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
                 setData(prev =>
                     prev.map(obj =>
                         obj.id === selectedObj.id
-                            ? { ...obj, rotation: angle }
+                            ? {...obj, rotation: angle}
                             : obj
                     )
                 );
@@ -1232,7 +1342,7 @@ function SeatMap({data, setData, selectedObject, setSelectedObject, setCenter, z
             }
         }
 
-        let autoPanDelta = { x: 0, y: 0 };
+        let autoPanDelta = {x: 0, y: 0};
         if (panBBox) {
             const screenX = offset.x + panBBox.x * zoom;
             const screenY = offset.y + panBBox.y * zoom;
