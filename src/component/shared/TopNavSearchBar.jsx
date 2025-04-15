@@ -267,6 +267,9 @@ function TopNavSearchBar(){
                                         {suggestion.map((s, index) => (
                                             <Stack key={index} flexDirection={'row'} className={'search-result-item'}
                                                    onClick={() => {
+                                                       if(checkLoggedIn()) {
+
+                                                       }
                                                        if (s.type === 'event' && s.eventId) {
                                                            navigate(`/events/${s.eventId}`);
                                                        } else {
