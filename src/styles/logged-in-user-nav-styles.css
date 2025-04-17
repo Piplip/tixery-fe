@@ -16,6 +16,7 @@
     position: absolute;
     background-color: white;
     padding: .5rem 1rem;
+    transform: translateX(-25%);
     width: 125%;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
