@@ -215,21 +215,17 @@ function TopNavSearchBar(){
         setSearchValue(newValue);
         setSuggestion([]);
 
-        if(!location.pathname.includes("/events/search")) {
-            const searchParams = new URLSearchParams(location.search);
-            if (newValue === '') {
-                searchParams.delete('q');
-            } else {
-                searchParams.set('q', newValue);
-                debounceSuggestion(newValue);
-            }
-
-            navigate(location.pathname + '?' + searchParams.toString());
-        } else {
-            if (newValue !== '') {
-                debounceSuggestion(newValue);
-            }
+        if (newValue !== '') {
+            debounceSuggestion(newValue);
         }
+
+        const searchParams = new URLSearchParams(location.search);
+        if (newValue === '') {
+            searchParams.delete('q');
+        } else {
+            searchParams.set('q', newValue);
+        }
+        navigate(location.pathname + '?' + searchParams.toString());
     }
 
     function handleDeleteSearchHistory(id, index){
