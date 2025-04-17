@@ -45,7 +45,6 @@ function AttendeeCollectnfo() {
     const {t} = useTranslation()
     const navigate = useNavigate()
     const [step, setStep] = useState(1);
-    const [tokenProcessed, setTokenProcessed] = useState(false);
     const [userData, setUserData] = useState({
         firstName: '', lastName: '', nickname: '', dob: null, gender: '', phone: '', nationality: null,
         ppName: '', ppDescription: '', ppImage: '',
@@ -168,8 +167,8 @@ function AttendeeCollectnfo() {
                         </Typography>
                         <Formik
                             initialValues={{
-                                firstName: tokenProcessed ? extractName(fullName)[0] : '',
-                                lastName: tokenProcessed ? extractName(fullName)[1] : '',
+                                firstName: extractName(fullName)[0] || '',
+                                lastName: extractName(fullName)[1] || '',
                                 nickname: '',
                                 dob: null,
                                 gender: '',

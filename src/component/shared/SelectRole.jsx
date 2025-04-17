@@ -90,8 +90,6 @@ function SelectRole(){
                 .catch(err => console.log(err))
         }
         else{
-            const tk = getCookie('tk')
-            localStorage.setItem('tk', tk)
             navigate('organizer/info?method=external')
         }
     }
