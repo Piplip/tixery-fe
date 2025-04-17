@@ -1,11 +1,21 @@
 import {
-    Autocomplete, Avatar,
-    Box, Button,
-    Container, Dialog, DialogContent, DialogContentText,
-    FormControl, FormGroup, FormHelperText, IconButton,
+    Autocomplete,
+    Avatar,
+    Box,
+    Button,
+    Container,
+    Dialog,
+    DialogContent,
+    DialogContentText,
+    FormControl,
+    FormGroup,
+    FormHelperText,
+    IconButton,
     InputLabel,
     MenuItem,
-    Select, Slide, Stack,
+    Select,
+    Slide,
+    Stack,
     TextField,
     Typography
 } from "@mui/material";
@@ -35,8 +45,9 @@ function AttendeeCollectnfo() {
     const {t} = useTranslation()
     const navigate = useNavigate()
     const [step, setStep] = useState(1);
+    const [tokenProcessed, setTokenProcessed] = useState(false);
     const [userData, setUserData] = useState({
-        firstName: '', lastName: '', nickname: '', dob: null, gender: '', phone: '', nationality:  null,
+        firstName: '', lastName: '', nickname: '', dob: null, gender: '', phone: '', nationality: null,
         ppName: '', ppDescription: '', ppImage: '',
     })
     const [ppImagePreview, setPpImagePreview] = useState(null)
@@ -49,9 +60,6 @@ function AttendeeCollectnfo() {
         nationality: Yup.string().required(t('attendeeCollectInfo.nationalityRequired'))
     });
     const [open, setOpen] = useState(false);
-    const fullName = (hasSearchParam("method") && getUserData("fullName"))
-        ? getUserData("fullName").split(' ')
-        : '';
     const location = useLocation()
 
     useEffect(() => {
@@ -63,6 +71,8 @@ function AttendeeCollectnfo() {
                 if (token.split('.').length === 3) {
                     localStorage.setItem('tk', token);
 
+                    setTokenProcessed(true);
+
                     const cleanUrl = location.pathname;
                     window.history.replaceState({}, document.title, cleanUrl);
                 } else {
@@ -73,10 +83,15 @@ function AttendeeCollectnfo() {
             }
         } else {
             console.log('No token found in URL parameters');
+            setTokenProcessed(true);
         }
     }, [location]);
 
-    function handleImageUpload (event) {
+    const fullName = (hasSearchParam("method") && getUserData("fullName"))
+        ? getUserData("fullName").split(' ')
+        : '';
+
+    function handleImageUpload(event) {
         const file = event.target.files[0];
         setUserData(prev => ({...prev, ppImage: file}))
         if (!file) {
@@ -91,7 +106,7 @@ function AttendeeCollectnfo() {
         reader.readAsDataURL(file);
     }
 
-    async function uploadImage(){
+    async function uploadImage() {
         const fileName = generateFileName()
         const storageRef = ref(storage, `/profile-image/${fileName}`)
         uploadBytes(storageRef, userData.ppImage)
@@ -104,34 +119,43 @@ function AttendeeCollectnfo() {
     function handleSave() {
         uploadImage().then(() => {
             accountAxios.post('/profile/create?rid=' + location.search.split('=')[1] + '&type=attendee', {
-                fullName: userData.lastName + " " + userData.firstName, nickname: userData.nickname ? userData.nickname : '',
-                dob: userData.dob.format('DD/MM/YYYY'), gender: userData.gender, phone: userData.phone, nationality: userData.nationality,
+                fullName: userData.lastName + " " + userData.firstName,
+                nickname: userData.nickname ? userData.nickname : '',
+                dob: userData.dob.format('DD/MM/YYYY'),
+                gender: userData.gender,
+                phone: userData.phone,
+                nationality: userData.nationality,
                 ppName: userData.ppName ? userData.ppName : userData.firstName + "'s profile",
-                ppDescription: userData.ppDescription, ppImageURL: userData.ppImage
+                ppDescription: userData.ppDescription,
+                ppImageURL: userData.ppImage
             }).then(() => {
                 setOpen(true)
             }).catch(err => console.log(err))
         })
     }
 
-    function handleOauth2Save(){
+    function handleOauth2Save() {
         uploadImage().then(() => {
             accountAxiosWithToken.post('/profile/oauth/create?email=' + getUserData('sub') + '&type=attendee', {
                 fullName: userData.lastName + " " + userData.firstName,
                 nickname: userData.nickname ? userData.nickname : '',
-                dob: userData.dob.format('DD/MM/YYYY'), gender: userData.gender, phone: userData.phone, nationality: userData.nationality,
+                dob: userData.dob.format('DD/MM/YYYY'),
+                gender: userData.gender,
+                phone: userData.phone,
+                nationality: userData.nationality,
                 ppName: userData.ppName ? userData.ppName : userData.firstName + "'s profile",
-                ppDescription: userData.ppDescription, ppImageURL: userData.ppImage
+                ppDescription: userData.ppDescription,
+                ppImageURL: userData.ppImage
             }).then(() => {
                 setOpen(true)
             }).catch(err => console.log(err))
         })
     }
 
-    function getUpdateToken(){
+    function getUpdateToken() {
         accountAxiosWithToken.get('/profile/oauth/update?for=' + getUserData('sub'))
             .then(r => {
-                if(r.data.status === 'OK'){
+                if (r.data.status === 'OK') {
                     localStorage.setItem('tk', r.data.data)
                     window.location.href = '/'
                 }
@@ -139,18 +163,16 @@ function AttendeeCollectnfo() {
             .catch(err => console.log(err))
     }
 
-    function extractName(fullName){
-        if(fullName === '') return ['', '']
+    function extractName(fullName) {
+        if (fullName === '') return ['', '']
         let firstName = ''
         let lastName = ''
-        if(fullName.length === 1){
+        if (fullName.length === 1) {
             firstName = fullName[0]
-        }
-        else if(fullName.length === 2){
+        } else if (fullName.length === 2) {
             firstName = fullName[0]
             lastName = fullName[1]
-        }
-        else if(fullName.length >= 3){
+        } else if (fullName.length >= 3) {
             firstName = fullName[fullName.length - 1]
             lastName = fullName.slice(0, fullName.length - 1).join(' ')
         }
@@ -161,20 +183,25 @@ function AttendeeCollectnfo() {
     return (
         <>
             {step === 1 &&
-                <Container maxWidth="md" sx={{ mt: 4 }}>
+                <Container maxWidth="md" sx={{mt: 4}}>
                     <Typography variant={'h3'} textAlign={'center'} gutterBottom>
                         {t('attendeeCollectInfo.provideInfo')}
                     </Typography>
-                    <Box sx={{ p: 3, boxShadow: 3, borderRadius: 2, bgcolor: "#fafafa" }}>
+                    <Box sx={{p: 3, boxShadow: 3, borderRadius: 2, bgcolor: "#fafafa"}}>
                         <Typography variant="h5" gutterBottom>
                             {t('attendeeCollectInfo.profileInfo')}
                         </Typography>
                         <Formik
                             initialValues={{
-                                firstName: extractName(fullName)[0],
-                                lastName: extractName(fullName)[1],
-                                nickname: '', dob: null, gender: '', phone: '', nationality: null
+                                firstName: tokenProcessed ? extractName(fullName)[0] : '',
+                                lastName: tokenProcessed ? extractName(fullName)[1] : '',
+                                nickname: '',
+                                dob: null,
+                                gender: '',
+                                phone: '',
+                                nationality: null
                             }}
+                            enableReinitialize={true}
                             validationSchema={schema}
                             onSubmit={async (values) => {
                                 setUserData(values);
@@ -189,7 +216,7 @@ function AttendeeCollectnfo() {
                                     width: '100%', display: 'flex', flexDirection: 'column', height: 'fit-content'
                                 }}
                                 >
-                                    <Stack direction={'row'} columnGap={1} sx={{ mb: 2 }}>
+                                    <Stack direction={'row'} columnGap={1} sx={{mb: 2}}>
                                         <TextField label={t('attendeeCollectInfo.firstName')} name="firstName" fullWidth
                                                    value={values.firstName}
                                                    onBlur={handleBlur} onChange={handleChange}
@@ -205,26 +232,31 @@ function AttendeeCollectnfo() {
                                         />
                                     </Stack>
 
-                                    <Stack direction={'row'} columnGap={1} sx={{ mb: 2 }}>
-                                        <TextField label={t('attendeeCollectInfo.nickname')} name="nickname" value={values.nickname} fullWidth
+                                    <Stack direction={'row'} columnGap={1} sx={{mb: 2}}>
+                                        <TextField label={t('attendeeCollectInfo.nickname')} name="nickname"
+                                                   value={values.nickname} fullWidth
                                                    onChange={handleChange} onBlur={handleBlur}
                                                    error={touched.nickname && Boolean(errors.nickname)}
                                                    helperText={touched.nickname && errors.nickname}
                                         />
 
-                                        <FormControl sx={{ width: '100%' }}
+                                        <FormControl sx={{width: '100%'}}
                                                      error={touched.gender && Boolean(errors.gender)}
                                         >
-                                            <InputLabel id="demo-select-small-label">{t('attendeeCollectInfo.gender')}</InputLabel>
-                                            <Select value={values.gender} label={t('attendeeCollectInfo.gender')} name={'gender'}
+                                            <InputLabel
+                                                id="demo-select-small-label">{t('attendeeCollectInfo.gender')}</InputLabel>
+                                            <Select value={values.gender} label={t('attendeeCollectInfo.gender')}
+                                                    name={'gender'}
                                                     onChange={handleChange}
                                                     onBlur={handleBlur}
                                             >
-                                                <MenuItem value=""><em>{t('attendeeCollectInfo.selectGender')}</em></MenuItem>
+                                                <MenuItem
+                                                    value=""><em>{t('attendeeCollectInfo.selectGender')}</em></MenuItem>
                                                 <MenuItem value={'male'}>{t('attendeeCollectInfo.male')}</MenuItem>
                                                 <MenuItem value={'female'}>{t('attendeeCollectInfo.female')}</MenuItem>
                                                 <MenuItem value={'other'}>{t('attendeeCollectInfo.other')}</MenuItem>
-                                                <MenuItem value={'not'}>{t('attendeeCollectInfo.ratherNotSay')}</MenuItem>
+                                                <MenuItem
+                                                    value={'not'}>{t('attendeeCollectInfo.ratherNotSay')}</MenuItem>
                                             </Select>
                                             {touched.gender && Boolean(errors.gender) &&
                                                 <FormHelperText>
@@ -233,30 +265,30 @@ function AttendeeCollectnfo() {
                                             }
                                         </FormControl>
 
-                                        <FormGroup sx={{ width: '100%' }}>
-                                            <DatePicker sx={{ width: '100%' }}
+                                        <FormGroup sx={{width: '100%'}}>
+                                            <DatePicker sx={{width: '100%'}}
                                                         label={t('attendeeCollectInfo.dob')} value={values.dob}
                                                         disableFuture format={'DD/MM/YYYY'}
                                                         onChange={val => values.dob = val}
                                             />
                                             {touched.dob && Boolean(errors.dob) &&
-                                                <FormHelperText sx={{ ml: 2 }} error={true}>{errors.dob}</FormHelperText>
+                                                <FormHelperText sx={{ml: 2}} error={true}>{errors.dob}</FormHelperText>
                                             }
                                         </FormGroup>
                                     </Stack>
 
                                     <Stack direction={'row'} columnGap={1}>
-                                        <Autocomplete options={countries} id={"nationality"} sx={{ width: '100%' }}
+                                        <Autocomplete options={countries} id={"nationality"} sx={{width: '100%'}}
                                                       autoHighlight getOptionLabel={(option) => option.label}
                                                       onChange={(_, val) => values.nationality = val?.code}
                                                       renderOption={(props, option) => {
                                                           // eslint-disable-next-line react/prop-types
-                                                          const { key, ...optionProps } = props;
+                                                          const {key, ...optionProps} = props;
                                                           return (
                                                               <Box
                                                                   key={key}
                                                                   component="li"
-                                                                  sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
+                                                                  sx={{'& > img': {mr: 2, flexShrink: 0}}}
                                                                   {...optionProps}
                                                               >
                                                                   <img loading="lazy" width="20" alt=""
@@ -270,7 +302,8 @@ function AttendeeCollectnfo() {
                                                       renderInput={(params) => (
                                                           <TextField
                                                               {...params}
-                                                              label={t('attendeeCollectInfo.nationality')} name={"nationality"}
+                                                              label={t('attendeeCollectInfo.nationality')}
+                                                              name={"nationality"}
                                                               onBlur={handleBlur}
                                                               error={touched.nationality && Boolean(errors.nationality)}
                                                               helperText={touched.nationality && errors.nationality}
@@ -283,7 +316,8 @@ function AttendeeCollectnfo() {
                                                           />
                                                       )}
                                         />
-                                        <TextField label={t('attendeeCollectInfo.phoneNumber')} name="phone" value={values.phone} fullWidth
+                                        <TextField label={t('attendeeCollectInfo.phoneNumber')} name="phone"
+                                                   value={values.phone} fullWidth
                                                    onChange={handleChange} onBlur={handleBlur}
                                                    error={touched.phone && Boolean(errors.phone)}
                                                    helperText={touched.phone && errors.phone}
@@ -292,7 +326,7 @@ function AttendeeCollectnfo() {
 
                                     <Button type="submit" variant="contained" fullWidth
                                             onSubmit={handleSubmit}
-                                            sx={{ mt: 2, bgcolor: "#1976d2", color: "#fff" }}
+                                            sx={{mt: 2, bgcolor: "#1976d2", color: "#fff"}}
                                     >
                                         {t('attendeeCollectInfo.saveProfile')}
                                     </Button>
@@ -313,35 +347,37 @@ function AttendeeCollectnfo() {
                     <Typography variant="h5" align="center" gutterBottom>
                         {t('attendeeCollectInfo.shareWithOthers')}
                     </Typography>
-                    <Box sx={{ textAlign: 'center', mb: 3 }}>
+                    <Box sx={{textAlign: 'center', mb: 3}}>
                         <Avatar
                             src={ppImagePreview}
-                            sx={{ width: 120, height: 120, mx: 'auto', fontSize: '4rem', bgcolor: 'gray' }}
+                            sx={{width: 120, height: 120, mx: 'auto', fontSize: '4rem', bgcolor: 'gray'}}
                             alt={t('attendeeCollectInfo.profile')}
                         >
                             {userData.firstName.charAt(0).toUpperCase()}
                         </Avatar>
-                        <IconButton color="primary" component="label" sx={{ mt: 2 }}>
-                            <PhotoCamera />
-                            <input hidden accept="image/*" type="file" onChange={handleImageUpload} />
+                        <IconButton color="primary" component="label" sx={{mt: 2}}>
+                            <PhotoCamera/>
+                            <input hidden accept="image/*" type="file" onChange={handleImageUpload}/>
                         </IconButton>
                     </Box>
 
                     <Stack spacing={2}>
-                        <TextField label={t('attendeeCollectInfo.profileName')} fullWidth variant="outlined" placeholder={userData.firstName + "'s profile"}
-                                   value={userData.ppName || ''} onChange={(e) => setUserData({ ...userData, ppName: e.target.value })}
+                        <TextField label={t('attendeeCollectInfo.profileName')} fullWidth variant="outlined"
+                                   placeholder={userData.firstName + "'s profile"}
+                                   value={userData.ppName || ''}
+                                   onChange={(e) => setUserData({...userData, ppName: e.target.value})}
                         />
-                        <TextField label={t('attendeeCollectInfo.profileDescription')} fullWidth multiline rows={4} variant="outlined"
+                        <TextField label={t('attendeeCollectInfo.profileDescription')} fullWidth multiline rows={4}
+                                   variant="outlined"
                                    value={userData.ppDescription}
-                                   onChange={(e) => setUserData({ ...userData, ppDescription: e.target.value })}
+                                   onChange={(e) => setUserData({...userData, ppDescription: e.target.value})}
                         />
                     </Stack>
-                    <Box sx={{ textAlign: 'center', mt: 3 }}>
+                    <Box sx={{textAlign: 'center', mt: 3}}>
                         <Button variant="contained" color="primary" onClick={() => {
                             if (hasSearchParam("method")) {
                                 handleOauth2Save();
-                            }
-                            else handleSave();
+                            } else handleSave();
                         }}>
                             {t('attendeeCollectInfo.completeAndEnjoy')}
                         </Button>
@@ -349,9 +385,9 @@ function AttendeeCollectnfo() {
                 </Box>
             }
             <Dialog open={open} TransitionComponent={Transition}>
-                <DialogContent sx={{ textAlign: 'center', color: 'green', p: 4 }}>
-                    <CheckCircleOutlineIcon sx={{ fontSize: '8rem' }} />
-                    <DialogContentText sx={{ fontSize: '2rem', marginBottom: 3 }}>
+                <DialogContent sx={{textAlign: 'center', color: 'green', p: 4}}>
+                    <CheckCircleOutlineIcon sx={{fontSize: '8rem'}}/>
+                    <DialogContentText sx={{fontSize: '2rem', marginBottom: 3}}>
                         {t('attendeeCollectInfo.allSetEnjoy')} {userData.firstName}!
                     </DialogContentText>
                     <Button color={'success'} variant={'outlined'} fullWidth
