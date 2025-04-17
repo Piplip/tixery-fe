@@ -63,16 +63,17 @@ function AttendeeCollectnfo() {
     const location = useLocation()
 
     useEffect(() => {
-        console.log("Full URL:", window.location.href);
-        console.log("Location search:", location.search);
+        const actualUrl = window.location.href;
+        console.log("Actual URL:", actualUrl);
 
-        const searchString = location.search;
+        const rawSearch = window.location.search;
+        console.log("Raw search string:", rawSearch);
 
-        const params = new URLSearchParams(searchString);
-        console.log("URLSearchParams object:", Array.from(params.entries()));
+        const directParams = new URLSearchParams(rawSearch);
+        console.log("Direct URL params:", Array.from(directParams.entries()));
 
-        const token = params.get('token');
-        console.log("Extracted token:", token);
+        const token = directParams.get('token');
+        console.log("Token from direct URL:", token);
 
         if (token) {
             try {
@@ -94,7 +95,7 @@ function AttendeeCollectnfo() {
             console.log('No token found in URL parameters');
             setTokenProcessed(true);
         }
-    }, [location]);;
+    }, []);
 
     const fullName = (hasSearchParam("method") && getUserData("fullName"))
         ? getUserData("fullName").split(' ')
