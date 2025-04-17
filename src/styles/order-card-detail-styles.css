@@ -29,5 +29,6 @@
     font-weight: 500;
     font-size: 1rem;
     color: #abb6be;
-    max-width: 25rem;
+    max-width: 30rem;
+    text-overflow-ellipsis: ellipsis;
 }
