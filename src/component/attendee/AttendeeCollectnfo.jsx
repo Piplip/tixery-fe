@@ -23,7 +23,7 @@ import {DatePicker} from "@mui/x-date-pickers";
 import * as Yup from "yup";
 import {Form, Formik} from "formik";
 import {PhotoCamera} from "@mui/icons-material";
-import {forwardRef, useEffect, useState} from "react";
+import {forwardRef, useState} from "react";
 import {firebaseConfig} from "@/config/firebaseConfig.js";
 import {initializeApp} from "firebase/app";
 import {getStorage, ref, uploadBytes} from "firebase/storage";
@@ -61,52 +61,6 @@ function AttendeeCollectnfo() {
     });
     const [open, setOpen] = useState(false);
     const location = useLocation()
-
-    useEffect(() => {
-        const hashToken = window.location.hash.match(/#token=([^&]*)/);
-
-        if (hashToken && hashToken[1]) {
-            const token = hashToken[1];
-
-            try {
-                if (token.split('.').length === 3) {
-                    localStorage.setItem('tk', token);
-                    setTokenProcessed(true);
-
-                    window.location.hash = '';
-                } else {
-                    console.error('Invalid token format received');
-                }
-            } catch (error) {
-                console.error('Error storing token:', error);
-            }
-        }
-        else {
-            const rawSearch = window.location.search;
-            const directParams = new URLSearchParams(rawSearch);
-            const token = directParams.get('token');
-
-            if (token) {
-                try {
-                    if (token.split('.').length === 3) {
-                        localStorage.setItem('tk', token);
-                        setTokenProcessed(true);
-
-                        const newUrl = new URL(window.location.href);
-                        newUrl.searchParams.delete('token');
-                        window.history.replaceState({}, document.title, newUrl.toString());
-                    } else {
-                        console.error('Invalid token format received');
-                    }
-                } catch (error) {
-                    console.error('Error storing token:', error);
-                }
-            } else {
-                console.log('No token found in URL parameters');
-                setTokenProcessed(true);
-            }
-        }
-    }, []);
 
     const fullName = (hasSearchParam("method") && getUserData("fullName"))
         ? getUserData("fullName").split(' ')
