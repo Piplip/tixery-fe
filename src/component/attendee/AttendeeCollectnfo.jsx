@@ -63,18 +63,27 @@ function AttendeeCollectnfo() {
     const location = useLocation()
 
     useEffect(() => {
-        const params = new URLSearchParams(location.search);
-        const token = params.get('token') || params.get('tk');
+        console.log("Full URL:", window.location.href);
+        console.log("Location search:", location.search);
+
+        const searchString = location.search;
+
+        const params = new URLSearchParams(searchString);
+        console.log("URLSearchParams object:", Array.from(params.entries()));
+
+        const token = params.get('token');
+        console.log("Extracted token:", token);
 
         if (token) {
             try {
                 if (token.split('.').length === 3) {
+                    console.log("Storing valid token in localStorage");
                     localStorage.setItem('tk', token);
-
                     setTokenProcessed(true);
 
-                    const cleanUrl = location.pathname;
-                    window.history.replaceState({}, document.title, cleanUrl);
+                    const newUrl = new URL(window.location.href);
+                    newUrl.searchParams.delete('token');
+                    window.history.replaceState({}, document.title, newUrl.toString());
                 } else {
                     console.error('Invalid token format received');
                 }
@@ -85,7 +94,7 @@ function AttendeeCollectnfo() {
             console.log('No token found in URL parameters');
             setTokenProcessed(true);
         }
-    }, [location]);
+    }, [location]);;
 
     const fullName = (hasSearchParam("method") && getUserData("fullName"))
         ? getUserData("fullName").split(' ')
