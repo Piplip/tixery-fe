@@ -272,7 +272,7 @@ function EventView({data}){
                                         direction={'row'}
                                         columnGap={2}>
                                         {eventData && <LikeEvent event={eventData} imageUrl={images[0]} />}
-                                        <ShareDialog link={"foo"} />
+                                        <ShareDialog eventID={eventData.event_id} />
                                     </Stack>
                                 </Stack>
                                 <Stack className={'event-view__description'} rowGap={3}>

@@ -11,7 +11,7 @@ import {useTranslation} from "react-i18next";
 import {collectData} from "../../common/Utilities.js";
 import {useAlert} from "../../custom-hooks/useAlert.js";
 
-const basePath = 'https://tixery-fe.vercel.app'
+const basePath = 'https://tixery-fe.vercel.app/'
 
 const ShareDialog = ({ eventID }) => {
     const { t } = useTranslation();
