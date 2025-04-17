@@ -222,7 +222,7 @@ function CreateEventWithAI() {
                     validateStatus: undefined,
                     responseType: "arraybuffer",
                     headers: {
-                        Authorization: `Bearer sk-j7cHaXsnnbudaWzfwRPPY8IuWRyD2SRVC6LrbkR0md1mH993`,
+                        Authorization: `Bearer sk-KwIp2VPkRa9IcztkNeYuALRqCvj7PUuaA1p6l1gQG11ImetY`,
                         Accept: "image/*",
                         'Content-Type': 'multipart/form-data'
                     },
