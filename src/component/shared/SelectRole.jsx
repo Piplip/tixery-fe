@@ -89,9 +89,8 @@ function SelectRole(){
                 })
                 .catch(err => console.log(err))
         }
-        else{
-            navigate('organizer/info?method=external')
-        }
+        else navigate('organizer/info?method=external')
+
     }
 
     return (
