@@ -31,29 +31,6 @@ function SelectRole(){
                 console.error('Error storing token:', error);
             }
         }
-        else {
-            const rawSearch = window.location.search;
-            const directParams = new URLSearchParams(rawSearch);
-            const token = directParams.get('token');
-
-            if (token) {
-                try {
-                    if (token.split('.').length === 3) {
-                        localStorage.setItem('tk', token);
-
-                        const newUrl = new URL(window.location.href);
-                        newUrl.searchParams.delete('token');
-                        window.history.replaceState({}, document.title, newUrl.toString());
-                    } else {
-                        console.error('Invalid token format received');
-                    }
-                } catch (error) {
-                    console.error('Error storing token:', error);
-                }
-            } else {
-                console.log('No token found in URL parameters');
-            }
-        }
     }, []);
 
     function handleAttendeeSetUpRequest(){

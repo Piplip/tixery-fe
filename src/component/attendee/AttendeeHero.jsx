@@ -11,6 +11,7 @@ import BeachAccessOutlinedIcon from '@mui/icons-material/BeachAccessOutlined';
 import "../../styles/attendee-hero.css"
 import {useTranslation} from "react-i18next";
 import {useNavigate, useSearchParams} from "react-router-dom";
+import {useEffect} from "react";
 
 const images = [
     {
@@ -50,6 +51,25 @@ function AttendeeHero() {
         { labelKey: 'Hobbies & Special Interest', icon: <SportsGymnasticsOutlinedIcon sx={{ fontSize: '3rem' }} /> },
         { labelKey: 'Travel & Outdoor', icon: <BeachAccessOutlinedIcon sx={{ fontSize: '3rem' }} /> }
     ];
+
+    useEffect(() => {
+        const hashToken = window.location.hash.match(/#token=([^&]*)/);
+
+        if (hashToken && hashToken[1]) {
+            const token = hashToken[1];
+
+            try {
+                if (token.split('.').length === 3) {
+                    localStorage.setItem('tk', token);
+                    window.location.hash = '';
+                } else {
+                    console.error('Invalid token format received');
+                }
+            } catch (error) {
+                console.error('Error storing token:', error);
+            }
+        }
+    }, []);
 
     return (
         <Stack className={'attendee-hero'} rowGap={'2rem'}>
