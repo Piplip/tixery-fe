@@ -16,8 +16,8 @@
     position: absolute;
     background-color: white;
     padding: .5rem 1rem;
-    width: 100%;
-    /*transform: translateX(-50%);*/
+    width: 125%;
+    transform: translateX(-50%);
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 .user-sub-nav div{
