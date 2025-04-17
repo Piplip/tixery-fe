@@ -162,8 +162,10 @@ accountAxiosWithToken.interceptors.request.use(
 accountAxiosWithToken.interceptors.response.use(
     response => {
         if (response.status === 202) {
-            localStorage.setItem('tk', getCookie('AUTH_TOKEN'));
-            window.location.reload();
+            if(getCookie('AUTH_TOKEN') === null) {
+                localStorage.setItem('tk', getCookie('AUTH_TOKEN'));
+                window.location.reload();
+            }
         }
         return response;
     },
@@ -198,8 +200,10 @@ export const eventAxiosWithToken = axios.create({
 eventAxiosWithToken.interceptors.response.use(
     response => {
         if (response.status === 202) {
-            localStorage.setItem('tk', getCookie('AUTH_TOKEN'));
-            window.location.reload();
+            if(getCookie('AUTH_TOKEN') === null) {
+                localStorage.setItem('tk', getCookie('AUTH_TOKEN'));
+                window.location.reload();
+            }
         }
 
         if (isDownloadInProgress) {

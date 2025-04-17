@@ -56,15 +56,25 @@ function AttendeeCollectnfo() {
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);
-        const token = params.get('token');
+        const token = params.get('token') || params.get('tk');
 
         if (token) {
-            localStorage.setItem('tk', token);
+            try {
+                if (token.split('.').length === 3) {
+                    localStorage.setItem('tk', token);
 
-            const cleanUrl = location.pathname;
-            window.history.replaceState({}, document.title, cleanUrl);
+                    const cleanUrl = location.pathname;
+                    window.history.replaceState({}, document.title, cleanUrl);
+                } else {
+                    console.error('Invalid token format received');
+                }
+            } catch (error) {
+                console.error('Error storing token:', error);
+            }
+        } else {
+            console.log('No token found in URL parameters');
         }
-    }, []);
+    }, [location]);
 
     function handleImageUpload (event) {
         const file = event.target.files[0];
