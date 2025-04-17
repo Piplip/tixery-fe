@@ -63,37 +63,48 @@ function AttendeeCollectnfo() {
     const location = useLocation()
 
     useEffect(() => {
-        const actualUrl = window.location.href;
-        console.log("Actual URL:", actualUrl);
+        const hashToken = window.location.hash.match(/#token=([^&]*)/);
 
-        const rawSearch = window.location.search;
-        console.log("Raw search string:", rawSearch);
+        if (hashToken && hashToken[1]) {
+            const token = hashToken[1];
 
-        const directParams = new URLSearchParams(rawSearch);
-        console.log("Direct URL params:", Array.from(directParams.entries()));
-
-        const token = directParams.get('token');
-        console.log("Token from direct URL:", token);
-
-        if (token) {
             try {
                 if (token.split('.').length === 3) {
-                    console.log("Storing valid token in localStorage");
                     localStorage.setItem('tk', token);
                     setTokenProcessed(true);
 
-                    const newUrl = new URL(window.location.href);
-                    newUrl.searchParams.delete('token');
-                    window.history.replaceState({}, document.title, newUrl.toString());
+                    window.location.hash = '';
                 } else {
                     console.error('Invalid token format received');
                 }
             } catch (error) {
                 console.error('Error storing token:', error);
             }
-        } else {
-            console.log('No token found in URL parameters');
-            setTokenProcessed(true);
+        }
+        else {
+            const rawSearch = window.location.search;
+            const directParams = new URLSearchParams(rawSearch);
+            const token = directParams.get('token');
+
+            if (token) {
+                try {
+                    if (token.split('.').length === 3) {
+                        localStorage.setItem('tk', token);
+                        setTokenProcessed(true);
+
+                        const newUrl = new URL(window.location.href);
+                        newUrl.searchParams.delete('token');
+                        window.history.replaceState({}, document.title, newUrl.toString());
+                    } else {
+                        console.error('Invalid token format received');
+                    }
+                } catch (error) {
+                    console.error('Error storing token:', error);
+                }
+            } else {
+                console.log('No token found in URL parameters');
+                setTokenProcessed(true);
+            }
         }
     }, []);
 
