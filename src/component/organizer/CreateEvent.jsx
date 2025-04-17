@@ -607,7 +607,7 @@ function CreateEvent() {
                         <p>{eventData.eventTitle || t('createEvent.eventTitle')}</p>
                         <Stack direction={'row'} alignItems={'center'} columnGap={1}>
                             <CalendarTodayIcon /> {eventData.eventDate && eventData.eventStartTime
-                            ? `${dayjs(eventData.eventDate, "DD/MM/YYYY").format('ddd, MMM D, YYYY')}
+                            ? `${dayjs(eventData.eventDate, "DD/MM/YYYY").format('ddd, DD MMM, YYYY')}
                             ${dayjs(eventData.eventStartTime, "HH:mm").format(" HH:mm")}` : t('createEvent.eventDate')}
                         </Stack>
                         <Stack sx={{ border: '1px solid grey', p: 1, textAlign: 'center', borderRadius: '.5rem' }}>
