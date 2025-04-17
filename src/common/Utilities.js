@@ -26,11 +26,18 @@ export function checkLoggedIn(){
     return !!localStorage.getItem('tk')
 }
 
-export function getUserData(key){
-    const token = localStorage.getItem('tk') ? localStorage.getItem('tk') : getCookie("tk")
-    if(token === null || token === undefined) return null;
-    const decoded = jwtDecode(token);
-    return decoded[key];
+export function getUserData(key) {
+    const token = localStorage.getItem('tk') ? localStorage.getItem('tk') : getCookie("tk");
+    if (!token || token === 'null' || token === 'undefined' || token.split('.').length < 3) {
+        return null;
+    }
+    try {
+        const decoded = jwtDecode(token);
+        return decoded[key];
+    } catch (error) {
+        console.error('Error decoding token:', error);
+        return null;
+    }
 }
 
 export function generateFileName(len) {
