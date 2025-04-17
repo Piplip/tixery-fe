@@ -64,7 +64,7 @@ function AttendeeCollectnfo() {
             const cleanUrl = location.pathname;
             window.history.replaceState({}, document.title, cleanUrl);
         }
-    }, [location.pathname, location.search]);
+    }, []);
 
     function handleImageUpload (event) {
         const file = event.target.files[0];
