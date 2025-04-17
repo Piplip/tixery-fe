@@ -6,7 +6,6 @@ import Attendee from "../../assets/event-attendee.png"
 import Vendor from "../../assets/vendor-supplier.png"
 import {Link, useLocation, useNavigate} from "react-router-dom";
 import accountAxios from "../../config/axiosConfig.js";
-import {getCookie} from "@/common/Utilities.js";
 import {useTranslation} from "react-i18next";
 import {useEffect} from "react";
 
@@ -71,8 +70,6 @@ function SelectRole(){
                 .catch(err => console.log(err))
         }
         else{
-            const tk = getCookie('tk')
-            localStorage.setItem('tk', tk)
             navigate('info?method=external')
         }
     }
