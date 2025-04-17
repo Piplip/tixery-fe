@@ -13,13 +13,13 @@ import {DatePicker} from "@mui/x-date-pickers";
 import * as Yup from "yup";
 import {Form, Formik} from "formik";
 import {PhotoCamera} from "@mui/icons-material";
-import {forwardRef, useState} from "react";
+import {forwardRef, useEffect, useState} from "react";
 import {firebaseConfig} from "../../config/firebaseConfig.js";
 import {initializeApp} from "firebase/app";
 import {getStorage, ref, uploadBytes} from "firebase/storage";
 import accountAxios, {accountAxiosWithToken} from "../../config/axiosConfig.js";
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {countries} from "../../common/Data.js";
 import {generateFileName, getUserData, hasSearchParam} from "../../common/Utilities.js";
 import {useTranslation} from "react-i18next";
@@ -50,6 +50,19 @@ function AttendeeCollectnfo() {
     });
     const [open, setOpen] = useState(false);
     const fullName =  hasSearchParam("method") && getUserData("fullName") !== "" ? getUserData("fullName").split(' ') : ''
+    const location = useLocation()
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const token = params.get('token');
+
+        if (token) {
+            localStorage.setItem('tk', token);
+
+            const cleanUrl = location.pathname;
+            window.history.replaceState({}, document.title, cleanUrl);
+        }
+    }, [location.pathname, location.search]);
 
     function handleImageUpload (event) {
         const file = event.target.files[0];

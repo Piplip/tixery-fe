@@ -1,7 +1,7 @@
 import {Button, Stack, Typography} from "@mui/material";
 import PropTypes from "prop-types";
-import {useEffect, useState} from "react";
-import {eventAxios} from "../../config/axiosConfig.js";
+import {useEffect, useRef, useState} from "react";
+import {eventAxios, rootAxios} from "../../config/axiosConfig.js";
 import Grid from "@mui/material/Grid2";
 import EventCard from "./EventCard.jsx";
 import EventFetching from "./EventFetching.jsx";
@@ -43,28 +43,47 @@ function EventSuggestion({type, value, lat, lon, maxCols = 4}){
     const [events, setEvents] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const {t} = useTranslation()
+    const userLocation = useRef()
 
     useEffect(() => {
-        if(type) {
-            setIsLoading(true)
-            const payload = {
-                lat: lat, lon: lon, val: value
-            }
-            if(type === 'self' && checkLoggedIn()){
-                payload['pid'] = getUserData('profileID')
-            }
-            eventAxios.get(fetchType[type]?.path + '?' + new URLSearchParams(payload))
-                .then(response => {
-                    setEvents(response.data)
+        const fetchEvents = async () => {
+            if (type) {
+                setIsLoading(true);
+                let latValue = lat;
+                let lonValue = lon;
+
+                if (latValue === undefined || lonValue === undefined) {
+                    userLocation.current = await rootAxios.get('https://ipinfo.io/json');
+                    if (userLocation.current) {
+                        latValue = userLocation.current.data.loc.split(',')[0];
+                        lonValue = userLocation.current.data.loc.split(',')[1];
+                    }
+                }
+
+                const payload = {
+                    lat: latValue,
+                    lon: lonValue,
+                    val: value
+                };
+
+                if (type === 'self' && checkLoggedIn()) {
+                    payload['pid'] = getUserData('profileID');
+                }
+
+                try {
+                    const response = await eventAxios.get(fetchType[type]?.path + '?' + new URLSearchParams(payload));
+                    setEvents(response.data);
                     setTimeout(() => {
-                        setIsLoading(false)
-                    }, 400)
-                })
-                .catch(() => {
-                    setIsLoading(false)
-                })
-        }
-    }, [type, value]);
+                        setIsLoading(false);
+                    }, 400);
+                } catch (err) {
+                    setIsLoading(false);
+                }
+            }
+        };
+
+        fetchEvents();
+    }, [type, value, lat, lon]);
 
     function renderTitle() {
         if (type === 'time') {

@@ -16,18 +16,6 @@ i18n.on('languageChanged', (lng) => {
     dayjs.locale(lng);
 });
 
-export const formatDate = (date, format = 'DD/MM/YYYY') => {
-    return dayjs(date).format(format);
-};
-
-export const getRelativeTime = (date) => {
-    return dayjs(date).fromNow();
-};
-
-export const createDayjs = (date) => {
-    return dayjs(date);
-};
-
 export function hasRole(roles){
     const token = localStorage.getItem('tk');
     if(!token) return false;
@@ -76,10 +64,6 @@ export function clearCookie(name) {
 
 export function hasSearchParam(param){
     return new URLSearchParams(window.location.search).has(param);
-}
-
-export function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 export async function fetchImage(storage, imagePath) {
