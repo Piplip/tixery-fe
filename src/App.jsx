@@ -2,7 +2,7 @@ import {RouterProvider} from "react-router-dom";
 import {Suspense} from "react";
 import {LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
-import {configureDayjs} from "./common/Utilities.js";
+import {configureDayjs, getUserLocation} from "./common/Utilities.js";
 import LoadingFallback from "./component/shared/LoadingFallback.jsx";
 import "./config/i18nConfig.js";
 import {AlertProvider} from "./component/shared/AlertProvider.jsx";
@@ -11,6 +11,8 @@ import routers from "./router.jsx";
 
 configureDayjs()
 // dayjs().tz(Intl.DateTimeFormat().resolvedOptions().timeZone)
+
+getUserLocation()
 
 function App() {
     return (

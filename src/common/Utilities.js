@@ -101,6 +101,7 @@ export async function getUserLocation(){
                 city: data.data.city, country: data.data.country},
             {path: '/', maxAge: 60 * 60 * 24 * 7})
     }
+    localStorage.setItem('user-location', JSON.stringify({lat: data.data.loc.split(',')[0], lon: data.data.loc.split(',')[1]}));
 }
 
 export function formatCurrency(amount, currencyCode) {
