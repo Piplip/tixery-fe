@@ -62,6 +62,7 @@ function AttendeeHero() {
                 if (token.split('.').length === 3) {
                     localStorage.setItem('tk', token);
                     window.location.hash = '';
+		    window.location.reload();
                 } else {
                     console.error('Invalid token format received');
                 }
