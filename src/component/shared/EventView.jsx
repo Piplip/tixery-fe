@@ -297,11 +297,11 @@ function EventView({data}){
                                                         collectData(eventData.event_id, 'view-organizer', null, profile.profile_id)
                                                         navigate(`/o/${profile.custom_url || profile.profile_id}`)
                                                     }}
-                                                    >{profile.profile_name}</b> · {transformNumber(profile.total_followers)} {t('eventView.followers')}
+                                                    >{profile.profile_name}</b> {profile?.total_followers > 100 && `·${transformNumber(profile.total_followers)} ${t('eventView.followers')}`}
                                                 </p>
                                                 <div className={'event-view__organizer-stats'}>
-                                                    {profile.total_event_hosted ? <p><b>{profile.total_event_hosted}</b> {t('eventView.eventsHosted')}</p>
-                                                        : <p><b>{profile.total_attendee_hosted}</b> {t('eventView.attendeesHosted')}</p>
+                                                    {profile.total_event_hosted && profile.total_event_hosted > 0 ? <p><b>{profile.total_event_hosted}</b> {t('eventView.eventsHosted')}</p>
+                                                        : profile.total_attendee_hosted > 100 && <p><b>{profile.total_attendee_hosted}</b> {t('eventView.attendeesHosted')}</p>
                                                     } <ShowChartIcon />
                                                 </div>
                                             </Stack>
