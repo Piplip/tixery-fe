@@ -93,8 +93,8 @@ function CreateEvent() {
 
     useEffect(() => {
         if(window.location.href.includes("ref=preview")){
-            setCurrentStep(5)
-            maxStep.current = 5
+            setCurrentStep(4)
+            maxStep.current = 4
             navigate("publish")
         }
     }, []);
