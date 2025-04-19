@@ -9,30 +9,18 @@ function OrganizerTemplate(){
 
     useEffect(() => {
         try {
-            console.log("Processing token from URL");
-            const hash = window.location.hash.substring(1);
+            console.log("Checking for token in hash");
+            const hash = window.location.hash;
 
-            if (hash.startsWith('token=')) {
-                const token = hash.substring(6);
-                console.log("Token found, processing...");
+            if (hash.startsWith('#token=')) {
+                const token = hash.substring(7);
 
-                if (token && token.split('.').length === 3) {
-                    localStorage.setItem('tk', token);
-                    console.log("Token stored successfully");
-
-                    window.history.replaceState(null, null, window.location.pathname);
-
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 100);
-                } else {
-                    console.error('Invalid token format received');
-                }
+                window.location.href = `/organizer/token/${token}`;
             }
         } catch (error) {
-            console.error('Error handling token:', error);
+            console.error('Error checking token:', error);
         }
-    }, []);
+    }, []);;
 
     return (
         <div className={'organizer-template'}>
