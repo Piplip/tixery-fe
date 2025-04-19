@@ -2,35 +2,28 @@ import {Outlet} from "react-router-dom";
 import OrganizerNavBar from "../organizer/OrganizerNavBar.jsx";
 import '../../styles/organizer-template-styles.css'
 import TopNav from "../shared/TopNav.jsx";
-import {useEffect, useState} from "react";
-import {checkLoggedIn, clearCookie, getCookie} from "@/common/Utilities.js";
+import {useEffect} from "react";
 
 function OrganizerTemplate(){
-    const [isLoggedIn, setIsLoggedIn] = useState(checkLoggedIn())
-
     useEffect(() => {
-        const hashToken = window.location.hash.match(/#token=([^&]*)/);
+        const token = window.location.hash
 
-        if (hashToken && hashToken[1]) {
-            const token = hashToken[1];
-
-            try {
-                if (token.split('.').length === 3) {
-                    localStorage.setItem('tk', token);
-                    window.location.hash = '';
-                    window.location.reload();
-                } else {
-                    console.error('Invalid token format received');
-                }
-            } catch (error) {
-                console.error('Error storing token:', error);
+        try {
+            if (token.split('.').length === 3) {
+                localStorage.setItem('tk', token);
+                window.location.hash = '';
+                window.location.reload();
+            } else {
+                console.error('Invalid token format received');
             }
+        } catch (error) {
+            console.error('Error storing token:', error);
         }
     }, [])
 
     return (
         <div className={'organizer-template'}>
-            <TopNav isLoggedIn={isLoggedIn}/>
+            <TopNav isLoggedIn={!!localStorage.getItem('tk')}/>
             <OrganizerNavBar />
             <div className={'organizer-template-outlet-wrapper'}>
                 <Outlet />
