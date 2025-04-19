@@ -10,7 +10,7 @@ function OrganizerTemplate(){
     useEffect(() => {
         if (window.location.hash && window.location.hash.startsWith('#token=')) {
             try {
-                const token = decodeURIComponent(window.location.hash.slice(7)); // '#token='.length === 7
+                const token = decodeURIComponent(window.location.hash.slice(7));
 
                 if (token && token.split('.').length === 3) {
                     localStorage.setItem('tk', token);

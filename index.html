@@ -1,21 +1,39 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/logo.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="icon" type="image/svg+xml" href="/logo.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Tixery</title>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-KDPH5ESQFM"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+        window.dataLayer = window.dataLayer || [];
 
-      gtag('config', 'G-KDPH5ESQFM');
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+
+        gtag('config', 'G-KDPH5ESQFM');
     </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="./src/main.jsx"></script>
-  </body>
+</head>
+<body>
+<div id="root"></div>
+<script type="module" src="./src/main.jsx"></script>
+</body>
+<script>
+    (function () {
+        if (window.location.href.includes("https://tixery-fe.vercel.app/organizer") && window.location.hash && window.location.hash.startsWith('#token=')) {
+            const token = window.location.hash.substring(7);
+            if (token && token.split('.').length === 3) {
+                localStorage.setItem('tk', token);
+                window.history.replaceState(null, document.title, window.location.pathname);
+                setTimeout(function () {
+                    window.location.reload();
+                }, 50);
+            }
+        }
+    })();
+</script>
 </html>
