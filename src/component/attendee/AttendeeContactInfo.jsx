@@ -51,7 +51,7 @@ function AttendeeContactInfo() {
         full_name: data?.full_name || '',
         nickname: data?.nickname || '',
         date_of_birth: dayjs(data?.date_of_birth, 'YYYY/MM/DD') || '',
-        gender: data?.gender.toLowerCase() || '',
+        gender: data?.gender?.toLowerCase() || '',
         phone_number: data?.phone_number || '',
         nationality: data?.nationality || 'VN',
     };
@@ -194,7 +194,6 @@ function AttendeeContactInfo() {
                                               inputValue={countries.find(c => c.code === values.nationality)?.label}
                                               onChange={(_, val) => values.nationality = val?.code}
                                               renderOption={(props, option) => {
-                                                  // eslint-disable-next-line react/prop-types
                                                   const {key, ...optionProps} = props;
                                                   return (
                                                       <Box
