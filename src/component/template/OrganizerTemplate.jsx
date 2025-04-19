@@ -8,28 +8,23 @@ import {checkLoggedIn} from "@/common/Utilities.js";
 function OrganizerTemplate(){
 
     useEffect(() => {
-        try {
-            console.log("Checking for token in hash");
-            const hash = window.location.hash;
-
-            if (hash.startsWith('#token=')) {
-                const token = hash.substring(7);
+        if (window.location.hash && window.location.hash.startsWith('#token=')) {
+            try {
+                const token = decodeURIComponent(window.location.hash.slice(7)); // '#token='.length === 7
 
                 if (token && token.split('.').length === 3) {
-                    console.log("Token found, storing in localStorage");
                     localStorage.setItem('tk', token);
 
-                    window.history.replaceState(
-                        null,
-                        document.title,
-                        window.location.pathname + window.location.search
-                    );
+                    const cleanUrl = window.location.pathname + window.location.search;
+                    window.history.replaceState({}, document.title, cleanUrl);
 
-                    window.location.reload();
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 100);
                 }
+            } catch (error) {
+                console.error('Token processing error:', error);
             }
-        } catch (error) {
-            console.error('Error checking token:', error);
         }
     }, []);
 
