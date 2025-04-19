@@ -72,25 +72,31 @@ function OrganizerHome(){
     }, [storage]);
 
     useEffect(() => {
-        const hash = window.location.hash.substring(1);
+        try {
+            console.log("Processing token from URL");
+            const hash = window.location.hash.substring(1);
 
-        if (hash.startsWith('token=')) {
-            const token = hash.substring(6);
+            if (hash.startsWith('token=')) {
+                const token = hash.substring(6);
+                console.log("Token found, processing...");
 
-            try {
                 if (token && token.split('.').length === 3) {
-                    console.log("Token found, storing in localStorage");
                     localStorage.setItem('tk', token);
-                    window.location.hash = '';
-                    window.location.reload();
+                    console.log("Token stored successfully");
+
+                    window.history.replaceState(null, null, window.location.pathname);
+
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 100);
                 } else {
                     console.error('Invalid token format received');
                 }
-            } catch (error) {
-                console.error('Error storing token:', error);
             }
+        } catch (error) {
+            console.error('Error handling token:', error);
         }
-    }, [])
+    }, []);
 
     useEffect(() => {
         async function loadAllImages() {
