@@ -7,7 +7,7 @@ import EventView from "../shared/EventView.jsx";
 import {Link, useLoaderData, useLocation} from "react-router-dom";
 import RootFooter from "../shared/RootFooter.jsx";
 import "../../styles/ai-event-preview-styles.css"
-import {checkLoggedIn} from "../../common/Utilities.js";
+import {checkLoggedIn} from "@/common/Utilities.js";
 import {useState} from "react";
 import {Card, CardContent} from "@mui/joy";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
