@@ -1,4 +1,4 @@
-import {createBrowserRouter} from "react-router-dom";
+import {createBrowserRouter, Navigate} from "react-router-dom";
 import {lazy} from "react";
 import ErrorFallback from "./component/shared/ErrorFallback.jsx";
 import LoadingFallback from "./component/shared/LoadingFallback.jsx";

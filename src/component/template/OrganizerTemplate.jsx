@@ -20,7 +20,7 @@ function OrganizerTemplate(){
         } catch (error) {
             console.error('Error checking token:', error);
         }
-    }, []);;
+    }, []);
 
     return (
         <div className={'organizer-template'}>
