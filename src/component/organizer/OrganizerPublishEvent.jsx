@@ -1,5 +1,5 @@
 import {Box, Checkbox, FormControlLabel, Stack, TextField, Typography} from "@mui/material";
-import {Link, NavLink} from "react-router-dom";
+import {Link, NavLink, useOutletContext} from "react-router-dom";
 import ImageIcon from '@mui/icons-material/Image';
 import "../../styles/organizer-publish-event-styles.css"
 import BookOnlineIcon from '@mui/icons-material/BookOnline';
@@ -50,7 +50,8 @@ const storage = getStorage()
 
 function OrganizerPublishEvent(){
     const {t} = useTranslation()
-    const {data, setData, setCurrentStep, maxStep} = useContext(EventContext)
+    const {data, setData} = useContext(EventContext)
+    const {setCurrentStep, maxStep} = useOutletContext()
     const [eventImg, setEventImg] = useState(null)
 
     const availableCategories = Object.keys(Categories);
