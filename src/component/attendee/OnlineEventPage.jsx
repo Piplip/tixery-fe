@@ -62,7 +62,9 @@ function OnlineEventPage({preview}){
 
     const renderOnlineContent = () => {
         const content = loaderData.location?.data;
-	if(!!content) return
+	if (!content || content.length === 0) {
+        return null;
+    }
         return content.map((item, index) => {
             switch (item.type) {
                 case 'text':
