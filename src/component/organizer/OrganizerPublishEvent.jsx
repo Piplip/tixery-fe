@@ -12,14 +12,14 @@ import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
 import PropTypes from "prop-types";
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
-import {EventContext} from "../../context.js";
+import {EventContext} from "@/context.js";
 import dayjs from "dayjs";
-import {formatCurrency, getUserData} from "../../common/Utilities.js";
+import {formatCurrency, getUserData} from "@/common/Utilities.js";
 import {DatePicker, TimePicker} from "@mui/x-date-pickers";
 import {initializeApp} from "firebase/app";
-import {firebaseConfig} from "../../config/firebaseConfig.js";
+import {firebaseConfig} from "@/config/firebaseConfig.js";
 import {getDownloadURL, getStorage, ref} from "firebase/storage";
-import {Categories, EventType} from "../../common/Data.js";
+import {Categories, EventType} from "@/common/Data.js";
 import {useTranslation} from "react-i18next";
 
 const checkboxStyle = {
@@ -50,7 +50,7 @@ const storage = getStorage()
 
 function OrganizerPublishEvent(){
     const {t} = useTranslation()
-    const {data, setData} = useContext(EventContext)
+    const {data, setData, setCurrentStep, maxStep} = useContext(EventContext)
     const [eventImg, setEventImg] = useState(null)
 
     const availableCategories = Object.keys(Categories);
@@ -61,6 +61,13 @@ function OrganizerPublishEvent(){
             : [];
 
     useEffect(() => {
+        if(window.location.href.includes("ref=preview")){
+            setCurrentStep(5)
+            maxStep.current = 5
+        }
+    }, []);
+    
+    useEffect(() => {
         if(data.images && data.images[0] && eventImg === null){
             const imageRef = ref(storage, data.images[0])
             getDownloadURL(imageRef)
@@ -69,7 +76,7 @@ function OrganizerPublishEvent(){
                 })
                 .catch(err => console.log(err))
         }
-    }, []);
+    }, [data.images, eventImg]);
 
     return (
         <div className="event-publish">

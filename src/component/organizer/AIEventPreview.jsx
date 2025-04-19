@@ -44,7 +44,7 @@ function AIEventPreview(){
                 </Stack>
                 <p style={{ backgroundColor: '#efefef', padding: '.75rem 1rem' }}>
                     {t('aiEventPreview.needUpdates')} <Link className={'link'}
-                                                            to={`/organizer/events/edit/${location.pathname.split('/')[3]}`}>{t('aiEventPreview.editEvent')}</Link>
+                                                            to={`/organizer/events/edit/${location.pathname.split('/')[3]}?ref=preview`}>{t('aiEventPreview.editEvent')}</Link>
                 </p>
             </Stack>
             <Stack className={'ai-event-preview'}>
