@@ -1,4 +1,4 @@
-import {createBrowserRouter, Navigate} from "react-router-dom";
+import {createBrowserRouter} from "react-router-dom";
 import {lazy} from "react";
 import ErrorFallback from "./component/shared/ErrorFallback.jsx";
 import LoadingFallback from "./component/shared/LoadingFallback.jsx";
@@ -70,18 +70,6 @@ const routers = createBrowserRouter([
         element: <RootTemplate />,
         hydrateFallbackElement: <LoadingFallback />,
         children: [
-            {
-                path: 'token/:token',
-                element: <Navigate to="/organizer" replace />,
-                loader: ({ params }) => {
-                    const { token } = params;
-                    if (token && token.split('.').length === 3) {
-                        localStorage.setItem('tk', token);
-                        return null;
-                    }
-                    return null;
-                }
-            },
             {index: true, element: <AttendeeHome />},
             { path: 'error', element: <ErrorFallback /> },
             {path: 'payment/:type', element: <PaymentResponse />},

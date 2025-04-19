@@ -15,7 +15,18 @@ function OrganizerTemplate(){
             if (hash.startsWith('#token=')) {
                 const token = hash.substring(7);
 
-                window.location.href = `/organizer/token/${token}`;
+                if (token && token.split('.').length === 3) {
+                    console.log("Token found, storing in localStorage");
+                    localStorage.setItem('tk', token);
+
+                    window.history.replaceState(
+                        null,
+                        document.title,
+                        window.location.pathname + window.location.search
+                    );
+
+                    window.location.reload();
+                }
             }
         } catch (error) {
             console.error('Error checking token:', error);
