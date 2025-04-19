@@ -87,7 +87,7 @@ function AIEventPreview(){
                         </div>
                     </Collapse>
                     <div className="event-ready-card__buttons">
-                        <Link to={`/organizer/events/edit/${location.pathname.split('/')[3]}/publish?ref=preview`}>
+                        <Link to={`/organizer/events/edit/${location.pathname.split('/')[3]}?ref=preview`}>
                             <Button variant="contained" className="event-ready-card__button event-ready-card__button--publish">
                                 {t('aiEventPreview.publishNow')}
                             </Button>

@@ -92,6 +92,14 @@ function CreateEvent() {
     ]
 
     useEffect(() => {
+        if(window.location.href.includes("ref=preview")){
+            setCurrentStep(5)
+            maxStep.current = 5
+            navigate("publish")
+        }
+    }, []);
+
+    useEffect(() => {
         let loaderData = loader ? loader.data : undefined
         let newEventData
 

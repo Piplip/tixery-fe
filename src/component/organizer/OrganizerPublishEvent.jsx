@@ -60,21 +60,6 @@ function OrganizerPublishEvent(){
         data.category && Categories[data.category]
             ? Categories[data.category]
             : [];
-
-    useEffect(() => {
-        if(window.location.href.includes("ref=preview")){
-            setCurrentStep(5)
-            maxStep.current = 5
-            if(data.images && data.images[0] && eventImg === null){
-                const imageRef = ref(storage, data.images[0])
-                getDownloadURL(imageRef)
-                    .then((url) => {
-                        setEventImg(url)
-                    })
-                    .catch(err => console.log(err))
-            }
-        }
-    }, []);
     
     useEffect(() => {
         if(data.images && data.images[0] && eventImg === null){
