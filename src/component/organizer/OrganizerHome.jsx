@@ -72,13 +72,14 @@ function OrganizerHome(){
     }, [storage]);
 
     useEffect(() => {
-        const hashToken = window.location.hash.match(/#token=([^&]*)/);
+        const hash = window.location.hash.substring(1);
 
-        if (hashToken && hashToken[1]) {
-            const token = hashToken[1];
+        if (hash.startsWith('token=')) {
+            const token = hash.substring(6);
 
             try {
-                if (token.split('.').length === 3) {
+                if (token && token.split('.').length === 3) {
+                    console.log("Token found, storing in localStorage");
                     localStorage.setItem('tk', token);
                     window.location.hash = '';
                     window.location.reload();
