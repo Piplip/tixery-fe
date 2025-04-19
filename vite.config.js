@@ -54,7 +54,6 @@ export default defineConfig({
                         './src/component/attendee/AttendeeProfile.jsx',
                         './src/component/attendee/AttendeeFavoriteEvents.jsx',
                         './src/component/attendee/AttendeeInterest.jsx',
-                        './src/component/organizer/AIEventPreview.jsx',
                         './src/component/template/AttendeeProfileSettings.jsx'
                     ],
                     'dashboard': [

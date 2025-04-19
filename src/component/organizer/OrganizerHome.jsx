@@ -72,18 +72,22 @@ function OrganizerHome(){
     }, [storage]);
 
     useEffect(() => {
-        const token = window.location.hash
+        const hashToken = window.location.hash.match(/#token=([^&]*)/);
 
-        try {
-            if (token.split('.').length === 3) {
-                localStorage.setItem('tk', token);
-                window.location.hash = '';
-                window.location.reload();
-            } else {
-                console.error('Invalid token format received');
+        if (hashToken && hashToken[1]) {
+            const token = hashToken[1];
+
+            try {
+                if (token.split('.').length === 3) {
+                    localStorage.setItem('tk', token);
+                    window.location.hash = '';
+                    window.location.reload();
+                } else {
+                    console.error('Invalid token format received');
+                }
+            } catch (error) {
+                console.error('Error storing token:', error);
             }
-        } catch (error) {
-            console.error('Error storing token:', error);
         }
     }, [])
 
