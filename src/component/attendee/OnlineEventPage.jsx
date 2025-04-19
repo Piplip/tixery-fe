@@ -61,7 +61,8 @@ function OnlineEventPage({preview}){
     }, [loaderData.profile_id]);
 
     const renderOnlineContent = () => {
-        const content = loaderData.location.data;
+        const content = loaderData.location?.data;
+	if(!!content) return
         return content.map((item, index) => {
             switch (item.type) {
                 case 'text':
