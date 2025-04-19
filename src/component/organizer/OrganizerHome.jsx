@@ -72,26 +72,6 @@ function OrganizerHome(){
     }, [storage]);
 
     useEffect(() => {
-        const hashToken = window.location.hash.match(/#token=([^&]*)/);
-
-        if (hashToken && hashToken[1]) {
-            const token = hashToken[1];
-
-            try {
-                if (token.split('.').length === 3) {
-                    localStorage.setItem('tk', token);
-                    window.location.hash = '';
-                    window.location.reload();
-                } else {
-                    console.error('Invalid token format received');
-                }
-            } catch (error) {
-                console.error('Error storing token:', error);
-            }
-        }
-    }, [])
-
-    useEffect(() => {
         async function loadAllImages() {
             const updatedProfiles = await Promise.all(
                 profiles.map(async (profile) => {
