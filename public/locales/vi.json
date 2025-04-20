@@ -1868,7 +1868,8 @@
   },
   "error": {
     "somethingWentWrong": "Có lỗi xảy ra! Vui lòng thử lại sau.",
-    "reportUpdateFailed": "Cập nhật thất bại"
+    "reportUpdateFailed": "Cập nhật thất bại",
+    "downloadFailed" : "Tải vé thất bại! Vui lòng thử lại sau"
   },
   "success": {
     "reportUpdated": "Cập nhật thành công"

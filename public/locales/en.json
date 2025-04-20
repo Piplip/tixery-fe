@@ -1867,7 +1867,8 @@
   },
   "error": {
     "somethingWentWrong": "Something went wrong! Please try again later.",
-    "reportUpdateFailed": "Report update failed"
+    "reportUpdateFailed": "Report update failed",
+    "downloadFailed": "Download failed! Please try again"
   },
   "eventAttendee": {
     "title": "Attendees",
