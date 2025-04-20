@@ -135,7 +135,8 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
         setTimeout(() => {
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
-        }, 100);
+            showInfo(t('attendeeOrderCardDetail.downloadCompleted') || 'Download completed successfully');
+        }, 1000);
     }
 
     function handleDownloadTicket(event, index) {
@@ -171,24 +172,22 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                         reader.onload = function() {
                             try {
                                 const errorData = JSON.parse(reader.result);
-                                showError(errorData.message || t('error.downloadCompleted'));
+                                showError(errorData.message || t('error.ticketDownloadFailed'));
                             } catch (e) {
                                 downloadBlobAsFile(response);
-                                showInfo(t('attendeeOrderCardDetail.downloadCompleted') || 'Download completed successfully');
                             }
                         };
                         reader.readAsText(response.data);
                     } else {
                         downloadBlobAsFile(response);
-                        showInfo(t('attendeeOrderCardDetail.downloadCompleted') || 'Download completed successfully');
                     }
                 } else {
-                    showInfo(t('attendeeOrderCardDetail.downloadCompleted'));
+                    showError(t('error.emptyResponse') || 'Empty response received');
                 }
             })
             .catch(err => {
                 setIsLoading(false);
-                showInfo(t('attendeeOrderCardDetail.downloadCompleted'));
+                showError(t('error.downloadFailed') || 'Failed to download ticket');
             });
     }
 
