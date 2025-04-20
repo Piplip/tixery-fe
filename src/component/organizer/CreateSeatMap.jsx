@@ -678,7 +678,7 @@ function CreateSeatMap(){
                     name: tier.name,
                     color: tier.color,
                     totalAssignedSeats: Array.isArray(tier.assignedSeats) ? tier.assignedSeats.length : 0,
-                    perks: tier.perks.join(',') || ''
+                    perks: (tier.perks && Array.isArray(tier.perks)) ? tier.perks.join(',') : ''
                 };
             })
         };
