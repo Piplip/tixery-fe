@@ -128,6 +128,8 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
             }
         }
 
+        showInfo(t('attendeeOrderCardDetail.preparingDownload') || 'Preparing your download...');
+
         link.setAttribute('download', filename);
         document.body.appendChild(link);
         link.click();

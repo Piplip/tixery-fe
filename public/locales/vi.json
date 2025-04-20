@@ -1415,6 +1415,7 @@
     "endTime": "Thời gian Kết thúc"
   },
   "attendeeOrderCardDetail": {
+    "preparingDownload": "Đang chuẩn bị tải xuống",
     "backToOrders": "Quay lại đơn hàng",
     "ticketName": "Tên vé",
     "eventImage": "Hình ảnh sự kiện",
