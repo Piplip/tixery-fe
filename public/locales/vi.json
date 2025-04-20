@@ -1717,6 +1717,7 @@
     "publishNow": "Xuất bản ngay"
   },
   "organizerCreateTicket": {
+    "lastChange": "Thay đổi: ",
     "admission": "Vé vào cửa",
     "addOns": "Tiện ích bổ sung",
     "promotions": "Khuyến mãi",

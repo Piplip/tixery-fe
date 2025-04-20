@@ -1717,6 +1717,7 @@
     "publishNow": "Publish now"
   },
   "organizerCreateTicket": {
+    "lastChange": "Last changes: ",
     "admission": "Admission",
     "addOns": "Add-ons",
     "promotions": "Promotions",

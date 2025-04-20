@@ -628,7 +628,7 @@ function OrganizerCreateTicket() {
                                                     <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'} columnGap={5}>
                                                         <Typography variant="h6" sx={{ color: '#007aa2', fontWeight: 'bold' }}>{map.name}</Typography>
                                                         <Typography variant="body1">
-                                                            {t('organizerCreateTicket.createdAt')}: {formatDate(map.created_at, "HH:mm DD/MM/YYYY")} ({getRelativeTime(map.updated_at)})
+                                                            {t('organizerCreateTicket.createdAt')}: {formatDate(map.created_at, "HH:mm DD/MM/YYYY")} ({`${t('organizerCreateTicket.lastChange')}${getRelativeTime(map.updated_at)}`})
                                                         </Typography>
                                                     </Stack>
                                                 </CardContent>
