@@ -586,12 +586,23 @@ function OrganizerCreateTicket() {
                     :
                     data.reserveSeating ?
                         seatMap.length > 0 ?
-                            <Stack spacing={2} sx={{minWidth: '35rem'}}>
+                            <Stack spacing={2} sx={{minWidth: '40rem'}}>
                                 <Typography variant="h4"
                                             gutterBottom
                                             sx={{ fontWeight: 'bold', color: '#333', textAlign: 'center' }}>
                                     {t('organizerCreateTicket.selectSeatMap')}
                                 </Typography>
+
+                                <Stack direction="row" justifyContent="flex-end" sx={{ mb: 2 }}>
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        startIcon={<LayersClearIcon />}
+                                        onClick={() => navigate(`/create/seat-map?eid=${location.pathname.split('/')[location.pathname.includes('edit') ? 4 : 3]}`)}
+                                    >
+                                        {t('organizerCreateTicket.createNewMap')}
+                                    </Button>
+                                </Stack>
 
                                 <Typography variant="h5" gutterBottom
                                             sx={{
