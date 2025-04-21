@@ -687,13 +687,15 @@ function OrganizerCreateTicket() {
                                                     <Card
                                                         variant="outlined"
                                                         sx={{
+                                                            minWidth: '40rem',
+                                                            width: '100%',
                                                             borderRadius: '12px',
                                                             border: '2px solid transparent',
-                                                            background: 'linear-gradient(135deg, #fdfbfb, #ebedee)',
+                                                            background: 'linear-gradient(135deg, #f5f7fa, #c3cfe2)',
                                                             transition: 'all 0.3s ease-in-out',
                                                             '&:hover': {
-                                                                border: '2px solid #d32f2f',
-                                                                backgroundColor: '#fce4ec',
+                                                                border: '2px solid #007aa2',
+                                                                backgroundColor: '#e0f7fa',
                                                                 boxShadow: 6,
                                                             },
                                                             cursor: 'pointer',

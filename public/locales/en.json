@@ -1718,6 +1718,7 @@
     "publishNow": "Publish now"
   },
   "organizerCreateTicket": {
+    "createNewMap": "Create new map",
     "lastChange": "Last changes: ",
     "admission": "Admission",
     "addOns": "Add-ons",
