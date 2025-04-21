@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import {Box, Button as MuiButton, Chip, Stack, Typography} from "@mui/material";
 import Dialog from '@mui/material/Dialog';
 import dayjs from "dayjs";
-import {formatCurrency, getUserData, hexToRgba} from "../../common/Utilities.js";
+import {formatCurrency, getUserData, hexToRgba} from "@/common/Utilities.js";
 import ShareDialog from "../shared/ShareDialog.jsx";
 import Button from '@mui/joy/Button';
 import Divider from '@mui/joy/Divider';
@@ -14,14 +14,14 @@ import ModalDialog from '@mui/joy/ModalDialog';
 import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 import {useEffect, useState} from "react";
 import {QRCodeSVG} from 'qrcode.react';
-import {eventAxiosWithToken} from "../../config/axiosConfig.js";
+import {eventAxiosWithToken} from "@/config/axiosConfig.js";
 import "../../styles/order-card-detail-styles.css"
 import {useTranslation} from "react-i18next";
 import ReportEvent from "./ReportEvent.jsx";
 import {initializeApp} from "firebase/app";
-import {firebaseConfig} from "../../config/firebaseConfig.js";
+import {firebaseConfig} from "@/config/firebaseConfig.js";
 import {getBytes, getStorage, ref} from "firebase/storage";
-import {useAlert} from "../../custom-hooks/useAlert.js";
+import {useAlert} from "@/custom-hooks/useAlert.js";
 
 OrderCardDetail.propTypes = {
     open: PropTypes.bool.isRequired,
@@ -185,7 +185,7 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                             try {
                                 const errorData = JSON.parse(reader.result);
                                 showError(errorData.message || t('error.ticketDownloadFailed'));
-                            } catch (e) {
+                            } catch (_) {
                                 downloadBlobAsFile(response);
                             }
                         };
@@ -197,7 +197,7 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                     showError(t('error.emptyResponse') || 'Empty response received');
                 }
             })
-            .catch(err => {
+            .catch(() => {
                 setIsLoading(false);
                 showError(t('error.downloadFailed') || 'Failed to download ticket');
             });
@@ -326,11 +326,11 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                                                             top: 0,
                                                             bottom: 0,
                                                             width: '4px',
-                                                            backgroundColor: seatInfo.tierColor || item.tier_color || '#2196f3'
+                                                            backgroundColor: item.tier_color || '#2196f3'
                                                         }
                                                     }}
                                                 >
-                                                    {(() => {
+                                                    {item?.seat_identifier && mapData && (()  => {
                                                         const seatInfo = getSeatInfo(item.seat_identifier);
                                                         if (!seatInfo) return <Typography>{t('attendeeOrderCardDetail.noSeatInfo')}</Typography>;
 
