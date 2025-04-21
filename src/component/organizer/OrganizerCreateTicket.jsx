@@ -687,7 +687,7 @@ function OrganizerCreateTicket() {
                                                         variant="outlined"
                                                         sx={{
                                                             width: '100%',
-                                                            minWidth: '46rem',
+                                                            minWidth: '45.5rem',
                                                             borderRadius: '12px',
                                                             border: '2px solid transparent',
                                                             background: 'linear-gradient(135deg, #fdfbfb, #ebedee)',
