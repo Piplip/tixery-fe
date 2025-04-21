@@ -620,7 +620,6 @@ function OrganizerCreateTicket() {
                                             <Card
                                                 variant="outlined"
                                                 sx={{
-                                                    minWidth: '40rem',
                                                     width: '100%',
                                                     borderRadius: '12px',
                                                     border: '2px solid transparent',
@@ -687,7 +686,6 @@ function OrganizerCreateTicket() {
                                                     <Card
                                                         variant="outlined"
                                                         sx={{
-                                                            minWidth: '40rem',
                                                             width: '100%',
                                                             borderRadius: '12px',
                                                             border: '2px solid transparent',
