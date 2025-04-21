@@ -300,14 +300,15 @@ function OrderCardDetail({open, handleClose, eventImg, order, ticketInfo}) {
 
                                         {item?.seat_identifier && mapData && (() => {
                                             const seatInfo = getSeatInfo(item.seat_identifier);
-                                            const perks = seatInfo?.tierPerks || item.perks;
+                                            if (!seatInfo) return null;
+
+                                            const perks = seatInfo?.tierPerks;
 
                                             if (!perks || typeof perks !== 'string') return null;
 
                                             return (
                                                 <Stack rowGap={1} sx={{mt: 1, mb: 2}}>
-                                                    <Typography variant="subtitle2" fontWeight="bold"
-                                                                sx={{color: '#4d4d4d'}}>
+                                                    <Typography variant="subtitle2" fontWeight="bold" sx={{color: '#4d4d4d'}}>
                                                         {t('attendeeOrderCardDetail.ticketPerks')}
                                                     </Typography>
                                                     <Stack
@@ -328,8 +329,8 @@ function OrderCardDetail({open, handleClose, eventImg, order, ticketInfo}) {
                                                                 size="small"
                                                                 sx={{
                                                                     margin: '4px',
-                                                                    backgroundColor: hexToRgba(seatInfo?.tierColor || item.tier_color || '#2196f3', 0.2),
-                                                                    borderLeft: `4px solid ${seatInfo?.tierColor || item.tier_color || '#2196f3'}`,
+                                                                    backgroundColor: hexToRgba(seatInfo.tierColor || '#2196f3', 0.2),
+                                                                    borderLeft: `4px solid ${seatInfo.tierColor || '#2196f3'}`,
                                                                     borderRadius: '4px',
                                                                     '& .MuiChip-label': {
                                                                         px: 1,
@@ -349,7 +350,6 @@ function OrderCardDetail({open, handleClose, eventImg, order, ticketInfo}) {
                                                             sx={{color: '#4d4d4d'}}>
                                                     {t('attendeeOrderCardDetail.seatInformation')}
                                                 </Typography>
-                                                // In the seat information box, update this section:
                                                 <Box
                                                     sx={{
                                                         backgroundColor: '#f5f5f5',
