@@ -364,7 +364,7 @@ function OrderCardDetail({open, handleClose, eventImg, order, ticketInfo}) {
                                                             top: 0,
                                                             bottom: 0,
                                                             width: '4px',
-                                                            backgroundColor: seatInfo?.tierColor || item.tier_color || '#2196f3'
+                                                            backgroundColor: item.tier_color || '#2196f3'
                                                         }
                                                     }}
                                                 >
