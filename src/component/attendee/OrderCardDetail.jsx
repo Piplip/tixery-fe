@@ -349,6 +349,7 @@ function OrderCardDetail({open, handleClose, eventImg, order, ticketInfo}) {
                                                             sx={{color: '#4d4d4d'}}>
                                                     {t('attendeeOrderCardDetail.seatInformation')}
                                                 </Typography>
+                                                // In the seat information box, update this section:
                                                 <Box
                                                     sx={{
                                                         backgroundColor: '#f5f5f5',
@@ -363,7 +364,7 @@ function OrderCardDetail({open, handleClose, eventImg, order, ticketInfo}) {
                                                             top: 0,
                                                             bottom: 0,
                                                             width: '4px',
-                                                            backgroundColor: item.tier_color || '#2196f3'
+                                                            backgroundColor: seatInfo?.tierColor || item.tier_color || '#2196f3'
                                                         }
                                                     }}
                                                 >
@@ -389,7 +390,7 @@ function OrderCardDetail({open, handleClose, eventImg, order, ticketInfo}) {
                                                                         width: 12,
                                                                         height: 12,
                                                                         borderRadius: '50%',
-                                                                        backgroundColor: item.tier_color || '#2196f3'
+                                                                        backgroundColor: seatInfo.tierColor || item.tier_color || '#2196f3'
                                                                     }}/>
                                                                     <Typography fontWeight="500">
                                                                         {seatInfo.display}
@@ -397,7 +398,7 @@ function OrderCardDetail({open, handleClose, eventImg, order, ticketInfo}) {
                                                                 </Box>
                                                                 <Typography variant="body2"
                                                                             sx={{color: 'text.secondary', mt: 1}}>
-                                                                    <strong>{t('attendeeOrderCardDetail.tierName')}:</strong> {item.tier_name}
+                                                                    <strong>{t('attendeeOrderCardDetail.tierName')}:</strong> {seatInfo.tierName || item.tier_name || t('attendeeOrderCardDetail.noTier')}
                                                                 </Typography>
                                                             </Stack>
                                                         );
