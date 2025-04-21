@@ -34,7 +34,7 @@ OrderCardDetail.propTypes = {
 initializeApp(firebaseConfig);
 const storage = getStorage()
 
-function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
+function OrderCardDetail({open, handleClose, eventImg, order, ticketInfo}) {
     const [openDialog, setOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [selectedTicket, setSelectedTicket] = useState(0);
@@ -64,7 +64,8 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                 name: targetObject.properties.tableName,
                 display: targetObject.properties.tableName,
                 tierName: tierInfo ? tierInfo.name : null,
-                tierColor: tierInfo ? tierInfo.color : null
+                tierColor: tierInfo ? tierInfo.color : null,
+                tierPerks: tierInfo ? tierInfo.perks : null
             };
         }
 
@@ -79,7 +80,8 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                 position: `${rowLetter}${seat + 1}`,
                 display: `${targetObject.properties.sectionName} - ${t('eventRegistration.seat')} ${rowLetter}${seat + 1}`,
                 tierName: tierInfo ? tierInfo.name : null,
-                tierColor: tierInfo ? tierInfo.color : null
+                tierColor: tierInfo ? tierInfo.color : null,
+                tierPerks: tierInfo ? tierInfo.perks : null
             };
         }
 
@@ -105,12 +107,14 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
         getMapData()
     }, [ticketInfo]);
 
-    function handleCancelOrder(){
+    function handleCancelOrder() {
         setIsLoading(true)
-        eventAxiosWithToken.post(`/order/cancel?` + new URLSearchParams({"pid": getUserData('profileID'),"order-id": order.order_id, "uname": getUserData('fullName'),
-            "u": getUserData('sub')}))
+        eventAxiosWithToken.post(`/order/cancel?` + new URLSearchParams({
+            "pid": getUserData('profileID'), "order-id": order.order_id, "uname": getUserData('fullName'),
+            "u": getUserData('sub')
+        }))
             .then(r => {
-                if(r.data.status === 'OK'){
+                if (r.data.status === 'OK') {
                     window.location.reload()
                     showInfo(t('attendeeOrderCardDetail.cancelCompleted'));
                 }
@@ -123,7 +127,7 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
 
     function downloadBlobAsFile(response) {
         const contentType = response.headers['content-type'] || 'application/pdf';
-        const blob = new Blob([response.data], { type: contentType });
+        const blob = new Blob([response.data], {type: contentType});
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
@@ -181,7 +185,7 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                 if (response?.data instanceof Blob && response.data.size > 0) {
                     if (response.data.type === 'application/json') {
                         const reader = new FileReader();
-                        reader.onload = function() {
+                        reader.onload = function () {
                             try {
                                 const errorData = JSON.parse(reader.result);
                                 showError(errorData.message || t('error.ticketDownloadFailed'));
@@ -205,15 +209,21 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
 
     return (
         <Dialog fullScreen open={open} onClose={handleClose} sx={{zIndex: 10000000}}>
-            <Stack sx={{ padding: '2rem 5rem' }} rowGap={2}>
-                <Typography className={'link'} onClick={handleClose}>{t('attendeeOrderCardDetail.backToOrders')}</Typography>
+            <Stack sx={{padding: '2rem 5rem'}} rowGap={2}>
+                <Typography className={'link'}
+                            onClick={handleClose}>{t('attendeeOrderCardDetail.backToOrders')}</Typography>
                 <Stack direction={'row'} className={'order-detail-content-wrapper'}>
                     <div className={'order-ticket-wrapper'}>
                         {ticketInfo?.length > 0 && ticketInfo?.map((item, index) => {
                             return (
                                 <Stack className={`${selectedTicket === index ? 'selected-ticket' : ''} order-ticket`}
-                                       style={{ transform: `translateX(${-80 * (index)}%)` }}
-                                       key={index} sx={{ boxShadow: '0 0 1rem #e8e8e8', borderRadius: 5, overflow: 'hidden', width: '27.5rem' }}
+                                       style={{transform: `translateX(${-80 * (index)}%)`}}
+                                       key={index} sx={{
+                                    boxShadow: '0 0 1rem #e8e8e8',
+                                    borderRadius: 5,
+                                    overflow: 'hidden',
+                                    width: '27.5rem'
+                                }}
                                        onClick={() => {
                                            if (selectedTicket === index) return;
                                            setSelectedTicket(index);
@@ -233,12 +243,16 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                                     </Stack>
                                     <Stack rowGap={3} padding={'1rem 1.5rem'}>
                                         <Stack rowGap={.75}>
-                                            <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
+                                            <Stack direction={'row'} alignItems={'center'}
+                                                   justifyContent={'space-between'}>
                                                 <Typography fontWeight={'bold'} fontSize={30}>{order.name}</Typography>
-                                                <ShareDialog eventID={order.event_id} />
+                                                <ShareDialog eventID={order.event_id}/>
                                             </Stack>
-                                            <p style={{ color: '#2a2a2a', fontSize: 14 }}>{dayjs(order.start_date).format("ddd, MMM DD HH:mm")}</p>
-                                            <p style={{ color: '#564f4f', fontSize: 14 }}>{order.location.location}</p>
+                                            <p style={{
+                                                color: '#2a2a2a',
+                                                fontSize: 14
+                                            }}>{dayjs(order.start_date).format("ddd, MMM DD HH:mm")}</p>
+                                            <p style={{color: '#564f4f', fontSize: 14}}>{order.location.location}</p>
                                         </Stack>
                                         <Stack rowGap={2}>
                                             {order?.event_id &&
@@ -250,7 +264,7 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                                                     }}
                                                     size={150}
                                                     level="H"
-                                                    style={{ margin: 'auto' }}
+                                                    style={{margin: 'auto'}}
                                                     imageSettings={{
                                                         src: 'https://firebasestorage.googleapis.com/v0/b/medicare-10c3b.appspot.com/o/assets%2Fts.png?alt=media&token=b62ce116-11f4-4e48-94df-6838a53b6a9c',
                                                         height: 40,
@@ -260,133 +274,163 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                                                     fgColor="#21214d"
                                                 />
                                             }
-                                            <p style={{ color: '#2a2a38', fontFamily: 'Raleway', fontSize: 16, wordWrap: 'break-word', textAlign: 'center' }}>
+                                            <p style={{
+                                                color: '#2a2a38',
+                                                fontFamily: 'Raleway',
+                                                fontSize: 16,
+                                                wordWrap: 'break-word',
+                                                textAlign: 'center'
+                                            }}>
                                                 {item?.name} x{item?.quantity}</p>
                                             <div style={{
-                                                alignSelf: 'center', fontSize: '2.5rem', fontWeight: 'bold', background: 'linear-gradient(90deg, #4CAF50, #81C784)',
-                                                WebkitBackgroundClip: 'text', color: 'transparent', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
-                                                paddingInline: '20px', borderRadius: '10px', display: 'inline-block'
+                                                alignSelf: 'center',
+                                                fontSize: '2.5rem',
+                                                fontWeight: 'bold',
+                                                background: 'linear-gradient(90deg, #4CAF50, #81C784)',
+                                                WebkitBackgroundClip: 'text',
+                                                color: 'transparent',
+                                                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
+                                                paddingInline: '20px',
+                                                borderRadius: '10px',
+                                                display: 'inline-block'
                                             }}>
                                                 {item?.price === 0 ? t('attendeeOrderCardDetail.free') : formatCurrency(item?.price, item?.currency)}
                                             </div>
                                         </Stack>
-                                        {item?.perks && (
-                                            <Stack rowGap={1} sx={{ mt: 1, mb: 2 }}>
-                                                <Typography variant="subtitle2" fontWeight="bold" sx={{ color: '#4d4d4d' }}>
-                                                    {t('attendeeOrderCardDetail.ticketPerks')}
-                                                </Typography>
-                                                <Stack
-                                                    direction="row"
-                                                    spacing={1}
-                                                    flexWrap="wrap"
-                                                    useFlexGap
-                                                    sx={{
-                                                        backgroundColor: '#f5f5f5',
-                                                        borderRadius: '8px',
-                                                        p: 1.5
-                                                    }}
-                                                >
-                                                    {item.perks.split(',').map((perk, i) => (
-                                                        <Chip
-                                                            key={i}
-                                                            label={t(`predefinedPerks.${perk.trim()}`)}
-                                                            size="small"
-                                                            sx={{
-                                                                margin: '4px',
-                                                                backgroundColor: hexToRgba(item.tier_color, 0.2),
-                                                                borderLeft: `4px solid ${item.tier_color || '#2196f3'}`,
-                                                                borderRadius: '4px',
-                                                                '& .MuiChip-label': {
-                                                                    px: 1,
-                                                                    py: 0.5,
-                                                                    fontWeight: 500
-                                                                }
-                                                            }}
-                                                        />
-                                                    ))}
-                                                </Stack>
-                                            </Stack>
-                                        )}
-                                        {item?.seat_identifier && mapData && (
-                                            <Stack rowGap={1} sx={{ mt: 1, mb: 2 }}>
-                                                <Typography variant="subtitle2" fontWeight="bold" sx={{ color: '#4d4d4d' }}>
-                                                    {t('attendeeOrderCardDetail.seatInformation')}
-                                                </Typography>
-                                                <Box
-                                                    sx={{
-                                                        backgroundColor: '#f5f5f5',
-                                                        borderRadius: '8px',
-                                                        p: 1.5,
-                                                        position: 'relative',
-                                                        overflow: 'hidden',
-                                                        '&::before': {
-                                                            content: '""',
-                                                            position: 'absolute',
-                                                            left: 0,
-                                                            top: 0,
-                                                            bottom: 0,
-                                                            width: '4px',
-                                                            backgroundColor: item.tier_color || '#2196f3'
-                                                        }
-                                                    }}
-                                                >
-                                                    {item?.seat_identifier && mapData && (()  => {
-                                                        const seatInfo = getSeatInfo(item.seat_identifier);
-                                                        if (!seatInfo) return <Typography>{t('attendeeOrderCardDetail.noSeatInfo')}</Typography>;
+                                        {item?.seat_identifier && mapData && (() => {
+                                            const seatInfo = getSeatInfo(item.seat_identifier);
+                                            const perks = seatInfo?.tierPerks || item.perks;
 
-                                                        return (
-                                                            <Stack spacing={1}>
-                                                                <Typography variant="body1" fontWeight="medium">
-                                                                    <strong>
-                                                                        {seatInfo.type === 'table'
-                                                                            ? (t('attendeeOrderCardDetail.tableInfo'))
-                                                                            : (t('attendeeOrderCardDetail.seatInfo'))}
-                                                                    </strong>
+                                            if (!perks) return null;
+
+                                            return (
+                                                <Stack rowGap={1} sx={{mt: 1, mb: 2}}>
+                                                    <Typography variant="subtitle2" fontWeight="bold"
+                                                                sx={{color: '#4d4d4d'}}>
+                                                        {t('attendeeOrderCardDetail.ticketPerks')}
+                                                    </Typography>
+                                                    <Stack
+                                                        direction="row"
+                                                        spacing={1}
+                                                        flexWrap="wrap"
+                                                        useFlexGap
+                                                        sx={{
+                                                            backgroundColor: '#f5f5f5',
+                                                            borderRadius: '8px',
+                                                            p: 1.5
+                                                        }}
+                                                    >
+                                                        {perks.split(',').map((perk, i) => (
+                                                            <Chip
+                                                                key={i}
+                                                                label={t(`predefinedPerks.${perk.trim()}`)}
+                                                                size="small"
+                                                                sx={{
+                                                                    margin: '4px',
+                                                                    backgroundColor: hexToRgba(seatInfo?.tierColor || item.tier_color || '#2196f3', 0.2),
+                                                                    borderLeft: `4px solid ${seatInfo?.tierColor || item.tier_color || '#2196f3'}`,
+                                                                    borderRadius: '4px',
+                                                                    '& .MuiChip-label': {
+                                                                        px: 1,
+                                                                        py: 0.5,
+                                                                        fontWeight: 500
+                                                                    }
+                                                                }}
+                                                            />
+                                                        ))}
+                                                    </Stack>
+                                                </Stack>
+                                            );
+                                        })()} {item?.seat_identifier && mapData && (
+                                        <Stack rowGap={1} sx={{mt: 1, mb: 2}}>
+                                            <Typography variant="subtitle2" fontWeight="bold" sx={{color: '#4d4d4d'}}>
+                                                {t('attendeeOrderCardDetail.seatInformation')}
+                                            </Typography>
+                                            <Box
+                                                sx={{
+                                                    backgroundColor: '#f5f5f5',
+                                                    borderRadius: '8px',
+                                                    p: 1.5,
+                                                    position: 'relative',
+                                                    overflow: 'hidden',
+                                                    '&::before': {
+                                                        content: '""',
+                                                        position: 'absolute',
+                                                        left: 0,
+                                                        top: 0,
+                                                        bottom: 0,
+                                                        width: '4px',
+                                                        backgroundColor: item.tier_color || '#2196f3'
+                                                    }
+                                                }}
+                                            >
+                                                {item?.seat_identifier && mapData && (() => {
+                                                    const seatInfo = getSeatInfo(item.seat_identifier);
+                                                    if (!seatInfo) return <Typography>{t('attendeeOrderCardDetail.noSeatInfo')}</Typography>;
+
+                                                    return (
+                                                        <Stack spacing={1}>
+                                                            <Typography variant="body1" fontWeight="medium">
+                                                                <strong>
+                                                                    {seatInfo.type === 'table'
+                                                                        ? (t('attendeeOrderCardDetail.tableInfo'))
+                                                                        : (t('attendeeOrderCardDetail.seatInfo'))}
+                                                                </strong>
+                                                            </Typography>
+                                                            <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                                                                <Box sx={{
+                                                                    width: 12,
+                                                                    height: 12,
+                                                                    borderRadius: '50%',
+                                                                    backgroundColor: item.tier_color || '#2196f3'
+                                                                }}/>
+                                                                <Typography fontWeight="500">
+                                                                    {seatInfo.display}
                                                                 </Typography>
-                                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                                    <Box sx={{
-                                                                        width: 12,
-                                                                        height: 12,
-                                                                        borderRadius: '50%',
-                                                                        backgroundColor: item.tier_color || '#2196f3'
-                                                                    }} />
-                                                                    <Typography fontWeight="500">
-                                                                        {seatInfo.display}
-                                                                    </Typography>
-                                                                </Box>
-                                                                <Typography variant="body2" sx={{ color: 'text.secondary', mt: 1 }}>
-                                                                    <strong>{t('attendeeOrderCardDetail.tierName')}:</strong> {item.tier_name}
-                                                                </Typography>
-                                                            </Stack>
-                                                        );
-                                                    })()}
-                                                </Box>
-                                            </Stack>
-                                        )}
+                                                            </Box>
+                                                            <Typography variant="body2"
+                                                                        sx={{color: 'text.secondary', mt: 1}}>
+                                                                <strong>{t('attendeeOrderCardDetail.tierName')}:</strong> {item.tier_name}
+                                                            </Typography>
+                                                        </Stack>
+                                                    );
+                                                })()}
+                                            </Box>
+                                        </Stack>
+                                    )}
                                         <Stack rowGap={1.5}>
                                             {order?.end_time && dayjs(order.end_time).isAfter(dayjs()) &&
                                                 <>
                                                     <MuiButton
                                                         color={'error'}
                                                         variant={'contained'}
-                                                        sx={{ width: '100%' }}
+                                                        sx={{width: '100%'}}
                                                         onClick={(event) => handleDownloadTicket(event, index)}
                                                     >
                                                         {isLoading ? t('attendeeOrderCardDetail.generating') : t('attendeeOrderCardDetail.downloadTicket')}
                                                     </MuiButton>
-                                                    <MuiButton variant={'outlined'} onClick={() => setOpen(true)}>{t('attendeeOrderCardDetail.cancelOrder')}</MuiButton>
+                                                    <MuiButton variant={'outlined'}
+                                                               onClick={() => setOpen(true)}>{t('attendeeOrderCardDetail.cancelOrder')}</MuiButton>
                                                     {item?.refund_policy?.allowRefund &&
-                                                        <Stack sx={{ backgroundColor: '#e8e8e8', padding: '.5rem .75rem' }}>
+                                                        <Stack
+                                                            sx={{backgroundColor: '#e8e8e8', padding: '.5rem .75rem'}}>
                                                             <b>{t('attendeeOrderCardDetail.refundPolicy')}</b>
-                                                            <p>{t('attendeeOrderCardDetail.refundsUpTo')} <b>{item?.refund_policy?.daysForRefund} {t('attendeeOrderCardDetail.daysBeforeEvent')}</b></p>
+                                                            <p>{t('attendeeOrderCardDetail.refundsUpTo')}
+                                                                <b>{item?.refund_policy?.daysForRefund} {t('attendeeOrderCardDetail.daysBeforeEvent')}</b>
+                                                            </p>
                                                         </Stack>
                                                     }
                                                 </>
                                             }
                                         </Stack>
-                                        <p className={'link'} style={{ alignSelf: 'center', marginBlock: 10 }}>{t('attendeeOrderCardDetail.contactOrganizer')}</p>
+                                        <p className={'link'} style={{
+                                            alignSelf: 'center',
+                                            marginBlock: 10
+                                        }}>{t('attendeeOrderCardDetail.contactOrganizer')}</p>
                                         <Stack fontSize={14} borderTop={'1px solid'} paddingTop={2.5}>
-                                            <p>{t('attendeeOrderCardDetail.order')} <b>#{order.order_id}</b> {t('attendeeOrderCardDetail.on')} {dayjs(order.created_at).format('HH:mm DD, MMM YYYY')}</p>
+                                            <p>{t('attendeeOrderCardDetail.order')}
+                                                <b>#{order.order_id}</b> {t('attendeeOrderCardDetail.on')} {dayjs(order.created_at).format('HH:mm DD, MMM YYYY')}
+                                            </p>
                                             {order?.end_time && dayjs(order.end_time).isAfter(dayjs()) &&
                                                 <ReportEvent eventID={order.event_id}/>
                                             }
@@ -397,9 +441,9 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                         })}
                     </div>
                     <Stack flexGrow={1} rowGap={2} fontFamily={'Roboto Slab'}
-                           sx={{ transform: `translateX(-${80 * (ticketInfo?.length >= 3 ? (ticketInfo.length + 1.15) : (ticketInfo.length - 1))}%)`}}>
+                           sx={{transform: `translateX(-${80 * (ticketInfo?.length >= 3 ? (ticketInfo.length + 1.15) : (ticketInfo.length - 1))}%)`}}>
                         <Typography fontWeight={'bold'} fontSize={30}>{order.name}</Typography>
-                        <hr />
+                        <hr/>
                         <Typography variant={'h5'}>{t('attendeeOrderCardDetail.contactInformation')}</Typography>
                         <p className={'order-detail-title'}>{t('attendeeOrderCardDetail.attendeeName')}</p>
                         <p className={'order-detail-content'}>{getUserData('fullName')}</p>
@@ -444,10 +488,10 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
             <Modal open={openDialog} onClose={() => setOpen(false)} sx={{zIndex: 10000001}}>
                 <ModalDialog variant="outlined" role="alertdialog">
                     <DialogTitle>
-                        <WarningRoundedIcon />
+                        <WarningRoundedIcon/>
                         {t('attendeeOrderCardDetail.cancelOrder')}
                     </DialogTitle>
-                    <Divider />
+                    <Divider/>
                     <DialogContent>
                         {t('attendeeOrderCardDetail.cancelConfirmation')}
                     </DialogContent>
