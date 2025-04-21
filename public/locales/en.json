@@ -1477,6 +1477,7 @@
     "endTime": "End Time"
   },
   "attendeeOrderCardDetail": {
+    "noTier": "No tier",
     "preparingDownload": "Preparing your ticket",
     "backToOrders": "Back to Orders",
     "eventImage": "Event Image",

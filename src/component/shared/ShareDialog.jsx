@@ -8,10 +8,10 @@ import XIcon from '@mui/icons-material/X';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import PropTypes from "prop-types";
 import {useTranslation} from "react-i18next";
-import {collectData} from "../../common/Utilities.js";
-import {useAlert} from "../../custom-hooks/useAlert.js";
+import {collectData} from "@/common/Utilities.js";
+import {useAlert} from "@/custom-hooks/useAlert.js";
 
-const basePath = 'https://tixery-fe.vercel.app/'
+const basePath = 'https://tixery-fe.vercel.app/events/'
 
 const ShareDialog = ({ eventID }) => {
     const { t } = useTranslation();

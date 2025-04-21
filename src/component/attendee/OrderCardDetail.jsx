@@ -63,7 +63,8 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                 type: 'table',
                 name: targetObject.properties.tableName,
                 display: targetObject.properties.tableName,
-                tier: tierInfo
+                tierName: tierInfo ? tierInfo.name : null,
+                tierColor: tierInfo ? tierInfo.color : null
             };
         }
 
@@ -77,7 +78,8 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                 section: targetObject.properties.sectionName,
                 position: `${rowLetter}${seat + 1}`,
                 display: `${targetObject.properties.sectionName} - ${t('eventRegistration.seat')} ${rowLetter}${seat + 1}`,
-                tier: tierInfo
+                tierName: tierInfo ? tierInfo.name : null,
+                tierColor: tierInfo ? tierInfo.color : null
             };
         }
 
@@ -324,7 +326,7 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                                                             top: 0,
                                                             bottom: 0,
                                                             width: '4px',
-                                                            backgroundColor: item.tier_color || '#2196f3'
+                                                            backgroundColor: seatInfo.tierColor || item.tier_color || '#2196f3'
                                                         }
                                                     }}
                                                 >
@@ -423,7 +425,9 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                                     </p>
                                     <p className={'order-detail-content'}>{seatInfo.display}</p>
                                     <p className={'order-detail-title'}>{t('attendeeOrderCardDetail.tierName')}</p>
-                                    <p className={'order-detail-content'}>{ticketInfo[selectedTicket].tier_name}</p>
+                                    <p className={'order-detail-content'}>
+                                        {seatInfo.tierName || ticketInfo[selectedTicket].tier_name || t('attendeeOrderCardDetail.noTier')}
+                                    </p>
                                 </>
                             );
                         })()}
