@@ -65,7 +65,7 @@ function OrderCardDetail({open, handleClose, eventImg, order, ticketInfo}) {
                 display: targetObject.properties.tableName,
                 tierName: tierInfo ? tierInfo.name : null,
                 tierColor: tierInfo ? tierInfo.color : null,
-                tierPerks: tierInfo ? tierInfo.perks : null
+                ...(tierInfo && tierInfo.perks && {tierPerks: tierInfo.perks})
             };
         }
 
@@ -81,7 +81,7 @@ function OrderCardDetail({open, handleClose, eventImg, order, ticketInfo}) {
                 display: `${targetObject.properties.sectionName} - ${t('eventRegistration.seat')} ${rowLetter}${seat + 1}`,
                 tierName: tierInfo ? tierInfo.name : null,
                 tierColor: tierInfo ? tierInfo.color : null,
-                tierPerks: tierInfo ? tierInfo.perks : null
+                ...(tierInfo && tierInfo.perks && {tierPerks: tierInfo.perks})
             };
         }
 
@@ -297,11 +297,12 @@ function OrderCardDetail({open, handleClose, eventImg, order, ticketInfo}) {
                                                 {item?.price === 0 ? t('attendeeOrderCardDetail.free') : formatCurrency(item?.price, item?.currency)}
                                             </div>
                                         </Stack>
+
                                         {item?.seat_identifier && mapData && (() => {
                                             const seatInfo = getSeatInfo(item.seat_identifier);
                                             const perks = seatInfo?.tierPerks || item.perks;
 
-                                            if (!perks) return null;
+                                            if (!perks || typeof perks !== 'string') return null;
 
                                             return (
                                                 <Stack rowGap={1} sx={{mt: 1, mb: 2}}>
@@ -341,63 +342,69 @@ function OrderCardDetail({open, handleClose, eventImg, order, ticketInfo}) {
                                                     </Stack>
                                                 </Stack>
                                             );
-                                        })()} {item?.seat_identifier && mapData && (
-                                        <Stack rowGap={1} sx={{mt: 1, mb: 2}}>
-                                            <Typography variant="subtitle2" fontWeight="bold" sx={{color: '#4d4d4d'}}>
-                                                {t('attendeeOrderCardDetail.seatInformation')}
-                                            </Typography>
-                                            <Box
-                                                sx={{
-                                                    backgroundColor: '#f5f5f5',
-                                                    borderRadius: '8px',
-                                                    p: 1.5,
-                                                    position: 'relative',
-                                                    overflow: 'hidden',
-                                                    '&::before': {
-                                                        content: '""',
-                                                        position: 'absolute',
-                                                        left: 0,
-                                                        top: 0,
-                                                        bottom: 0,
-                                                        width: '4px',
-                                                        backgroundColor: item.tier_color || '#2196f3'
-                                                    }
-                                                }}
-                                            >
-                                                {item?.seat_identifier && mapData && (() => {
-                                                    const seatInfo = getSeatInfo(item.seat_identifier);
-                                                    if (!seatInfo) return <Typography>{t('attendeeOrderCardDetail.noSeatInfo')}</Typography>;
+                                        })()}
+                                        {item?.seat_identifier && mapData && (
+                                            <Stack rowGap={1} sx={{mt: 1, mb: 2}}>
+                                                <Typography variant="subtitle2" fontWeight="bold"
+                                                            sx={{color: '#4d4d4d'}}>
+                                                    {t('attendeeOrderCardDetail.seatInformation')}
+                                                </Typography>
+                                                <Box
+                                                    sx={{
+                                                        backgroundColor: '#f5f5f5',
+                                                        borderRadius: '8px',
+                                                        p: 1.5,
+                                                        position: 'relative',
+                                                        overflow: 'hidden',
+                                                        '&::before': {
+                                                            content: '""',
+                                                            position: 'absolute',
+                                                            left: 0,
+                                                            top: 0,
+                                                            bottom: 0,
+                                                            width: '4px',
+                                                            backgroundColor: item.tier_color || '#2196f3'
+                                                        }
+                                                    }}
+                                                >
+                                                    {item?.seat_identifier && mapData && (() => {
+                                                        const seatInfo = getSeatInfo(item.seat_identifier);
+                                                        if (!seatInfo) return <Typography>{t('attendeeOrderCardDetail.noSeatInfo')}</Typography>;
 
-                                                    return (
-                                                        <Stack spacing={1}>
-                                                            <Typography variant="body1" fontWeight="medium">
-                                                                <strong>
-                                                                    {seatInfo.type === 'table'
-                                                                        ? (t('attendeeOrderCardDetail.tableInfo'))
-                                                                        : (t('attendeeOrderCardDetail.seatInfo'))}
-                                                                </strong>
-                                                            </Typography>
-                                                            <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
-                                                                <Box sx={{
-                                                                    width: 12,
-                                                                    height: 12,
-                                                                    borderRadius: '50%',
-                                                                    backgroundColor: item.tier_color || '#2196f3'
-                                                                }}/>
-                                                                <Typography fontWeight="500">
-                                                                    {seatInfo.display}
+                                                        return (
+                                                            <Stack spacing={1}>
+                                                                <Typography variant="body1" fontWeight="medium">
+                                                                    <strong>
+                                                                        {seatInfo.type === 'table'
+                                                                            ? (t('attendeeOrderCardDetail.tableInfo'))
+                                                                            : (t('attendeeOrderCardDetail.seatInfo'))}
+                                                                    </strong>
                                                                 </Typography>
-                                                            </Box>
-                                                            <Typography variant="body2"
-                                                                        sx={{color: 'text.secondary', mt: 1}}>
-                                                                <strong>{t('attendeeOrderCardDetail.tierName')}:</strong> {item.tier_name}
-                                                            </Typography>
-                                                        </Stack>
-                                                    );
-                                                })()}
-                                            </Box>
-                                        </Stack>
-                                    )}
+                                                                <Box sx={{
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    gap: 1
+                                                                }}>
+                                                                    <Box sx={{
+                                                                        width: 12,
+                                                                        height: 12,
+                                                                        borderRadius: '50%',
+                                                                        backgroundColor: item.tier_color || '#2196f3'
+                                                                    }}/>
+                                                                    <Typography fontWeight="500">
+                                                                        {seatInfo.display}
+                                                                    </Typography>
+                                                                </Box>
+                                                                <Typography variant="body2"
+                                                                            sx={{color: 'text.secondary', mt: 1}}>
+                                                                    <strong>{t('attendeeOrderCardDetail.tierName')}:</strong> {item.tier_name}
+                                                                </Typography>
+                                                            </Stack>
+                                                        );
+                                                    })()}
+                                                </Box>
+                                            </Stack>
+                                        )}
                                         <Stack rowGap={1.5}>
                                             {order?.end_time && dayjs(order.end_time).isAfter(dayjs()) &&
                                                 <>
