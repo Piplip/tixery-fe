@@ -687,21 +687,22 @@ function OrganizerCreateTicket() {
                                                         variant="outlined"
                                                         sx={{
                                                             width: '100%',
+                                                            minWidth: '40rem',
                                                             borderRadius: '12px',
                                                             border: '2px solid transparent',
-                                                            background: 'linear-gradient(135deg, #f5f7fa, #c3cfe2)',
+                                                            background: 'linear-gradient(135deg, #fdfbfb, #ebedee)',
                                                             transition: 'all 0.3s ease-in-out',
                                                             '&:hover': {
-                                                                border: '2px solid #007aa2',
-                                                                backgroundColor: '#e0f7fa',
+                                                                border: '2px solid #d32f2f',
+                                                                backgroundColor: '#fce4ec',
                                                                 boxShadow: 6,
                                                             },
                                                             cursor: 'pointer',
                                                         }}
                                                         onClick={() => handleSelect(map.map_id)}
                                                     >
-                                                        <CardContent>
-                                                            <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
+                                                        <CardContent sx={{minWidth: '40rem'}}>
+                                                            <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'} columnGap={5}>
                                                                 <Typography variant="h6" sx={{ color: '#007aa2', fontWeight: 'bold' }}>{map.name}</Typography>
                                                                 <Typography variant="body1">
                                                                     {t('organizerCreateTicket.createdAt')}: {formatDate(map.created_at, "HH:mm DD/MM/YYYY")}
