@@ -298,81 +298,36 @@ function OrderCardDetail({open, handleClose, eventImg, order, ticketInfo}) {
                                             </div>
                                         </Stack>
 
+                                        // Fix for the seat information section
                                         {item?.seat_identifier && mapData && (() => {
-                                            const seatInfo = getSeatInfo(item.seat_identifier);
-                                            if (!seatInfo) return null;
+                                            try {
+                                                const seatInfo = getSeatInfo(item.seat_identifier);
+                                                if (!seatInfo) return null;
 
-                                            const perks = seatInfo?.tierPerks;
-
-                                            if (!perks || typeof perks !== 'string') return null;
-
-                                            return (
-                                                <Stack rowGap={1} sx={{mt: 1, mb: 2}}>
-                                                    <Typography variant="subtitle2" fontWeight="bold" sx={{color: '#4d4d4d'}}>
-                                                        {t('attendeeOrderCardDetail.ticketPerks')}
-                                                    </Typography>
-                                                    <Stack
-                                                        direction="row"
-                                                        spacing={1}
-                                                        flexWrap="wrap"
-                                                        useFlexGap
-                                                        sx={{
-                                                            backgroundColor: '#f5f5f5',
-                                                            borderRadius: '8px',
-                                                            p: 1.5
-                                                        }}
-                                                    >
-                                                        {perks.split(',').map((perk, i) => (
-                                                            <Chip
-                                                                key={i}
-                                                                label={t(`predefinedPerks.${perk.trim()}`)}
-                                                                size="small"
-                                                                sx={{
-                                                                    margin: '4px',
-                                                                    backgroundColor: hexToRgba(seatInfo.tierColor || '#2196f3', 0.2),
-                                                                    borderLeft: `4px solid ${seatInfo.tierColor || '#2196f3'}`,
-                                                                    borderRadius: '4px',
-                                                                    '& .MuiChip-label': {
-                                                                        px: 1,
-                                                                        py: 0.5,
-                                                                        fontWeight: 500
-                                                                    }
-                                                                }}
-                                                            />
-                                                        ))}
-                                                    </Stack>
-                                                </Stack>
-                                            );
-                                        })()}
-                                        {item?.seat_identifier && mapData && (
-                                            <Stack rowGap={1} sx={{mt: 1, mb: 2}}>
-                                                <Typography variant="subtitle2" fontWeight="bold"
-                                                            sx={{color: '#4d4d4d'}}>
-                                                    {t('attendeeOrderCardDetail.seatInformation')}
-                                                </Typography>
-                                                <Box
-                                                    sx={{
-                                                        backgroundColor: '#f5f5f5',
-                                                        borderRadius: '8px',
-                                                        p: 1.5,
-                                                        position: 'relative',
-                                                        overflow: 'hidden',
-                                                        '&::before': {
-                                                            content: '""',
-                                                            position: 'absolute',
-                                                            left: 0,
-                                                            top: 0,
-                                                            bottom: 0,
-                                                            width: '4px',
-                                                            backgroundColor: item.tier_color || '#2196f3'
-                                                        }
-                                                    }}
-                                                >
-                                                    {item?.seat_identifier && mapData && (() => {
-                                                        const seatInfo = getSeatInfo(item.seat_identifier);
-                                                        if (!seatInfo) return <Typography>{t('attendeeOrderCardDetail.noSeatInfo')}</Typography>;
-
-                                                        return (
+                                                return (
+                                                    <Stack rowGap={1} sx={{mt: 1, mb: 2}}>
+                                                        <Typography variant="subtitle2" fontWeight="bold"
+                                                                    sx={{color: '#4d4d4d'}}>
+                                                            {t('attendeeOrderCardDetail.seatInformation')}
+                                                        </Typography>
+                                                        <Box
+                                                            sx={{
+                                                                backgroundColor: '#f5f5f5',
+                                                                borderRadius: '8px',
+                                                                p: 1.5,
+                                                                position: 'relative',
+                                                                overflow: 'hidden',
+                                                                '&::before': {
+                                                                    content: '""',
+                                                                    position: 'absolute',
+                                                                    left: 0,
+                                                                    top: 0,
+                                                                    bottom: 0,
+                                                                    width: '4px',
+                                                                    backgroundColor: seatInfo.tierColor || item.tier_color || '#2196f3'
+                                                                }
+                                                            }}
+                                                        >
                                                             <Stack spacing={1}>
                                                                 <Typography variant="body1" fontWeight="medium">
                                                                     <strong>
@@ -401,11 +356,120 @@ function OrderCardDetail({open, handleClose, eventImg, order, ticketInfo}) {
                                                                     <strong>{t('attendeeOrderCardDetail.tierName')}:</strong> {seatInfo.tierName || item.tier_name || t('attendeeOrderCardDetail.noTier')}
                                                                 </Typography>
                                                             </Stack>
-                                                        );
-                                                    })()}
-                                                </Box>
-                                            </Stack>
-                                        )}
+                                                        </Box>
+                                                    </Stack>
+                                                );
+                                            } catch (error) {
+                                                console.error("Error rendering seat info:", error);
+                                                return null;
+                                            }
+                                        })()}
+
+                                        {/* Fix for perks section */}
+                                        {item?.seat_identifier && mapData && (() => {
+                                            try {
+                                                const seatInfo = getSeatInfo(item.seat_identifier);
+                                                if (!seatInfo) return null;
+
+                                                const perks = seatInfo?.tierPerks;
+                                                if (!perks || typeof perks !== 'string') return null;
+
+                                                return (
+                                                    <Stack rowGap={1} sx={{mt: 1, mb: 2}}>
+                                                        <Typography variant="subtitle2" fontWeight="bold"
+                                                                    sx={{color: '#4d4d4d'}}>
+                                                            {t('attendeeOrderCardDetail.ticketPerks')}
+                                                        </Typography>
+                                                        <Stack
+                                                            direction="row"
+                                                            spacing={1}
+                                                            flexWrap="wrap"
+                                                            useFlexGap
+                                                            sx={{
+                                                                backgroundColor: '#f5f5f5',
+                                                                borderRadius: '8px',
+                                                                p: 1.5
+                                                            }}
+                                                        >
+                                                            {perks.split(',').map((perk, i) => (
+                                                                <Chip
+                                                                    key={i}
+                                                                    label={t(`predefinedPerks.${perk.trim()}`)}
+                                                                    size="small"
+                                                                    sx={{
+                                                                        margin: '4px',
+                                                                        backgroundColor: hexToRgba(seatInfo.tierColor || '#2196f3', 0.2),
+                                                                        borderLeft: `4px solid ${seatInfo.tierColor || '#2196f3'}`,
+                                                                        borderRadius: '4px',
+                                                                        '& .MuiChip-label': {
+                                                                            px: 1,
+                                                                            py: 0.5,
+                                                                            fontWeight: 500
+                                                                        }
+                                                                    }}
+                                                                />
+                                                            ))}
+                                                        </Stack>
+                                                    </Stack>
+                                                );
+                                            } catch (error) {
+                                                console.error("Error rendering perks:", error);
+                                                return null;
+                                            }
+                                        })()}
+
+                                        {item?.seat_identifier && mapData && (() => {
+                                            try {
+                                                const seatInfo = getSeatInfo(item.seat_identifier);
+                                                if (!seatInfo) return null;
+
+                                                const perks = seatInfo?.tierPerks;
+                                                if (!perks || typeof perks !== 'string') return null;
+
+                                                return (
+                                                    <Stack rowGap={1} sx={{mt: 1, mb: 2}}>
+                                                        <Typography variant="subtitle2" fontWeight="bold"
+                                                                    sx={{color: '#4d4d4d'}}>
+                                                            {t('attendeeOrderCardDetail.ticketPerks')}
+                                                        </Typography>
+                                                        <Stack
+                                                            direction="row"
+                                                            spacing={1}
+                                                            flexWrap="wrap"
+                                                            useFlexGap
+                                                            sx={{
+                                                                backgroundColor: '#f5f5f5',
+                                                                borderRadius: '8px',
+                                                                p: 1.5
+                                                            }}
+                                                        >
+                                                            {perks.split(',').map((perk, i) => (
+                                                                <Chip
+                                                                    key={i}
+                                                                    label={t(`predefinedPerks.${perk.trim()}`)}
+                                                                    size="small"
+                                                                    sx={{
+                                                                        margin: '4px',
+                                                                        backgroundColor: hexToRgba(seatInfo.tierColor || '#2196f3', 0.2),
+                                                                        borderLeft: `4px solid ${seatInfo.tierColor || '#2196f3'}`,
+                                                                        borderRadius: '4px',
+                                                                        '& .MuiChip-label': {
+                                                                            px: 1,
+                                                                            py: 0.5,
+                                                                            fontWeight: 500
+                                                                        }
+                                                                    }}
+                                                                />
+                                                            ))}
+                                                        </Stack>
+                                                    </Stack>
+                                                );
+                                            } catch (error) {
+                                                console.error("Error rendering perks:", error);
+                                                return null;
+                                            }
+                                        })()}
+
                                         <Stack rowGap={1.5}>
                                             {order?.end_time && dayjs(order.end_time).isAfter(dayjs()) &&
                                                 <>
