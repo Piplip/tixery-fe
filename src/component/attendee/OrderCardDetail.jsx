@@ -387,7 +387,7 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
                         })}
                     </div>
                     <Stack flexGrow={1} rowGap={2} fontFamily={'Roboto Slab'}
-                           sx={{ transform: `translateX(-${80 * (ticketInfo?.length >= 3 ? (ticketInfo.length + 1.25) : (ticketInfo.length - 1))}%)`}}>
+                           sx={{ transform: `translateX(-${80 * (ticketInfo?.length >= 3 ? (ticketInfo.length + 1.15) : (ticketInfo.length - 1))}%)`}}>
                         <Typography fontWeight={'bold'} fontSize={30}>{order.name}</Typography>
                         <hr />
                         <Typography variant={'h5'}>{t('attendeeOrderCardDetail.contactInformation')}</Typography>
