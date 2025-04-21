@@ -51,25 +51,33 @@ function OrderCardDetail({ open, handleClose, eventImg, order, ticketInfo }) {
         const targetObject = mapData.canvasObjects.find(obj => obj.id === objectId);
         if (!targetObject) return null;
 
+        let tierInfo = null;
+        if (mapData.tierData) {
+            tierInfo = mapData.tierData.find(tier =>
+                tier.assignedSeats.includes(seatIdentifier)
+            );
+        }
+
         if (parts.length === 1) {
             return {
                 type: 'table',
                 name: targetObject.properties.tableName,
-                display: targetObject.properties.tableName
+                display: targetObject.properties.tableName,
+                tier: tierInfo
             };
         }
 
         if (parts.length === 3) {
             const row = parseInt(parts[1]);
             const seat = parseInt(parts[2]);
-
             const rowLetter = String.fromCharCode(65 + row);
 
             return {
                 type: 'seat',
                 section: targetObject.properties.sectionName,
                 position: `${rowLetter}${seat + 1}`,
-                display: `${targetObject.properties.sectionName} - ${t('eventRegistration.seat')} ${rowLetter}${seat + 1}`
+                display: `${targetObject.properties.sectionName} - ${t('eventRegistration.seat')} ${rowLetter}${seat + 1}`,
+                tier: tierInfo
             };
         }
 
