@@ -298,7 +298,6 @@ function OrderCardDetail({open, handleClose, eventImg, order, ticketInfo}) {
                                             </div>
                                         </Stack>
 
-                                        // Fix for the seat information section
                                         {item?.seat_identifier && mapData && (() => {
                                             try {
                                                 const seatInfo = getSeatInfo(item.seat_identifier);
